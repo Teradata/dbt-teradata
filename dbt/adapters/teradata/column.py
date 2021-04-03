@@ -1,0 +1,22 @@
+from dataclasses import dataclass
+from typing import TypeVar, Optional, Dict, Any
+
+from dbt.adapters.base.column import Column
+
+Self = TypeVar('Self', bound='TeradataColumn')
+
+
+@dataclass
+class TeradataColumn(Column):
+    table_database: Optional[str] = None
+    table_schema: Optional[str] = None
+    table_name: Optional[str] = None
+    table_type: Optional[str] = None
+    column_index: Optional[int] = None
+
+    @property
+    def quoted(self) -> str:
+        return '"{}"'.format(self.column)
+
+    def __repr__(self) -> str:
+        return "<TeradataColumn {} ({})>".format(self.name, self.data_type)
