@@ -1,0 +1,19 @@
+default:
+  target: dev
+  outputs:
+    dev:
+      type: teradata
+      server: [server/host]
+      port: [port]  # optional
+      schema: [schema]
+      username: [username]
+      password: [password]
+      tmode: ANSI
+    prod:
+      type: teradata
+      server: [server/host]
+      port: [port]  # optional
+      schema: [schema]
+      username: [username]
+      password: [password]
+      tmode: ANSI
