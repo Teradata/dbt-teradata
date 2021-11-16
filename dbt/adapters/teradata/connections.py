@@ -21,6 +21,7 @@ class TeradataCredentials(Credentials):
     username: Optional[str]
     password: Optional[str]
     tmode: Optional[str]
+    logmech: Optional[str]
     charset: Optional[str]
 
     _ALIASES = {
@@ -65,6 +66,7 @@ class TeradataCredentials(Credentials):
             "schema",
             "user",
             "tmode",
+            "logmech"
         )
 
 
@@ -97,6 +99,9 @@ class TeradataConnectionManager(SQLConnectionManager):
         kwargs["user"] = credentials.username
         kwargs["password"] = credentials.password
         kwargs["tmode"] = credentials.tmode
+        if credentials.logmech:
+            kwargs["logmech"] = credentials.logmech
+
 
         # Save the transaction mode
         cls.TMODE = credentials.tmode
