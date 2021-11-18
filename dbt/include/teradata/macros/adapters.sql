@@ -24,21 +24,32 @@
   {%- set sql_header = config.get('sql_header', none) -%}
 
   {{ sql_header if sql_header is not none }}
-  create table
+
+  {% if sql.strip().upper().startswith('WITH') %}
+    create table
     {{ relation.include(database=False) }}
-  as (
-    {{ sql }}
-  )
-  with data
+    as (
+      SELECT * FROM (
+        {{ sql }}
+      ) D
+    ) with data
+  {% else %}
+    create table
+    {{ relation.include(database=False) }}
+    as (
+        {{ sql }}
+      ) with data
+  {% endif %}
+
 {% endmacro %}
 
 {% macro teradata__create_view_as(relation, sql) -%}
   {%- set sql_header = config.get('sql_header', none) -%}
 
   {{ sql_header if sql_header is not none }}
-  replace view {{ relation.include(database=False) }} as (
+  replace view {{ relation.include(database=False) }} as
     {{ sql }}
-  )
+
 {% endmacro %}
 
 {% macro teradata__current_timestamp() -%}
