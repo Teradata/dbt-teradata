@@ -1,5 +1,12 @@
 
+{% macro teradata__get_batch_size() %}
+    {{ return(2536) }}
+{% endmacro %}
+
 {% macro basic_load_csv_rows(model, batch_size, agate_table) %}
+
+    {% set max_batch_size = teradata__get_batch_size() %}
+    {% set batch_size = [batch_size, max_batch_size]|min %}
     {% set cols_sql = get_seed_column_quoted_csv(model, agate_table.column_names) %}
     {% set bindings = [] %}
 
