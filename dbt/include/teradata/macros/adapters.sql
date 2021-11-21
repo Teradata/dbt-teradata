@@ -124,7 +124,7 @@
         when ColumnsV.ColumnType = 'SZ' then 'TIMESTAMP WITH TIME ZONE'
         when ColumnsV.ColumnType = 'UT' then 'USER‑DEFINED TYPE'
         when ColumnsV.ColumnType = 'XM' then 'XML'
-        else ColumnsV.ColumnType
+        else 'CHARACTER'
       end as dtype,
       case
         when ColumnsV.CharType = 1 then ColumnsV.ColumnLength
