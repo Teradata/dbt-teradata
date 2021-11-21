@@ -1,3 +1,13 @@
 ## dbt-teradata 0.19.0 (TBD)
 
-* Added support for LOGMECH authentication parameter. With LOGMECH support, the adapter can now authenticate using LDAP, Kerberes, TDNEGO and the database native protocol.
+### Features
+* Added support for LOGMECH authentication parameter. With LOGMECH support, the adapter can now authenticate using LDAP, Kerberes, TDNEGO and the database native protocol ([#2](https://github.com/dbeatty10/dbt-teradata/pull/2))
+
+### Fixes
+* Enforce the max batch size of 2536 for seeds ([#4](https://github.com/dbeatty10/dbt-teradata/issues/4), [#11](https://github.com/dbeatty10/dbt-teradata/pull/11))
+* Use CHARACTER as the default column type ([#7](https://github.com/dbeatty10/dbt-teradata/issues/7), [#9](https://github.com/dbeatty10/dbt-teradata/pull/9))
+
+### Docs
+
+### Under the hood
+* pytest-dbt-adapter integration tests ([#6](https://github.com/dbeatty10/dbt-teradata/issues/6), [#8](https://github.com/dbeatty10/dbt-teradata/pull/8))
