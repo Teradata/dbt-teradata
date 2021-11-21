@@ -8,6 +8,8 @@
 * Use CHARACTER as the default column type ([#7](https://github.com/dbeatty10/dbt-teradata/issues/7), [#9](https://github.com/dbeatty10/dbt-teradata/pull/9))
 
 ### Docs
+* LICENSE, CONTRIBUTING, RELEASE, and CHANGELOG files
+* Instructions for running integration tests ([#6](https://github.com/dbeatty10/dbt-teradata/issues/6), [#8](https://github.com/dbeatty10/dbt-teradata/pull/8))
 
 ### Under the hood
 * pytest-dbt-adapter integration tests ([#6](https://github.com/dbeatty10/dbt-teradata/issues/6), [#8](https://github.com/dbeatty10/dbt-teradata/pull/8))
