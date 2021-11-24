@@ -86,4 +86,3 @@ Only ANSI transaction mode is supported.
 ### Dbt features
 
 Snapshots are currently not supported.
-
