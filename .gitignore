@@ -14,3 +14,4 @@ test/integration/.user.yml
 .vscode
 *.code-workspace
 .history/
+.editorconfig

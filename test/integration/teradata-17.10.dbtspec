@@ -7,6 +7,178 @@ target:
   schema: dbt_test
   tmode: ANSI
 
+projects:
+  - name: validate_teradata_cases
+    paths:
+      models/table_with_cte.sql: |
+        {{
+            config(
+                materialized='table'
+            )
+        }}
+        WITH
+        source_a as (
+            select 1 as a1, 2 as a2
+        ),
+        source_b as (
+            select 1 as b1, 2 as b2
+        )
+        SELECT * FROM source_a, source_b
+
+      models/table_without_cte.sql: |
+        {{
+            config(
+                materialized='table'
+            )
+        }}
+        SELECT  1 as a1, 2 as a2, 1 as b1, 2 as b2
+
+      models/view_with_cte.sql: |
+        {{
+            config(
+                materialized='view'
+            )
+        }}
+        WITH
+        source_a as (
+            select 1 as a1, 2 as a2
+        ),
+        source_b as (
+            select 1 as b1, 2 as b2
+        )
+        SELECT * FROM source_a, source_b
+
+      models/view_without_cte.sql: |
+        {{
+            config(
+                materialized='view'
+            )
+        }}
+        WITH
+        source_a as (
+            select 1 as a1, 2 as a2
+        ),
+        source_b as (
+            select 1 as b1, 2 as b2
+        )
+        SELECT * FROM source_a, source_b
+
+      models/table_with_cte_comments.sql: |
+              {{
+                  config(
+                      materialized='table'
+                  )
+              }}
+              -- This is a test comment
+              WITH
+              source_a as (
+                  select 1 as a1, 2 as a2
+              ),
+              source_b as (
+                  select 1 as b1, 2 as b2
+              )
+              SELECT * FROM source_a, source_b
+
+      models/schema.yaml: |
+        version: 2
+        models:
+          - name: table_with_cte
+            columns:
+            - name: a1
+              tests:
+                - not_null
+            - name: a2
+              tests:
+                - not_null
+            - name: b1
+              tests:
+                - not_null
+            - name: b2
+              tests:
+                - not_null
+          - name: table_without_cte
+            columns:
+            - name: a1
+              tests:
+                - not_null
+            - name: a2
+              tests:
+                - not_null
+            - name: b1
+              tests:
+                - not_null
+            - name: b2
+              tests:
+                - not_null
+          - name: view_with_cte
+            columns:
+            - name: a1
+              tests:
+                - not_null
+            - name: a2
+              tests:
+                - not_null
+            - name: b1
+              tests:
+                - not_null
+            - name: b2
+              tests:
+                - not_null
+          - name: view_without_cte
+            columns:
+            - name: a1
+              tests:
+                - not_null
+            - name: a2
+              tests:
+                - not_null
+            - name: b1
+              tests:
+                - not_null
+            - name: b2
+              tests:
+                - not_null
+    facts:
+      run:
+        length: 5
+        names:
+            - table_with_cte
+            - table_without_cte
+            - view_with_cte
+            - view_without_cte
+            - table_with_cte_comments
+      persisted_relations:
+          - table_with_cte
+          - table_without_cte
+          - view_with_cte
+          - view_without_cte
+          - table_with_cte_comments
+      table_with_cte:
+          rowcount: 1
+      table_without_cte:
+          rowcount: 1
+      view_with_cte:
+          rowcount: 1
+      view_without_cte:
+          rowcount: 1
+      expected_types_view:
+          table_with_cte: table
+          table_without_cte: table
+          view_with_cte: view
+          view_without_cte: view
+          table_with_cte_comments: table
+      expected_types_table:
+          table_with_cte: table
+          table_without_cte: table
+          view_with_cte: view
+          view_without_cte: view
+          table_with_cte_comments: table
+      catalog:
+          nodes:
+              length: 5
+          sources:
+              length: 0
+
 sequences:
 
   # List of sequences:
@@ -18,6 +190,39 @@ sequences:
   test_dbt_data_test: data_test
   test_dbt_schema_test: schema_test
   test_dbt_incremental: incremental
+  test_dbt_teradata:
+    project: validate_teradata_cases
+    sequence:
+      - type: dbt
+        cmd: run
+      - type: run_results
+        exists: True
+      - type: run_results
+        length: fact.run.length
+      - type: relation_types
+        expect: fact.expected_types_table
+      - type: relation_rows
+        name: table_with_cte
+        length: fact.table_with_cte.rowcount
+      - type: relation_rows
+        name: table_without_cte
+        length: fact.table_without_cte.rowcount
+      - type: relation_rows
+        name: view_with_cte
+        length: fact.view_with_cte.rowcount
+      - type: relation_rows
+        name: view_without_cte
+        length: fact.view_without_cte.rowcount
+      - type: relations_equal
+        relations: fact.persisted_relations
+      - type: dbt
+        cmd: docs generate
+      - type: catalog
+        exists: True
+        nodes:
+          length: fact.catalog.nodes.length
+        sources:
+          length: fact.catalog.sources.length
 
   # FAIL
   # test_dbt_snapshot_strategy_timestamp: snapshot_strategy_timestamp

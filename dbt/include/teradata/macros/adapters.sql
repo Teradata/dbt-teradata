@@ -10,7 +10,7 @@
 
 {% macro teradata__drop_relation(relation) -%}
     {% call statement('drop_relation', auto_begin=False) -%}
-        call {{ relation.schema }}.dbt_drop_relation_if_exists('{{ relation.type }}', '{{ relation }}');
+        DROP {{ relation.type }} /*+ IF EXISTS */ {{ relation }};
     {%- endcall %}
 {% endmacro %}
 
@@ -24,21 +24,32 @@
   {%- set sql_header = config.get('sql_header', none) -%}
 
   {{ sql_header if sql_header is not none }}
-  create table
+
+  {% if sql.strip().upper().startswith('WITH') %}
+    create table
     {{ relation.include(database=False) }}
-  as (
-    {{ sql }}
-  )
-  with data
+    as (
+      SELECT * FROM (
+        {{ sql }}
+      ) D
+    ) with data
+  {% else %}
+    create table
+    {{ relation.include(database=False) }}
+    as (
+        {{ sql }}
+      ) with data
+  {% endif %}
+
 {% endmacro %}
 
 {% macro teradata__create_view_as(relation, sql) -%}
   {%- set sql_header = config.get('sql_header', none) -%}
 
   {{ sql_header if sql_header is not none }}
-  replace view {{ relation.include(database=False) }} as (
+  replace view {{ relation.include(database=False) }} as
     {{ sql }}
-  )
+
 {% endmacro %}
 
 {% macro teradata__current_timestamp() -%}
@@ -52,7 +63,7 @@
     2. Rename the new relation to the existing relation
   #}
   {% call statement('drop_relation') %}
-    call {{ to_relation.schema }}.dbt_drop_relation_if_exists('{{ to_relation.type }}', '{{ to_relation }}');
+    DROP {{ to_relation.type }} /*+ IF EXISTS */ {{ to_relation }};
   {% endcall %}
   {% call statement('rename_relation') %}
     rename {{ to_relation.type }} {{ from_relation }} to {{ to_relation }}
@@ -166,3 +177,28 @@
 {% macro teradata__generate_database_name(custom_database_name=none, node=none) -%}
   {% do return(None) %}
 {%- endmacro %}
+
+{% macro teradata__create_schema(relation) -%}
+  {% if relation.database -%}
+    {{ adapter.verify_database(relation.database) }}
+  {%- endif -%}
+  {%- call statement('create_schema') -%}
+    CREATE DATABASE {{ relation.without_identifier().include(database=False) }}
+    -- Teradata expects db sizing params on creation. This macro is probably
+    -- useful only for testing. For production scenrios, a properly sized
+    -- database (schema) will likely exist before dbt gets called
+    AS PERMANENT = 60e6, -- 60MB
+        SPOOL = 120e6; -- 120MB
+  {%- endcall -%}
+{% endmacro %}
+
+{% macro teradata__drop_schema(relation) -%}
+  {% if relation.database -%}
+    {{ adapter.verify_database(relation.database) }}
+    {%- call statement('drop_schema') -%}
+    DELETE DATABASE {{ relation.without_identifier().include(database=False) }};
+    DROP DATABASE {{ relation.without_identifier().include(database=False) }};
+  {%- endcall -%}
+  {%- endif -%}
+
+{% endmacro %}

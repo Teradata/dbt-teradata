@@ -146,18 +146,6 @@ class TeradataAdapter(SQLAdapter):
         exists = True if schema in [row[0] for row in results] else False
         return exists
 
-    def create_schema(self, relation: BaseRelation):
-        """Create the given schema if it does not exist."""
-        raise dbt.exceptions.NotImplementedException(
-            f'`create_schema` is not implemented for this adapter. Contact your Teradata administator to `create database {relation.without_identifier()} ...;`'
-        )
-
-    def drop_schema(self, relation: BaseRelation):
-        """Drop the given schema (and everything in it) if it exists."""
-        raise dbt.exceptions.NotImplementedException(
-            f'`drop_schema` is not implemented for this adapter. Contact your Teradata administator to `drop database {relation.without_identifier()};`'
-        )
-
     # Methods used in adapter tests
     def update_column_sql(
         self,

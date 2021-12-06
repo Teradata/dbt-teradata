@@ -9,7 +9,7 @@ from dbt.contracts.connection import Connection
 from dbt.contracts.connection import Credentials
 from dbt.logger import GLOBAL_LOGGER as logger
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Tuple, Any
 
 
 @dataclass
@@ -163,3 +163,23 @@ class TeradataConnectionManager(SQLConnectionManager):
     def get_response(cls, cursor):
         # There's no real way to get this from teradatasql, so just return "OK"
         return "OK"
+
+    def add_query(
+        self,
+        sql: str,
+        auto_begin: bool = True,
+        bindings: Optional[Any] = None,
+        abridge_sql_log: bool = False
+    ) -> Tuple[Connection, Any]:
+        try:
+            return SQLConnectionManager.add_query(self, sql, auto_begin, bindings, abridge_sql_log)
+        except Exception as ex:
+            ignored = False
+            query = sql.strip()
+            if ("DROP view /*+ IF EXISTS */" in query) or ("DROP table /*+ IF EXISTS */" in query):
+                for error_number in [3807, 3854, 3853]:
+                    if f"[Error {error_number}]" in str (ex):
+                        ignored = True
+                        return None, None
+            if not ignored:
+                raise # rethrow
