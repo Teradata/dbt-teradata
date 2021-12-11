@@ -17,3 +17,4 @@
 
 ### Under the hood
 * pytest-dbt-adapter integration tests ([#6](https://github.com/dbeatty10/dbt-teradata/issues/6), [#8](https://github.com/dbeatty10/dbt-teradata/pull/8))
+* Integration tests in GitHub Actions ([#10](https://github.com/dbeatty10/dbt-teradata/issues/10), [#19](https://github.com/dbeatty10/dbt-teradata/pull/19), [#24](https://github.com/dbeatty10/dbt-teradata/issues/24), [#23](https://github.com/dbeatty10/dbt-teradata/pull/23))
