@@ -1,0 +1,94 @@
+name: CI Integration Tests
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: macos-10.15
+    name: Integration test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download Vantage Express
+        shell: bash
+        run: |
+          brew install hudochenkov/sshpass/sshpass
+          echo "my IP address is: " $(ipconfig getifaddr en0)
+          mkdir /tmp/downloads
+          cd /tmp/downloads
+          curl -L 'https://downloads.teradata.com/download/cdn/database/teradata-express/VantageExpress17.10_Sles12_202108300444.7z' \
+            -H 'Cookie: $TD_DOWNLOADS_MAGIC_COOKIE' --compressed -o ve.7z
+        env:
+          TD_DOWNLOADS_MAGIC_COOKIE: ${{ secrets.TD_DOWNLOADS_MAGIC_COOKIE }}
+
+      - name: Unzip Vantage Express
+        shell: bash
+        run: |
+          cd /tmp/downloads
+          7z x ve.7z
+
+      - name: Install Vantage Express
+        shell: bash
+        run: |
+          export VM_IMAGE_DIR="/tmp/downloads/VantageExpress17.10_Sles12"
+          DEFAULT_VM_NAME="vantage-express-17.10"
+          VM_NAME="${VM_NAME:-$DEFAULT_VM_NAME}"
+          vboxmanage createvm --name "$VM_NAME" --register --ostype openSUSE_64
+          vboxmanage modifyvm "$VM_NAME" --ioapic on --memory 6000 --vram 128 --nic1 nat --cpus 3
+          vboxmanage storagectl "$VM_NAME" --name "SATA Controller" --add sata --controller IntelAhci
+          vboxmanage storageattach "$VM_NAME" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium  "$(find $VM_IMAGE_DIR -name '*disk1*')"
+          vboxmanage storageattach "$VM_NAME" --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium  "$(find $VM_IMAGE_DIR -name '*disk2*')"
+          vboxmanage storageattach "$VM_NAME" --storagectl "SATA Controller" --port 2 --device 0 --type hdd --medium  "$(find $VM_IMAGE_DIR -name '*disk3*')"
+          vboxmanage modifyvm "$VM_NAME" --natpf1 "tdssh,tcp,,4422,,22"
+          vboxmanage modifyvm "$VM_NAME" --natpf1 "tddb,tcp,,1025,,1025"
+          vboxmanage startvm "$VM_NAME" --type headless
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install python dependencies
+        shell: bash
+        run: |
+          python3 -m venv env
+          source env/bin/activate
+          pip install -r requirements_dev.txt
+      - name: Install TTU
+        shell: bash
+        run: |
+          curl -L 'https://downloads.teradata.com/download/cdn/tools/ttu/TeradataToolsAndUtilitiesBase__macosx_x86_64.17.10.11.00.tar.gz' \
+            -H 'Cookie: $TD_DOWNLOADS_MAGIC_COOKIE' --compressed -o ttu.tar.gz
+          tar -xzf ttu.tar.gz
+
+          installer -pkg ./TeradataToolsAndUtilitiesBase/*.pkg -target CurrentUserHomeDirectory
+        env:
+          TD_DOWNLOADS_MAGIC_COOKIE: ${{ secrets.TD_DOWNLOADS_MAGIC_COOKIE }}
+
+      - name: Verify Vantage Express is running
+        shell: bash
+        run: |
+          # add bteq to path
+          export PATH=$PATH:"/Users/runner/Library/Application Support/teradata/client/17.10/bin/"
+
+          # prepare bteq test script
+          cat << EOF > /tmp/test.bteq
+          .SET EXITONDELAY ON MAXREQTIME 20
+          .logon 127.0.0.1/dbc,dbc
+          select current_time;
+          .logoff
+          EOF
+
+          n=1
+          until [ "$n" -ge 10 ]
+          do
+            echo "Trying to connect to Vantage Express. Attempt $n. This might take a minute."
+            bteq < /tmp/test.bteq && break
+            n=$((n+1))
+            sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost 'tail -200 /var/log/messages' || true
+            echo "Waiting 10 seconds before the next attempt."
+            sleep 10
+          done
+      - name: Run tests
+        run: pytest test/integration/teradata-17.10.dbtspec
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() ||  cancelled() }}
+        with:
+          name: virtualbox-logs
+          path: /Users/runner/VirtualBox*
