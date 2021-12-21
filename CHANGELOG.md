@@ -5,6 +5,7 @@
 * Incremental materialization ([#16](https://github.com/dbeatty10/dbt-teradata/issues/16), [#17](https://github.com/dbeatty10/dbt-teradata/pull/17))
 * Eliminated the need for `dbt_drop_relation_if_exists` stored procedure ([#5](https://github.com/dbeatty10/dbt-teradata/pull/5)
 * Implemented `teradata__create_schema` and `teradata__drop_schema` macros ([#5](https://github.com/dbeatty10/dbt-teradata/pull/5)
+* Introduced randomized database name in tests
 
 ### Fixes
 * Enforce the max batch size of 2536 for seeds ([#4](https://github.com/dbeatty10/dbt-teradata/issues/4), [#11](https://github.com/dbeatty10/dbt-teradata/pull/11))
