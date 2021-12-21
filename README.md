@@ -4,9 +4,7 @@ This plugin ports [dbt](https://getdbt.com) functionality to Teradata Vantage.
 
 ## Sample profile
 
-Here is a working example of a `dbt-teradata`:
-
-<File name='~/.dbt/profiles.yml'>
+Here is a working example of a `dbt-teradata` profile:
 
 ```yaml
 my-teradata-db-profile:
@@ -20,7 +18,6 @@ my-teradata-db-profile:
       schema: dbt_test
       tmode: ANSI
 ```
-</File>
 
 At a minimum, you need to specify `host`, `user`, `password`, `schema` (database), `tmode`. 
 ## Optional configurations
@@ -61,6 +58,27 @@ my-teradata-db-profile:
       port: <port>
 ```
 
+### Other Teradata connection parameters
+
+The plugin also supports the following Teradata connection parameters: 
+* account
+* column_name
+* cop
+* coplast
+* encryptdata
+* fake_result_sets
+* field_quote
+* field_sep
+* lob_support
+* log
+* logdata
+* max_message_body
+* partition
+* sip_support
+* teradata_values
+
+For full description of the connection parameters see https://github.com/Teradata/python-driver#connection-parameters.
+
 ## Supported Features
 
 ### Materializations
@@ -75,10 +93,6 @@ my-teradata-db-profile:
 All, apart from `source` and `snapshot`.
 
 ## Limitations
-
-### Connection configuration
-
-The following Teradata configuration options are currently not supported by the adapter: `account`, `cop`, `coplast`, `encryptdata`, `lob_support`, `log`, `logdata`, `max_message_body`, `partition`, `sip_support`.
 
 ### Transaction mode
 Only ANSI transaction mode is supported.
