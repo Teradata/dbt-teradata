@@ -5,8 +5,15 @@
 
 {% macro basic_load_csv_rows(model, batch_size, agate_table) %}
 
-    {% set max_batch_size = teradata__get_batch_size() %}
-    {% set batch_size = [batch_size, max_batch_size]|min %}
+    {% set use_fastload = config.get('use_fastload', default=False) | as_bool %}
+    {% if use_fastload %}
+        -- Disable chunking when using fastload
+        {% set batch_size = agate_table.rows | length %}
+    {% else %}
+        {% set max_batch_size = teradata__get_batch_size() %}
+        {% set batch_size = [batch_size, max_batch_size]|min %}
+    {% endif %}
+
     {% set cols_sql = get_seed_column_quoted_csv(model, agate_table.column_names) %}
     {% set bindings = [] %}
 
@@ -16,18 +23,18 @@
         {% set bindings = [] %}
 
         {% for row in chunk %}
-            {% do bindings.extend(row) %}
+            {% do bindings.append(row.values()) %}
         {% endfor %}
 
         {% set sql %}
-            {% for row in chunk -%}
+            {%- if use_fastload -%}
+                {fn teradata_try_fastload}
+            {%- endif -%}
                 insert into {{ this.render() }} ({{ cols_sql }}) values
                 ({%- for column in agate_table.column_names -%}
                     ?
                     {%- if not loop.last%},{%- endif %}
                 {%- endfor -%})
-                {%- if not loop.last%};{%- endif %}
-            {%- endfor %}
         {% endset %}
 
         {% do adapter.add_query(sql, bindings=bindings, abridge_sql_log=True) %}
