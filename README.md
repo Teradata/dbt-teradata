@@ -72,7 +72,7 @@ my-teradata-db-profile:
 
 ### Commands
 
-All, apart from `source` and `snapshot`.
+All, apart from `source`.
 
 ## Limitations
 
@@ -83,6 +83,3 @@ The following Teradata configuration options are currently not supported by the 
 ### Transaction mode
 Only ANSI transaction mode is supported.
 
-### Dbt features
-
-Snapshots are currently not supported.
