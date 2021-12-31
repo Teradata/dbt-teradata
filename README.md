@@ -72,7 +72,7 @@ my-teradata-db-profile:
 
 ### Commands
 
-All, apart from `source` and `snapshot`.
+All dbt commands are supported.
 
 ## Limitations
 
