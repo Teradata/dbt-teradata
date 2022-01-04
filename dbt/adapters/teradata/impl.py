@@ -166,15 +166,15 @@ class TeradataAdapter(SQLAdapter):
         # default. A lot of searching has lead me to believe that the
         # '+ interval' syntax used in postgres/redshift is relatively common
         # and might even be the SQL standard's intention.
-        return f"date_add({add_to}, interval {number} {interval})"
+        return f"{add_to} + interval '{number}' {interval}"
 
     def string_add_sql(
         self, add_to: str, value: str, location='append',
     ) -> str:
         if location == 'append':
-            return f"concat({add_to}, '{value}')"
+            return f"concat(cast(trim({add_to}) as varchar(63800)), '{value}')"
         elif location == 'prepend':
-            return f"concat({value}, '{add_to}')"
+            return f"concat('{value}', cast(trim({add_to}) as varchar(63800))"
         else:
             raise RuntimeException(
                 f'Got an unexpected location value of "{location}"'

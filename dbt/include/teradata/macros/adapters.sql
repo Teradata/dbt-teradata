@@ -202,3 +202,14 @@
   {%- endif -%}
 
 {% endmacro %}
+
+{% macro teradata__get_columns_in_query(select_sql) %}
+    {% call statement('get_columns_in_query', fetch_result=True, auto_begin=False) -%}
+        select * from (
+            {{ select_sql }}
+        ) as __dbt_sbq
+        where 0=1
+    {% endcall %}
+
+    {{ return(load_result('get_columns_in_query').table.columns | map(attribute='name') | list) }}
+{% endmacro %}

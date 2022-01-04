@@ -7,6 +7,7 @@
 * Implemented `teradata__create_schema` and `teradata__drop_schema` macros ([#5](https://github.com/dbeatty10/dbt-teradata/pull/5)
 * Added support for remaining connection parameters ([#22](https://github.com/dbeatty10/dbt-teradata/issues/22))
 * Added support for `fastload` mode for `dbt seed` command([#27](https://github.com/dbeatty10/dbt-teradata/pull/27)) 
+* Implemented snapshots ([#28](https://github.com/dbeatty10/dbt-teradata/pull/28))
 
 ### Fixes
 * Enforce the max batch size of 2536 for seeds ([#4](https://github.com/dbeatty10/dbt-teradata/issues/4), [#11](https://github.com/dbeatty10/dbt-teradata/pull/11))

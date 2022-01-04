@@ -90,7 +90,7 @@ For full description of the connection parameters see https://github.com/Teradat
 
 ### Commands
 
-All, apart from `source` and `snapshot`.
+All, apart from `source`.
 
 ### Custom configurations
 
@@ -108,6 +108,3 @@ All, apart from `source` and `snapshot`.
 ### Transaction mode
 Only ANSI transaction mode is supported.
 
-### Dbt features
-
-Snapshots are currently not supported.
