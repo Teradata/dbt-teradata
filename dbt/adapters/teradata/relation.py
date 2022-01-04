@@ -23,11 +23,6 @@ class TeradataRelation(BaseRelation):
     include_policy: TeradataIncludePolicy = TeradataIncludePolicy()
     quote_character: str = '"'
 
-    def __post_init__(self):
-
-        if self.database != self.schema and self.database:
-            raise RuntimeException(f'Cannot set database {self.database} in teradata!')
-
     def render(self):
         if self.include_policy.database and self.include_policy.schema:
             raise RuntimeException(

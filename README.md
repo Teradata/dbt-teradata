@@ -90,7 +90,7 @@ For full description of the connection parameters see https://github.com/Teradat
 
 ### Commands
 
-All, apart from `source`.
+All dbt commands are supported.
 
 ### Custom configurations
 
