@@ -23,6 +23,21 @@ class TeradataCredentials(Credentials):
     tmode: Optional[str]
     logmech: Optional[str]
     charset: Optional[str]
+    account: Optional[str]
+    column_name: Optional[str]
+    cop: Optional[str]
+    coplast: Optional[str]
+    encryptdata: Optional[str]
+    fake_result_sets: Optional[str]
+    field_quote: Optional[str]
+    field_sep: Optional[str]
+    lob_support: Optional[str]
+    log: Optional[str]
+    logdata: Optional[str]
+    max_message_body: Optional[str]
+    partition: Optional[str]
+    sip_support: Optional[str]
+    teradata_values: Optional[str]
 
     _ALIASES = {
         "UID": "username",
@@ -66,7 +81,22 @@ class TeradataCredentials(Credentials):
             "schema",
             "user",
             "tmode",
-            "logmech"
+            "logmech",
+            "account",
+            "column_name",
+            "cop",
+            "coplast",
+            "encryptdata",
+            "fake_result_sets",
+            "field_quote",
+            "field_sep",
+            "lob_support",
+            "log",
+            "logdata",
+            "max_message_body",
+            "partition",
+            "sip_support",
+            "teradata_values"
         )
 
 
@@ -101,13 +131,41 @@ class TeradataConnectionManager(SQLConnectionManager):
         kwargs["tmode"] = credentials.tmode
         if credentials.logmech:
             kwargs["logmech"] = credentials.logmech
-
+        if credentials.account:
+          kwargs["account"] = credentials.account
+        if credentials.column_name:
+          kwargs["column_name"] = credentials.column_name
+        if credentials.cop:
+          kwargs["cop"] = credentials.cop
+        if credentials.coplast:
+          kwargs["coplast"] = credentials.coplast
+        if credentials.encryptdata:
+          kwargs["encryptdata"] = credentials.encryptdata
+        if credentials.fake_result_sets:
+          kwargs["fake_result_sets"] = credentials.fake_result_sets
+        if credentials.field_quote:
+          kwargs["field_quote"] = credentials.field_quote
+        if credentials.field_sep:
+          kwargs["field_sep"] = credentials.field_sep
+        if credentials.lob_support:
+          kwargs["lob_support"] = credentials.lob_support
+        if credentials.log:
+          kwargs["log"] = credentials.log
+        if credentials.logdata:
+          kwargs["logdata"] = credentials.logdata
+        if credentials.max_message_body:
+          kwargs["max_message_body"] = credentials.max_message_body
+        if credentials.partition:
+          kwargs["partition"] = credentials.partition
+        if credentials.sip_support:
+          kwargs["sip_support"] = credentials.sip_support
+        if credentials.teradata_values:
+          kwargs["teradata_values"] = credentials.teradata_values
+        if credentials.port:
+            kwargs["dbs_port"] = credentials.port
 
         # Save the transaction mode
         cls.TMODE = credentials.tmode
-
-        if credentials.port:
-            kwargs["port"] = credentials.port
 
         try:
             connection.handle = teradatasql.connect(**kwargs)
