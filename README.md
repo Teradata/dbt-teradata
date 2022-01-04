@@ -92,6 +92,17 @@ For full description of the connection parameters see https://github.com/Teradat
 
 All, apart from `source` and `snapshot`.
 
+### Custom configurations
+
+#### Seeds
+
+* `use_fastload` configuration will instruct the plugin to use [fastload](https://github.com/Teradata/python-driver#FastLoad) when handling `dbt seed` command. You can set this seed configuration option in your `project.yml` file, e.g.:
+    ```yaml
+    seeds:
+      <project-name>:
+        +use_fastload: true
+    ```
+
 ## Limitations
 
 ### Transaction mode
