@@ -107,6 +107,7 @@ jobs:
           pytest test/integration/teradata-17.10.dbtspec
       - name: Run performance tests for fastload
         run: |
+          mkdir ~/.dbt
           cat << EOF > ~/.dbt/profiles.yml
           teradata:
             outputs:
