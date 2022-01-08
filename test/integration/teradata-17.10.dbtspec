@@ -311,6 +311,24 @@ sequences:
       - type: relation_rows
         name: table_from_source
         length: fact.table_from_source.rowcount
+  test_dbt_teradata_docs_with_sources:
+    project: validate_teradata_sources
+    sequence:
+      - type: dbt
+        cmd: docs generate
+      - type: run_results
+        exists: True
+  test_dbt_teradata_seed_twice:
+    project: validate_teradata_sources
+    sequence:
+      - type: dbt
+        cmd: seed
+      - type: run_results
+        exists: True
+      - type: dbt
+        cmd: seed
+      - type: run_results
+        exists: True
   # FAIL
   # test_dbt_ephemeral_data_tests: data_test_ephemeral_models - fails with
   #   [Error 6926] WITH [RECURSIVE] clause or recursive view is not supported

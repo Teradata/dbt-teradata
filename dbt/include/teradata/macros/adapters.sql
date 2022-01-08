@@ -167,7 +167,7 @@
          else TableKind
       end as table_type
     from DBC.TablesV
-    where DatabaseName = '{{ schema_relation.schema }}'
+    where DatabaseName = '{{ schema_relation.schema }}' (NOT CASESPECIFIC)
       and TableKind in ('T', 'V')
 
   {% endcall %}
