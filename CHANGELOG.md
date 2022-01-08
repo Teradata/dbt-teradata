@@ -3,9 +3,9 @@
 ### Features
 
 ### Fixes
-
+* Resolved [dbt seed fails when target table already exists](https://github.com/Teradata/dbt-teradata/issues/6)
+* Resolved [Docs generate is failing when a project contains a source](https://github.com/Teradata/dbt-teradata/issues/3)
 ### Docs
 
 ### Under the hood
-* Migrated GitHub repo to https://github.com/Teradata/dbt-teradata, changed ownership to Teradata
-* Added config in setup.py to inform users that Python 3.9 and higher is not supported
+
