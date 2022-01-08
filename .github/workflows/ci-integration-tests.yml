@@ -9,16 +9,6 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements_dev.txt
-
       - name: Download Vantage Express
         shell: bash
         run: |
@@ -64,6 +54,16 @@ jobs:
         env:
           TD_DOWNLOADS_MAGIC_COOKIE: ${{ secrets.TD_DOWNLOADS_MAGIC_COOKIE }}
 
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements_dev.txt
+
       - name: Verify Vantage Express is running
         shell: bash
         run: |
@@ -89,6 +89,7 @@ jobs:
             sleep 10
           done
 
+
       - name: Run pytest tests
         run: pytest test/integration/teradata-17.10.dbtspec
       - name: Run pytest tests with existing database
@@ -105,8 +106,26 @@ jobs:
 
           pytest test/integration/teradata-17.10.dbtspec
       - name: Run performance tests for fastload
-
         run: |
+          cat << EOF > ~/.dbt/profiles.yml
+          teradata:
+            outputs:
+              dbt_perf_test:
+                type: teradata
+                host: localhost
+                user: dbc
+                password: dbc
+                logmech: TD2
+                schema: dbt_perf_test
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+            target: dbt_perf_test
+          EOF
+          cd test/performance
+          ./run.sh
       - uses: actions/upload-artifact@v2
         if: ${{ failure() ||  cancelled() }}
         with:
