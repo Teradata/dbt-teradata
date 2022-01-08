@@ -89,9 +89,9 @@ jobs:
             sleep 10
           done
 
-      - name: Run tests
+      - name: Run pytest tests
         run: pytest test/integration/teradata-17.10.dbtspec
-      - name: Run tests with existing database
+      - name: Run pytest tests with existing database
         run: |
           cat << EOF > /tmp/pytestdatabase.bteq
           .SET EXITONDELAY ON MAXREQTIME 20
@@ -101,9 +101,12 @@ jobs:
           .logoff
           EOF
           # strip the random suffix from the pytest config
-          sed -i "s/_{{ var('_dbt_random_suffix') }}//" test/integration/teradata-17.10.dbtspec
+          sed -i'.original' -e "s/_{{ var('_dbt_random_suffix') }}//" test/integration/teradata-17.10.dbtspec
 
           pytest test/integration/teradata-17.10.dbtspec
+      - name: Run performance tests for fastload
+
+        run: |
       - uses: actions/upload-artifact@v2
         if: ${{ failure() ||  cancelled() }}
         with:
