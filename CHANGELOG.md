@@ -1,4 +1,4 @@
-## dbt-teradata 0.19.0 (TBD)
+## dbt-teradata 0.19.0.3
 
 ### Features
 
