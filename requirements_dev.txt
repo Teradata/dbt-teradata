@@ -1,5 +1,6 @@
 twine
 bump2version
+wheel
 pytest~=6.0
 tox~=3.2
 pytest-dbt-adapter~=0.4.0
