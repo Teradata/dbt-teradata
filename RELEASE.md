@@ -32,7 +32,7 @@ PyPi recognizes [pre-release versioning conventions](https://packaging.python.or
 
 #### GitHub
 
-1. Click the [Create a new release](https://github.com/dbeatty10/dbt-teradata/releases/new) link on the project homepage in GitHub
+1. Click the [Create a new release](https://github.com/Teradata/dbt-teradata/releases/new) link on the project homepage in GitHub
 1. Type `v{semantic_version}` as the "tag version" (e.g., `v0.18.0rc2`)
 1. Leave the "target" as `main`
 1. Type `dbt-teradata {semantic_version}` as the "release title" (e.g. `dbt-teradata 0.18.0rc2`)

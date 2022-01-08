@@ -5,9 +5,9 @@ import sys
 from setuptools import setup
 
 
-if sys.version_info < (3, 6, 2):
+if sys.version_info < (3, 6, 2) or sys.version_info >= (3, 9) :
     print('Error: dbt-teradata does not support this version of Python.')
-    print('Please upgrade to Python 3.6.2 or higher.')
+    print('Please install Python 3.6.2 or higher but less than 3.9.')
     sys.exit(1)
 
 
@@ -29,9 +29,9 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
 
-    author="Doug Beatty",
-    author_email="doug.beatty@gmail.com",
-    url="https://github.com/dbeatty10/dbt-teradata",
+    author="Teradata Corporation",
+    author_email="developers@teradata.com",
+    url="https://github.com/Teradata/dbt-teradata",
     packages=[
         'dbt.adapters.teradata',
         'dbt.include.teradata',
@@ -49,7 +49,7 @@ setup(
         "teradatasql>=16.20.0.0",
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         'License :: OSI Approved :: Apache Software License',
 
@@ -60,7 +60,6 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
     ],
-    python_requires=">=3.6.2",
+    python_requires=">=3.6.2,<3.9",
 )
