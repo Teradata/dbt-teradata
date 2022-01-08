@@ -100,11 +100,6 @@ class TeradataAdapter(SQLAdapter):
 
     def get_catalog(self, manifest):
         schema_map = self._get_catalog_schemas(manifest)
-        if len(schema_map) > 1:
-            dbt.exceptions.raise_compiler_error(
-                f'Expected only one database in get_catalog, found '
-                f'{list(schema_map)}'
-            )
 
         with executor(self.config) as tpe:
             futures: List[Future[agate.Table]] = []
