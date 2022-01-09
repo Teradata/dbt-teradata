@@ -145,7 +145,7 @@ jobs:
           cd $GITHUB_WORKSPACE/test/performance
           ./run.sh
       - name: Run catalog tests
-        run |
+        run: |
           cd $GITHUB_WORKSPACE/test/catalog/with_qvci
           ./run.sh
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
