@@ -230,6 +230,57 @@ projects:
         rowcount: 4
       table_from_source:
         rowcount: 4
+  - name: validate_teradata_catalog
+    paths:
+      data/test_table.csv: |
+        id,attrA,attrB
+        1,val1A,val1B
+        2,val2A,val2B
+        3,val3A,val3B
+        4,val4A,val4B
+
+      models/table_from_source.sql: |
+        {{
+            config(
+                materialized='table'
+            )
+        }}
+        SELECT * FROM {{ source('alias_source_schema', 'alias_source_table') }}
+
+      models/view_from_source.sql: |
+        {{
+            config(
+                materialized='view'
+            )
+        }}
+        SELECT * FROM {{ source('alias_source_schema', 'alias_source_table') }}
+
+      models/sources.yml: |
+        version: 2
+        sources:
+          - name: alias_source_schema
+            schema: "{{ target.schema }}"
+            tables:
+              - name: alias_source_table
+                identifier: test_table
+    facts:
+      run:
+        length: 1
+      test_table:
+        rowcount: 4
+      table_from_source:
+        rowcount: 4
+      catalog:
+        nodes:
+          length: 3
+          names:
+            - test_table
+            - table_from_source
+            - view_from_source
+        sources:
+          length: 1
+          names:
+            - test_table
 
 sequences:
 
@@ -318,6 +369,29 @@ sequences:
         cmd: docs generate
       - type: run_results
         exists: True
+  test_dbt_teradata_catalog:
+    project: validate_teradata_catalog
+    sequence:
+      - type: dbt
+        cmd: seed
+      - type: run_results
+        exists: True
+      - type: dbt
+        cmd: run
+      - type: run_results
+        exists: True
+      - type: dbt
+        cmd: docs generate
+      - type: run_results
+        exists: True
+      - type: catalog
+        exists: True
+        nodes:
+          length: fact.catalog.nodes.length
+          names: fact.catalog.nodes.names
+        sources:
+          length: fact.catalog.sources.length
+          names: fact.catalog.sources.names
   test_dbt_teradata_seed_twice:
     project: validate_teradata_sources
     sequence:
