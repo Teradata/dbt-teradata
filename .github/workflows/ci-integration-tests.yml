@@ -72,7 +72,7 @@ jobs:
 
       - name: Verify Vantage Express is running
         shell: bash
-        run: ./github/workflows/scripts/verifyVantageIsRunning.sh
+        run: ./.github/workflows/scripts/verifyVantageIsRunning.sh
       - name: Run pytest tests
         run: pytest test/integration/teradata-17.10.dbtspec
       - name: Run pytest tests with existing database
