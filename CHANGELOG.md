@@ -1,4 +1,4 @@
-## dbt-teradata 0.19.0a
+## dbt-teradata 0.19.0.5
 
 ### Features
 * When the adapter is not able to detect a column type, it will return `N/A` instead of defaulting to `CHARACTER`.
