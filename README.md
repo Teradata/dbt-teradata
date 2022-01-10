@@ -287,7 +287,7 @@ All dbt commands are supported.
     post_hook='COLLECT STATISTICS ON  {{ this }} COLUMN (column_1,  column_2  ...);'],
   )}}
   ```
-  See [Collecting Statistics documentation](https://docs.teradata.com/r/qOek~PvFMDdCF0yyBN6zkA/uMHF8hhUwP3RqRqec2pwxA) for more information.
+  See [Collecting Statistics documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/RAyUdGfvREwbO9J0DMNpLw) for more information.
 ## Limitations
 
 ### Transaction mode
