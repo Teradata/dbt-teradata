@@ -128,10 +128,10 @@ jobs:
           M internal 551=false
           W
           EOF
-          ""
 
-          # we now need to restart to apply the setting
-          sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost 'tpareset –y Enable QVCI'
+          tpareset –y Enable QVCI
+          "
+          
           $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
 
           cd $GITHUB_WORKSPACE/test/catalog/with_qvci
