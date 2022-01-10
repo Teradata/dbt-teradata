@@ -129,9 +129,9 @@ jobs:
           W
           EOF
 
-          tpareset –y Enable QVCI
+          tpareset –y QVCI
           "
-          
+
           $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
 
           cd $GITHUB_WORKSPACE/test/catalog/with_qvci
