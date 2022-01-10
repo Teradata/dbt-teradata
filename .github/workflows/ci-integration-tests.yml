@@ -72,30 +72,7 @@ jobs:
 
       - name: Verify Vantage Express is running
         shell: bash
-        run: |
-          # add bteq to path
-          export PATH=$PATH:"/Users/runner/Library/Application Support/teradata/client/17.10/bin/"
-
-          # prepare bteq test script
-          cat << EOF > /tmp/test.bteq
-          .SET EXITONDELAY ON MAXREQTIME 20
-          .logon 127.0.0.1/dbc,dbc
-          select current_time;
-          .logoff
-          EOF
-
-          n=1
-          until [ "$n" -ge 10 ]
-          do
-            echo "Trying to connect to Vantage Express. Attempt $n. This might take a minute."
-            bteq < /tmp/test.bteq && break
-            n=$((n+1))
-            sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost 'tail -200 /var/log/messages' || true
-            echo "Waiting 10 seconds before the next attempt."
-            sleep 10
-          done
-
-
+        run: ./github/workflows/scripts/verifyVantageIsRunning.sh
       - name: Run pytest tests
         run: pytest test/integration/teradata-17.10.dbtspec
       - name: Run pytest tests with existing database
@@ -146,6 +123,16 @@ jobs:
           ./run.sh
       - name: Run catalog tests
         run: |
+          # set DisableQVCI to false - this will give us data type info for views in DBC.ColumnsJQV
+          dbscontrol << EOF
+          M internal 551=false
+          W
+          EOF
+
+          # we now need to restart to apply the setting
+          sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost 'tpareset –y Enable QVCI'
+          $GITHUB_WORKSPACE/github/workflows/scripts/verifyVantageIsRunning.sh
+
           cd $GITHUB_WORKSPACE/test/catalog/with_qvci
           ./run.sh
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
