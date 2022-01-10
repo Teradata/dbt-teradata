@@ -3,9 +3,9 @@
 ### Features
 
 ### Fixes
-* Resolved [dbt seed fails when target table already exists](https://github.com/Teradata/dbt-teradata/issues/6)
-* Resolved [Docs generate is failing when a project contains a source](https://github.com/Teradata/dbt-teradata/issues/3)
+* Resolved [Populate column types in dbt docs](https://github.com/Teradata/dbt-teradata/issues/4)
 ### Docs
 
 ### Under the hood
+* Added automated tests for catalog generation.
 
