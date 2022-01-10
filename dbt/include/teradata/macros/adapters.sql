@@ -53,7 +53,7 @@
 {% endmacro %}
 
 {% macro teradata__current_timestamp() -%}
-  current_timestamp
+  CURRENT_TIMESTAMP (FORMAT 'YYYY-MM-DD HH:MI:SS.S(F)Z')
 {%- endmacro %}
 
 {% macro teradata__rename_relation(from_relation, to_relation) -%}
@@ -76,6 +76,8 @@
 {% endmacro %}
 
 {% macro teradata__get_columns_in_relation(relation) -%}
+    {% set use_qvci = var("use_qvci", "false") | as_bool %}
+     {{ log("use_qvci set to : " ~ use_qvci) }}
     {% call statement('get_columns_in_relation', fetch_result=True) %}
     select
       ColumnsV.ColumnName as "column",
@@ -124,7 +126,7 @@
         when ColumnsV.ColumnType = 'SZ' then 'TIMESTAMP WITH TIME ZONE'
         when ColumnsV.ColumnType = 'UT' then 'USER‑DEFINED TYPE'
         when ColumnsV.ColumnType = 'XM' then 'XML'
-        else 'CHARACTER'
+        else 'N/A'
       end as dtype,
       case
         when ColumnsV.CharType = 1 then ColumnsV.ColumnLength
@@ -139,14 +141,19 @@
         else TablesV.TableKind
       end as table_type,
       ColumnsV.ColumnID as column_index
-    from DBC.ColumnsV
+    from
+    {% if use_qvci == True -%}
+      DBC.ColumnsJQV as ColumnsV
+    {% else %}
+      DBC.ColumnsV
+    {%- endif %}
     left outer join DBC.TablesV
       on ColumnsV.DatabaseName = TablesV.DatabaseName
       and ColumnsV.TableName = TablesV.TableName
     where
       TablesV.TableKind in ('T', 'V')
-      and ColumnsV.DatabaseName like '{{ relation.schema }}'
-      and ColumnsV.TableName like '{{ relation.identifier }}'
+      and ColumnsV.DatabaseName = '{{ relation.schema }}' (NOT CASESPECIFIC)
+      and ColumnsV.TableName = '{{ relation.identifier }}' (NOT CASESPECIFIC)
     order by
       ColumnsV.ColumnID
     {% endcall %}

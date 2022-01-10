@@ -94,6 +94,27 @@ All dbt commands are supported.
 
 ### Custom configurations
 
+#### General
+
+* *Enable view column types in docs* -  Teradata Vantage has a dbscontrol configuration flag called `DisableQVCI`. This flag instructs the database to create `DBC.ColumnsJQV` with view column type definitions. To enable this functionality you need to:
+  1. Enable QVCI mode in Vantage. Use `dbscontrol` utility and then restart Teradata. Run these commands as a privileged user on a Teradata node:
+      ```bash
+      # option 551 is DisableQVCI. Setting it to false enables QVCI.
+      dbscontrol << EOF
+      M internal 551=false
+      W
+      EOF
+
+      # restart Teradata
+      tpareset –y Enable QVCI
+      ```
+  2. Instruct `dbt` to use `QVCI` mode. Include the following variable in your `dbt_project.yml`:
+      ```yaml
+      vars:
+        use_qvci: true
+      ```
+      For example configuration, see `test/catalog/with_qvci/dbt_project.yml`.
+
 #### Seeds
 
 * `use_fastload` configuration will instruct the plugin to use [fastload](https://github.com/Teradata/python-driver#FastLoad) when handling `dbt seed` command. You can set this seed configuration option in your `project.yml` file, e.g.:
