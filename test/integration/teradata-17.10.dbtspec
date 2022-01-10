@@ -4,7 +4,7 @@ target:
   server: "{{ env_var('DBT_TERADATA_SERVER_NAME', 'localhost') }}"
   username: "{{ env_var('DBT_TERADATA_USERNAME', 'dbc') }}"
   password: "{{ env_var('DBT_TERADATA_PASSWORD', 'dbc') }}"
-  schema: "dbt_test_{{ var('_dbt_random_suffix') }}"
+  schema: "dbt_test_1"
   tmode: ANSI
 
 projects:
@@ -283,7 +283,7 @@ projects:
             - test_table
   - name: validate_teradata_create_table
     paths:
-      data/test_table.csv: |
+      data/test_table_in_create_test.csv: |
         id,attrA,attrB,create_date
         1,val1A,val1B,2020-03-05
         2,val2A,val2B,2020-04-05
@@ -311,7 +311,7 @@ projects:
                 materialized='table'
             )
         }}
-        SELECT * FROM {{ ref('test_table') }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
 
 
       models/table_with_table_kind.sql: |
@@ -321,7 +321,7 @@ projects:
                 table_kind='multiset'
             )
         }}
-        SELECT * FROM {{ ref('test_table') }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
 
       models/from_cte_table_with_table_kind.sql: |
         {{
@@ -339,7 +339,7 @@ projects:
                 table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON'
             )
         }}
-        SELECT * FROM {{ ref('test_table') }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
 
       models/from_cte_table_with_table_option.sql: |
         {{
@@ -358,7 +358,7 @@ projects:
                 table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON'
             )
         }}
-        SELECT * FROM {{ ref('test_table') }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
 
       models/from_cte_table_with_table_kind_and_table_option.sql: |
         {{
@@ -379,7 +379,7 @@ projects:
                   WITH CONCURRENT ISOLATED LOADING FOR ALL'
             )
         }}
-        SELECT * FROM {{ ref('test_table') }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
 
       models/from_cte_table_with_many_table_options.sql: |
         {{
@@ -399,7 +399,7 @@ projects:
                 with_statistics='true'
             )
         }}
-        SELECT * FROM {{ ref('test_table') }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
 
       models/from_cte_table_with_statistics.sql: |
         {{
@@ -420,7 +420,7 @@ projects:
                 with_statistics='true'
             )
         }}
-        SELECT * FROM {{ ref('test_table') }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
 
       models/from_cte_table_with_options_and_statistics.sql: |
         {{
@@ -445,7 +445,7 @@ projects:
                               EACH INTERVAL \'1\' MONTH)'
             )
         }}
-        SELECT * FROM {{ ref('test_table') }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
 
       models/from_cte_table_with_index.sql: |
         {{
@@ -472,7 +472,7 @@ projects:
                       INDEX index_attrA (attrA) WITH LOAD IDENTITY'
             )
         }}
-        SELECT * FROM {{ ref('test_table') }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
 
       models/from_cte_table_with_larger_index.sql: |
         {{
@@ -502,7 +502,7 @@ projects:
                       INDEX index_attrA (attrA) WITH LOAD IDENTITY'
             )
         }}
-        SELECT * FROM {{ ref('test_table') }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
 
       models/from_cte_table_with_kind_options_index.sql: |
         {{
@@ -535,7 +535,7 @@ projects:
                       INDEX index_attrA (attrA) WITH LOAD IDENTITY'
             )
         }}
-        SELECT * FROM {{ ref('test_table') }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
 
       models/from_cte_table_with_kind_options_stats_index.sql: |
         {{
