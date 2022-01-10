@@ -198,7 +198,7 @@ All dbt commands are supported.
     }}
     ```
   For details, see [CREATE TABLE documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/B6Js16DRQVwPDjgJ8rz7hg).
-* `with_statistics` - should statistics be copied from the base base table, e.g.:
+* `with_statistics` - should statistics be copied from the base table, e.g.:
     ```yaml
     {{
       config(
@@ -244,7 +244,7 @@ All dbt commands are supported.
       )
     }}
     ```
-    > :information_source: Note, that unlike in `table_option`, there are no commas between index statements!
+    > :information_source: Note, unlike in `table_option`, there are no commas between index statements!
     ```yaml
     {{
       config(
@@ -257,7 +257,7 @@ All dbt commands are supported.
       )
     }}
     ```
-    > :information_source: Note, that unlike in `table_option`, there are no commas between index statements!
+    > :information_source: Note, unlike in `table_option`, there are no commas between index statements!
     ```yaml
     {{
       config(
@@ -280,6 +280,14 @@ All dbt commands are supported.
         +use_fastload: true
     ```
 
+## Common Teradata-specific tasks
+* *collect statistics* - when a table is created or modified significantly, there might be a need to tell Teradata to collect statistics for the optimizer. It can be done using `COLLECT STATISTICS` command. You can perform this step using dbt's `post-hooks`, e.g.:
+  ```yaml
+  {{ config(
+    post_hook='COLLECT STATISTICS ON  {{ this }} COLUMN (column_1,  column_2  ...);'],
+  )}}
+  ```
+  See [Collecting Statistics documentation](https://docs.teradata.com/r/qOek~PvFMDdCF0yyBN6zkA/uMHF8hhUwP3RqRqec2pwxA) for more information.
 ## Limitations
 
 ### Transaction mode
