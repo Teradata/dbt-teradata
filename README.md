@@ -129,3 +129,6 @@ All dbt commands are supported.
 ### Transaction mode
 Only ANSI transaction mode is supported.
 
+## Credits
+
+The adapter was originally created by [Doug Beatty](https://github.com/dbeatty10). Teradata took over the adapter in January 2022. We are grateful to Doug for founding the project and accelerating the integration of dbt + Teradata.
