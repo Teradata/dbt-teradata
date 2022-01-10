@@ -124,10 +124,11 @@ jobs:
       - name: Run catalog tests
         run: |
           # set DisableQVCI to false - this will give us data type info for views in DBC.ColumnsJQV
-          dbscontrol << EOF
+          sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
           M internal 551=false
           W
           EOF
+          ""
 
           # we now need to restart to apply the setting
           sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost 'tpareset –y Enable QVCI'
