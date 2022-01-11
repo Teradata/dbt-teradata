@@ -19,7 +19,7 @@ my-teradata-db-profile:
       tmode: ANSI
 ```
 
-At a minimum, you need to specify `host`, `user`, `password`, `schema` (database), `tmode`. 
+At a minimum, you need to specify `host`, `user`, `password`, `schema` (database), `tmode`.
 ## Optional configurations
 
 ### Logmech
@@ -60,7 +60,7 @@ my-teradata-db-profile:
 
 ### Other Teradata connection parameters
 
-The plugin also supports the following Teradata connection parameters: 
+The plugin also supports the following Teradata connection parameters:
 * account
 * column_name
 * cop
@@ -115,15 +115,179 @@ All dbt commands are supported.
       ```
       For example configuration, see `test/catalog/with_qvci/dbt_project.yml`.
 
+#### Models
+
+##### Table
+* `table_kind` - define the table kind. Legal values are `SET` (default) and `MULTISET`, e.g.:
+    ```yaml
+    {{
+      config(
+          materialized='table',
+          table_kind='MULTISET'
+      )
+    }}
+    ```
+  For details, see [CREATE TABLE documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/B6Js16DRQVwPDjgJ8rz7hg).
+* `table_option` - define table options. Legal values are:
+    ```
+    { MAP = map_name [COLOCATE USING colocation_name |
+      [NO] FALLBACK [PROTECTION] |
+      WITH JOURNAL TABLE = table_specification |
+      [NO] LOG |
+      [ NO | DUAL ] [BEFORE] JOURNAL |
+      [ NO | DUAL | LOCAL | NOT LOCAL ] AFTER JOURNAL |
+      CHECKSUM = { DEFAULT | ON | OFF } |
+      FREESPACE = integer [PERCENT] |
+      mergeblockratio |
+      datablocksize |
+      blockcompression |
+      isolated_loading
+    }
+    ```
+    where:
+    * mergeblockratio:
+      ```
+      { DEFAULT MERGEBLOCKRATIO |
+        MERGEBLOCKRATIO = integer [PERCENT] |
+        NO MERGEBLOCKRATIO
+      }
+      ```
+    * datablocksize:
+      ```
+      DATABLOCKSIZE = {
+        data_block_size [ BYTES | KBYTES | KILOBYTES ] |
+        { MINIMUM | MAXIMUM | DEFAULT } DATABLOCKSIZE
+      }
+      ```
+    * blockcompression:
+      ```
+      BLOCKCOMPRESSION = { AUTOTEMP | MANUAL | ALWAYS | NEVER | DEFAULT }
+        [, BLOCKCOMPRESSIONALGORITHM = { ZLIB | ELZS_H | DEFAULT } ]
+        [, BLOCKCOMPRESSIONLEVEL = { value | DEFAULT } ]
+      ```
+    * isolated_loading:
+      ```
+      WITH [NO] [CONCURRENT] ISOLATED LOADING [ FOR { ALL | INSERT | NONE } ]
+      ```
+
+    Examples:
+    ```yaml
+    {{
+      config(
+          materialized='table',
+          table_option='NO FALLBACK'
+      )
+    }}
+    ```
+    ```yaml
+    {{
+      config(
+          materialized='table',
+          table_option='NO FALLBACK, NO JOURNAL'
+      )
+    }}
+    ```
+    ```yaml
+    {{
+      config(
+          materialized='table',
+          table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+            NO MERGEBLOCKRATIO,
+            WITH CONCURRENT ISOLATED LOADING FOR ALL'
+      )
+    }}
+    ```
+  For details, see [CREATE TABLE documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/B6Js16DRQVwPDjgJ8rz7hg).
+* `with_statistics` - should statistics be copied from the base table, e.g.:
+    ```yaml
+    {{
+      config(
+          materialized='table',
+          with_statistics='true'
+      )
+    }}
+    ```
+    For details, see [CREATE TABLE documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/B6Js16DRQVwPDjgJ8rz7hg).
+
+* `index` - defines table indices:
+    ```
+    [UNIQUE] PRIMARY INDEX [index_name] ( index_column_name [,...] ) |
+    NO PRIMARY INDEX |
+    PRIMARY AMP [INDEX] [index_name] ( index_column_name [,...] ) |
+    PARTITION BY { partitioning_level | ( partitioning_level [,...] ) } |
+    UNIQUE INDEX [ index_name ] [ ( index_column_name [,...] ) ] [loading] |
+    INDEX [index_name] [ALL] ( index_column_name [,...] ) [ordering] [loading]
+    [,...]
+    ```
+    where:
+    * partitioning_level:
+      ```
+      { partitioning_expression |
+        COLUMN [ [NO] AUTO COMPRESS |
+        COLUMN [ [NO] AUTO COMPRESS ] [ ALL BUT ] column_partition ]
+      } [ ADD constant ]
+      ```
+    * ordering:
+      ```
+      ORDER BY [ VALUES | HASH ] [ ( order_column_name ) ]
+      ```
+    * loading:
+      ```
+      WITH [NO] LOAD IDENTITY
+      ```
+    e.g.:
+    ```yaml
+    {{
+      config(
+          materialized='table',
+          index='UNIQUE PRIMARY INDEX ( GlobalID )'
+      )
+    }}
+    ```
+    > :information_source: Note, unlike in `table_option`, there are no commas between index statements!
+    ```yaml
+    {{
+      config(
+          materialized='table',
+          index='PRIMARY INDEX(id)
+                 PARTITION BY RANGE_N(create_date
+                    BETWEEN DATE \'2020-01-01\'
+                    AND     DATE \'2021-01-01\'
+                    EACH INTERVAL \'1\' MONTH)'
+      )
+    }}
+    ```
+    > :information_source: Note, unlike in `table_option`, there are no commas between index statements!
+    ```yaml
+    {{
+      config(
+          materialized='table',
+          index='PRIMARY INDEX(id)
+                 PARTITION BY RANGE_N(create_date
+                    BETWEEN DATE \'2020-01-01\'
+                    AND     DATE \'2021-01-01\'
+                    EACH INTERVAL \'1\' MONTH)
+                 INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+      )
+    }}
+    ```
 #### Seeds
 
-* `use_fastload` configuration will instruct the plugin to use [fastload](https://github.com/Teradata/python-driver#FastLoad) when handling `dbt seed` command. You can set this seed configuration option in your `project.yml` file, e.g.:
+* `use_fastload` - use [fastload](https://github.com/Teradata/python-driver#FastLoad) when handling `dbt seed` command. The option will likely speed up loading when your seed files have hundreds of thousands of rows. You can set this seed configuration option in your `project.yml` file, e.g.:
     ```yaml
     seeds:
       <project-name>:
         +use_fastload: true
     ```
 
+## Common Teradata-specific tasks
+* *collect statistics* - when a table is created or modified significantly, there might be a need to tell Teradata to collect statistics for the optimizer. It can be done using `COLLECT STATISTICS` command. You can perform this step using dbt's `post-hooks`, e.g.:
+  ```yaml
+  {{ config(
+    post_hook='COLLECT STATISTICS ON  {{ this }} COLUMN (column_1,  column_2  ...);'],
+  )}}
+  ```
+  See [Collecting Statistics documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/RAyUdGfvREwbO9J0DMNpLw) for more information.
 ## Limitations
 
 ### Transaction mode

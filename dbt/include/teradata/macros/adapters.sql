@@ -22,25 +22,35 @@
 
 {% macro teradata__create_table_as(temporary, relation, sql) -%}
   {%- set sql_header = config.get('sql_header', none) -%}
+  {%- set table_kind = config.get('table_kind', default='') -%}
+  {%- set table_option = config.get('table_option', default='') -%}
+  {%- set with_statistics = config.get('with_statistics', default=False)| as_bool -%}
+  {%- set index = config.get('index', default='') -%}
 
   {{ sql_header if sql_header is not none }}
-
+  create {{ table_kind }} table
+  {{ relation.include(database=False) }}
+  {% if table_option |length -%}
+  , {{ table_option }}
+  {%- endif -%}
   {% if sql.strip().upper().startswith('WITH') %}
-    create table
-    {{ relation.include(database=False) }}
     as (
       SELECT * FROM (
         {{ sql }}
       ) D
     ) with data
   {% else %}
-    create table
-    {{ relation.include(database=False) }}
     as (
         {{ sql }}
       ) with data
   {% endif %}
-
+  {%- if with_statistics -%}
+    and statistics
+  {%- endif %}
+  {% if index |length -%}
+  {{ index }}
+  {%- endif -%};
+  
 {% endmacro %}
 
 {% macro teradata__create_view_as(relation, sql) -%}
@@ -53,7 +63,7 @@
 {% endmacro %}
 
 {% macro teradata__current_timestamp() -%}
-  CURRENT_TIMESTAMP (FORMAT 'YYYY-MM-DD HH:MI:SS.S(F)Z')
+CAST ( CAST (CURRENT_TIMESTAMP AS FORMAT 'YYYY-MM-DD HH:MI:SS.S(F)Z') AS VARCHAR(32))
 {%- endmacro %}
 
 {% macro teradata__rename_relation(from_relation, to_relation) -%}

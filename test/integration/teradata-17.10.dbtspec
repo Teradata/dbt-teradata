@@ -281,7 +281,282 @@ projects:
           length: 1
           names:
             - test_table
+  - name: validate_teradata_create_table
+    paths:
+      data/test_table_in_create_test.csv: |
+        id,attrA,attrB,create_date
+        1,val1A,val1B,2020-03-05
+        2,val2A,val2B,2020-04-05
+        3,val3A,val3B,2020-05-05
+        4,val4A,val4B,2020-10-05
 
+      models/table_with_cte.sql: |
+        {{
+            config(
+                materialized='table'
+            )
+        }}
+        WITH
+        source_a as (
+            select 1 as id, 'val1A' as attrA, 'val1B' as attrB
+        ),
+        source_b as (
+            select TO_DATE('2020-03-05') as create_date
+        )
+        SELECT * FROM source_a, source_b
+
+      models/table_no_config.sql: |
+        {{
+            config(
+                materialized='table'
+            )
+        }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
+
+
+      models/table_with_table_kind.sql: |
+        {{
+            config(
+                materialized='table',
+                table_kind='multiset'
+            )
+        }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
+
+      models/from_cte_table_with_table_kind.sql: |
+        {{
+            config(
+                materialized='table',
+                table_kind='multiset'
+            )
+        }}
+        SELECT * FROM {{ ref('table_with_cte') }}
+
+      models/table_with_table_option.sql: |
+        {{
+            config(
+                materialized='table',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON'
+            )
+        }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
+
+      models/from_cte_table_with_table_option.sql: |
+        {{
+            config(
+                materialized='table',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON'
+            )
+        }}
+        SELECT * FROM {{ ref('table_with_cte') }}
+
+      models/table_with_table_kind_and_table_option.sql: |
+        {{
+            config(
+                materialized='table',
+                table_kind='multiset',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON'
+            )
+        }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
+
+      models/from_cte_table_with_table_kind_and_table_option.sql: |
+        {{
+            config(
+                materialized='table',
+                table_kind='multiset',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON'
+            )
+        }}
+        SELECT * FROM {{ ref('table_with_cte') }}
+
+      models/table_with_many_table_options.sql: |
+        {{
+            config(
+                materialized='table',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+                  NO MERGEBLOCKRATIO,
+                  WITH CONCURRENT ISOLATED LOADING FOR ALL'
+            )
+        }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
+
+      models/from_cte_table_with_many_table_options.sql: |
+        {{
+            config(
+                materialized='table',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+                  NO MERGEBLOCKRATIO,
+                  WITH CONCURRENT ISOLATED LOADING FOR ALL'
+            )
+        }}
+        SELECT * FROM {{ ref('table_with_cte') }}
+
+      models/table_with_statistics.sql: |
+        {{
+            config(
+                materialized='table',
+                with_statistics='true'
+            )
+        }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
+
+      models/from_cte_table_with_statistics.sql: |
+        {{
+            config(
+                materialized='table',
+                with_statistics='true'
+            )
+        }}
+        SELECT * FROM {{ ref('table_with_cte') }}
+
+      models/table_with_options_and_statistics.sql: |
+        {{
+            config(
+                materialized='table',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+                  NO MERGEBLOCKRATIO,
+                  WITH CONCURRENT ISOLATED LOADING FOR ALL',
+                with_statistics='true'
+            )
+        }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
+
+      models/from_cte_table_with_options_and_statistics.sql: |
+        {{
+            config(
+                materialized='table',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+                  NO MERGEBLOCKRATIO,
+                  WITH CONCURRENT ISOLATED LOADING FOR ALL',
+                with_statistics='true'
+            )
+        }}
+        SELECT * FROM {{ ref('table_with_cte') }}
+
+      models/table_with_index.sql: |
+        {{
+            config(
+                materialized='table',
+                index='PRIMARY INDEX(id)
+                PARTITION BY RANGE_N(create_date
+                              BETWEEN DATE \'2020-01-01\'
+                              AND     DATE \'2021-01-01\'
+                              EACH INTERVAL \'1\' MONTH)'
+            )
+        }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
+
+      models/from_cte_table_with_index.sql: |
+        {{
+            config(
+                materialized='table',
+                index='PRIMARY INDEX(id)
+                PARTITION BY RANGE_N(create_date
+                              BETWEEN DATE \'2020-01-01\'
+                              AND     DATE \'2021-01-01\'
+                              EACH INTERVAL \'1\' MONTH)'
+            )
+        }}
+        SELECT * FROM {{ ref('table_with_cte') }}
+
+      models/table_with_larger_index.sql: |
+        {{
+            config(
+                materialized='table',
+                index='PRIMARY INDEX(id)
+                      PARTITION BY RANGE_N(create_date
+                          BETWEEN DATE \'2020-01-01\'
+                          AND     DATE \'2021-01-01\'
+                          EACH INTERVAL \'1\' MONTH)
+                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+            )
+        }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
+
+      models/from_cte_table_with_larger_index.sql: |
+        {{
+            config(
+                materialized='table',
+                index='PRIMARY INDEX(id)
+                      PARTITION BY RANGE_N(create_date
+                          BETWEEN DATE \'2020-01-01\'
+                          AND     DATE \'2021-01-01\'
+                          EACH INTERVAL \'1\' MONTH)
+                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+            )
+        }}
+        SELECT * FROM {{ ref('table_with_cte') }}
+
+      models/table_with_kind_options_index.sql: |
+        {{
+            config(
+                materialized='table',
+                table_kind='multiset',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON',
+                index='PRIMARY INDEX(id)
+                      PARTITION BY RANGE_N(create_date
+                          BETWEEN DATE \'2020-01-01\'
+                          AND     DATE \'2021-01-01\'
+                          EACH INTERVAL \'1\' MONTH)
+                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+            )
+        }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
+
+      models/from_cte_table_with_kind_options_index.sql: |
+        {{
+            config(
+                materialized='table',
+                table_kind='multiset',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON',
+                index='PRIMARY INDEX(id)
+                      PARTITION BY RANGE_N(create_date
+                          BETWEEN DATE \'2020-01-01\'
+                          AND     DATE \'2021-01-01\'
+                          EACH INTERVAL \'1\' MONTH)
+                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+            )
+        }}
+        SELECT * FROM {{ ref('table_with_cte') }}
+
+      models/table_with_kind_options_stats_index.sql: |
+        {{
+            config(
+                materialized='table',
+                table_kind='multiset',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON',
+                with_statistics='true',
+                index='PRIMARY INDEX(id)
+                      PARTITION BY RANGE_N(create_date
+                          BETWEEN DATE \'2020-01-01\'
+                          AND     DATE \'2021-01-01\'
+                          EACH INTERVAL \'1\' MONTH)
+                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+            )
+        }}
+        SELECT * FROM {{ ref('test_table_in_create_test') }}
+
+      models/from_cte_table_with_kind_options_stats_index.sql: |
+        {{
+            config(
+                materialized='table',
+                table_kind='multiset',
+                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON',
+                with_statistics='true',
+                index='PRIMARY INDEX(id)
+                      PARTITION BY RANGE_N(create_date
+                          BETWEEN DATE \'2020-01-01\'
+                          AND     DATE \'2021-01-01\'
+                          EACH INTERVAL \'1\' MONTH)
+                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+            )
+        }}
+        SELECT * FROM {{ ref('table_with_cte') }}
+
+    facts:
+      run:
+        length: 22
 sequences:
 
   # List of sequences:
@@ -403,6 +678,20 @@ sequences:
         cmd: seed
       - type: run_results
         exists: True
+  test_dbt_teradata_create_table:
+    project: validate_teradata_create_table
+    sequence:
+      - type: dbt
+        cmd: seed
+      - type: run_results
+        exists: True
+      - type: dbt
+        cmd: run
+      - type: run_results
+        exists: True
+      - type: run_results
+        length: fact.run.length
+
   # FAIL
   # test_dbt_ephemeral_data_tests: data_test_ephemeral_models - fails with
   #   [Error 6926] WITH [RECURSIVE] clause or recursive view is not supported
