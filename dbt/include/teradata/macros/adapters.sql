@@ -50,7 +50,7 @@
   {% if index |length -%}
   {{ index }}
   {%- endif -%};
-  
+
 {% endmacro %}
 
 {% macro teradata__create_view_as(relation, sql) -%}
@@ -196,9 +196,6 @@ CAST ( CAST (CURRENT_TIMESTAMP AS FORMAT 'YYYY-MM-DD HH:MI:SS.S(F)Z') AS VARCHAR
 {%- endmacro %}
 
 {% macro teradata__create_schema(relation) -%}
-  {% if relation.database -%}
-    {{ adapter.verify_database(relation.database) }}
-  {%- endif -%}
   {%- call statement('create_schema') -%}
     CREATE DATABASE {{ relation.without_identifier().include(database=False) }}
     -- Teradata expects db sizing params on creation. This macro is probably
@@ -212,10 +209,12 @@ CAST ( CAST (CURRENT_TIMESTAMP AS FORMAT 'YYYY-MM-DD HH:MI:SS.S(F)Z') AS VARCHAR
 {% macro teradata__drop_schema(relation) -%}
   {% if relation.database -%}
     {{ adapter.verify_database(relation.database) }}
-    {%- call statement('drop_schema') -%}
-    DELETE DATABASE {{ relation.without_identifier().include(database=False) }};
-    DROP DATABASE {{ relation.without_identifier().include(database=False) }};
-  {%- endcall -%}
+    {%- call statement('drop_schema_delete_database') -%}
+    DELETE DATABASE /*+ IF EXISTS */ {{ relation.without_identifier().include(database=False) }} ALL;
+    {%- endcall -%}
+    {%- call statement('drop_schema_drop_database') -%}
+    DROP DATABASE /*+ IF EXISTS */ {{ relation.without_identifier().include(database=False) }};
+    {%- endcall -%}
   {%- endif -%}
 
 {% endmacro %}

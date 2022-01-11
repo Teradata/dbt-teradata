@@ -1,5 +1,5 @@
 from concurrent.futures import Future
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Optional, List, Dict, Any, Union, Iterable
 import agate
 
@@ -11,6 +11,7 @@ from dbt.adapters.sql import SQLAdapter
 from dbt.adapters.teradata import TeradataConnectionManager
 from dbt.adapters.teradata import TeradataRelation
 from dbt.adapters.teradata import TeradataColumn
+from dbt.adapters.base.meta import available
 from dbt.adapters.base import BaseRelation
 from dbt.clients.agate_helper import DEFAULT_TYPE_TESTER
 from dbt.logger import GLOBAL_LOGGER as logger
@@ -28,6 +29,19 @@ class TeradataAdapter(SQLAdapter):
     @classmethod
     def date_function(cls):
         return 'current_date()'
+
+    @available
+    def verify_database(self, database):
+        if database.startswith('"'):
+            database = database.strip('"')
+        expected = self.config.credentials.database
+        if database.lower() != expected.lower():
+            raise dbt.exceptions.NotImplementedException(
+                'Cross-db references not allowed in {} ({} vs {})'
+                .format(self.type(), database, expected)
+            )
+        # return an empty string on success so macros can call this
+        return ''
 
     @classmethod
     def convert_text_type(cls, agate_table: agate.Table, col_idx: int) -> str:
@@ -81,10 +95,9 @@ class TeradataAdapter(SQLAdapter):
         self, relation: TeradataRelation
     ) -> Iterable[Dict[str, Any]]:
         columns = self.get_columns_in_relation(relation)
-
         for column in columns:
             # convert TeradataColumns into catalog dicts
-            as_dict = column.to_dict()
+            as_dict = asdict(column)
             as_dict['column_name'] = as_dict.pop('column', None)
             as_dict['column_type'] = as_dict.pop('dtype')
             as_dict['table_database'] = None
@@ -100,21 +113,23 @@ class TeradataAdapter(SQLAdapter):
 
     def get_catalog(self, manifest):
         schema_map = self._get_catalog_schemas(manifest)
-
         with executor(self.config) as tpe:
             futures: List[Future[agate.Table]] = []
             for info, schemas in schema_map.items():
+                logger.debug("schema_map.items() info {}", info.__dict__)
                 for schema in schemas:
                     futures.append(tpe.submit_connected(
                         self, schema,
                         self._get_one_catalog, info, [schema], manifest
                     ))
             catalogs, exceptions = catch_as_completed(futures)
+        catalogs.print_csv()
         return catalogs, exceptions
 
     def _get_one_catalog(
         self, information_schema, schemas, manifest,
     ) -> agate.Table:
+        logger.debug("_get_one_catalog {}", schemas)
         if len(schemas) != 1:
             dbt.exceptions.raise_compiler_error(
                 f'Expected only one schema in _get_one_catalog() for Teradata adapter, found '
