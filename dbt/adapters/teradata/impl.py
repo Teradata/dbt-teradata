@@ -123,7 +123,6 @@ class TeradataAdapter(SQLAdapter):
                         self._get_one_catalog, info, [schema], manifest
                     ))
             catalogs, exceptions = catch_as_completed(futures)
-        catalogs.print_csv()
         return catalogs, exceptions
 
     def _get_one_catalog(

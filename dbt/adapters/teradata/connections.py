@@ -12,13 +12,14 @@ from dataclasses import dataclass
 from typing import Optional, Tuple, Any
 
 
-@dataclass
+@dataclass(init=False)
 class TeradataCredentials(Credentials):
     server: str
+    database: Optional[str] = None
     username: Optional[str] = None
     password: Optional[str] = None
     port: Optional[str] = None
-    tmode: Optional[str] = None
+    tmode: Optional[str] = "ANSI"
     logmech: Optional[str] = None
     charset: Optional[str] = None
     account: Optional[str] = None
@@ -43,6 +44,11 @@ class TeradataCredentials(Credentials):
         "PWD": "password",
         "host": "server"
     }
+
+    def __init__(self, **kwargs):
+      for k, v in kwargs.items():
+        setattr(self, k, v)
+        self.database = None
 
     def __post_init__(self):
         # teradata classifies database and schema as the same thing
