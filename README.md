@@ -106,7 +106,7 @@ All dbt commands are supported.
       EOF
 
       # restart Teradata
-      tpareset –y Enable QVCI
+      tpareset -y Enable QVCI
       ```
   2. Instruct `dbt` to use `QVCI` mode. Include the following variable in your `dbt_project.yml`:
       ```yaml
