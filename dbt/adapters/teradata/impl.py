@@ -116,7 +116,6 @@ class TeradataAdapter(SQLAdapter):
         with executor(self.config) as tpe:
             futures: List[Future[agate.Table]] = []
             for info, schemas in schema_map.items():
-                logger.debug("schema_map.items() info {}", info.__dict__)
                 for schema in schemas:
                     futures.append(tpe.submit_connected(
                         self, schema,
@@ -128,7 +127,6 @@ class TeradataAdapter(SQLAdapter):
     def _get_one_catalog(
         self, information_schema, schemas, manifest,
     ) -> agate.Table:
-        logger.debug("_get_one_catalog {}", schemas)
         if len(schemas) != 1:
             dbt.exceptions.raise_compiler_error(
                 f'Expected only one schema in _get_one_catalog() for Teradata adapter, found '
