@@ -9,6 +9,10 @@ jobs:
     runs-on: macos-10.15
     name: Integration test
     steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
       - name: Check out repository code
         uses: actions/checkout@v2
 
@@ -56,11 +60,6 @@ jobs:
           installer -pkg ./TeradataToolsAndUtilitiesBase/*.pkg -target CurrentUserHomeDirectory
         env:
           TD_DOWNLOADS_MAGIC_COOKIE: ${{ secrets.TD_DOWNLOADS_MAGIC_COOKIE }}
-
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
 
       - name: Install dependencies
         run: |
