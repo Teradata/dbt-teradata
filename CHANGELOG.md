@@ -1,7 +1,7 @@
 ## dbt-teradata 0.20.0a
 
 ### Features
-* Added support for CREATE TABLE parameters (https://github.com/Teradata/dbt-teradata/issues/2)
+* Upgrade to dbt v0.20.0
 
 ### Fixes
 
