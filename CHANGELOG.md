@@ -1,4 +1,4 @@
-## dbt-teradata 0.20.0a
+## dbt-teradata 0.20.0.1
 
 ### Features
 * Upgrade to dbt v0.20.0
