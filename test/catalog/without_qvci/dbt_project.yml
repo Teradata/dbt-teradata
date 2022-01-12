@@ -40,3 +40,4 @@ models:
 seeds:
   teradata:
     +use_fastload: true
+    +quote_columns: false
