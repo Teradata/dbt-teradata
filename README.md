@@ -38,7 +38,7 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 | 0.21.1.x           | ✅          | ✅          | ✅          | ✅          | ❌          |
 | 1.0.0.x           | ❌           | ✅          | ✅          | ✅          | ❌          |
 
-## Optional configurations
+## Optional profile configurations
 
 ### Logmech
 
