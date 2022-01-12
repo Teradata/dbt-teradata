@@ -557,6 +557,17 @@ projects:
     facts:
       run:
         length: 22
+  - name: validate_teradata_case_sensitivity
+    paths:
+      models/table_from_source.sql: |
+        {{  config(
+              materialized = "table",
+              schema: "{{ target.schema }}"
+            )
+        }}
+
+        select * from dbc.dbcinfo
+
 sequences:
 
   # List of sequences:
@@ -691,6 +702,17 @@ sequences:
         exists: True
       - type: run_results
         length: fact.run.length
+  test_dbt_teradata_case_sensitivity:
+    project: validate_teradata_case_sensitivity
+    sequence:
+      - type: dbt
+        cmd: run
+      - type: run_results
+        exists: True
+      - type: dbt
+        cmd: run
+      - type: run_results
+        exists: True
 
   # FAIL
   # test_dbt_ephemeral_data_tests: data_test_ephemeral_models - fails with
