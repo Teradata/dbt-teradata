@@ -5,7 +5,7 @@ import sys
 from setuptools import setup
 
 
-if sys.version_info < (3, 6, 2) or sys.version_info > (3, 9):
+if sys.version_info < (3, 6, 2) or sys.version_info >= (3, 10):
     print('Error: dbt-teradata does not support this version of Python.')
     print('Please install Python 3.6.2 or higher but less than 3.10.')
     sys.exit(1)
