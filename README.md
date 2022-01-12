@@ -135,12 +135,12 @@ All dbt commands are supported.
 #### Models
 
 ##### Table
-* `table_kind` - define the table kind. Legal values are `SET` (default) and `MULTISET`, e.g.:
+* `table_kind` - define the table kind. Legal values are `MULTISET` (default for ANSI transaction mode required by `dbt-teradata`) and `SET`, e.g.:
     ```yaml
     {{
       config(
           materialized='table',
-          table_kind='MULTISET'
+          table_kind='SET'
       )
     }}
     ```
@@ -301,7 +301,9 @@ All dbt commands are supported.
 * *collect statistics* - when a table is created or modified significantly, there might be a need to tell Teradata to collect statistics for the optimizer. It can be done using `COLLECT STATISTICS` command. You can perform this step using dbt's `post-hooks`, e.g.:
   ```yaml
   {{ config(
-    post_hook='COLLECT STATISTICS ON  {{ this }} COLUMN (column_1,  column_2  ...);'],
+    post_hook=[
+      "COLLECT STATISTICS ON  {{ this }} COLUMN (column_1,  column_2  ...);"
+      ]
   )}}
   ```
   See [Collecting Statistics documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/RAyUdGfvREwbO9J0DMNpLw) for more information.
