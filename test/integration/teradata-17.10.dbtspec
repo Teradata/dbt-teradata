@@ -188,9 +188,13 @@ projects:
         3,val3A,val3B
         4,val4A,val4B
 
-    dbt_project_yml:
-      seeds:
-        +use_fastload: true
+      dbt_project.yml: |
+        name: 'validate_teradata_fastload'
+        version: '1.0.0'
+        config-version: 2
+        seeds:
+          validate_teradata_fastload:
+            +use_fastload: true
     facts:
       run:
         length: 1
@@ -561,13 +565,42 @@ projects:
   - name: validate_teradata_case_sensitivity
     paths:
       models/table_from_source.sql: |
-        {{  config(
-              materialized = "table",
-              schema: "{{ target.schema }}"
+        {{
+            config(
+              materialized="table",
+              schema="DBT_TEST"
             )
         }}
 
         select * from dbc.dbcinfo
+
+  - name: validate_teradata_case_sensitivity_with_macro_override
+    paths:
+      models/dbcinfo.sql: |
+        {{
+            config(
+              materialized="table",
+              schema="DBT_TEST_IS_THE_BEST"
+            )
+        }}
+        select * from dbc.dbcinfo
+
+      macros/generate_schema_name.sql: |
+        {% macro generate_schema_name(custom_schema_name, node) -%}
+          {%- if custom_schema_name is none -%}
+            {{ target.schema }}
+          {% else %}
+            {{ custom_schema_name | trim | lower }}
+          {%- endif -%}
+        {%- endmacro %}
+
+      dbt_project.yml: |
+        name: 'validate_teradata_case_sensitivity_with_macro_override'
+        version: '1.0.0'
+        config-version: 2
+        dispatch:
+        - macro_namespace: dbt
+          search_order: ['validate_teradata_case_sensitivity_with_macro_override', 'dbt']
 
 sequences:
 
@@ -705,6 +738,17 @@ sequences:
         length: fact.run.length
   test_dbt_teradata_case_sensitivity:
     project: validate_teradata_case_sensitivity
+    sequence:
+      - type: dbt
+        cmd: run
+      - type: run_results
+        exists: True
+      - type: dbt
+        cmd: run
+      - type: run_results
+        exists: True
+  test_dbt_teradata_case_sensitivity_with_macro_override:
+    project: validate_teradata_case_sensitivity_with_macro_override
     sequence:
       - type: dbt
         cmd: run
