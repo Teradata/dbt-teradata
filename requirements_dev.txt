@@ -3,8 +3,8 @@ bump2version
 wheel
 pytest~=6.0
 tox~=3.2
-pytest-dbt-adapter~=0.5.1
+pytest-dbt-adapter~=0.6.0
 pylava~=0.3.0
 teradatasql>=16.20.0.0
-dbt-core==0.21.1
+dbt-core==1.0.0
 -e .

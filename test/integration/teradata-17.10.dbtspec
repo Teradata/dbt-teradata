@@ -14,7 +14,7 @@ projects:
       models/table_with_cte.sql: |
         {{
             config(
-                materialized='table'
+                materialized="table"
             )
         }}
         WITH
@@ -29,7 +29,7 @@ projects:
       models/table_without_cte.sql: |
         {{
             config(
-                materialized='table'
+                materialized="table"
             )
         }}
         SELECT  1 as a1, 2 as a2, 1 as b1, 2 as b2
@@ -37,7 +37,7 @@ projects:
       models/view_with_cte.sql: |
         {{
             config(
-                materialized='view'
+                materialized="view"
             )
         }}
         WITH
@@ -52,7 +52,7 @@ projects:
       models/view_without_cte.sql: |
         {{
             config(
-                materialized='view'
+                materialized="view"
             )
         }}
         WITH
@@ -67,7 +67,7 @@ projects:
       models/table_with_cte_comments.sql: |
               {{
                   config(
-                      materialized='table'
+                      materialized="table"
                   )
               }}
               -- This is a test comment
@@ -181,7 +181,7 @@ projects:
               length: 0
   - name: validate_teradata_fastload
     paths:
-      data/test_table.csv: |
+      seeds/test_table.csv: |
         id,attrA,attrB
         1,val1A,val1B
         2,val2A,val2B
@@ -206,7 +206,7 @@ projects:
         rowcount: 4
   - name: validate_teradata_sources
     paths:
-      data/test_table.csv: |
+      seeds/test_table.csv: |
         id,attrA,attrB
         1,val1A,val1B
         2,val2A,val2B
@@ -233,7 +233,7 @@ projects:
         rowcount: 4
   - name: validate_teradata_catalog
     paths:
-      data/test_table.csv: |
+      seeds/test_table.csv: |
         id,attrA,attrB
         1,val1A,val1B
         2,val2A,val2B
@@ -243,7 +243,7 @@ projects:
       models/table_from_source.sql: |
         {{
             config(
-                materialized='table'
+                materialized="table"
             )
         }}
         SELECT * FROM {{ source('alias_source_schema', 'alias_source_table') }}
@@ -251,7 +251,7 @@ projects:
       models/view_from_source.sql: |
         {{
             config(
-                materialized='view'
+                materialized="view"
             )
         }}
         SELECT * FROM {{ source('alias_source_schema', 'alias_source_table') }}
@@ -284,7 +284,7 @@ projects:
             - test_table
   - name: validate_teradata_create_table
     paths:
-      data/test_table_in_create_test.csv: |
+      seeds/test_table_in_create_test.csv: |
         id,attrA,attrB,create_date
         1,val1A,val1B,2020-03-05
         2,val2A,val2B,2020-04-05
@@ -294,7 +294,7 @@ projects:
       models/table_with_cte.sql: |
         {{
             config(
-                materialized='table'
+                materialized="table"
             )
         }}
         WITH
@@ -309,7 +309,7 @@ projects:
       models/table_no_config.sql: |
         {{
             config(
-                materialized='table'
+                materialized="table"
             )
         }}
         SELECT * FROM {{ ref('test_table_in_create_test') }}
@@ -318,8 +318,8 @@ projects:
       models/table_with_table_kind.sql: |
         {{
             config(
-                materialized='table',
-                table_kind='multiset'
+                materialized="table",
+                table_kind="multiset"
             )
         }}
         SELECT * FROM {{ ref('test_table_in_create_test') }}
@@ -327,8 +327,8 @@ projects:
       models/from_cte_table_with_table_kind.sql: |
         {{
             config(
-                materialized='table',
-                table_kind='multiset'
+                materialized="table",
+                table_kind="multiset"
             )
         }}
         SELECT * FROM {{ ref('table_with_cte') }}
@@ -336,8 +336,8 @@ projects:
       models/table_with_table_option.sql: |
         {{
             config(
-                materialized='table',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON'
+                materialized="table",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON"
             )
         }}
         SELECT * FROM {{ ref('test_table_in_create_test') }}
@@ -345,8 +345,8 @@ projects:
       models/from_cte_table_with_table_option.sql: |
         {{
             config(
-                materialized='table',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON'
+                materialized="table",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON"
             )
         }}
         SELECT * FROM {{ ref('table_with_cte') }}
@@ -354,9 +354,9 @@ projects:
       models/table_with_table_kind_and_table_option.sql: |
         {{
             config(
-                materialized='table',
-                table_kind='multiset',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON'
+                materialized="table",
+                table_kind="multiset",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON"
             )
         }}
         SELECT * FROM {{ ref('test_table_in_create_test') }}
@@ -364,9 +364,9 @@ projects:
       models/from_cte_table_with_table_kind_and_table_option.sql: |
         {{
             config(
-                materialized='table',
-                table_kind='multiset',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON'
+                materialized="table",
+                table_kind="multiset",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON"
             )
         }}
         SELECT * FROM {{ ref('table_with_cte') }}
@@ -374,10 +374,10 @@ projects:
       models/table_with_many_table_options.sql: |
         {{
             config(
-                materialized='table',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+                materialized="table",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
                   NO MERGEBLOCKRATIO,
-                  WITH CONCURRENT ISOLATED LOADING FOR ALL'
+                  WITH CONCURRENT ISOLATED LOADING FOR ALL"
             )
         }}
         SELECT * FROM {{ ref('test_table_in_create_test') }}
@@ -385,10 +385,10 @@ projects:
       models/from_cte_table_with_many_table_options.sql: |
         {{
             config(
-                materialized='table',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+                materialized="table",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
                   NO MERGEBLOCKRATIO,
-                  WITH CONCURRENT ISOLATED LOADING FOR ALL'
+                  WITH CONCURRENT ISOLATED LOADING FOR ALL"
             )
         }}
         SELECT * FROM {{ ref('table_with_cte') }}
@@ -396,8 +396,8 @@ projects:
       models/table_with_statistics.sql: |
         {{
             config(
-                materialized='table',
-                with_statistics='true'
+                materialized="table",
+                with_statistics="true"
             )
         }}
         SELECT * FROM {{ ref('test_table_in_create_test') }}
@@ -405,8 +405,8 @@ projects:
       models/from_cte_table_with_statistics.sql: |
         {{
             config(
-                materialized='table',
-                with_statistics='true'
+                materialized="table",
+                with_statistics="true"
             )
         }}
         SELECT * FROM {{ ref('table_with_cte') }}
@@ -414,11 +414,11 @@ projects:
       models/table_with_options_and_statistics.sql: |
         {{
             config(
-                materialized='table',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+                materialized="table",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
                   NO MERGEBLOCKRATIO,
-                  WITH CONCURRENT ISOLATED LOADING FOR ALL',
-                with_statistics='true'
+                  WITH CONCURRENT ISOLATED LOADING FOR ALL",
+                with_statistics="true"
             )
         }}
         SELECT * FROM {{ ref('test_table_in_create_test') }}
@@ -426,11 +426,11 @@ projects:
       models/from_cte_table_with_options_and_statistics.sql: |
         {{
             config(
-                materialized='table',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+                materialized="table",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
                   NO MERGEBLOCKRATIO,
-                  WITH CONCURRENT ISOLATED LOADING FOR ALL',
-                with_statistics='true'
+                  WITH CONCURRENT ISOLATED LOADING FOR ALL",
+                with_statistics="true"
             )
         }}
         SELECT * FROM {{ ref('table_with_cte') }}
@@ -438,12 +438,12 @@ projects:
       models/table_with_index.sql: |
         {{
             config(
-                materialized='table',
-                index='PRIMARY INDEX(id)
+                materialized="table",
+                index="PRIMARY INDEX(id)
                 PARTITION BY RANGE_N(create_date
-                              BETWEEN DATE \'2020-01-01\'
-                              AND     DATE \'2021-01-01\'
-                              EACH INTERVAL \'1\' MONTH)'
+                              BETWEEN DATE '2020-01-01'
+                              AND     DATE '2021-01-01'
+                              EACH INTERVAL '1' MONTH)"
             )
         }}
         SELECT * FROM {{ ref('test_table_in_create_test') }}
@@ -451,12 +451,12 @@ projects:
       models/from_cte_table_with_index.sql: |
         {{
             config(
-                materialized='table',
-                index='PRIMARY INDEX(id)
+                materialized="table",
+                index="PRIMARY INDEX(id)
                 PARTITION BY RANGE_N(create_date
-                              BETWEEN DATE \'2020-01-01\'
-                              AND     DATE \'2021-01-01\'
-                              EACH INTERVAL \'1\' MONTH)'
+                              BETWEEN DATE '2020-01-01'
+                              AND     DATE '2021-01-01'
+                              EACH INTERVAL '1' MONTH)"
             )
         }}
         SELECT * FROM {{ ref('table_with_cte') }}
@@ -464,13 +464,12 @@ projects:
       models/table_with_larger_index.sql: |
         {{
             config(
-                materialized='table',
-                index='PRIMARY INDEX(id)
-                      PARTITION BY RANGE_N(create_date
-                          BETWEEN DATE \'2020-01-01\'
-                          AND     DATE \'2021-01-01\'
-                          EACH INTERVAL \'1\' MONTH)
-                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+                materialized="table",
+                index="PRIMARY INDEX(id)
+                PARTITION BY RANGE_N(create_date
+                              BETWEEN DATE '2020-01-01'
+                              AND     DATE '2021-01-01'
+                              EACH INTERVAL '1' MONTH)"
             )
         }}
         SELECT * FROM {{ ref('test_table_in_create_test') }}
@@ -478,13 +477,12 @@ projects:
       models/from_cte_table_with_larger_index.sql: |
         {{
             config(
-                materialized='table',
-                index='PRIMARY INDEX(id)
-                      PARTITION BY RANGE_N(create_date
-                          BETWEEN DATE \'2020-01-01\'
-                          AND     DATE \'2021-01-01\'
-                          EACH INTERVAL \'1\' MONTH)
-                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+                materialized="table",
+                index="PRIMARY INDEX(id)
+                PARTITION BY RANGE_N(create_date
+                              BETWEEN DATE '2020-01-01'
+                              AND     DATE '2021-01-01'
+                              EACH INTERVAL '1' MONTH)"
             )
         }}
         SELECT * FROM {{ ref('table_with_cte') }}
@@ -492,15 +490,15 @@ projects:
       models/table_with_kind_options_index.sql: |
         {{
             config(
-                materialized='table',
-                table_kind='multiset',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON',
-                index='PRIMARY INDEX(id)
-                      PARTITION BY RANGE_N(create_date
-                          BETWEEN DATE \'2020-01-01\'
-                          AND     DATE \'2021-01-01\'
-                          EACH INTERVAL \'1\' MONTH)
-                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+                materialized="table",
+                table_kind="multiset",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON",
+                index="PRIMARY INDEX(id)
+                PARTITION BY RANGE_N(create_date
+                              BETWEEN DATE '2020-01-01'
+                              AND     DATE '2021-01-01'
+                              EACH INTERVAL '1' MONTH)
+                      INDEX index_attrA (attrA) WITH LOAD IDENTITY"
             )
         }}
         SELECT * FROM {{ ref('test_table_in_create_test') }}
@@ -508,15 +506,15 @@ projects:
       models/from_cte_table_with_kind_options_index.sql: |
         {{
             config(
-                materialized='table',
-                table_kind='multiset',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON',
-                index='PRIMARY INDEX(id)
-                      PARTITION BY RANGE_N(create_date
-                          BETWEEN DATE \'2020-01-01\'
-                          AND     DATE \'2021-01-01\'
-                          EACH INTERVAL \'1\' MONTH)
-                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+                materialized="table",
+                table_kind="multiset",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON",
+                index="PRIMARY INDEX(id)
+                PARTITION BY RANGE_N(create_date
+                              BETWEEN DATE '2020-01-01'
+                              AND     DATE '2021-01-01'
+                              EACH INTERVAL '1' MONTH)
+                      INDEX index_attrA (attrA) WITH LOAD IDENTITY"
             )
         }}
         SELECT * FROM {{ ref('table_with_cte') }}
@@ -524,16 +522,16 @@ projects:
       models/table_with_kind_options_stats_index.sql: |
         {{
             config(
-                materialized='table',
-                table_kind='multiset',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON',
-                with_statistics='true',
-                index='PRIMARY INDEX(id)
-                      PARTITION BY RANGE_N(create_date
-                          BETWEEN DATE \'2020-01-01\'
-                          AND     DATE \'2021-01-01\'
-                          EACH INTERVAL \'1\' MONTH)
-                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+                materialized="table",
+                table_kind="multiset",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON",
+                with_statistics="true",
+                index="PRIMARY INDEX(id)
+                PARTITION BY RANGE_N(create_date
+                              BETWEEN DATE '2020-01-01'
+                              AND     DATE '2021-01-01'
+                              EACH INTERVAL '1' MONTH)
+                      INDEX index_attrA (attrA) WITH LOAD IDENTITY"
             )
         }}
         SELECT * FROM {{ ref('test_table_in_create_test') }}
@@ -541,16 +539,16 @@ projects:
       models/from_cte_table_with_kind_options_stats_index.sql: |
         {{
             config(
-                materialized='table',
-                table_kind='multiset',
-                table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON',
-                with_statistics='true',
-                index='PRIMARY INDEX(id)
-                      PARTITION BY RANGE_N(create_date
-                          BETWEEN DATE \'2020-01-01\'
-                          AND     DATE \'2021-01-01\'
-                          EACH INTERVAL \'1\' MONTH)
-                      INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+                materialized="table",
+                table_kind="multiset",
+                table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON",
+                with_statistics="true",
+                index="PRIMARY INDEX(id)
+                PARTITION BY RANGE_N(create_date
+                              BETWEEN DATE '2020-01-01'
+                              AND     DATE '2021-01-01'
+                              EACH INTERVAL '1' MONTH)
+                      INDEX index_attrA (attrA) WITH LOAD IDENTITY"
             )
         }}
         SELECT * FROM {{ ref('table_with_cte') }}
