@@ -6,6 +6,7 @@ target:
   password: "{{ env_var('DBT_TERADATA_PASSWORD', 'dbc') }}"
   schema: "dbt_test_{{ var('_dbt_random_suffix') }}"
   tmode: ANSI
+  log: "0"
 
 projects:
   - name: validate_teradata_cases

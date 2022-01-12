@@ -6,45 +6,49 @@ import dbt.exceptions
 from dbt.adapters.sql import SQLConnectionManager
 from dbt.contracts.connection import AdapterResponse
 from dbt.contracts.connection import Connection
-from dbt.contracts.connection import Credentials
+from dbt.adapters.base import Credentials
 from dbt.logger import GLOBAL_LOGGER as logger
 from dataclasses import dataclass
 from typing import Optional, Tuple, Any
 
 
-@dataclass
+@dataclass(init=False)
 class TeradataCredentials(Credentials):
     server: str
-    port: Optional[int]
-    database: Optional[str]
-    schema: str
-    username: Optional[str]
-    password: Optional[str]
-    tmode: Optional[str]
-    logmech: Optional[str]
-    charset: Optional[str]
-    account: Optional[str]
-    column_name: Optional[str]
-    cop: Optional[str]
-    coplast: Optional[str]
-    encryptdata: Optional[str]
-    fake_result_sets: Optional[str]
-    field_quote: Optional[str]
-    field_sep: Optional[str]
-    lob_support: Optional[str]
-    log: Optional[str]
-    logdata: Optional[str]
-    max_message_body: Optional[str]
-    partition: Optional[str]
-    sip_support: Optional[str]
-    teradata_values: Optional[str]
+    database: Optional[str] = None
+    username: Optional[str] = None
+    password: Optional[str] = None
+    port: Optional[str] = None
+    tmode: Optional[str] = "ANSI"
+    logmech: Optional[str] = None
+    charset: Optional[str] = None
+    account: Optional[str] = None
+    column_name: Optional[str] = None
+    cop: Optional[str] = None
+    coplast: Optional[str] = None
+    encryptdata: Optional[str] = None
+    fake_result_sets: Optional[str] = None
+    field_quote: Optional[str] = None
+    field_sep: Optional[str] = None
+    lob_support: Optional[str] = None
+    log: Optional[str] = None
+    logdata: Optional[str] = None
+    max_message_body: Optional[str] = None
+    partition: Optional[str] = None
+    sip_support: Optional[str] = None
+    teradata_values: Optional[str] = None
 
     _ALIASES = {
         "UID": "username",
         "user": "username",
         "PWD": "password",
-        "host": "server",
+        "host": "server"
     }
+
+    def __init__(self, **kwargs):
+      for k, v in kwargs.items():
+        setattr(self, k, v)
+        self.database = None
 
     def __post_init__(self):
         # teradata classifies database and schema as the same thing
@@ -58,7 +62,6 @@ class TeradataCredentials(Credentials):
                 f"On Teradata, database must be omitted or have the same value as"
                 f" schema."
             )
-        self.database = None
 
         # Only allow the ANSI transaction mode
         if self.tmode != "ANSI":
@@ -220,7 +223,14 @@ class TeradataConnectionManager(SQLConnectionManager):
     @classmethod
     def get_response(cls, cursor):
         # There's no real way to get this from teradatasql, so just return "OK"
-        return "OK"
+        num_rows = 0
+        if cursor is not None and cursor.rowcount is not None:
+          num_rows = cursor.rowcount
+        return AdapterResponse(
+          _message="OK",
+          rows_affected = num_rows,
+          code='SUCCESS'
+        )
 
     def add_query(
         self,
@@ -236,6 +246,11 @@ class TeradataConnectionManager(SQLConnectionManager):
             query = sql.strip()
             if ("DROP view /*+ IF EXISTS */" in query) or ("DROP table /*+ IF EXISTS */" in query):
                 for error_number in [3807, 3854, 3853]:
+                    if f"[Error {error_number}]" in str (ex):
+                        ignored = True
+                        return None, None
+            if ("DELETE DATABASE /*+ IF EXISTS */" in query) or ("DROP DATABASE /*+ IF EXISTS */" in query):
+                for error_number in [3802]:
                     if f"[Error {error_number}]" in str (ex):
                         ignored = True
                         return None, None
