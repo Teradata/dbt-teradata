@@ -6,5 +6,5 @@ tox~=3.2
 pytest-dbt-adapter~=0.5.1
 pylava~=0.3.0
 teradatasql>=16.20.0.0
-dbt-core==0.20.0
+dbt-core==0.21.1
 -e .

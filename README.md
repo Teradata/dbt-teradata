@@ -2,6 +2,14 @@
 
 This plugin ports [dbt](https://getdbt.com) functionality to Teradata Vantage.
 
+## Installation
+
+```
+pip install dbt-teradata
+```
+
+If you are new to dbt on Teradata see [dbt with Teradata Vantage tutorial](https://quickstarts.teradata.com/docs/17.10/dbt.html).
+
 ## Sample profile
 
 Here is a working example of a `dbt-teradata` profile:
@@ -20,6 +28,15 @@ my-teradata-db-profile:
 ```
 
 At a minimum, you need to specify `host`, `user`, `password`, `schema` (database), `tmode`.
+
+## Python compatibility
+
+| Plugin version | Python 3.6  | Python 3.7  | Python 3.8  | Python 3.9  | Python 3.10 |
+| -------------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| 0.19.0.x           | ✅          | ✅          | ✅          | ❌          | ❌          |
+| 0.20.0.x           | ✅          | ✅          | ✅          | ✅          | ❌          |
+| 0.21.1.x           | ✅          | ✅          | ✅          | ✅          | ❌          |
+
 ## Optional configurations
 
 ### Logmech

@@ -3,8 +3,8 @@
     {{ return(2536) }}
 {% endmacro %}
 
-{% macro basic_load_csv_rows(model, batch_size, agate_table) %}
-
+{% macro teradata__load_csv_rows(model, agate_table) %}
+    {% set batch_size = get_batch_size() %}
     {% set use_fastload = config.get('use_fastload', default=False) | as_bool %}
     {% if use_fastload %}
         -- Disable chunking when using fastload
@@ -46,6 +46,10 @@
 
     {# Return SQL so we can render it out into the compiled files #}
     {{ return(statements[0]) }}
+{% endmacro %}
+
+{% macro default__get_binding_char() %}
+  {{ return('?') }}
 {% endmacro %}
 
 
