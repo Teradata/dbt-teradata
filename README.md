@@ -36,8 +36,9 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 | 0.19.0.x           | ✅          | ✅          | ✅          | ❌          | ❌          |
 | 0.20.0.x           | ✅          | ✅          | ✅          | ✅          | ❌          |
 | 0.21.1.x           | ✅          | ✅          | ✅          | ✅          | ❌          |
+| 1.0.0.x           | ❌           | ✅          | ✅          | ✅          | ❌          |
 
-## Optional configurations
+## Optional profile configurations
 
 ### Logmech
 
@@ -139,8 +140,8 @@ All dbt commands are supported.
     ```yaml
     {{
       config(
-          materialized='table',
-          table_kind='SET'
+          materialized="table",
+          table_kind="SET"
       )
     }}
     ```
@@ -191,26 +192,26 @@ All dbt commands are supported.
     ```yaml
     {{
       config(
-          materialized='table',
-          table_option='NO FALLBACK'
+          materialized="table",
+          table_option="NO FALLBACK"
       )
     }}
     ```
     ```yaml
     {{
       config(
-          materialized='table',
-          table_option='NO FALLBACK, NO JOURNAL'
+          materialized="table",
+          table_option="NO FALLBACK, NO JOURNAL"
       )
     }}
     ```
     ```yaml
     {{
       config(
-          materialized='table',
-          table_option='NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+          materialized="table",
+          table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
             NO MERGEBLOCKRATIO,
-            WITH CONCURRENT ISOLATED LOADING FOR ALL'
+            WITH CONCURRENT ISOLATED LOADING FOR ALL"
       )
     }}
     ```
@@ -219,8 +220,8 @@ All dbt commands are supported.
     ```yaml
     {{
       config(
-          materialized='table',
-          with_statistics='true'
+          materialized="table",
+          with_statistics="true"
       )
     }}
     ```
@@ -256,8 +257,8 @@ All dbt commands are supported.
     ```yaml
     {{
       config(
-          materialized='table',
-          index='UNIQUE PRIMARY INDEX ( GlobalID )'
+          materialized="table",
+          index="UNIQUE PRIMARY INDEX ( GlobalID )"
       )
     }}
     ```
@@ -265,12 +266,12 @@ All dbt commands are supported.
     ```yaml
     {{
       config(
-          materialized='table',
-          index='PRIMARY INDEX(id)
-                 PARTITION BY RANGE_N(create_date
-                    BETWEEN DATE \'2020-01-01\'
-                    AND     DATE \'2021-01-01\'
-                    EACH INTERVAL \'1\' MONTH)'
+          materialized="table",
+          index="PRIMARY INDEX(id)
+          PARTITION BY RANGE_N(create_date
+                        BETWEEN DATE '2020-01-01'
+                        AND     DATE '2021-01-01'
+                        EACH INTERVAL '1' MONTH)"
       )
     }}
     ```
@@ -278,13 +279,13 @@ All dbt commands are supported.
     ```yaml
     {{
       config(
-          materialized='table',
-          index='PRIMARY INDEX(id)
-                 PARTITION BY RANGE_N(create_date
-                    BETWEEN DATE \'2020-01-01\'
-                    AND     DATE \'2021-01-01\'
-                    EACH INTERVAL \'1\' MONTH)
-                 INDEX index_attrA (attrA) WITH LOAD IDENTITY'
+          materialized="table",
+          index="PRIMARY INDEX(id)
+          PARTITION BY RANGE_N(create_date
+                        BETWEEN DATE '2020-01-01'
+                        AND     DATE '2021-01-01'
+                        EACH INTERVAL '1' MONTH)
+          INDEX index_attrA (attrA) WITH LOAD IDENTITY"
       )
     }}
     ```
