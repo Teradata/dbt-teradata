@@ -36,8 +36,3 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   teradata:
     +materialized: view
-
-seeds:
-  teradata:
-    +use_fastload: true
-    +quote_columns: false
