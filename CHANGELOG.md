@@ -1,4 +1,4 @@
-## dbt-teradata 0.21.1a
+## dbt-teradata 0.21.1.2
 
 ### Features
 * Improved column type inference for seeds
