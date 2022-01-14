@@ -24,8 +24,7 @@
 
         {% for row in chunk %}
             {% do bindings.append(row.values()) %}
-        {% endfor %}
-
+        {% endfor %}}
         {% set sql %}
             {%- if use_fastload -%}
                 {fn teradata_try_fastload}
@@ -36,7 +35,6 @@
                     {%- if not loop.last%},{%- endif %}
                 {%- endfor -%})
         {% endset %}
-
         {% do adapter.add_query(sql, bindings=bindings, abridge_sql_log=True) %}
 
         {% if loop.index0 == 0 %}

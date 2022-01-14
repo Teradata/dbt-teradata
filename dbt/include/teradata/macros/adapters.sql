@@ -106,7 +106,6 @@ CAST ( CAST (CURRENT_TIMESTAMP AS FORMAT 'YYYY-MM-DD HH:MI:SS.S(F)Z') AS VARCHAR
         when ColumnsV.ColumnType = 'D' then 'DECIMAL'
         when ColumnsV.ColumnType = 'DA' then 'DATE'
         when ColumnsV.ColumnType = 'F' then 'DOUBLE PRECISION'
-        when ColumnsV.ColumnType = 'F' then 'FLOAT'
         when ColumnsV.ColumnType = 'I' then 'INTEGER'
         when ColumnsV.ColumnType = 'DY' then 'INTERVAL DAY'
         when ColumnsV.ColumnType = 'DH' then 'INTERVAL DAY TO HOUR'

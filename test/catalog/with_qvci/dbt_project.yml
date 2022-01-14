@@ -39,7 +39,3 @@ models:
 
 vars:
   use_qvci: true
-
-seeds:
-  teradata:
-    +use_fastload: true

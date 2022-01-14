@@ -45,13 +45,30 @@ class TeradataAdapter(SQLAdapter):
 
     @classmethod
     def convert_text_type(cls, agate_table: agate.Table, col_idx: int) -> str:
-        return "long varchar"
+        return "LONG VARCHAR"
 
     @classmethod
-    def convert_datetime_type(
-            cls, agate_table: agate.Table, col_idx: int
+    def convert_datetime_type(cls, agate_table: agate.Table, col_idx: int) -> str:
+        return "TIMESTAMP(0)"
+
+    @classmethod
+    def convert_time_type(cls, agate_table: agate.Table, col_idx: int) -> str:
+        return "TIME"
+
+    @classmethod
+    def convert_date_type(cls, agate_table: agate.Table, col_idx: int) -> str:
+        return "DATE"
+
+    @classmethod
+    def convert_boolean_type(cls, agate_table: agate.Table, col_idx: int) -> str:
+        return "BYTEINT"
+
+    @classmethod
+    def convert_number_type(
+        cls, agate_table: agate.Table, col_idx: int
     ) -> str:
-        return "timestamp"
+        decimals = agate_table.aggregate(agate.MaxPrecision(col_idx))
+        return "FLOAT" if decimals else "INTEGER"
 
     def quote(self, identifier):
         return '"{}"'.format(identifier)
