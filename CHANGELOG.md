@@ -1,7 +1,7 @@
 ## dbt-teradata 1.0.0a
 
 ### Features
-* Upgrade to dbt v1.0.0
+* Optimize the test query to use `SAMPLE` instead of `LIMIT` clause
 
 ### Fixes
 
