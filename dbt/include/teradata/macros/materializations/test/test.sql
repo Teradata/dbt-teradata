@@ -11,6 +11,6 @@
       END AS should_error
     FROM (
       {{ main_sql }}
-      {{ "limit " ~ limit if limit != none }}
+      {{ "SAMPLE " ~ limit if limit != none }}
     ) dbt_internal_test
 {%- endmacro %}
