@@ -152,11 +152,11 @@ CAST ( CAST (CURRENT_TIMESTAMP AS FORMAT 'YYYY-MM-DDBHH:MI:SS.S(F)Z') AS VARCHAR
       ColumnsV.ColumnID as column_index
     from
     {% if use_qvci == True -%}
-      DBC.ColumnsJQV as ColumnsV
+      {{ information_schema_name(relation.schema) }}.ColumnsJQV as ColumnsV
     {% else %}
-      DBC.ColumnsV
+      {{ information_schema_name(relation.schema) }}.ColumnsV
     {%- endif %}
-    left outer join DBC.TablesV
+    left outer join {{ information_schema_name(relation.schema) }}.TablesV
       on ColumnsV.DatabaseName = TablesV.DatabaseName
       and ColumnsV.TableName = TablesV.TableName
     where
@@ -182,7 +182,7 @@ CAST ( CAST (CURRENT_TIMESTAMP AS FORMAT 'YYYY-MM-DDBHH:MI:SS.S(F)Z') AS VARCHAR
          when TableKind = 'V' then 'view'
          else TableKind
       end as table_type
-    from DBC.TablesV
+    from {{ information_schema_name(schema_relation.schema) }}.TablesV
     where DatabaseName = '{{ schema_relation.schema }}' (NOT CASESPECIFIC)
       and TableKind in ('T', 'V')
 
