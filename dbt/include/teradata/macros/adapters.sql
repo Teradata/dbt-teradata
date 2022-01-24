@@ -1,7 +1,7 @@
 
 {% macro teradata__list_schemas(database) %}
     {% call statement('list_schemas', fetch_result=True, auto_begin=False) -%}
-        select distinct DatabaseName as schema_name
+        select DatabaseName as schema_name
         from {{ information_schema_name(database) }}.DatabasesV
     {%- endcall %}
 
