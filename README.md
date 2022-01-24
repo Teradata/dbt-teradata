@@ -114,7 +114,11 @@ All dbt commands are supported.
 
 #### General
 
-* *Enable view column types in docs* -  Teradata Vantage has a dbscontrol configuration flag called `DisableQVCI`. This flag instructs the database to create `DBC.ColumnsJQV` with view column type definitions. To enable this functionality you need to:
+* *Enable view column types in docs* -  Teradata Vantage has a dbscontrol configuration flag called `DisableQVCI` (QVCI - Queryable View Column Index). This flag instructs the database to build `DBC.ColumnsJQV` with view column type definitions. 
+
+    > :information_source: Existing customers, please see [KB0022230](https://support.teradata.com/knowledge?id=kb_article_view&sys_kb_id=d066248b1b0000187361c8415b4bcb48) for more information about enabling QVCI.
+
+  To enable this functionality you need to:
   1. Enable QVCI mode in Vantage. Use `dbscontrol` utility and then restart Teradata. Run these commands as a privileged user on a Teradata node:
       ```bash
       # option 551 is DisableQVCI. Setting it to false enables QVCI.
