@@ -13,7 +13,7 @@
             end as "table_type",
             null as "table_owner"
 
-        from DBC.tablesV
+        from {{ information_schema_name(schema) }}.tablesV
 
         where TableKind in ('T', 'V')
 
@@ -32,7 +32,7 @@
            ColumnType as "column_type",
            CommentString as "column_comment"
 
-        from DBC.ColumnsV
+        from {{ information_schema_name(schema) }}.ColumnsV
 
     )
 
