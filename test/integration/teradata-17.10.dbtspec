@@ -615,6 +615,10 @@ projects:
         9,2022-09-13 14:54:34,2022-09-13,18.0,10234234,false
         0,2022-10-13 16:24:34,2022-10-13,19.0343,10234234,false
 
+  - name: validate_teradata_timestamp_macro
+    paths:
+      models/dbcinfo.sql: |
+        select TO_TIMESTAMP({{ current_timestamp() }}) as timestamp_column
 
 sequences:
 
@@ -778,6 +782,14 @@ sequences:
     sequence:
       - type: dbt
         cmd: seed
+      - type: run_results
+        exists: True
+
+  test_dbt_teradata_timestamp_macro:
+    project: validate_teradata_timestamp_macro
+    sequence:
+      - type: dbt
+        cmd: run
       - type: run_results
         exists: True
 
