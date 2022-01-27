@@ -63,7 +63,7 @@
 {% endmacro %}
 
 {% macro teradata__current_timestamp() -%}
-CAST ( CAST (CURRENT_TIMESTAMP AS FORMAT 'YYYY-MM-DDBHH:MI:SS.S(F)Z') AS VARCHAR(32))
+CURRENT_TIMESTAMP(6)
 {%- endmacro %}
 
 {% macro teradata__rename_relation(from_relation, to_relation) -%}

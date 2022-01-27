@@ -1,6 +1,7 @@
 
 {% macro teradata__snapshot_string_as_time(timestamp) -%}
-    {%- set result = "TO_TIMESTAMP_TZ('" ~ timestamp ~ "')" -%}
+    {%- set timestamp_string = timestamp.strftime('%Y-%m-%d %H:%M:%S.%f%z') -%}
+    {%- set result = "TO_TIMESTAMP_TZ('" ~ "{0}:{1}".format(timestamp_string[:-2], timestamp_string[-2:]) ~ "')" -%}
     {{ return(result) }}
 {%- endmacro %}
 
