@@ -617,8 +617,55 @@ projects:
 
   - name: validate_teradata_timestamp_macro
     paths:
-      models/dbcinfo.sql: |
-        select TO_TIMESTAMP({{ current_timestamp() }}) as timestamp_column
+      seeds/test_table_in_timestamp_macro_test.csv: |
+        id,attrA,attrB,create_date
+        1,val1A,val1B,2020-03-05
+        2,val2A,val2B,2020-04-05
+        3,val3A,val3B,2020-05-05
+        4,val4A,val4B,2020-10-05
+
+      snapshots/test_table_snapshot.sql: |
+        {% snapshot orders_snapshot %}
+
+        {{ config(
+          check_cols=['create_date'],
+          unique_key='id',
+          strategy='check',
+          target_schema='dbt_test_table_snapshot_schema'
+        ) }}
+        select * from {{ ref('test_table_in_timestamp_macro_test') }}
+
+        {% endsnapshot %}
+
+      macros/macros.sql: |
+        -- override this macro to simulate specific time with full seconds
+        {% macro teradata__current_timestamp() -%}
+          TO_TIMESTAMP_TZ('2022-01-27 15:15:21.000000-05:00')
+        {%- endmacro %}
+
+  - name: validate_teradata_freshness_test
+    paths:
+      models/data_with_timestamp.sql: |
+        {{
+          config(
+            materialized="table"
+          )
+        }}
+        select '100' as important_data, CURRENT_TIMESTAMP - INTERVAL '1' DAY   as timestamp_column
+
+      models/sources.yml: |
+        version: 2
+
+        sources:
+          - name: validate_teradata_freshness_test
+            schema: "{{ target.schema }}"
+            database: "{{ target.schema }}"
+            freshness: # default freshness
+              warn_after: {count: 24, period: hour}
+            loaded_at_field: timestamp_column
+            tables:
+              - name: data_with_timestamp
+
 
 sequences:
 
@@ -789,7 +836,23 @@ sequences:
     project: validate_teradata_timestamp_macro
     sequence:
       - type: dbt
+        cmd: seed
+      - type: run_results
+        exists: True
+      - type: dbt
+        cmd: snapshot
+      - type: run_results
+        exists: True
+
+  test_dbt_teradata_freshness_test:
+    project: validate_teradata_freshness_test
+    sequence:
+      - type: dbt
         cmd: run
+      - type: run_results
+        exists: True
+      - type: dbt
+        cmd: source freshness
       - type: run_results
         exists: True
 
