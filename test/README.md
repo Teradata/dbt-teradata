@@ -13,7 +13,7 @@ Here are the steps to run the integration tests:
 
 Assuming the applicable `pytest-dbt-adapter` package is installed and environment variables are set:
 ```bash
-pytest test/integration/teradata-17.10.dbtspec
+pytest test/integration/teradata.dbtspec
 ```
 
 ## Full example
@@ -48,12 +48,12 @@ export DBT_TERADATA_PASSWORD='dbc'
 
 Run the test specs in this repository (with verbose output):
 ```
-pytest -v test/integration/teradata-17.10.dbtspec
+pytest -v test/integration/teradata.dbtspec
 ```
 
 ### Enable/disable individual tests
 
 Some tests that are expected to fail are commented out within this file:
-- `test/integration/teradata-17.10.dbtspec`
+- `test/integration/teradata.dbtspec`
 
 Un-comment to test new functionality being added.
