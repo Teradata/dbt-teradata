@@ -35,7 +35,7 @@ class TeradataAdapter(SQLAdapter):
     def verify_database(self, database):
         if database.startswith('"'):
             database = database.strip('"')
-        expected = self.config.credentials.database
+        expected = self.config.credentials.schema
         if database.lower() != expected.lower():
             raise dbt.exceptions.NotImplementedException(
                 'Cross-db references not allowed in {} ({} vs {})'

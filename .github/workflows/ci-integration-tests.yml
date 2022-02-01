@@ -76,7 +76,7 @@ jobs:
         shell: bash
         run: ./.github/workflows/scripts/verifyVantageIsRunning.sh
       - name: Run pytest tests
-        run: pytest test/integration/teradata.dbtspec
+        run: pytest test/integration
       - name: Run pytest tests with existing database
         run: |
           cat << EOF > /tmp/pytestdatabase.bteq
@@ -87,9 +87,9 @@ jobs:
           .logoff
           EOF
           # strip the random suffix from the pytest config
-          sed -i'.original' -e "s/_{{ var('_dbt_random_suffix') }}//" test/integration/teradata.dbtspec
+          sed -i'.original' -e "s/_{{ var('_dbt_random_suffix') }}//" test/integration/*
 
-          pytest test/integration/teradata.dbtspec
+          pytest test/integration
       - name: Run performance tests for fastload
         run: |
           mkdir ~/.dbt

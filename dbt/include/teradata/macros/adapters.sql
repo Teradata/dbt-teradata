@@ -206,8 +206,8 @@ CURRENT_TIMESTAMP(6)
 {% endmacro %}
 
 {% macro teradata__drop_schema(relation) -%}
-  {% if relation.database -%}
-    {{ adapter.verify_database(relation.database) }}
+  {% if relation.schema -%}
+    {{ adapter.verify_database(relation.schema) }}
     {%- call statement('drop_schema_delete_database') -%}
     DELETE DATABASE /*+ IF EXISTS */ {{ relation.without_identifier().include(database=False) }} ALL;
     {%- endcall -%}
