@@ -1,4 +1,3 @@
-
 target:
   type: teradata
   server: "{{ env_var('DBT_TERADATA_SERVER_NAME', 'localhost') }}"
@@ -669,18 +668,6 @@ projects:
 
 sequences:
 
-  # List of sequences:
-  # https://github.com/fishtown-analytics/dbt-adapter-tests/tree/master/pytest_dbt_adapter/sequences
-
-  # PASS
-  test_dbt_empty: empty
-  test_dbt_base: base
-  test_dbt_data_test: data_test
-  test_dbt_schema_test: schema_test
-  test_dbt_incremental: incremental
-  test_dbt_ephemeral: ephemeral
-  test_dbt_snapshot_strategy_timestamp: snapshot_strategy_timestamp
-  test_dbt_snapshot_strategy_check_cols: snapshot_strategy_check_cols
   test_dbt_teradata:
     project: validate_teradata_cases
     sequence:
@@ -855,8 +842,3 @@ sequences:
         cmd: source freshness
       - type: run_results
         exists: True
-
-  # FAIL
-  # test_dbt_ephemeral_data_tests: data_test_ephemeral_models - fails with
-  #   [Error 6926] WITH [RECURSIVE] clause or recursive view is not supported
-  #   within WITH [RECURSIVE] definitions, views, triggers or stored procedures.
