@@ -301,62 +301,6 @@ All dbt commands are supported.
       <project-name>:
         +use_fastload: true
     ```
-
-## Supported dbt-utils macros
-
-
-| Macro Group           | Macro Name                    | Status                |
-|-----------------------|-------------------------------|-----------------------|
-| Schema tests          | equal_rowcount                | :white_check_mark:    |
-| Schema tests          | fewer_rows_than               | requires custom macro |
-| Schema tests          | equality                      | :white_check_mark:    |
-| Schema tests          | recency                       | requires custom macro |
-| Schema tests          | at_least_one                  | :white_check_mark:    |
-| Schema tests          | not_constant                  | :white_check_mark:    |
-| Schema tests          | cardinality_equality          | :white_check_mark:    |
-| Schema tests          | unique_where                  |        :question:     |
-| Schema tests          | not_null_where                |        :question:     |
-| Schema tests          | not_accepted_values           | :white_check_mark:    |
-| Schema tests          | relationships_where           | :white_check_mark:    |
-| Schema tests          | mutually_exclusive_ranges     |        :question:     |
-| Schema tests          | sequential_values             |        :question:     |
-| Schema tests          | unique_combination_of_columns | :white_check_mark:    |
-| Schema tests          | accepted_range                | :white_check_mark:    |
-| Introspective macros  | get_column_values             |        :question:     |
-| Introspective macros  | get_relations_by_pattern      |        :question:     |
-| Introspective macros  | get_relations_by_prefix       |        :question:     |
-| Introspective macros  | get_query_results_as_dict     |        :question:     |
-| SQL generators        | date_spine                    | requires custom macro |
-| SQL generators        | haversine_distance            | :white_check_mark:    |
-| SQL generators        | group_by                      | :white_check_mark:    |
-| SQL generators        | star                          | :white_check_mark:    |
-| SQL generators        | union_relations               | requires custom macro |
-| SQL generators        | generate_series               | requires custom macro |
-| SQL generators        | surrogate_key                 | requires custom macro |
-| SQL generators        | safe_add                      | :white_check_mark:    |
-| SQL generators        | pivot                         |        :question:     |
-| SQL generators        | unpivot                       |        :question:     |
-| Web macros            | get_url_parameter             |        :question:     |
-| Web macros            | get_url_host                  |        :question:     |
-| Web macros            | get_url_path                  |        :question:     |
-| Cross-database macros | current_timestamp             | requires custom macro |
-| Cross-database macros | dateadd                       | requires custom macro |
-| Cross-database macros | datediff                      |        :question:     |
-| Cross-database macros | split_part                    |        :question:     |
-| Cross-database macros | date_trunc                    |        :question:     |
-| Cross-database macros | last_day                      |        :question:     |
-| Cross-database macros | width_bucket                  |        :question:     |
-| Jinja Helpers         | pretty_time                   |        :question:     |
-| Jinja Helpers         | pretty_log_format             |        :question:     |
-| Jinja Helpers         | log_info                      |        :question:     |
-| Jinja Helpers         | slugify                       |        :question:     |
-| Materializations      | insert_by_period              |        :question:     |
-| Cross-database macros | width_bucket                  |        :question:     |
-| Jinja Helpers         | pretty_time                   |        :question:     |
-| Jinja Helpers         | pretty_log_format             |        :question:     |
-| Jinja Helpers         | log_info                      |        :question:     |
-| Jinja Helpers         | slugify                       |        :question:     |
-| Materializations      | insert_by_period              |        :question:     |
 ## Common Teradata-specific tasks
 * *collect statistics* - when a table is created or modified significantly, there might be a need to tell Teradata to collect statistics for the optimizer. It can be done using `COLLECT STATISTICS` command. You can perform this step using dbt's `post-hooks`, e.g.:
   ```yaml
