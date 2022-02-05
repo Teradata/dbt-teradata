@@ -23,6 +23,7 @@
         ```
     1. Push change to the origin:
         ```
+        git push origin
         git push origin --tags
         ```
 
