@@ -231,22 +231,22 @@ The following options apply to table, snapshots and seed materializations.
       }}
       ```
     * in seed configuration:
-       ```yaml
-        seeds:
-          <project-name>:
-            table_option:"NO FALLBACK"
+      ```yaml
+      seeds:
+        <project-name>:
+          table_option:"NO FALLBACK"
       ```
       ```yaml
-        seeds:
-          <project-name>:
-            table_option:"NO FALLBACK, NO JOURNAL"
+      seeds:
+        <project-name>:
+          table_option:"NO FALLBACK, NO JOURNAL"
       ```
       ```yaml
-        seeds:
-          <project-name>:
-            table_option: "NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
-              NO MERGEBLOCKRATIO,
-              WITH CONCURRENT ISOLATED LOADING FOR ALL"
+      seeds:
+        <project-name>:
+          table_option: "NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+            NO MERGEBLOCKRATIO,
+            WITH CONCURRENT ISOLATED LOADING FOR ALL"
       ```
 
   For details, see [CREATE TABLE documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/B6Js16DRQVwPDjgJ8rz7hg).
