@@ -12,7 +12,7 @@
     {%- set insert_cols_csv = insert_cols | join(', ') -%}
 
     INSERT INTO {{ target }} ({{ insert_cols_csv }})
-    SELECT {% for column IN insert_cols -%}
+    SELECT {% for column in insert_cols -%}
         DBT_INTERNAL_SOURCE.{{ column }} {%- if not loop.last %}, {%- endif %}
     {%- endfor %}
     FROM {{ source }} AS DBT_INTERNAL_SOURCE

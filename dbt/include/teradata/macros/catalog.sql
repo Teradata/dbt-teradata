@@ -55,7 +55,7 @@
       AND tables.table_name = columns.table_name
 
     WHERE (
-    {%- for schema IN schemas -%}
+    {%- for schema in schemas -%}
       upper(table_schema) = upper('{{ schema }}'){%- if not loop.last %} OR {% endif -%}
     {%- endfor -%}
     )
