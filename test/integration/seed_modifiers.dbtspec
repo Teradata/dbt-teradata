@@ -1,0 +1,85 @@
+target:
+  type: teradata
+  server: "{{ env_var('DBT_TERADATA_SERVER_NAME', 'localhost') }}"
+  username: "{{ env_var('DBT_TERADATA_USERNAME', 'dbc') }}"
+  password: "{{ env_var('DBT_TERADATA_PASSWORD', 'dbc') }}"
+  schema: "dbt_test_{{ var('_dbt_random_suffix') }}"
+  tmode: ANSI
+  log: "0"
+
+projects:
+  - name: project_table_modifiers_with_seed_table_kind
+    paths:
+      seeds/test_table.csv: |
+        id,attrA,attrB
+        1,val1A,val1B
+        2,val2A,val2B
+        3,val3A,val3B
+        4,val4A,val4B
+
+      dbt_project.yml: |
+        name: 'project_table_modifiers_with_seed_table_kind'
+        version: '1.0.0'
+        config-version: 2
+        seeds:
+          project_table_modifiers_with_seed_table_kind:
+            table_kind: "SET"
+
+  - name: project_table_modifiers_with_seed_table_option
+    paths:
+      seeds/test_table.csv: |
+        id,attrA,attrB
+        1,val1A,val1B
+        2,val2A,val2B
+        3,val3A,val3B
+        4,val4A,val4B
+
+      dbt_project.yml: |
+        name: 'project_table_modifiers_with_seed_table_option'
+        version: '1.0.0'
+        config-version: 2
+        seeds:
+          project_table_modifiers_with_seed_table_option:
+            table_option: "NO FALLBACK"
+
+  - name: project_table_modifiers_with_seed_index
+    paths:
+      seeds/test_table.csv: |
+        id,attrA,attrB
+        1,val1A,val1B
+        2,val2A,val2B
+        3,val3A,val3B
+        4,val4A,val4B
+
+      dbt_project.yml: |
+        name: 'project_table_modifiers_with_seed_index'
+        version: '1.0.0'
+        config-version: 2
+        seeds:
+          project_table_modifiers_with_seed_index:
+            index: "UNIQUE PRIMARY INDEX (id)"
+
+sequences:
+  table_modifiers_with_seed_table_kind:
+    project: project_table_modifiers_with_seed_table_kind
+    sequence:
+      - type: dbt
+        cmd: seed
+      - type: run_results
+        exists: True
+
+  table_modifiers_with_seed_table_option:
+    project: project_table_modifiers_with_seed_table_option
+    sequence:
+      - type: dbt
+        cmd: seed
+      - type: run_results
+        exists: True
+
+  table_modifiers_with_seed_index:
+    project: project_table_modifiers_with_seed_index
+    sequence:
+      - type: dbt
+        cmd: seed
+      - type: run_results
+        exists: True
