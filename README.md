@@ -140,15 +140,25 @@ All dbt commands are supported.
 #### Models
 
 ##### Table
+
+The following options apply to table, snapshots and seed materializations.
+
 * `table_kind` - define the table kind. Legal values are `MULTISET` (default for ANSI transaction mode required by `dbt-teradata`) and `SET`, e.g.:
-    ```yaml
-    {{
-      config(
-          materialized="table",
-          table_kind="SET"
-      )
-    }}
-    ```
+    * in materialization:
+      ```yaml
+      {{
+        config(
+            materialized="table",
+            table_kind="SET"
+        )
+      }}
+      ```
+    * in seed configuration:
+      ```yaml
+      seeds:
+        <project-name>:
+          table_kind: "SET"
+      ```
   For details, see [CREATE TABLE documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/B6Js16DRQVwPDjgJ8rz7hg).
 * `table_option` - define table options. Legal values are:
     ```
@@ -193,32 +203,52 @@ All dbt commands are supported.
       ```
 
     Examples:
-    ```yaml
-    {{
-      config(
-          materialized="table",
-          table_option="NO FALLBACK"
-      )
-    }}
-    ```
-    ```yaml
-    {{
-      config(
-          materialized="table",
-          table_option="NO FALLBACK, NO JOURNAL"
-      )
-    }}
-    ```
-    ```yaml
-    {{
-      config(
-          materialized="table",
-          table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
-            NO MERGEBLOCKRATIO,
-            WITH CONCURRENT ISOLATED LOADING FOR ALL"
-      )
-    }}
-    ```
+    * in materializations:
+      ```yaml
+      {{
+        config(
+            materialized="table",
+            table_option="NO FALLBACK"
+        )
+      }}
+      ```
+      ```yaml
+      {{
+        config(
+            materialized="table",
+            table_option="NO FALLBACK, NO JOURNAL"
+        )
+      }}
+      ```
+      ```yaml
+      {{
+        config(
+            materialized="table",
+            table_option="NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+              NO MERGEBLOCKRATIO,
+              WITH CONCURRENT ISOLATED LOADING FOR ALL"
+        )
+      }}
+      ```
+    * in seed configurations:
+       ```yaml
+        seeds:
+          <project-name>:
+            table_option:"NO FALLBACK"
+      ```
+      ```yaml
+        seeds:
+          <project-name>:
+            table_option:"NO FALLBACK, NO JOURNAL"
+      ```
+      ```yaml
+        seeds:
+          <project-name>:
+            table_option: "NO FALLBACK, NO JOURNAL, CHECKSUM = ON,
+              NO MERGEBLOCKRATIO,
+              WITH CONCURRENT ISOLATED LOADING FOR ALL"
+      ```
+
   For details, see [CREATE TABLE documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/B6Js16DRQVwPDjgJ8rz7hg).
 * `with_statistics` - should statistics be copied from the base table, e.g.:
     ```yaml
@@ -229,6 +259,8 @@ All dbt commands are supported.
       )
     }}
     ```
+    This option is not available for seeds as seeds do not use `CREATE TABLE ... AS` syntax.
+
     For details, see [CREATE TABLE documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/B6Js16DRQVwPDjgJ8rz7hg).
 
 * `index` - defines table indices:
@@ -258,43 +290,71 @@ All dbt commands are supported.
       WITH [NO] LOAD IDENTITY
       ```
     e.g.:
-    ```yaml
-    {{
-      config(
-          materialized="table",
-          index="UNIQUE PRIMARY INDEX ( GlobalID )"
-      )
-    }}
-    ```
-    > :information_source: Note, unlike in `table_option`, there are no commas between index statements!
-    ```yaml
-    {{
-      config(
-          materialized="table",
-          index="PRIMARY INDEX(id)
-          PARTITION BY RANGE_N(create_date
-                        BETWEEN DATE '2020-01-01'
-                        AND     DATE '2021-01-01'
-                        EACH INTERVAL '1' MONTH)"
-      )
-    }}
-    ```
-    > :information_source: Note, unlike in `table_option`, there are no commas between index statements!
-    ```yaml
-    {{
-      config(
-          materialized="table",
-          index="PRIMARY INDEX(id)
-          PARTITION BY RANGE_N(create_date
-                        BETWEEN DATE '2020-01-01'
-                        AND     DATE '2021-01-01'
-                        EACH INTERVAL '1' MONTH)
-          INDEX index_attrA (attrA) WITH LOAD IDENTITY"
-      )
-    }}
-    ```
+    * in materializations:
+      ```yaml
+      {{
+        config(
+            materialized="table",
+            index="UNIQUE PRIMARY INDEX ( GlobalID )"
+        )
+      }}
+      ```
+      > :information_source: Note, unlike in `table_option`, there are no commas between index statements!
+      ```yaml
+      {{
+        config(
+            materialized="table",
+            index="PRIMARY INDEX(id)
+            PARTITION BY RANGE_N(create_date
+                          BETWEEN DATE '2020-01-01'
+                          AND     DATE '2021-01-01'
+                          EACH INTERVAL '1' MONTH)"
+        )
+      }}
+      ```
+      ```yaml
+      {{
+        config(
+            materialized="table",
+            index="PRIMARY INDEX(id)
+            PARTITION BY RANGE_N(create_date
+                          BETWEEN DATE '2020-01-01'
+                          AND     DATE '2021-01-01'
+                          EACH INTERVAL '1' MONTH)
+            INDEX index_attrA (attrA) WITH LOAD IDENTITY"
+        )
+      }}
+      ```
+    * in seed configurations:
+      ```yaml
+      seeds:
+        <project-name>:
+          index: "UNIQUE PRIMARY INDEX ( GlobalID )"
+      ```
+      > :information_source: Note, unlike in `table_option`, there are no commas between index statements!
+      ```yaml
+      seeds:
+        <project-name>:
+          index: "PRIMARY INDEX(id)
+            PARTITION BY RANGE_N(create_date
+                          BETWEEN DATE '2020-01-01'
+                          AND     DATE '2021-01-01'
+                          EACH INTERVAL '1' MONTH)"
+      ```
+      ```yaml
+      seeds:
+        <project-name>:
+          index: "PRIMARY INDEX(id)
+            PARTITION BY RANGE_N(create_date
+                          BETWEEN DATE '2020-01-01'
+                          AND     DATE '2021-01-01'
+                          EACH INTERVAL '1' MONTH)
+            INDEX index_attrA (attrA) WITH LOAD IDENTITY"
+      ```
+
 #### Seeds
 
+Seeds, in addition to the above materialization modifiers, have the following options:
 * `use_fastload` - use [fastload](https://github.com/Teradata/python-driver#FastLoad) when handling `dbt seed` command. The option will likely speed up loading when your seed files have hundreds of thousands of rows. You can set this seed configuration option in your `project.yml` file, e.g.:
     ```yaml
     seeds:

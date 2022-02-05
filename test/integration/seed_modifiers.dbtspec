@@ -23,7 +23,6 @@ projects:
         config-version: 2
         seeds:
           project_table_modifiers_with_seed_table_kind:
-            +use_fastload: true
             table_kind: "SET"
 
   - name: project_table_modifiers_with_seed_table_option
@@ -41,7 +40,6 @@ projects:
         config-version: 2
         seeds:
           project_table_modifiers_with_seed_table_option:
-            +use_fastload: true
             table_option: "NO FALLBACK"
 
   - name: project_table_modifiers_with_seed_index
@@ -59,7 +57,6 @@ projects:
         config-version: 2
         seeds:
           project_table_modifiers_with_seed_index:
-            +use_fastload: true
             index: "UNIQUE PRIMARY INDEX (id)"
 
 sequences:
