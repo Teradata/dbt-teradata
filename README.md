@@ -144,7 +144,7 @@ All dbt commands are supported.
 The following options apply to table, snapshots and seed materializations.
 
 * `table_kind` - define the table kind. Legal values are `MULTISET` (default for ANSI transaction mode required by `dbt-teradata`) and `SET`, e.g.:
-    * in materialization:
+    * in sql materialization definition file:
       ```yaml
       {{
         config(
@@ -203,7 +203,7 @@ The following options apply to table, snapshots and seed materializations.
       ```
 
     Examples:
-    * in materializations:
+    * in sql materialization definition file:
       ```yaml
       {{
         config(
@@ -230,7 +230,7 @@ The following options apply to table, snapshots and seed materializations.
         )
       }}
       ```
-    * in seed configurations:
+    * in seed configuration:
        ```yaml
         seeds:
           <project-name>:
@@ -290,7 +290,7 @@ The following options apply to table, snapshots and seed materializations.
       WITH [NO] LOAD IDENTITY
       ```
     e.g.:
-    * in materializations:
+    * in sql materialization definition file:
       ```yaml
       {{
         config(
@@ -325,7 +325,7 @@ The following options apply to table, snapshots and seed materializations.
         )
       }}
       ```
-    * in seed configurations:
+    * in seed configuration:
       ```yaml
       seeds:
         <project-name>:
