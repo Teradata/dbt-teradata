@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.0.1.1
 
 ### Features
 * added support for table modifiers in seeds
