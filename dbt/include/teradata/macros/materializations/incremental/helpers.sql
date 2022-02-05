@@ -3,16 +3,16 @@
     {%- set dest_cols_csv = dest_columns | map(attribute='quoted') | join(', ') -%}
 
     {%- if unique_key is not none -%}
-    delete
-    from {{ target_relation }}
-    where ({{ unique_key }}) in (
-        select ({{ unique_key }})
-        from {{ tmp_relation }}
+    DELETE
+    FROM {{ target_relation }}
+    WHERE ({{ unique_key }}) IN (
+        SELECT ({{ unique_key }})
+        FROM {{ tmp_relation }}
     );
     {%- endif %}
 
-    insert into {{ target_relation }} ({{ dest_cols_csv }})
-       select {{ dest_cols_csv }}
-       from {{ tmp_relation }}
+    INSERT INTO {{ target_relation }} ({{ dest_cols_csv }})
+       SELECT {{ dest_cols_csv }}
+       FROM {{ tmp_relation }}
     ;
 {%- endmacro %}

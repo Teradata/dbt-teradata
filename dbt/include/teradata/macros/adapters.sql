@@ -1,8 +1,8 @@
 
 {% macro teradata__list_schemas(database) %}
     {% call statement('list_schemas', fetch_result=True, auto_begin=False) -%}
-        select DatabaseName as schema_name
-        from {{ information_schema_name(database) }}.DatabasesV
+        SELECT DatabaseName AS schema_name
+        FROM {{ information_schema_name(database) }}.DatabasesV
     {%- endcall %}
 
     {{ return(load_result('list_schemas').table) }}
@@ -16,7 +16,7 @@
 
 {% macro teradata__truncate_relation(relation) -%}
     {% call statement('truncate_relation') -%}
-      delete {{ relation }} all
+      DELETE {{ relation }} ALL
     {%- endcall %}
 {% endmacro %}
 
@@ -28,24 +28,24 @@
   {%- set index = config.get('index', default='') -%}
 
   {{ sql_header if sql_header is not none }}
-  create {{ table_kind }} table
+  CREATE {{ table_kind }} TABLE
   {{ relation.include(database=False) }}
   {% if table_option |length -%}
   , {{ table_option }}
   {%- endif -%}
   {% if sql.strip().upper().startswith('WITH') %}
-    as (
+    AS (
       SELECT * FROM (
         {{ sql }}
       ) D
-    ) with data
+    ) WITH DATA
   {% else %}
-    as (
+    AS (
         {{ sql }}
-      ) with data
+      ) WITH DATA
   {% endif %}
   {%- if with_statistics -%}
-    and statistics
+    AND STATISTICS
   {%- endif %}
   {% if index |length -%}
   {{ index }}
@@ -57,7 +57,7 @@
   {%- set sql_header = config.get('sql_header', none) -%}
 
   {{ sql_header if sql_header is not none }}
-  replace view {{ relation.include(database=False) }} as
+  REPLACE VIEW {{ relation.include(database=False) }} AS
     {{ sql }}
 
 {% endmacro %}
@@ -76,7 +76,7 @@ CURRENT_TIMESTAMP(6)
     DROP {{ to_relation.type }} /*+ IF EXISTS */ {{ to_relation }};
   {% endcall %}
   {% call statement('rename_relation') %}
-    rename {{ to_relation.type }} {{ from_relation }} to {{ to_relation }}
+    RENAME {{ to_relation.type }} {{ from_relation }} TO {{ to_relation }}
   {% endcall %}
 {% endmacro %}
 
@@ -89,81 +89,81 @@ CURRENT_TIMESTAMP(6)
     {% set use_qvci = var("use_qvci", "false") | as_bool %}
      {{ log("use_qvci set to : " ~ use_qvci) }}
     {% call statement('get_columns_in_relation', fetch_result=True) %}
-    select
-      ColumnsV.ColumnName as "column",
-      case
-        when ColumnsV.ColumnType = '++' then 'TD_ANYTYPE'
-        when ColumnsV.ColumnType = 'A1' then 'ARRAY'
-        when ColumnsV.ColumnType = 'AN' then 'ARRAY'
-        when ColumnsV.ColumnType = 'I8' then 'BIGINT'
-        when ColumnsV.ColumnType = 'BO' then 'BINARY LARGE OBJECT'
-        when ColumnsV.ColumnType = 'BF' then 'BYTE'
-        when ColumnsV.ColumnType = 'BV' then 'BYTE VARYING'
-        when ColumnsV.ColumnType = 'I1' then 'BYTEINT'
-        when ColumnsV.ColumnType = 'CF' then 'CHARACTER'
-        when ColumnsV.ColumnType = 'CV' then 'CHARACTER'
-        when ColumnsV.ColumnType = 'CO' then 'CHARACTER LARGE OBJECT'
-        when ColumnsV.ColumnType = 'D' then 'DECIMAL'
-        when ColumnsV.ColumnType = 'DA' then 'DATE'
-        when ColumnsV.ColumnType = 'F' then 'DOUBLE PRECISION'
-        when ColumnsV.ColumnType = 'I' then 'INTEGER'
-        when ColumnsV.ColumnType = 'DY' then 'INTERVAL DAY'
-        when ColumnsV.ColumnType = 'DH' then 'INTERVAL DAY TO HOUR'
-        when ColumnsV.ColumnType = 'DM' then 'INTERVAL DAY TO MINUTE'
-        when ColumnsV.ColumnType = 'DS' then 'INTERVAL DAY TO SECOND'
-        when ColumnsV.ColumnType = 'HR' then 'INTERVAL HOUR'
-        when ColumnsV.ColumnType = 'HM' then 'INTERVAL HOUR TO MINUTE'
-        when ColumnsV.ColumnType = 'HS' then 'INTERVAL HOUR TO SECOND'
-        when ColumnsV.ColumnType = 'MI' then 'INTERVAL MINUTE'
-        when ColumnsV.ColumnType = 'MS' then 'INTERVAL MINUTE TO SECOND'
-        when ColumnsV.ColumnType = 'MO' then 'INTERVAL MONTH'
-        when ColumnsV.ColumnType = 'SC' then 'INTERVAL SECOND'
-        when ColumnsV.ColumnType = 'YR' then 'INTERVAL YEAR'
-        when ColumnsV.ColumnType = 'YM' then 'INTERVAL YEAR TO MONTH'
-        when ColumnsV.ColumnType = 'N' then 'NUMBER'
-        when ColumnsV.ColumnType = 'D' then 'NUMERIC'
-        when ColumnsV.ColumnType = 'PD' then 'PERIOD(DATE)'
-        when ColumnsV.ColumnType = 'PT' then 'PERIOD(TIME(n))'
-        when ColumnsV.ColumnType = 'PZ' then 'PERIOD(TIME(n) WITH TIME ZONE)'
-        when ColumnsV.ColumnType = 'PS' then 'PERIOD(TIMESTAMP(n))'
-        when ColumnsV.ColumnType = 'PM' then 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
-        when ColumnsV.ColumnType = 'F' then 'REAL'
-        when ColumnsV.ColumnType = 'I2' then 'SMALLINT'
-        when ColumnsV.ColumnType = 'AT' then 'TIME'
-        when ColumnsV.ColumnType = 'TS' then 'TIMESTAMP'
-        when ColumnsV.ColumnType = 'TZ' then 'TIME WITH TIME ZONE'
-        when ColumnsV.ColumnType = 'SZ' then 'TIMESTAMP WITH TIME ZONE'
-        when ColumnsV.ColumnType = 'UT' then 'USER‑DEFINED TYPE'
-        when ColumnsV.ColumnType = 'XM' then 'XML'
-        else 'N/A'
-      end as dtype,
-      case
-        when ColumnsV.CharType = 1 then ColumnsV.ColumnLength
-      end as char_size,
-      ColumnsV.DecimalTotalDigits as numeric_precision,
-      ColumnsV.DecimalFractionalDigits as numeric_scale,
-      null as table_database,
-      ColumnsV.DatabaseName as table_schema,
-      ColumnsV.TableName as table_name,
-      case when TablesV.TableKind = 'T' then 'table'
-        when TablesV.TableKind = 'V' then 'view'
-        else TablesV.TableKind
-      end as table_type,
-      ColumnsV.ColumnID as column_index
-    from
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
     {% if use_qvci == True -%}
-      {{ information_schema_name(relation.schema) }}.ColumnsJQV as ColumnsV
+      {{ information_schema_name(relation.schema) }}.ColumnsJQV AS ColumnsV
     {% else %}
       {{ information_schema_name(relation.schema) }}.ColumnsV
     {%- endif %}
-    left outer join {{ information_schema_name(relation.schema) }}.TablesV
-      on ColumnsV.DatabaseName = TablesV.DatabaseName
-      and ColumnsV.TableName = TablesV.TableName
-    where
-      TablesV.TableKind in ('T', 'V')
-      and ColumnsV.DatabaseName = '{{ relation.schema }}' (NOT CASESPECIFIC)
-      and ColumnsV.TableName = '{{ relation.identifier }}' (NOT CASESPECIFIC)
-    order by
+    LEFT OUTER JOIN {{ information_schema_name(relation.schema) }}.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V')
+      AND ColumnsV.DatabaseName = '{{ relation.schema }}' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = '{{ relation.identifier }}' (NOT CASESPECIFIC)
+    ORDER BY
       ColumnsV.ColumnID
     {% endcall %}
 
@@ -174,17 +174,17 @@ CURRENT_TIMESTAMP(6)
 
 {% macro teradata__list_relations_without_caching(schema_relation) %}
   {% call statement('list_relations_without_caching', fetch_result=True) -%}
-    select
-      null as "database",
-      TableName as name,
-      DatabaseName as "schema",
-      case when TableKind = 'T' then 'table'
-         when TableKind = 'V' then 'view'
-         else TableKind
-      end as table_type
-    from {{ information_schema_name(schema_relation.schema) }}.TablesV
-    where DatabaseName = '{{ schema_relation.schema }}' (NOT CASESPECIFIC)
-      and TableKind in ('T', 'V')
+    SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+         WHEN TableKind = 'V' THEN 'view'
+         ELSE TableKind
+      END AS table_type
+    FROM {{ information_schema_name(schema_relation.schema) }}.TablesV
+    WHERE DatabaseName = '{{ schema_relation.schema }}' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V')
 
   {% endcall %}
   {{ return(load_result('list_relations_without_caching').table) }}
@@ -220,10 +220,10 @@ CURRENT_TIMESTAMP(6)
 
 {% macro teradata__get_columns_in_query(select_sql) %}
     {% call statement('get_columns_in_query', fetch_result=True, auto_begin=False) -%}
-        select * from (
+        SELECT * FROM (
             {{ select_sql }}
-        ) as __dbt_sbq
-        where 0=1
+        ) AS __dbt_sbq
+        WHERE 0=1
     {% endcall %}
 
     {{ return(load_result('get_columns_in_query').table.columns | map(attribute='name') | list) }}

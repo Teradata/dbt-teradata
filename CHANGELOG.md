@@ -9,3 +9,4 @@
 ### Under the hood
 * split tests into separate files
 * Fixed leaking databases in tests
+* apply consistent code style
