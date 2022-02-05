@@ -102,3 +102,40 @@
   {{ return({'relations': [target_relation]}) }}
 
 {% endmaterialization %}
+
+{% macro teradata__create_csv_table(model, agate_table) %}
+  {%- set column_override = model['config'].get('column_types', {}) -%}
+  {%- set quote_seed_column = model['config'].get('quote_columns', None) -%}
+  {{ log("model : " ~ model) }}
+  {%- set sql_header = model['config'].get('sql_header', None) -%}
+  {%- set table_kind = model['config'].get('table_kind', '') -%}
+  {%- set table_option = config.get('table_option', '') -%}
+  {%- set index = config.get('index', default='') -%}
+
+
+  {% set sql %}
+    {{ sql_header if sql_header is not none }}
+    CREATE {{ table_kind }} TABLE {{ this.render() }}
+    {% if table_option |length -%}
+    , {{ table_option }}
+    {%- endif %}
+    (
+        {%- for col_name in agate_table.column_names -%}
+            {%- set inferred_type = adapter.convert_type(agate_table, loop.index0) -%}
+            {%- set type = column_override.get(col_name, inferred_type) -%}
+            {%- set column_name = (col_name | string) -%}
+            {{ adapter.quote_seed_column(column_name, quote_seed_column) }} {{ type }} {%- if not loop.last -%}, {%- endif -%}
+        {%- endfor -%}
+    )
+    {% if index |length -%}
+    {{ index }}
+    {%- endif -%};
+
+  {% endset %}
+
+  {% call statement('_') -%}
+    {{ sql }}
+  {%- endcall %}
+
+  {{ return(sql) }}
+{% endmacro %}
