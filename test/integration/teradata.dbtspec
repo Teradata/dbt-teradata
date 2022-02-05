@@ -31,7 +31,7 @@ projects:
                 materialized="table"
             )
         }}
-        SELECT  1 AS a1, 2 AS a2, 1 AS b1, 2 AS b2
+        SELECT 1 AS a1, 2 AS a2, 1 AS b1, 2 AS b2
 
       models/view_with_cte.sql: |
         {{
