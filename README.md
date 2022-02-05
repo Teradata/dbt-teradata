@@ -162,7 +162,7 @@ The following options apply to table, snapshots and seed materializations.
   For details, see [CREATE TABLE documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/B6Js16DRQVwPDjgJ8rz7hg).
 * `table_option` - define table options. Legal values are:
     ```ebnf
-    { MAP = map_name [COLOCATE USING colocation_name |
+    { MAP = map_name [COLOCATE USING colocation_name] |
       [NO] FALLBACK [PROTECTION] |
       WITH JOURNAL TABLE = table_specification |
       [NO] LOG |
@@ -178,27 +178,27 @@ The following options apply to table, snapshots and seed materializations.
     ```
     where:
     * mergeblockratio:
-      ```
+      ```ebnf
       { DEFAULT MERGEBLOCKRATIO |
         MERGEBLOCKRATIO = integer [PERCENT] |
         NO MERGEBLOCKRATIO
       }
       ```
     * datablocksize:
-      ```
+      ```ebnf
       DATABLOCKSIZE = {
         data_block_size [ BYTES | KBYTES | KILOBYTES ] |
         { MINIMUM | MAXIMUM | DEFAULT } DATABLOCKSIZE
       }
       ```
     * blockcompression:
-      ```
+      ```ebnf
       BLOCKCOMPRESSION = { AUTOTEMP | MANUAL | ALWAYS | NEVER | DEFAULT }
         [, BLOCKCOMPRESSIONALGORITHM = { ZLIB | ELZS_H | DEFAULT } ]
         [, BLOCKCOMPRESSIONLEVEL = { value | DEFAULT } ]
       ```
     * isolated_loading:
-      ```
+      ```ebnf
       WITH [NO] [CONCURRENT] ISOLATED LOADING [ FOR { ALL | INSERT | NONE } ]
       ```
 
@@ -264,7 +264,7 @@ The following options apply to table, snapshots and seed materializations.
     For details, see [CREATE TABLE documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/B6Js16DRQVwPDjgJ8rz7hg).
 
 * `index` - defines table indices:
-    ```
+    ```ebnf
     [UNIQUE] PRIMARY INDEX [index_name] ( index_column_name [,...] ) |
     NO PRIMARY INDEX |
     PRIMARY AMP [INDEX] [index_name] ( index_column_name [,...] ) |
@@ -275,18 +275,18 @@ The following options apply to table, snapshots and seed materializations.
     ```
     where:
     * partitioning_level:
-      ```
+      ```ebnf
       { partitioning_expression |
         COLUMN [ [NO] AUTO COMPRESS |
         COLUMN [ [NO] AUTO COMPRESS ] [ ALL BUT ] column_partition ]
       } [ ADD constant ]
       ```
     * ordering:
-      ```
+      ```ebnf
       ORDER BY [ VALUES | HASH ] [ ( order_column_name ) ]
       ```
     * loading:
-      ```
+      ```ebnf
       WITH [NO] LOAD IDENTITY
       ```
     e.g.:
