@@ -161,7 +161,7 @@ The following options apply to table, snapshots and seed materializations.
       ```
   For details, see [CREATE TABLE documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/B6Js16DRQVwPDjgJ8rz7hg).
 * `table_option` - define table options. Legal values are:
-    ```bnf
+    ```ebnf
     { MAP = map_name [COLOCATE USING colocation_name |
       [NO] FALLBACK [PROTECTION] |
       WITH JOURNAL TABLE = table_specification |
