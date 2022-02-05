@@ -1,42 +1,42 @@
 
 {% macro teradata__get_catalog(information_schema, schemas) -%}
     {%- call statement('catalog', fetch_result=True) -%}
-    with tables as (
+    WITH tables AS (
 
-        select
-            null as "table_database",
-            DatabaseName as "table_schema",
-            TableName as "table_name",
-            case when TableKind = 'T' then 'table'
-                 when TableKind = 'V' then 'view'
-                 else TableKind
-            end as "table_type",
-            null as "table_owner"
+        SELECT
+            NULL AS "table_database",
+            DatabaseName AS "table_schema",
+            TableName AS "table_name",
+            CASE WHEN TableKind = 'T' THEN 'table'
+                 WHEN TableKind = 'V' THEN 'view'
+                 ELSE TableKind
+            END AS "table_type",
+            NULL AS "table_owner"
 
-        from {{ information_schema_name(schema) }}.tablesV
+        FROM {{ information_schema_name(schema) }}.tablesV
 
-        where TableKind in ('T', 'V')
+        WHERE TableKind IN ('T', 'V')
 
     ),
 
-    columns as (
+    columns AS (
 
-        select
-           null as "table_database",
-           DatabaseName as "table_schema",
-           TableName as "table_name",
-           null as "table_comment",
+        SELECT
+           NULL AS "table_database",
+           DatabaseName AS "table_schema",
+           TableName AS "table_name",
+           NULL AS "table_comment",
 
-           ColumnName as "column_name",
-           ColumnID as "column_index",
-           ColumnType as "column_type",
-           CommentString as "column_comment"
+           ColumnName AS "column_name",
+           ColumnID AS "column_index",
+           ColumnType AS "column_type",
+           CommentString AS "column_comment"
 
-        from {{ information_schema_name(schema) }}.ColumnsV
+        FROM {{ information_schema_name(schema) }}.ColumnsV
 
     )
 
-    select
+    SELECT
         columns.table_database,
         columns.table_schema,
         columns.table_name,
@@ -48,19 +48,19 @@
         columns.column_type,
         columns.column_comment
 
-    from tables
+    FROM tables
 
-    join columns on
+    JOIN columns ON
       tables.table_schema = columns.table_schema
-      and tables.table_name = columns.table_name
+      AND tables.table_name = columns.table_name
 
-    where (
-    {%- for schema in schemas -%}
-      upper(table_schema) = upper('{{ schema }}'){%- if not loop.last %} or {% endif -%}
+    WHERE (
+    {%- for schema IN schemas -%}
+      upper(table_schema) = upper('{{ schema }}'){%- if not loop.last %} OR {% endif -%}
     {%- endfor -%}
     )
 
-    order by column_index
+    ORDER BY column_index
     {%- endcall -%}
 
     {{ return(load_result('catalog').table) }}

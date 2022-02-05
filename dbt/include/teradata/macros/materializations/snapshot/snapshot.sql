@@ -7,96 +7,96 @@
 
 {% macro snapshot_staging_table(strategy, source_sql, target_relation) -%}
 
-    with snapshot_query as (
+    WITH snapshot_query AS (
 
         {{ source_sql }}
 
     ),
 
-    snapshotted_data as (
+    snapshotted_data AS (
 
-        select snapshot.*,
-            {{ strategy.unique_key }} as dbt_unique_key
+        SELECT snapshot.*,
+            {{ strategy.unique_key }} AS dbt_unique_key
 
-        from {{ target_relation }} as snapshot
+        FROM {{ target_relation }} AS snapshot
 
     ),
 
-    insertions_source_data as (
+    insertions_source_data AS (
 
-        select
+        SELECT
             snapshot_query.*,
-            {{ strategy.unique_key }} as dbt_unique_key,
-            {{ strategy.updated_at }} as dbt_updated_at,
-            {{ strategy.updated_at }} as dbt_valid_from,
-            nullif({{ strategy.updated_at }}, {{ strategy.updated_at }}) as dbt_valid_to,
-            {{ strategy.scd_id }} as dbt_scd_id
+            {{ strategy.unique_key }} AS dbt_unique_key,
+            {{ strategy.updated_at }} AS dbt_updated_at,
+            {{ strategy.updated_at }} AS dbt_valid_from,
+            nullif({{ strategy.updated_at }}, {{ strategy.updated_at }}) AS dbt_valid_to,
+            {{ strategy.scd_id }} AS dbt_scd_id
 
-        from snapshot_query
+        FROM snapshot_query
     ),
 
-    updates_source_data as (
+    updates_source_data AS (
 
-        select
+        SELECT
             snapshot_query.*,
-            {{ strategy.unique_key }} as dbt_unique_key,
-            {{ strategy.updated_at }} as dbt_updated_at,
-            {{ strategy.updated_at }} as dbt_valid_from,
-            {{ strategy.updated_at }} as dbt_valid_to
+            {{ strategy.unique_key }} AS dbt_unique_key,
+            {{ strategy.updated_at }} AS dbt_updated_at,
+            {{ strategy.updated_at }} AS dbt_valid_from,
+            {{ strategy.updated_at }} AS dbt_valid_to
 
-        from snapshot_query
+        FROM snapshot_query
     ),
 
-    insertions as (
+    insertions AS (
 
-        select
-            'insert' as dbt_change_type,
+        SELECT
+            'insert' AS dbt_change_type,
             source_data.*
 
-        from insertions_source_data as source_data
-        left outer join snapshotted_data on snapshotted_data.dbt_unique_key = source_data.dbt_unique_key
-        where snapshotted_data.dbt_unique_key is null
-           or (
-                snapshotted_data.dbt_unique_key is not null
-            and snapshotted_data.dbt_valid_to is null
-            and (
+        FROM insertions_source_data AS source_data
+        LEFT OUTER JOIN snapshotted_data ON snapshotted_data.dbt_unique_key = source_data.dbt_unique_key
+        WHERE snapshotted_data.dbt_unique_key IS NULL
+           OR (
+                snapshotted_data.dbt_unique_key IS NOT NULL
+            AND snapshotted_data.dbt_valid_to IS NULL
+            AND (
                 {{ strategy.row_changed }}
             )
         )
 
     ),
 
-    updates as (
+    updates AS (
 
-        select
-            'update' as dbt_change_type,
+        SELECT
+            'update' AS dbt_change_type,
             source_data.*,
             snapshotted_data.dbt_scd_id
 
-        from updates_source_data as source_data
-        join snapshotted_data on snapshotted_data.dbt_unique_key = source_data.dbt_unique_key
-        where snapshotted_data.dbt_valid_to is null
-        and (
+        FROM updates_source_data AS source_data
+        JOIN snapshotted_data ON snapshotted_data.dbt_unique_key = source_data.dbt_unique_key
+        WHERE snapshotted_data.dbt_valid_to IS NULL
+        AND (
             {{ strategy.row_changed }}
         )
     )
 
-    select * from insertions
-    union all
-    select * from updates
+    SELECT * FROM insertions
+    UNION ALL
+    SELECT * FROM updates
 
 {%- endmacro %}
 
 {% macro build_snapshot_table(strategy, sql) %}
 
-    select sbq.*,
-        {{ strategy.scd_id }} as dbt_scd_id,
-        {{ strategy.updated_at }} as dbt_updated_at,
-        {{ strategy.updated_at }} as dbt_valid_from,
-        nullif({{ strategy.updated_at }}, {{ strategy.updated_at }}) as dbt_valid_to
-    from (
+    SELECT sbq.*,
+        {{ strategy.scd_id }} AS dbt_scd_id,
+        {{ strategy.updated_at }} AS dbt_updated_at,
+        {{ strategy.updated_at }} AS dbt_valid_from,
+        nullif({{ strategy.updated_at }}, {{ strategy.updated_at }}) AS dbt_valid_to
+    FROM (
         {{ sql }}
-    ) as sbq
+    ) AS sbq
 
 {% endmacro %}
 
@@ -221,7 +221,7 @@
     {# handle any schema changes #}
     {%- set target_table = node.get('alias', node.get('name')) -%}
     {%- set target_relation = adapter.get_relation(database=None, schema=node.schema, identifier=target_table) -%}
-    {%- set existing_cols = get_columns_in_query('select * from ' ~ target_relation) -%}
+    {%- set existing_cols = get_columns_in_query('SELECT * FROM ' ~ target_relation) -%}
     {%- set ns = namespace() -%} {# handle for-loop scoping with a namespace #}
     {%- set ns.column_added = false -%}
 
@@ -243,7 +243,7 @@
     {% set invalidate_hard_deletes = config.get('invalidate_hard_deletes', false) %}
 
     {% set select_current_time -%}
-        select {{ snapshot_get_time() }} as snapshot_start
+        SELECT {{ snapshot_get_time() }} AS snapshot_start
     {%- endset %}
 
     {#-- don't access the column by name, to avoid dealing with casing issues on snowflake #}
@@ -272,11 +272,11 @@
         {{ snapshotted_rel }}.{{ col }} <> {{ current_rel }}.{{ col }}
         or
         (
-            (({{ snapshotted_rel }}.{{ col }} is null) and not ({{ current_rel }}.{{ col }} is null))
-            or
-            ((not {{ snapshotted_rel }}.{{ col }} is null) and ({{ current_rel }}.{{ col }} is null))
+            (({{ snapshotted_rel }}.{{ col }} IS NULL) AND NOT ({{ current_rel }}.{{ col }} IS NULL))
+            OR
+            ((NOT {{ snapshotted_rel }}.{{ col }} IS NULL) AND ({{ current_rel }}.{{ col }} IS NULL))
         )
-        {%- if not loop.last %} or {% endif -%}
+        {%- if not loop.last %} OR {% endif -%}
     {%- endfor -%}
     {%- endif -%}
     )

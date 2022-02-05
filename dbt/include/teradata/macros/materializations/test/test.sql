@@ -1,6 +1,6 @@
 {% macro teradata__get_test_sql(main_sql, fail_calc, warn_if, error_if, limit) -%}
     SELECT
-      {{ fail_calc }} as failures,
+      {{ fail_calc }} AS failures,
       CASE
       	WHEN {{ fail_calc }} {{ warn_if | replace("!=","<>") }} THEN 'true'
       	ELSE 'false'

@@ -17,11 +17,11 @@ projects:
             )
         }}
         WITH
-        source_a as (
-            select 1 as a1, 2 as a2
+        source_a AS (
+            SELECT 1 AS a1, 2 AS a2
         ),
-        source_b as (
-            select 1 as b1, 2 as b2
+        source_b AS (
+            SELECT 1 AS b1, 2 AS b2
         )
         SELECT * FROM source_a, source_b
 
@@ -31,7 +31,7 @@ projects:
                 materialized="table"
             )
         }}
-        SELECT  1 as a1, 2 as a2, 1 as b1, 2 as b2
+        SELECT  1 AS a1, 2 AS a2, 1 AS b1, 2 AS b2
 
       models/view_with_cte.sql: |
         {{
@@ -40,11 +40,11 @@ projects:
             )
         }}
         WITH
-        source_a as (
-            select 1 as a1, 2 as a2
+        source_a AS (
+            SELECT 1 AS a1, 2 AS a2
         ),
-        source_b as (
-            select 1 as b1, 2 as b2
+        source_b AS (
+            SELECT 1 AS b1, 2 AS b2
         )
         SELECT * FROM source_a, source_b
 
@@ -55,11 +55,11 @@ projects:
             )
         }}
         WITH
-        source_a as (
-            select 1 as a1, 2 as a2
+        source_a AS (
+            select 1 AS a1, 2 AS a2
         ),
-        source_b as (
-            select 1 as b1, 2 as b2
+        source_b AS (
+            select 1 AS b1, 2 AS b2
         )
         SELECT * FROM source_a, source_b
 
@@ -71,11 +71,11 @@ projects:
               }}
               -- This is a test comment
               WITH
-              source_a as (
-                  select 1 as a1, 2 as a2
+              source_a AS (
+                  SELECT 1 AS a1, 2 AS a2
               ),
-              source_b as (
-                  select 1 as b1, 2 as b2
+              source_b AS (
+                  SELECT 1 AS b1, 2 AS b2
               )
               SELECT * FROM source_a, source_b
 
@@ -301,11 +301,11 @@ projects:
             )
         }}
         WITH
-        source_a as (
-            select 1 as id, 'val1A' as attrA, 'val1B' as attrB
+        source_a AS (
+            select 1 AS id, 'val1A' AS attrA, 'val1B' AS attrB
         ),
-        source_b as (
-            select TO_DATE('2020-03-05') as create_date
+        source_b AS (
+            SELECT to_date('2020-03-05') AS create_date
         )
         SELECT * FROM source_a, source_b
 
@@ -569,7 +569,7 @@ projects:
             )
         }}
 
-        select * from dbc.dbcinfo
+        SELECT * FROM dbc.dbcinfo
 
   - name: validate_teradata_case_sensitivity_with_macro_override
     paths:
@@ -580,7 +580,7 @@ projects:
               schema="DBT_TEST_IS_THE_BEST"
             )
         }}
-        select * from dbc.dbcinfo
+        SELECT * FROM dbc.dbcinfo
 
       macros/generate_schema_name.sql: |
         {% macro generate_schema_name(custom_schema_name, node) -%}
@@ -632,14 +632,14 @@ projects:
           strategy='check',
           target_schema='dbt_test_table_snapshot_schema'
         ) }}
-        select * from {{ ref('test_table_in_timestamp_macro_test') }}
+        SELECT * FROM {{ ref('test_table_in_timestamp_macro_test') }}
 
         {% endsnapshot %}
 
       macros/macros.sql: |
         -- override this macro to simulate specific time with full seconds
         {% macro teradata__current_timestamp() -%}
-          TO_TIMESTAMP_TZ('2022-01-27 15:15:21.000000-05:00')
+          to_timestamp_tz('2022-01-27 15:15:21.000000-05:00')
         {%- endmacro %}
 
   - name: validate_teradata_freshness_test
@@ -650,7 +650,7 @@ projects:
             materialized="table"
           )
         }}
-        select '100' as important_data, CURRENT_TIMESTAMP - INTERVAL '1' DAY   as timestamp_column
+        SELECT '100' AS important_data, current_timestamp - INTERVAL '1' DAY AS timestamp_column
 
       models/sources.yml: |
         version: 2
