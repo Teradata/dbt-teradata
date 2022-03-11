@@ -1,7 +1,7 @@
 
 {% macro teradata__list_schemas(database) %}
     {% call statement('list_schemas', fetch_result=True, auto_begin=False) -%}
-        SELECT DatabaseName AS schema_name
+        SELECT LOWER(DatabaseName) AS schema_name
         FROM {{ information_schema_name(database) }}.DatabasesV
     {%- endcall %}
 
@@ -176,8 +176,8 @@ CURRENT_TIMESTAMP(6)
   {% call statement('list_relations_without_caching', fetch_result=True) -%}
     SELECT
       NULL AS "database",
-      TableName AS name,
-      DatabaseName AS "schema",
+      LOWER(TableName) AS name,
+      LOWER(DatabaseName) AS "schema",
       CASE WHEN TableKind = 'T' THEN 'table'
          WHEN TableKind = 'V' THEN 'view'
          ELSE TableKind
