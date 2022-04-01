@@ -58,6 +58,27 @@ my-teradata-db-profile:
       logmech: LDAP
 ```
 
+### Logdata
+
+The logon mechanism for Teradata jobs that dbt executes can be configured with the `logdata` configuration in your Teradata profile. Addtional data like secure token, distinguished Name, or a domain/realm name can be set in your Teradata profile using `logdata`. `logdata` is not used with the TD2 mechanism.
+
+```yaml
+my-teradata-db-profile:
+  target: dev
+  outputs:
+    dev:
+      type: teradata
+      host: <host>
+      schema: dbt_test
+      tmode: ANSI
+      logmech: LDAP
+      logdata: 'authcid=username password=password'
+      port: <port>
+```
+
+For more information on authentication options, go to [Teradata JDBC Driver Reference](https://downloads.teradata.com/doc/connectivity/jdbc/reference/current/frameset.html)
+
+
 ### Port
 
 If your Teradata database runs on port different than the default (1025), you can specify a custom port in your dbt profile using `port` configuration.
@@ -96,6 +117,43 @@ The plugin also supports the following Teradata connection parameters:
 * teradata_values
 
 For full description of the connection parameters see https://github.com/Teradata/python-driver#connection-parameters.
+
+### Stored Password Protection
+
+The plugin supports Stored Password Protection feature to specify connection password parameter in encryptred format. The encrypted form of connection password can be specified in your Teradata profile with either `password` connection parameter  or `logdata` connection parameter. 
+
+* `password`
+
+```yaml
+my-teradata-db-profile:
+  target: dev
+  outputs:
+    dev:
+      type: teradata
+      host: <host>
+      user: <user>
+      password: ENCRYPTED_PASSWORD(file:PasswordEncryptionKeyFileName,file:EncryptedPasswordFileName)
+      schema: dbt_test
+      tmode: ANSI
+      port: <port>
+```
+* `logdata`
+
+```yaml
+my-teradata-db-profile:
+  target: dev
+  outputs:
+    dev:
+      type: teradata
+      host: <host>
+      schema: dbt_test
+      tmode: ANSI
+      logmech: LDAP
+      logdata: 'authcid=username password=ENCRYPTED_PASSWORD(file:PasswordEncryptionKeyFileName,file:EncryptedPasswordFileName)'
+      port: <port>
+```
+
+For full description of Stored Password Protection see https://github.com/Teradata/python-driver#StoredPasswordProtection.
 
 ## Supported Features
 
