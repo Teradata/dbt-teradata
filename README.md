@@ -42,7 +42,7 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 
 ### Logmech
 
-The logon mechanism for Teradata jobs that dbt executes can be configured with the `logmech` configuration in your Teradata profile. The `logmech` field can be set to: `TD2`, `LDAP`, `KRB5`, `TDNEGO`. For more information on authentication options, go to [Teradata Vantage authentication documentation](hhttps://docs.teradata.com/r/8Mw0Cvnkhv1mk1LEFcFLpw/0Ev5SyB6_7ZVHywTP7rHkQ).
+The logon mechanism for Teradata jobs that dbt executes can be configured with the `logmech` configuration in your Teradata profile. The `logmech` field can be set to: `TD2`, `LDAP`, `KRB5`, `TDNEGO`. For more information on authentication options, go to [Teradata Vantage authentication documentation](https://docs.teradata.com/r/8Mw0Cvnkhv1mk1LEFcFLpw/0Ev5SyB6_7ZVHywTP7rHkQ).
 
 ```yaml
 my-teradata-db-profile:
@@ -60,7 +60,7 @@ my-teradata-db-profile:
 
 ### Logdata
 
-The logon mechanism for Teradata jobs that dbt executes can be configured with the `logdata` configuration in your Teradata profile. Addtional data like secure token, distinguished Name, or a domain/realm name can be set in your Teradata profile using `logdata`. `logdata` is not used with the TD2 mechanism.
+The logon mechanism for Teradata jobs that dbt executes can be configured with the `logdata` configuration in your Teradata profile. Addtional data like secure token, distinguished Name, or a domain/realm name can be set in your Teradata profile using `logdata`. The `logdata` field can be set to: `JWT`, `LDAP`, `KRB5`, `TDNEGO`. `logdata` is not used with the TD2 mechanism. 
 
 ```yaml
 my-teradata-db-profile:
@@ -76,7 +76,44 @@ my-teradata-db-profile:
       port: <port>
 ```
 
-For more information on authentication options, go to [Teradata JDBC Driver Reference](https://downloads.teradata.com/doc/connectivity/jdbc/reference/current/frameset.html)
+For more information on authentication options, go to [Teradata Vantage authentication documentation](https://docs.teradata.com/r/8Mw0Cvnkhv1mk1LEFcFLpw/0Ev5SyB6_7ZVHywTP7rHkQ)
+
+### Stored Password Protection
+
+Stored Password Protection enables an application to provide a connection password in encrypted form to the driver. The plugin supports Stored Password Protection feature through prefix `ENCRYPTED_PASSWORD(` either in `password` connection parameter  or in `logdata` connection parameter.
+
+* `password`
+
+```yaml
+my-teradata-db-profile:
+  target: dev
+  outputs:
+    dev:
+      type: teradata
+      host: <host>
+      user: <user>
+      password: ENCRYPTED_PASSWORD(file:PasswordEncryptionKeyFileName,file:EncryptedPasswordFileName)
+      schema: dbt_test
+      tmode: ANSI
+      port: <port>
+```
+* `logdata`
+
+```yaml
+my-teradata-db-profile:
+  target: dev
+  outputs:
+    dev:
+      type: teradata
+      host: <host>
+      schema: dbt_test
+      tmode: ANSI
+      logmech: LDAP
+      logdata: 'authcid=username password=ENCRYPTED_PASSWORD(file:PasswordEncryptionKeyFileName,file:EncryptedPasswordFileName)'
+      port: <port>
+```
+
+For full description of Stored Password Protection see https://github.com/Teradata/python-driver#StoredPasswordProtection.
 
 
 ### Port
@@ -117,43 +154,6 @@ The plugin also supports the following Teradata connection parameters:
 * teradata_values
 
 For full description of the connection parameters see https://github.com/Teradata/python-driver#connection-parameters.
-
-### Stored Password Protection
-
-The plugin supports Stored Password Protection feature to specify connection password parameter in encryptred format. The encrypted form of connection password can be specified in your Teradata profile with either `password` connection parameter  or `logdata` connection parameter. 
-
-* `password`
-
-```yaml
-my-teradata-db-profile:
-  target: dev
-  outputs:
-    dev:
-      type: teradata
-      host: <host>
-      user: <user>
-      password: ENCRYPTED_PASSWORD(file:PasswordEncryptionKeyFileName,file:EncryptedPasswordFileName)
-      schema: dbt_test
-      tmode: ANSI
-      port: <port>
-```
-* `logdata`
-
-```yaml
-my-teradata-db-profile:
-  target: dev
-  outputs:
-    dev:
-      type: teradata
-      host: <host>
-      schema: dbt_test
-      tmode: ANSI
-      logmech: LDAP
-      logdata: 'authcid=username password=ENCRYPTED_PASSWORD(file:PasswordEncryptionKeyFileName,file:EncryptedPasswordFileName)'
-      port: <port>
-```
-
-For full description of Stored Password Protection see https://github.com/Teradata/python-driver#StoredPasswordProtection.
 
 ## Supported Features
 
