@@ -146,6 +146,7 @@ CURRENT_TIMESTAMP(6)
       ColumnsV.DatabaseName AS table_schema,
       ColumnsV.TableName AS table_name,
       CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
         WHEN TablesV.TableKind = 'V' THEN 'view'
         ELSE TablesV.TableKind
       END AS table_type,
@@ -160,7 +161,7 @@ CURRENT_TIMESTAMP(6)
       ON ColumnsV.DatabaseName = TablesV.DatabaseName
       AND ColumnsV.TableName = TablesV.TableName
     WHERE
-      TablesV.TableKind IN ('T', 'V')
+      TablesV.TableKind IN ('T', 'V', 'O')
       AND ColumnsV.DatabaseName = '{{ relation.schema }}' (NOT CASESPECIFIC)
       AND ColumnsV.TableName = '{{ relation.identifier }}' (NOT CASESPECIFIC)
     ORDER BY
@@ -179,12 +180,13 @@ CURRENT_TIMESTAMP(6)
       TableName AS name,
       DatabaseName AS "schema",
       CASE WHEN TableKind = 'T' THEN 'table'
-         WHEN TableKind = 'V' THEN 'view'
-         ELSE TableKind
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
       END AS table_type
     FROM {{ information_schema_name(schema_relation.schema) }}.TablesV
     WHERE DatabaseName = '{{ schema_relation.schema }}' (NOT CASESPECIFIC)
-      AND TableKind IN ('T', 'V')
+      AND TableKind IN ('T', 'V', 'O')
 
   {% endcall %}
   {{ return(load_result('list_relations_without_caching').table) }}
