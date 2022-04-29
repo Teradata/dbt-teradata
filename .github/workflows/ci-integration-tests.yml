@@ -143,7 +143,7 @@ jobs:
       - name: Run nopi tests
         run: |
           sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
-          M internal 53=N
+          M general 53=N
           W
           EOF
 
