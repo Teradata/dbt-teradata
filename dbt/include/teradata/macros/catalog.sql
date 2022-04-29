@@ -8,14 +8,15 @@
             DatabaseName AS "table_schema",
             TableName AS "table_name",
             CASE WHEN TableKind = 'T' THEN 'table'
-                 WHEN TableKind = 'V' THEN 'view'
-                 ELSE TableKind
+                WHEN TableKind = 'O' THEN 'view'
+                WHEN TableKind = 'V' THEN 'view'
+                ELSE TableKind
             END AS "table_type",
             NULL AS "table_owner"
 
         FROM {{ information_schema_name(schema) }}.tablesV
 
-        WHERE TableKind IN ('T', 'V')
+        WHERE TableKind IN ('T', 'V', 'O')
 
     ),
 
