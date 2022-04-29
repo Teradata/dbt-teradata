@@ -140,6 +140,19 @@ jobs:
           ./run.sh
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
           ./run.sh
+      - name: Run nopi tests
+        run: |
+          sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
+          M internal 53=N
+          W
+          EOF
+
+          tpareset -y Disable PrimaryIndexDefault
+          "
+
+          $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
+
+          pytest test/nopi
       - uses: actions/upload-artifact@v2
         if: ${{ failure() ||  cancelled() }}
         with:

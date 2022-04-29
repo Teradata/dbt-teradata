@@ -1,0 +1,11 @@
+target:
+  type: teradata
+  server: "{{ env_var('DBT_TERADATA_SERVER_NAME', 'localhost') }}"
+  username: "{{ env_var('DBT_TERADATA_USERNAME', 'dbc') }}"
+  password: "{{ env_var('DBT_TERADATA_PASSWORD', 'dbc') }}"
+  schema: "dbt_test_nopi_{{ var('_dbt_random_suffix') }}"
+  tmode: ANSI
+  log: "0"
+
+sequences:
+  test_dbt_incremental: incremental
