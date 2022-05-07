@@ -1,5 +1,8 @@
 
 {% macro teradata__get_catalog(information_schema, schemas) -%}
+    {% set use_qvci = var("use_qvci", "false") | as_bool %}
+    {{ log("use_qvci set to : " ~ use_qvci) }}
+
     {%- call statement('catalog', fetch_result=True) -%}
 
     WITH tables AS (
@@ -39,7 +42,12 @@
            ColumnType AS column_type,
            CommentString AS column_comment
 
-        FROM {{ information_schema_name(schema) }}.ColumnsV
+        {% if use_qvci == True -%}
+          FROM {{ information_schema_name(schema) }}.ColumnsJQV
+        {%- else -%}
+          FROM {{ information_schema_name(schema) }}.ColumnsV
+        {% endif -%}
+
         WHERE (
           {%- for schema in schemas -%}
             upper(table_schema) = upper('{{ schema }}'){%- if not loop.last %} OR {% endif -%}
@@ -48,7 +56,7 @@
 
     ),
 
-    convert_data_types as (
+    columns_transformed AS (
 
         SELECT
           table_database,
@@ -109,25 +117,25 @@
 
     ),
 
-    joined as (
+    joined AS (
 
       SELECT
-          convert_data_types.table_database,
-          convert_data_types.table_schema,
-          convert_data_types.table_name,
+          columns_transformed.table_database,
+          columns_transformed.table_schema,
+          columns_transformed.table_name,
           tables.table_type,
-          convert_data_types.table_comment,
+          columns_transformed.table_comment,
           tables.table_owner,
-          convert_data_types.column_name,
-          convert_data_types.column_index,
-          convert_data_types.column_type,
-          convert_data_types.column_comment
+          columns_transformed.column_name,
+          columns_transformed.column_index,
+          columns_transformed.column_type,
+          columns_transformed.column_comment
 
       FROM tables
 
-      JOIN convert_data_types ON
-        tables.table_schema = convert_data_types.table_schema
-        AND tables.table_name = convert_data_types.table_name
+      JOIN columns_transformed ON
+        tables.table_schema = columns_transformed.table_schema
+        AND tables.table_name = columns_transformed.table_name
     
     )
 
