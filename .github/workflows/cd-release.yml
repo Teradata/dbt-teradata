@@ -27,7 +27,7 @@ jobs:
           git config --global user.email "developers@teradata.com"
           git config --global user.name "Teradata GitHub Actions"
           bumpversion --tag --commit --new-version $RELEASE_VERSION num
-          git push
+          git push --set-upstream origin releases/$RELEASE_VERSION
           git push --tags
         env:
           RELEASE_VERSION: ${{ github.event.inputs.releaseVersion }}
