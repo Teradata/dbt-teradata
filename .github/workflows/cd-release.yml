@@ -54,7 +54,8 @@ jobs:
       - name: reset changelog
         shell: bash
         run: |
+          git checkout main
           cp CHANGELOG.md.template CHANGELOG.md
           git add CHANGELOG.md
           git commit -m "resetting CHANGELOG.md for the next release"
-          git push origin
+          git push
