@@ -26,6 +26,8 @@ jobs:
           git config --global user.email "developers@teradata.com"
           git config --global user.name "Teradata GitHub Actions"
           bumpversion --tag --commit --new-version $RELEASE_VERSION num
+          git push
+          git push --tags
         env:
           RELEASE_VERSION: ${{ github.event.inputs.releaseVersion }}
       - name: Upload to PyPi
@@ -33,7 +35,7 @@ jobs:
         run: |
           rm -fr dist/*
           python setup.py sdist bdist_wheel
-          twine upload -r testpypi dist/*
+          twine upload dist/*
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
