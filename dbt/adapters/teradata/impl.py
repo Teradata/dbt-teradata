@@ -1,25 +1,48 @@
 from concurrent.futures import Future
 from dataclasses import dataclass, asdict
-from typing import Optional, List, Dict, Any, Union, Iterable
+from typing import Optional, List, Dict, Any, Union, Iterable, Callable, Set
 import agate
 
 import dbt
 import dbt.exceptions
 
 from dbt.adapters.base.impl import catch_as_completed
+from dbt.adapters.base.relation import InformationSchema
 from dbt.adapters.sql import SQLAdapter
 from dbt.adapters.teradata import TeradataConnectionManager
 from dbt.adapters.teradata import TeradataRelation
 from dbt.adapters.teradata import TeradataColumn
 from dbt.adapters.base.meta import available
 from dbt.adapters.base import BaseRelation
-from dbt.clients.agate_helper import DEFAULT_TYPE_TESTER
+from dbt.clients.agate_helper import DEFAULT_TYPE_TESTER, table_from_rows
+from dbt.contracts.graph.manifest import Manifest
 from dbt.events import AdapterLogger
 logger = AdapterLogger("teradata")
 from dbt.utils import executor
 
 LIST_SCHEMAS_MACRO_NAME = 'list_schemas'
 LIST_RELATIONS_MACRO_NAME = 'list_relations_without_caching'
+GET_CATALOG_MACRO_NAME = 'get_catalog'
+
+def _expect_row_value(key: str, row: agate.Row):
+    if key not in row.keys():
+        raise dbt.exceptions.InternalException(
+            f'Got a row without \'{key}\' column, columns: {row.keys()}'
+        )
+
+    return row[key]
+
+def _catalog_filter_schemas(manifest: Manifest) -> Callable[[agate.Row], bool]:
+    schemas = frozenset((None, s.lower()) for d, s in manifest.get_used_schemas())
+
+    def test(row: agate.Row) -> bool:
+        table_database = _expect_row_value('table_database', row)
+        table_schema = _expect_row_value('table_schema', row)
+        if table_schema is None:
+            return False
+        return (table_database, table_schema.lower()) in schemas
+
+    return test
 
 
 class TeradataAdapter(SQLAdapter):
@@ -109,18 +132,6 @@ class TeradataAdapter(SQLAdapter):
 
         return relations
 
-    def _get_columns_for_catalog(
-        self, relation: TeradataRelation
-    ) -> Iterable[Dict[str, Any]]:
-        columns = self.get_columns_in_relation(relation)
-        for column in columns:
-            # convert TeradataColumns into catalog dicts
-            as_dict = asdict(column)
-            as_dict['column_name'] = as_dict.pop('column', None)
-            as_dict['column_type'] = as_dict.pop('dtype')
-            as_dict['table_database'] = None
-            yield as_dict
-
     def get_relation(
         self, database: str, schema: str, identifier: str
     ) -> Optional[BaseRelation]:
@@ -143,7 +154,10 @@ class TeradataAdapter(SQLAdapter):
         return catalogs, exceptions
 
     def _get_one_catalog(
-        self, information_schema, schemas, manifest,
+        self,
+        information_schema: InformationSchema,
+        schemas: Set[str],
+        manifest: Manifest,
     ) -> agate.Table:
         if len(schemas) != 1:
             dbt.exceptions.raise_compiler_error(
@@ -151,16 +165,16 @@ class TeradataAdapter(SQLAdapter):
                 f'{schemas}'
             )
 
-        database = information_schema.database
-        schema = list(schemas)[0]
+        return super()._get_one_catalog(information_schema, schemas, manifest)
 
-        columns: List[Dict[str, Any]] = []
-        for relation in self.list_relations(database, schema):
-            logger.debug("Getting table schema for relation {}", relation)
-            columns.extend(self._get_columns_for_catalog(relation))
-        return agate.Table.from_object(
-            columns, column_types=DEFAULT_TYPE_TESTER
+    @classmethod
+    def _catalog_filter_table(cls, table: agate.Table, manifest: Manifest) -> agate.Table:
+        table = table_from_rows(
+            table.rows,
+            table.column_names,
+            text_only_columns=['table_schema', 'table_name'],
         )
+        return table.where(_catalog_filter_schemas(manifest))
 
     def check_schema_exists(self, database, schema):
         results = self.execute_macro(

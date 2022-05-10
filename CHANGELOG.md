@@ -3,6 +3,7 @@
 ### Features
 
 ### Fixes
+* Performance improvements for `dbt docs generate`
 
 ### Docs
 
