@@ -25,7 +25,7 @@
           {%- for schema in schemas -%}
             upper(table_schema) = upper('{{ schema }}'){%- if not loop.last %} OR {% endif -%}
           {%- endfor -%}
-        ) 
+        )
 
     ),
 
@@ -44,7 +44,7 @@
 
         {% if use_qvci == True -%}
           FROM {{ information_schema_name(schema) }}.ColumnsJQV
-        {%- else -%}
+        {% else -%}
           FROM {{ information_schema_name(schema) }}.ColumnsV
         {% endif -%}
 
@@ -52,7 +52,7 @@
           {%- for schema in schemas -%}
             upper(table_schema) = upper('{{ schema }}'){%- if not loop.last %} OR {% endif -%}
           {%- endfor -%}
-        ) 
+        )
 
     ),
 
@@ -136,7 +136,7 @@
       JOIN columns_transformed ON
         tables.table_schema = columns_transformed.table_schema
         AND tables.table_name = columns_transformed.table_name
-    
+
     )
 
     SELECT *
