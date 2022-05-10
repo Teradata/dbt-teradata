@@ -23,6 +23,7 @@ jobs:
       - name: Bump version
         shell: bash
         run: |
+          git checkout -b releases/$RELEASE_VERSION
           git config --global user.email "developers@teradata.com"
           git config --global user.name "Teradata GitHub Actions"
           bumpversion --tag --commit --new-version $RELEASE_VERSION num
