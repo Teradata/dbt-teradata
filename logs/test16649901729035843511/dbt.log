@@ -1,0 +1,1451 @@
+17:16:12.750164 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:16:12.750164 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16649901729035843511_test_basic', identifier=None)".
+17:16:12.750164 [debug] [MainThread]: Using teradata connection "_test"
+17:16:12.750164 [debug] [MainThread]: On _test: 
+17:16:12.750164 [debug] [MainThread]: Opening a new connection, currently in state init
+17:16:16.069272 [debug] [MainThread]: SQL status: OK in 3.32 seconds
+17:16:16.069834 [debug] [MainThread]: Using teradata connection "_test"
+17:16:16.069834 [debug] [MainThread]: On _test: DELETE DATABASE /*+ IF EXISTS */ "test16649901729035843511_test_basic" ALL;
+17:16:16.395968 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1851] [Teradata Database] [Error 3802] Database 'test16649901729035843511_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+17:16:16.402315 [debug] [MainThread]: On _test: ROLLBACK
+17:16:16.726533 [debug] [MainThread]: Using teradata connection "_test"
+17:16:16.727077 [debug] [MainThread]: On _test: 
+17:16:16.727635 [debug] [MainThread]: SQL status: OK in 0.0 seconds
+17:16:16.727635 [debug] [MainThread]: Using teradata connection "_test"
+17:16:16.728171 [debug] [MainThread]: On _test: DROP DATABASE /*+ IF EXISTS */ "test16649901729035843511_test_basic";
+17:16:17.055687 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1851] [Teradata Database] [Error 3802] Database 'test16649901729035843511_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+17:16:17.055687 [debug] [MainThread]: On _test: ROLLBACK
+17:16:17.386447 [debug] [MainThread]: On _test: Close
+17:16:17.736195 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:16:17.736736 [debug] [MainThread]: Creating schema "_ReferenceKey(database=None, schema='test16649901729035843511_test_basic', identifier=None)"
+17:16:17.738422 [debug] [MainThread]: Using teradata connection "_test"
+17:16:17.738951 [debug] [MainThread]: On _test: 
+17:16:17.738983 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:16:21.045973 [debug] [MainThread]: SQL status: OK in 3.31 seconds
+17:16:21.046509 [debug] [MainThread]: Using teradata connection "_test"
+17:16:21.046509 [debug] [MainThread]: On _test: CREATE DATABASE "test16649901729035843511_test_basic"
+    -- Teradata expects db sizing params on creation. This macro is probably
+    -- useful only for testing. For production scenrios, a properly sized
+    -- database (schema) will likely exist before dbt gets called
+    AS PERMANENT = 60e6, -- 60MB
+        SPOOL = 120e6; -- 120MB
+17:16:21.766372 [debug] [MainThread]: SQL status: OK in 0.72 seconds
+17:16:21.766906 [debug] [MainThread]: On _test: COMMIT
+17:16:21.767442 [debug] [MainThread]: Using teradata connection "_test"
+17:16:21.767980 [debug] [MainThread]: On _test: COMMIT
+17:16:22.096093 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:16:22.096608 [debug] [MainThread]: On _test: Close
+17:16:22.451829 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-05 17:16:22.461904 | 7c635932-44c8-442e-9bab-0bd610a78578 ==============================
+17:16:22.461904 [info ] [MainThread]: Running with dbt=1.1.0
+17:16:22.461904 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\profile5', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'show': False, 'which': 'seed', 'rpc_method': 'seed', 'indirect_selection': 'eager'}
+17:16:22.461904 [debug] [MainThread]: Tracking: do not track
+17:16:22.472016 [info ] [MainThread]: Partial parse save file not found. Starting full parse.
+17:16:22.513648 [debug] [MainThread]: Parsing macros\adapters.sql
+17:16:22.522892 [debug] [MainThread]: Parsing macros\catalog.sql
+17:16:22.533077 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+17:16:22.533077 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+17:16:22.541128 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+17:16:22.553273 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+17:16:22.583564 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+17:16:22.583564 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+17:16:22.583564 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+17:16:22.583564 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+17:16:22.593752 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+17:16:22.593752 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+17:16:22.593752 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+17:16:22.603984 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+17:16:22.603984 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+17:16:22.614054 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+17:16:22.614054 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+17:16:22.624149 [debug] [MainThread]: Parsing macros\etc\statement.sql
+17:16:22.624149 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+17:16:22.632246 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+17:16:22.632246 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+17:16:22.634292 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+17:16:22.634292 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+17:16:22.634292 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+17:16:22.634292 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+17:16:22.634292 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+17:16:22.642422 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+17:16:22.644470 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+17:16:22.644470 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+17:16:22.654599 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+17:16:22.654599 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+17:16:22.664690 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+17:16:22.684867 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+17:16:22.684867 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+17:16:22.692946 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+17:16:22.694992 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+17:16:22.694992 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+17:16:22.694992 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+17:16:22.705084 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+17:16:22.715177 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+17:16:22.723223 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+17:16:22.733296 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+17:16:22.743389 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+17:16:22.743389 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+17:16:22.755511 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+17:16:22.755511 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+17:16:22.763559 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql
+17:16:22.765607 [debug] [MainThread]: Parsing tests\generic\builtin.sql
+17:16:22.937885 [debug] [MainThread]: 1603: static parser failed on incremental.sql
+17:16:22.945929 [debug] [MainThread]: 1602: parser fallback to jinja rendering on incremental.sql
+17:16:22.978356 [info ] [MainThread]: Found 1 model, 0 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 2 seed files, 1 source, 0 exposures, 0 metrics
+17:16:22.978356 [info ] [MainThread]: 
+17:16:22.978356 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:16:22.978356 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+17:16:22.978356 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+17:16:22.978356 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+17:16:22.978356 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:16:26.975872 [debug] [ThreadPool]: SQL status: OK in 4.0 seconds
+17:16:26.976972 [debug] [ThreadPool]: On list_schemas: Close
+17:16:27.318445 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649901729035843511_test_basic"
+17:16:27.320630 [debug] [ThreadPool]: Using teradata connection "list_None_test16649901729035843511_test_basic"
+17:16:27.321199 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: 
+17:16:27.321199 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:16:30.615732 [debug] [ThreadPool]: SQL status: OK in 3.29 seconds
+17:16:30.616236 [debug] [ThreadPool]: Using teradata connection "list_None_test16649901729035843511_test_basic"
+17:16:30.616236 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649901729035843511_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649901729035843511_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+17:16:31.296413 [debug] [ThreadPool]: SQL status: OK in 0.68 seconds
+17:16:31.297486 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: ROLLBACK
+17:16:31.625919 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: Close
+17:16:31.967272 [debug] [MainThread]: Using teradata connection "master"
+17:16:31.967698 [debug] [MainThread]: On master: 
+17:16:31.967984 [debug] [MainThread]: Opening a new connection, currently in state init
+17:16:35.295951 [debug] [MainThread]: SQL status: OK in 3.33 seconds
+17:16:35.296461 [debug] [MainThread]: On master: COMMIT
+17:16:35.296503 [debug] [MainThread]: Using teradata connection "master"
+17:16:35.297060 [debug] [MainThread]: On master: COMMIT
+17:16:35.626146 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:16:35.626146 [debug] [MainThread]: On master: Close
+17:16:35.955802 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+17:16:35.956343 [info ] [MainThread]: 
+17:16:35.959107 [debug] [Thread-45 ]: Began running node seed.incremental.added
+17:16:35.959702 [info ] [Thread-45 ]: 1 of 2 START seed file test16649901729035843511_test_basic.added ............... [RUN]
+17:16:35.960297 [debug] [Thread-45 ]: Acquiring new teradata connection "seed.incremental.added"
+17:16:35.960825 [debug] [Thread-45 ]: Began compiling node seed.incremental.added
+17:16:35.960825 [debug] [Thread-45 ]: finished collecting timing info
+17:16:35.960825 [debug] [Thread-45 ]: Began executing node seed.incremental.added
+17:16:35.965168 [debug] [Thread-45 ]: model : {'raw_sql': '', 'resource_type': 'seed', 'depends_on': {'macros': [], 'nodes': []}, 'config': {'enabled': True, 'tags': [], 'meta': {}, 'materialized': 'seed', 'persist_docs': {}, 'quoting': {}, 'column_types': {}, 'on_schema_change': 'ignore', 'post-hook': [], 'pre-hook': []}, 'schema': 'test16649901729035843511_test_basic', 'fqn': ['incremental', 'added'], 'unique_id': 'seed.incremental.added', 'package_name': 'incremental', 'root_path': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\project5', 'path': 'added.csv', 'original_file_path': 'seeds\\added.csv', 'name': 'added', 'alias': 'added', 'checksum': {'name': 'sha256', 'checksum': 'a3d9dd9bfad23ea273491e1e26380b03d4cac45a27dd4e9199dedaeb77c12cbd'}, 'tags': [], 'refs': [], 'sources': [], 'description': '', 'columns': {}, 'meta': {}, 'docs': {'show': True}, 'deferred': False, 'unrendered_config': {}, 'created_at': 1664990182.9479754}
+17:16:35.965727 [debug] [Thread-45 ]: Using teradata connection "seed.incremental.added"
+17:16:35.966276 [debug] [Thread-45 ]: On seed.incremental.added: 
+17:16:35.966877 [debug] [Thread-45 ]: Opening a new connection, currently in state init
+17:16:39.254088 [debug] [Thread-45 ]: SQL status: OK in 3.29 seconds
+17:16:39.256152 [debug] [Thread-45 ]: Using teradata connection "seed.incremental.added"
+17:16:39.256152 [debug] [Thread-45 ]: On seed.incremental.added: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "seed.incremental.added"} */
+
+    
+    CREATE  TABLE "test16649901729035843511_test_basic"."added"
+    
+    ("id" INTEGER,"name" LONG VARCHAR,"some_date" TIMESTAMP(0))
+    ;
+
+  
+17:16:39.925858 [debug] [Thread-45 ]: SQL status: OK in 0.67 seconds
+17:16:39.927467 [debug] [Thread-45 ]: Using teradata connection "seed.incremental.added"
+17:16:39.928024 [debug] [Thread-45 ]: On seed.incremental.added: insert into "test16649901729035843511_test_basic"."added" ("id", "name", "some_date") values
+                (?,?,?)
+        ...
+17:16:40.605988 [debug] [Thread-45 ]: SQL status: OK in 0.68 seconds
+17:16:40.606494 [debug] [Thread-45 ]: Writing runtime SQL for node "seed.incremental.added"
+17:16:40.616014 [debug] [Thread-45 ]: On seed.incremental.added: COMMIT
+17:16:40.616584 [debug] [Thread-45 ]: Using teradata connection "seed.incremental.added"
+17:16:40.617093 [debug] [Thread-45 ]: On seed.incremental.added: COMMIT
+17:16:40.948867 [debug] [Thread-45 ]: SQL status: OK in 0.33 seconds
+17:16:40.949412 [debug] [Thread-45 ]: finished collecting timing info
+17:16:40.950010 [debug] [Thread-45 ]: On seed.incremental.added: Close
+17:16:41.285842 [info ] [Thread-45 ]: 1 of 2 OK loaded seed file test16649901729035843511_test_basic.added ........... [[32mINSERT 20[0m in 5.33s]
+17:16:41.286389 [debug] [Thread-45 ]: Finished running node seed.incremental.added
+17:16:41.286933 [debug] [Thread-45 ]: Began running node seed.incremental.base
+17:16:41.287477 [info ] [Thread-45 ]: 2 of 2 START seed file test16649901729035843511_test_basic.base ................ [RUN]
+17:16:41.288024 [debug] [Thread-45 ]: Acquiring new teradata connection "seed.incremental.base"
+17:16:41.288024 [debug] [Thread-45 ]: Began compiling node seed.incremental.base
+17:16:41.288570 [debug] [Thread-45 ]: finished collecting timing info
+17:16:41.288570 [debug] [Thread-45 ]: Began executing node seed.incremental.base
+17:16:41.291828 [debug] [Thread-45 ]: model : {'raw_sql': '', 'resource_type': 'seed', 'depends_on': {'macros': [], 'nodes': []}, 'config': {'enabled': True, 'tags': [], 'meta': {}, 'materialized': 'seed', 'persist_docs': {}, 'quoting': {}, 'column_types': {}, 'on_schema_change': 'ignore', 'post-hook': [], 'pre-hook': []}, 'schema': 'test16649901729035843511_test_basic', 'fqn': ['incremental', 'base'], 'unique_id': 'seed.incremental.base', 'package_name': 'incremental', 'root_path': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\project5', 'path': 'base.csv', 'original_file_path': 'seeds\\base.csv', 'name': 'base', 'alias': 'base', 'checksum': {'name': 'sha256', 'checksum': '86dc7fd6521185b45bd27b5f5d2c808d6b61781ee713e439016f1ebc221c955d'}, 'tags': [], 'refs': [], 'sources': [], 'description': '', 'columns': {}, 'meta': {}, 'docs': {'show': True}, 'deferred': False, 'unrendered_config': {}, 'created_at': 1664990182.9479754}
+17:16:41.292338 [debug] [Thread-45 ]: Using teradata connection "seed.incremental.base"
+17:16:41.292876 [debug] [Thread-45 ]: On seed.incremental.base: 
+17:16:41.292916 [debug] [Thread-45 ]: Opening a new connection, currently in state closed
+17:16:44.609540 [debug] [Thread-45 ]: SQL status: OK in 3.32 seconds
+17:16:44.610842 [debug] [Thread-45 ]: Using teradata connection "seed.incremental.base"
+17:16:44.611382 [debug] [Thread-45 ]: On seed.incremental.base: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "seed.incremental.base"} */
+
+    
+    CREATE  TABLE "test16649901729035843511_test_basic"."base"
+    
+    ("id" INTEGER,"name" LONG VARCHAR,"some_date" TIMESTAMP(0))
+    ;
+
+  
+17:16:45.285987 [debug] [Thread-45 ]: SQL status: OK in 0.67 seconds
+17:16:45.288186 [debug] [Thread-45 ]: Using teradata connection "seed.incremental.base"
+17:16:45.288186 [debug] [Thread-45 ]: On seed.incremental.base: insert into "test16649901729035843511_test_basic"."base" ("id", "name", "some_date") values
+                (?,?,?)
+        ...
+17:16:45.955857 [debug] [Thread-45 ]: SQL status: OK in 0.67 seconds
+17:16:45.956400 [debug] [Thread-45 ]: Writing runtime SQL for node "seed.incremental.base"
+17:16:45.958062 [debug] [Thread-45 ]: On seed.incremental.base: COMMIT
+17:16:45.958599 [debug] [Thread-45 ]: Using teradata connection "seed.incremental.base"
+17:16:45.959163 [debug] [Thread-45 ]: On seed.incremental.base: COMMIT
+17:16:46.286058 [debug] [Thread-45 ]: SQL status: OK in 0.33 seconds
+17:16:46.286633 [debug] [Thread-45 ]: finished collecting timing info
+17:16:46.287212 [debug] [Thread-45 ]: On seed.incremental.base: Close
+17:16:46.627876 [info ] [Thread-45 ]: 2 of 2 OK loaded seed file test16649901729035843511_test_basic.base ............ [[32mINSERT 10[0m in 5.34s]
+17:16:46.628406 [debug] [Thread-45 ]: Finished running node seed.incremental.base
+17:16:46.628406 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:16:46.628406 [debug] [MainThread]: Using teradata connection "master"
+17:16:46.628406 [debug] [MainThread]: On master: 
+17:16:46.628406 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:16:49.916110 [debug] [MainThread]: SQL status: OK in 3.29 seconds
+17:16:49.916456 [debug] [MainThread]: On master: COMMIT
+17:16:49.916967 [debug] [MainThread]: Using teradata connection "master"
+17:16:49.916967 [debug] [MainThread]: On master: COMMIT
+17:16:50.246101 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:16:50.246664 [debug] [MainThread]: On master: Close
+17:16:50.573680 [info ] [MainThread]: 
+17:16:50.577625 [info ] [MainThread]: Finished running 2 seeds in 27.60s.
+17:16:50.578141 [debug] [MainThread]: Connection 'master' was properly closed.
+17:16:50.578683 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+17:16:50.579221 [debug] [MainThread]: Connection 'list_None_test16649901729035843511_test_basic' was properly closed.
+17:16:50.579793 [debug] [MainThread]: Connection 'seed.incremental.base' was properly closed.
+17:16:50.585111 [info ] [MainThread]: 
+17:16:50.585647 [info ] [MainThread]: [32mCompleted successfully[0m
+17:16:50.586185 [info ] [MainThread]: 
+17:16:50.586788 [info ] [MainThread]: Done. PASS=2 WARN=0 ERROR=0 SKIP=0 TOTAL=2
+17:16:50.587367 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:16:50.587874 [debug] [MainThread]: Opening a new connection, currently in state init
+17:16:54.625941 [debug] [MainThread]: On _test: Close
+17:16:54.956821 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:16:54.957532 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:16:58.986552 [debug] [MainThread]: On _test: Close
+17:16:59.366838 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-05 17:16:59.368963 | 7c635932-44c8-442e-9bab-0bd610a78578 ==============================
+17:16:59.368963 [info ] [MainThread]: Running with dbt=1.1.0
+17:16:59.368963 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\profile5', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'vars': 'seed_name: base', 'which': 'run', 'rpc_method': 'run', 'indirect_selection': 'eager'}
+17:16:59.368963 [debug] [MainThread]: Tracking: do not track
+17:16:59.389403 [info ] [MainThread]: Unable to do partial parsing because config vars, config profile, or config target have changed
+17:16:59.420048 [debug] [MainThread]: Parsing macros\adapters.sql
+17:16:59.430293 [debug] [MainThread]: Parsing macros\catalog.sql
+17:16:59.440537 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+17:16:59.440537 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+17:16:59.450759 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+17:16:59.461007 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+17:16:59.491587 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+17:16:59.491587 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+17:16:59.491587 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+17:16:59.499634 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+17:16:59.501675 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+17:16:59.511832 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+17:16:59.511832 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+17:16:59.521891 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+17:16:59.521891 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+17:16:59.531994 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+17:16:59.531994 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+17:16:59.542037 [debug] [MainThread]: Parsing macros\etc\statement.sql
+17:16:59.552109 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+17:16:59.552200 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+17:16:59.552200 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+17:16:59.552200 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+17:16:59.552200 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+17:16:59.552200 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+17:16:59.552200 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+17:16:59.560324 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+17:16:59.562449 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+17:16:59.562449 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+17:16:59.570611 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+17:16:59.572653 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+17:16:59.580720 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+17:16:59.594273 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+17:16:59.606235 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+17:16:59.609229 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+17:16:59.613164 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+17:16:59.613164 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+17:16:59.613164 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+17:16:59.621282 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+17:16:59.623400 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+17:16:59.633548 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+17:16:59.643640 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+17:16:59.661950 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+17:16:59.664002 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+17:16:59.672073 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+17:16:59.684410 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+17:16:59.684410 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+17:16:59.684410 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql
+17:16:59.692506 [debug] [MainThread]: Parsing tests\generic\builtin.sql
+17:16:59.875656 [debug] [MainThread]: 1603: static parser failed on incremental.sql
+17:16:59.877711 [debug] [MainThread]: 1602: parser fallback to jinja rendering on incremental.sql
+17:16:59.908035 [info ] [MainThread]: Found 1 model, 0 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 2 seed files, 1 source, 0 exposures, 0 metrics
+17:16:59.908035 [info ] [MainThread]: 
+17:16:59.908035 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:16:59.908035 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+17:16:59.908035 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+17:16:59.916043 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+17:16:59.916084 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:17:03.896242 [debug] [ThreadPool]: SQL status: OK in 3.98 seconds
+17:17:03.898922 [debug] [ThreadPool]: On list_schemas: Close
+17:17:04.248079 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649901729035843511_test_basic"
+17:17:04.250056 [debug] [ThreadPool]: Using teradata connection "list_None_test16649901729035843511_test_basic"
+17:17:04.250633 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: 
+17:17:04.251173 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:17:07.546808 [debug] [ThreadPool]: SQL status: OK in 3.3 seconds
+17:17:07.546958 [debug] [ThreadPool]: Using teradata connection "list_None_test16649901729035843511_test_basic"
+17:17:07.547709 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649901729035843511_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649901729035843511_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+17:17:08.246513 [debug] [ThreadPool]: SQL status: OK in 0.7 seconds
+17:17:08.247618 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: ROLLBACK
+17:17:08.576201 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: Close
+17:17:08.927153 [debug] [MainThread]: Using teradata connection "master"
+17:17:08.927153 [debug] [MainThread]: On master: 
+17:17:08.928057 [debug] [MainThread]: Opening a new connection, currently in state init
+17:17:12.235999 [debug] [MainThread]: SQL status: OK in 3.31 seconds
+17:17:12.236532 [debug] [MainThread]: On master: COMMIT
+17:17:12.236532 [debug] [MainThread]: Using teradata connection "master"
+17:17:12.237067 [debug] [MainThread]: On master: COMMIT
+17:17:12.566169 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:17:12.566702 [debug] [MainThread]: On master: Close
+17:17:12.916020 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+17:17:12.916558 [info ] [MainThread]: 
+17:17:12.919390 [debug] [Thread-49 ]: Began running node model.incremental.incremental
+17:17:12.919941 [info ] [Thread-49 ]: 1 of 1 START incremental model test16649901729035843511_test_basic.incremental . [RUN]
+17:17:12.920464 [debug] [Thread-49 ]: Acquiring new teradata connection "model.incremental.incremental"
+17:17:12.921097 [debug] [Thread-49 ]: Began compiling node model.incremental.incremental
+17:17:12.921097 [debug] [Thread-49 ]: Compiling model.incremental.incremental
+17:17:12.923781 [debug] [Thread-49 ]: Writing injected SQL for node "model.incremental.incremental"
+17:17:12.925933 [debug] [Thread-49 ]: finished collecting timing info
+17:17:12.925933 [debug] [Thread-49 ]: Began executing node model.incremental.incremental
+17:17:12.927579 [debug] [Thread-49 ]: Writing runtime SQL for node "model.incremental.incremental"
+17:17:12.927579 [debug] [Thread-49 ]: Using teradata connection "model.incremental.incremental"
+17:17:12.927579 [debug] [Thread-49 ]: On model.incremental.incremental: 
+17:17:12.927579 [debug] [Thread-49 ]: Opening a new connection, currently in state init
+17:17:16.236116 [debug] [Thread-49 ]: SQL status: OK in 3.31 seconds
+17:17:16.236116 [debug] [Thread-49 ]: Using teradata connection "model.incremental.incremental"
+17:17:16.236650 [debug] [Thread-49 ]: On model.incremental.incremental: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.incremental.incremental"} */
+
+   
+  CREATE  TABLE
+  "test16649901729035843511_test_basic"."incremental"
+  
+    AS (
+        
+select * from "test16649901729035843511_test_basic"."base"
+
+      ) WITH DATA
+  
+  ;
+
+
+
+17:17:16.926026 [debug] [Thread-49 ]: SQL status: OK in 0.69 seconds
+17:17:16.927099 [debug] [Thread-49 ]: On model.incremental.incremental: COMMIT
+17:17:16.927666 [debug] [Thread-49 ]: Using teradata connection "model.incremental.incremental"
+17:17:16.928252 [debug] [Thread-49 ]: On model.incremental.incremental: COMMIT
+17:17:17.255924 [debug] [Thread-49 ]: SQL status: OK in 0.33 seconds
+17:17:17.256435 [debug] [Thread-49 ]: finished collecting timing info
+17:17:17.257455 [debug] [Thread-49 ]: On model.incremental.incremental: Close
+17:17:17.608318 [info ] [Thread-49 ]: 1 of 1 OK created incremental model test16649901729035843511_test_basic.incremental  [[32mOK[0m in 4.69s]
+17:17:17.610206 [debug] [Thread-49 ]: Finished running node model.incremental.incremental
+17:17:17.611455 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:17:17.611988 [debug] [MainThread]: Using teradata connection "master"
+17:17:17.612590 [debug] [MainThread]: On master: 
+17:17:17.613125 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:17:20.946685 [debug] [MainThread]: SQL status: OK in 3.33 seconds
+17:17:20.947815 [debug] [MainThread]: On master: COMMIT
+17:17:20.948392 [debug] [MainThread]: Using teradata connection "master"
+17:17:20.948938 [debug] [MainThread]: On master: COMMIT
+17:17:21.278643 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:17:21.278643 [debug] [MainThread]: On master: Close
+17:17:21.615882 [info ] [MainThread]: 
+17:17:21.616421 [info ] [MainThread]: Finished running 1 incremental model in 21.71s.
+17:17:21.616957 [debug] [MainThread]: Connection 'master' was properly closed.
+17:17:21.617493 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+17:17:21.618049 [debug] [MainThread]: Connection 'list_None_test16649901729035843511_test_basic' was properly closed.
+17:17:21.618049 [debug] [MainThread]: Connection 'model.incremental.incremental' was properly closed.
+17:17:21.623542 [info ] [MainThread]: 
+17:17:21.624089 [info ] [MainThread]: [32mCompleted successfully[0m
+17:17:21.624658 [info ] [MainThread]: 
+17:17:21.625779 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+17:17:21.626881 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:17:21.626881 [debug] [MainThread]: use_qvci set to : false
+17:17:21.626881 [debug] [MainThread]: Using teradata connection "_test"
+17:17:21.630027 [debug] [MainThread]: On _test: 
+17:17:21.630027 [debug] [MainThread]: Opening a new connection, currently in state init
+17:17:24.957015 [debug] [MainThread]: SQL status: OK in 3.33 seconds
+17:17:24.958310 [debug] [MainThread]: Using teradata connection "_test"
+17:17:24.958922 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649901729035843511_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'base' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:17:25.756203 [debug] [MainThread]: SQL status: OK in 0.8 seconds
+17:17:25.759589 [debug] [MainThread]: Using teradata connection "_test"
+17:17:25.760162 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+WITH
+        a_except_b as (
+            SELECT
+                A."id", A."name", A."some_date"
+            FROM "test16649901729035843511_test_basic"."base" as A
+            LEFT OUTER JOIN "test16649901729035843511_test_basic"."incremental" as B
+                ON A."id" = B."id" AND A."name" = B."name" AND A."some_date" = B."some_date"
+            WHERE B."id" is null
+        ),
+        b_except_a as (
+            SELECT
+                B."id", B."name", B."some_date"
+            FROM "test16649901729035843511_test_basic"."incremental" as B
+            LEFT OUTER JOIN "test16649901729035843511_test_basic"."base" as A
+                ON A."id" = B."id" AND A."name" = B."name" AND A."some_date" = B."some_date"
+            WHERE A."id" is null
+        ),
+        diff_count as (
+            SELECT
+                1 as id,
+                COUNT(*) as num_missing FROM (
+                    SELECT * FROM a_except_b
+                    UNION ALL
+                    SELECT * FROM b_except_a
+                ) as missing
+        ),
+        table_a as (
+            SELECT COUNT(*) as num_rows FROM "test16649901729035843511_test_basic"."base"
+        ),
+        table_b as (
+            SELECT COUNT(*) as num_rows FROM "test16649901729035843511_test_basic"."incremental"
+        ),
+        row_count_diff as (
+            SELECT
+                1 as id,
+                table_a.num_rows - table_b.num_rows as difference
+            FROM table_a, table_b
+        )
+        SELECT
+            row_count_diff.difference as row_count_difference,
+            diff_count.num_missing as num_mismatched
+        FROM row_count_diff
+        INNER JOIN diff_count ON row_count_diff.id = diff_count.id
+17:17:26.657186 [debug] [MainThread]: SQL status: OK in 0.9 seconds
+17:17:26.659769 [debug] [MainThread]: On _test: ROLLBACK
+17:17:26.986920 [debug] [MainThread]: On _test: Close
+17:17:27.353666 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-05 17:17:27.353666 | 7c635932-44c8-442e-9bab-0bd610a78578 ==============================
+17:17:27.353666 [info ] [MainThread]: Running with dbt=1.1.0
+17:17:27.353666 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\profile5', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'vars': 'seed_name: added', 'which': 'run', 'rpc_method': 'run', 'indirect_selection': 'eager'}
+17:17:27.353666 [debug] [MainThread]: Tracking: do not track
+17:17:27.369289 [info ] [MainThread]: Unable to do partial parsing because config vars, config profile, or config target have changed
+17:17:27.400532 [debug] [MainThread]: Parsing macros\adapters.sql
+17:17:27.416187 [debug] [MainThread]: Parsing macros\catalog.sql
+17:17:27.416187 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+17:17:27.431808 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+17:17:27.431808 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+17:17:27.447432 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+17:17:27.469562 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+17:17:27.469562 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+17:17:27.469562 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+17:17:27.469562 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+17:17:27.485181 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+17:17:27.485181 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+17:17:27.485181 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+17:17:27.500803 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+17:17:27.500803 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+17:17:27.500803 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+17:17:27.516424 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+17:17:27.516424 [debug] [MainThread]: Parsing macros\etc\statement.sql
+17:17:27.516424 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+17:17:27.516424 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+17:17:27.516424 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+17:17:27.532046 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+17:17:27.532046 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+17:17:27.532046 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+17:17:27.532046 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+17:17:27.532046 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+17:17:27.532046 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+17:17:27.532046 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+17:17:27.532046 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+17:17:27.554170 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+17:17:27.554170 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+17:17:27.554170 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+17:17:27.569793 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+17:17:27.569793 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+17:17:27.585414 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+17:17:27.585414 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+17:17:27.585414 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+17:17:27.585414 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+17:17:27.585414 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+17:17:27.601036 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+17:17:27.616657 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+17:17:27.616657 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+17:17:27.632278 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+17:17:27.632278 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+17:17:27.649569 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+17:17:27.654072 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+17:17:27.654072 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql
+17:17:27.654072 [debug] [MainThread]: Parsing tests\generic\builtin.sql
+17:17:27.827060 [debug] [MainThread]: 1603: static parser failed on incremental.sql
+17:17:27.827060 [debug] [MainThread]: 1602: parser fallback to jinja rendering on incremental.sql
+17:17:27.870715 [info ] [MainThread]: Found 1 model, 0 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 2 seed files, 1 source, 0 exposures, 0 metrics
+17:17:27.870715 [info ] [MainThread]: 
+17:17:27.870715 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:17:27.870715 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+17:17:27.870715 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+17:17:27.870715 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+17:17:27.870715 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:17:31.876258 [debug] [ThreadPool]: SQL status: OK in 4.01 seconds
+17:17:31.878927 [debug] [ThreadPool]: On list_schemas: Close
+17:17:32.227425 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649901729035843511_test_basic"
+17:17:32.229606 [debug] [ThreadPool]: Using teradata connection "list_None_test16649901729035843511_test_basic"
+17:17:32.230666 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: 
+17:17:32.230727 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:17:35.529076 [debug] [ThreadPool]: SQL status: OK in 3.3 seconds
+17:17:35.529717 [debug] [ThreadPool]: Using teradata connection "list_None_test16649901729035843511_test_basic"
+17:17:35.529717 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649901729035843511_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649901729035843511_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+17:17:36.196760 [debug] [ThreadPool]: SQL status: OK in 0.67 seconds
+17:17:36.199105 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: ROLLBACK
+17:17:36.527097 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: Close
+17:17:36.867492 [debug] [MainThread]: Using teradata connection "master"
+17:17:36.867492 [debug] [MainThread]: On master: 
+17:17:36.867492 [debug] [MainThread]: Opening a new connection, currently in state init
+17:17:40.157517 [debug] [MainThread]: SQL status: OK in 3.29 seconds
+17:17:40.158025 [debug] [MainThread]: On master: COMMIT
+17:17:40.158025 [debug] [MainThread]: Using teradata connection "master"
+17:17:40.158384 [debug] [MainThread]: On master: COMMIT
+17:17:40.486770 [debug] [MainThread]: SQL status: OK in 0.32 seconds
+17:17:40.487165 [debug] [MainThread]: On master: Close
+17:17:40.827299 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+17:17:40.828895 [info ] [MainThread]: 
+17:17:40.832265 [debug] [Thread-53 ]: Began running node model.incremental.incremental
+17:17:40.832806 [info ] [Thread-53 ]: 1 of 1 START incremental model test16649901729035843511_test_basic.incremental . [RUN]
+17:17:40.833340 [debug] [Thread-53 ]: Acquiring new teradata connection "model.incremental.incremental"
+17:17:40.833340 [debug] [Thread-53 ]: Began compiling node model.incremental.incremental
+17:17:40.833883 [debug] [Thread-53 ]: Compiling model.incremental.incremental
+17:17:40.837115 [debug] [Thread-53 ]: Writing injected SQL for node "model.incremental.incremental"
+17:17:40.837657 [debug] [Thread-53 ]: finished collecting timing info
+17:17:40.838160 [debug] [Thread-53 ]: Began executing node model.incremental.incremental
+17:17:40.838160 [debug] [Thread-53 ]: Using teradata connection "model.incremental.incremental"
+17:17:40.838160 [debug] [Thread-53 ]: On model.incremental.incremental: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.incremental.incremental"} */
+
+    
+  CREATE  TABLE
+  "test16649901729035843511_test_basic"."incremental__dbt_tmp"
+  
+    AS (
+        
+select * from "test16649901729035843511_test_basic"."added"
+
+where id > (select max(id) from "test16649901729035843511_test_basic"."incremental")
+
+      ) WITH DATA
+  
+  ;
+
+
+  
+17:17:40.838160 [debug] [Thread-53 ]: Opening a new connection, currently in state init
+17:17:44.827494 [debug] [Thread-53 ]: SQL status: OK in 3.99 seconds
+17:17:44.830249 [debug] [Thread-53 ]: use_qvci set to : false
+17:17:44.831355 [debug] [Thread-53 ]: Using teradata connection "model.incremental.incremental"
+17:17:44.831355 [debug] [Thread-53 ]: On model.incremental.incremental: 
+17:17:44.831933 [debug] [Thread-53 ]: SQL status: OK in 0.0 seconds
+17:17:44.832505 [debug] [Thread-53 ]: Using teradata connection "model.incremental.incremental"
+17:17:44.832505 [debug] [Thread-53 ]: On model.incremental.incremental: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.incremental.incremental"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649901729035843511_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'incremental__dbt_tmp' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:17:45.616928 [debug] [Thread-53 ]: SQL status: OK in 0.78 seconds
+17:17:45.619439 [debug] [Thread-53 ]: use_qvci set to : false
+17:17:45.620022 [debug] [Thread-53 ]: Using teradata connection "model.incremental.incremental"
+17:17:45.620022 [debug] [Thread-53 ]: On model.incremental.incremental: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.incremental.incremental"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649901729035843511_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'incremental' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:17:46.406954 [debug] [Thread-53 ]: SQL status: OK in 0.79 seconds
+17:17:46.412574 [debug] [Thread-53 ]: use_qvci set to : false
+17:17:46.413612 [debug] [Thread-53 ]: Using teradata connection "model.incremental.incremental"
+17:17:46.413642 [debug] [Thread-53 ]: On model.incremental.incremental: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.incremental.incremental"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649901729035843511_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'incremental' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:17:47.206872 [debug] [Thread-53 ]: SQL status: OK in 0.79 seconds
+17:17:47.209090 [debug] [Thread-53 ]: Writing runtime SQL for node "model.incremental.incremental"
+17:17:47.209657 [debug] [Thread-53 ]: Using teradata connection "model.incremental.incremental"
+17:17:47.210213 [debug] [Thread-53 ]: On model.incremental.incremental: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.incremental.incremental"} */
+
+   
+
+    INSERT INTO "test16649901729035843511_test_basic"."incremental" ("id", "name", "some_date")
+       SELECT "id", "name", "some_date"
+       FROM "test16649901729035843511_test_basic"."incremental__dbt_tmp"
+    ;
+
+17:17:47.866257 [debug] [Thread-53 ]: SQL status: OK in 0.66 seconds
+17:17:47.867135 [debug] [Thread-53 ]: On model.incremental.incremental: COMMIT
+17:17:47.867646 [debug] [Thread-53 ]: Using teradata connection "model.incremental.incremental"
+17:17:47.868204 [debug] [Thread-53 ]: On model.incremental.incremental: COMMIT
+17:17:48.196204 [debug] [Thread-53 ]: SQL status: OK in 0.33 seconds
+17:17:48.198276 [debug] [Thread-53 ]: Using teradata connection "model.incremental.incremental"
+17:17:48.198403 [debug] [Thread-53 ]: On model.incremental.incremental: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.incremental.incremental"} */
+DROP table /*+ IF EXISTS */ "test16649901729035843511_test_basic"."incremental__dbt_tmp";
+17:17:48.876676 [debug] [Thread-53 ]: SQL status: OK in 0.68 seconds
+17:17:48.878906 [debug] [Thread-53 ]: finished collecting timing info
+17:17:48.878999 [debug] [Thread-53 ]: On model.incremental.incremental: Close
+17:17:49.216756 [info ] [Thread-53 ]: 1 of 1 OK created incremental model test16649901729035843511_test_basic.incremental  [[32mOK[0m in 8.38s]
+17:17:49.217974 [debug] [Thread-53 ]: Finished running node model.incremental.incremental
+17:17:49.219552 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:17:49.220094 [debug] [MainThread]: Using teradata connection "master"
+17:17:49.220094 [debug] [MainThread]: On master: 
+17:17:49.220630 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:17:52.506992 [debug] [MainThread]: SQL status: OK in 3.29 seconds
+17:17:52.507455 [debug] [MainThread]: On master: COMMIT
+17:17:52.507787 [debug] [MainThread]: Using teradata connection "master"
+17:17:52.507787 [debug] [MainThread]: On master: COMMIT
+17:17:52.836666 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:17:52.837765 [debug] [MainThread]: On master: Close
+17:17:53.176169 [info ] [MainThread]: 
+17:17:53.177008 [info ] [MainThread]: Finished running 1 incremental model in 25.31s.
+17:17:53.177314 [debug] [MainThread]: Connection 'master' was properly closed.
+17:17:53.177314 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+17:17:53.177894 [debug] [MainThread]: Connection 'list_None_test16649901729035843511_test_basic' was properly closed.
+17:17:53.178011 [debug] [MainThread]: Connection 'model.incremental.incremental' was properly closed.
+17:17:53.181755 [info ] [MainThread]: 
+17:17:53.182290 [info ] [MainThread]: [32mCompleted successfully[0m
+17:17:53.182826 [info ] [MainThread]: 
+17:17:53.183368 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+17:17:53.183911 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:17:53.185018 [debug] [MainThread]: use_qvci set to : false
+17:17:53.186133 [debug] [MainThread]: Using teradata connection "_test"
+17:17:53.186133 [debug] [MainThread]: On _test: 
+17:17:53.186683 [debug] [MainThread]: Opening a new connection, currently in state init
+17:17:56.476897 [debug] [MainThread]: SQL status: OK in 3.29 seconds
+17:17:56.477454 [debug] [MainThread]: Using teradata connection "_test"
+17:17:56.477454 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649901729035843511_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'added' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:17:57.267171 [debug] [MainThread]: SQL status: OK in 0.79 seconds
+17:17:57.268775 [debug] [MainThread]: Using teradata connection "_test"
+17:17:57.269326 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+WITH
+        a_except_b as (
+            SELECT
+                A."id", A."name", A."some_date"
+            FROM "test16649901729035843511_test_basic"."added" as A
+            LEFT OUTER JOIN "test16649901729035843511_test_basic"."incremental" as B
+                ON A."id" = B."id" AND A."name" = B."name" AND A."some_date" = B."some_date"
+            WHERE B."id" is null
+        ),
+        b_except_a as (
+            SELECT
+                B."id", B."name", B."some_date"
+            FROM "test16649901729035843511_test_basic"."incremental" as B
+            LEFT OUTER JOIN "test16649901729035843511_test_basic"."added" as A
+                ON A."id" = B."id" AND A."name" = B."name" AND A."some_date" = B."some_date"
+            WHERE A."id" is null
+        ),
+        diff_count as (
+            SELECT
+                1 as id,
+                COUNT(*) as num_missing FROM (
+                    SELECT * FROM a_except_b
+                    UNION ALL
+                    SELECT * FROM b_except_a
+                ) as missing
+        ),
+        table_a as (
+            SELECT COUNT(*) as num_rows FROM "test16649901729035843511_test_basic"."added"
+        ),
+        table_b as (
+            SELECT COUNT(*) as num_rows FROM "test16649901729035843511_test_basic"."incremental"
+        ),
+        row_count_diff as (
+            SELECT
+                1 as id,
+                table_a.num_rows - table_b.num_rows as difference
+            FROM table_a, table_b
+        )
+        SELECT
+            row_count_diff.difference as row_count_difference,
+            diff_count.num_missing as num_mismatched
+        FROM row_count_diff
+        INNER JOIN diff_count ON row_count_diff.id = diff_count.id
+17:17:58.276976 [debug] [MainThread]: SQL status: OK in 1.01 seconds
+17:17:58.278638 [debug] [MainThread]: On _test: ROLLBACK
+17:17:58.606718 [debug] [MainThread]: On _test: Close
+17:17:58.957845 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-05 17:17:58.957845 | 7c635932-44c8-442e-9bab-0bd610a78578 ==============================
+17:17:58.957845 [info ] [MainThread]: Running with dbt=1.1.0
+17:17:58.957845 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\profile5', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'compile': True, 'which': 'generate', 'rpc_method': 'docs.generate', 'indirect_selection': 'eager'}
+17:17:58.957845 [debug] [MainThread]: Tracking: do not track
+17:17:58.989531 [info ] [MainThread]: Unable to do partial parsing because config vars, config profile, or config target have changed
+17:17:59.008844 [debug] [MainThread]: Parsing macros\adapters.sql
+17:17:59.025470 [debug] [MainThread]: Parsing macros\catalog.sql
+17:17:59.025470 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+17:17:59.041093 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+17:17:59.041093 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+17:17:59.056714 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+17:17:59.072376 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+17:17:59.087993 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+17:17:59.087993 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+17:17:59.087993 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+17:17:59.087993 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+17:17:59.087993 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+17:17:59.087993 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+17:17:59.103613 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+17:17:59.103613 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+17:17:59.119233 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+17:17:59.119233 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+17:17:59.125772 [debug] [MainThread]: Parsing macros\etc\statement.sql
+17:17:59.125772 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+17:17:59.125772 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+17:17:59.125772 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+17:17:59.125772 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+17:17:59.125772 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+17:17:59.125772 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+17:17:59.125772 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+17:17:59.141431 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+17:17:59.141431 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+17:17:59.141431 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+17:17:59.141431 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+17:17:59.157017 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+17:17:59.157017 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+17:17:59.172638 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+17:17:59.172638 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+17:17:59.191807 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+17:17:59.191807 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+17:17:59.191807 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+17:17:59.191807 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+17:17:59.191807 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+17:17:59.207430 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+17:17:59.207430 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+17:17:59.226056 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+17:17:59.226056 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+17:17:59.241679 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+17:17:59.241679 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+17:17:59.257300 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+17:17:59.257300 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+17:17:59.257300 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql
+17:17:59.257300 [debug] [MainThread]: Parsing tests\generic\builtin.sql
+17:17:59.426237 [debug] [MainThread]: 1603: static parser failed on incremental.sql
+17:17:59.426237 [debug] [MainThread]: 1602: parser fallback to jinja rendering on incremental.sql
+17:17:59.457482 [info ] [MainThread]: Found 1 model, 0 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 2 seed files, 1 source, 0 exposures, 0 metrics
+17:17:59.457482 [info ] [MainThread]: 
+17:17:59.457482 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:17:59.457482 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649901729035843511_test_basic"
+17:17:59.473141 [debug] [ThreadPool]: Using teradata connection "list_None_test16649901729035843511_test_basic"
+17:17:59.473809 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: 
+17:17:59.473809 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:18:03.087114 [debug] [ThreadPool]: SQL status: OK in 3.61 seconds
+17:18:03.087872 [debug] [ThreadPool]: Using teradata connection "list_None_test16649901729035843511_test_basic"
+17:18:03.087872 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649901729035843511_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649901729035843511_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+17:18:03.756816 [debug] [ThreadPool]: SQL status: OK in 0.67 seconds
+17:18:03.758169 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: ROLLBACK
+17:18:04.086318 [debug] [ThreadPool]: On list_None_test16649901729035843511_test_basic: Close
+17:18:04.416849 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+17:18:04.417831 [info ] [MainThread]: 
+17:18:04.419618 [debug] [Thread-57 ]: Began running node model.incremental.incremental
+17:18:04.420358 [debug] [Thread-57 ]: Acquiring new teradata connection "model.incremental.incremental"
+17:18:04.420580 [debug] [Thread-57 ]: Began compiling node model.incremental.incremental
+17:18:04.420580 [debug] [Thread-57 ]: Compiling model.incremental.incremental
+17:18:04.423373 [debug] [Thread-57 ]: Writing injected SQL for node "model.incremental.incremental"
+17:18:04.424017 [debug] [Thread-57 ]: finished collecting timing info
+17:18:04.424017 [debug] [Thread-57 ]: Began executing node model.incremental.incremental
+17:18:04.424558 [debug] [Thread-57 ]: finished collecting timing info
+17:18:04.425095 [debug] [Thread-57 ]: Finished running node model.incremental.incremental
+17:18:04.425095 [debug] [Thread-57 ]: Began running node seed.incremental.added
+17:18:04.425642 [debug] [Thread-57 ]: Acquiring new teradata connection "seed.incremental.added"
+17:18:04.425642 [debug] [Thread-57 ]: Began compiling node seed.incremental.added
+17:18:04.426178 [debug] [Thread-57 ]: Compiling seed.incremental.added
+17:18:04.427294 [debug] [Thread-57 ]: Writing injected SQL for node "seed.incremental.added"
+17:18:04.427294 [debug] [Thread-57 ]: finished collecting timing info
+17:18:04.427830 [debug] [Thread-57 ]: Began executing node seed.incremental.added
+17:18:04.427830 [debug] [Thread-57 ]: finished collecting timing info
+17:18:04.428333 [debug] [Thread-57 ]: Finished running node seed.incremental.added
+17:18:04.428333 [debug] [Thread-57 ]: Began running node seed.incremental.base
+17:18:04.428333 [debug] [Thread-57 ]: Acquiring new teradata connection "seed.incremental.base"
+17:18:04.428333 [debug] [Thread-57 ]: Began compiling node seed.incremental.base
+17:18:04.428333 [debug] [Thread-57 ]: Compiling seed.incremental.base
+17:18:04.428333 [debug] [Thread-57 ]: Writing injected SQL for node "seed.incremental.base"
+17:18:04.428333 [debug] [Thread-57 ]: finished collecting timing info
+17:18:04.428333 [debug] [Thread-57 ]: Began executing node seed.incremental.base
+17:18:04.428333 [debug] [Thread-57 ]: finished collecting timing info
+17:18:04.428333 [debug] [Thread-57 ]: Finished running node seed.incremental.base
+17:18:04.428333 [debug] [MainThread]: Connection 'master' was properly closed.
+17:18:04.428333 [debug] [MainThread]: Connection 'list_None_test16649901729035843511_test_basic' was properly closed.
+17:18:04.428333 [debug] [MainThread]: Connection 'seed.incremental.base' was properly closed.
+17:18:04.428333 [info ] [MainThread]: Done.
+17:18:04.428333 [debug] [MainThread]: Acquiring new teradata connection "generate_catalog"
+17:18:04.428333 [info ] [MainThread]: Building catalog
+17:18:04.428333 [debug] [ThreadPool]: Acquiring new teradata connection "test16649901729035843511_test_basic"
+17:18:04.428333 [debug] [ThreadPool]: use_qvci set to : false
+17:18:04.428333 [debug] [ThreadPool]: Using teradata connection "test16649901729035843511_test_basic"
+17:18:04.428333 [debug] [ThreadPool]: On test16649901729035843511_test_basic: 
+17:18:04.428333 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:18:07.737213 [debug] [ThreadPool]: SQL status: OK in 3.31 seconds
+17:18:07.737872 [debug] [ThreadPool]: Using teradata connection "test16649901729035843511_test_basic"
+17:18:07.738188 [debug] [ThreadPool]: On test16649901729035843511_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "test16649901729035843511_test_basic"} */
+WITH tables AS (
+
+        SELECT
+            NULL AS table_database,
+            DatabaseName AS table_schema,
+            TableName AS table_name,
+            CASE WHEN TableKind = 'T' THEN 'table'
+                WHEN TableKind = 'O' THEN 'view'
+                WHEN TableKind = 'V' THEN 'view'
+                ELSE TableKind
+            END AS table_type,
+            NULL AS table_owner
+
+        FROM DBC.tablesV
+
+        WHERE TableKind IN ('T', 'V', 'O')
+        AND (upper(table_schema) = upper('test16649901729035843511_test_basic'))
+
+    ),
+
+    columns AS (
+
+        SELECT
+           NULL AS table_database,
+           DatabaseName AS table_schema,
+           TableName AS table_name,
+           NULL AS table_comment,
+
+           ColumnName AS column_name,
+           ColumnID AS column_index,
+           ColumnType AS column_type,
+           CommentString AS column_comment
+
+        FROM DBC.ColumnsV
+        WHERE (upper(table_schema) = upper('test16649901729035843511_test_basic'))
+
+    ),
+
+    columns_transformed AS (
+
+        SELECT
+          table_database,
+          table_schema,
+          table_name,
+          table_comment,
+          column_name,
+          column_index,
+          CASE
+            WHEN column_type = '++' THEN 'TD_ANYTYPE'
+            WHEN column_type = 'A1' THEN 'ARRAY'
+            WHEN column_type = 'AN' THEN 'ARRAY'
+            WHEN column_type = 'I8' THEN 'BIGINT'
+            WHEN column_type = 'BO' THEN 'BINARY LARGE OBJECT'
+            WHEN column_type = 'BF' THEN 'BYTE'
+            WHEN column_type = 'BV' THEN 'BYTE VARYING'
+            WHEN column_type = 'I1' THEN 'BYTEINT'
+            WHEN column_type = 'CF' THEN 'CHARACTER'
+            WHEN column_type = 'CV' THEN 'CHARACTER'
+            WHEN column_type = 'CO' THEN 'CHARACTER LARGE OBJECT'
+            WHEN column_type = 'D' THEN 'DECIMAL'
+            WHEN column_type = 'DA' THEN 'DATE'
+            WHEN column_type = 'F' THEN 'DOUBLE PRECISION'
+            WHEN column_type = 'I' THEN 'INTEGER'
+            WHEN column_type = 'DY' THEN 'INTERVAL DAY'
+            WHEN column_type = 'DH' THEN 'INTERVAL DAY TO HOUR'
+            WHEN column_type = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+            WHEN column_type = 'DS' THEN 'INTERVAL DAY TO SECOND'
+            WHEN column_type = 'HR' THEN 'INTERVAL HOUR'
+            WHEN column_type = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+            WHEN column_type = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+            WHEN column_type = 'MI' THEN 'INTERVAL MINUTE'
+            WHEN column_type = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+            WHEN column_type = 'MO' THEN 'INTERVAL MONTH'
+            WHEN column_type = 'SC' THEN 'INTERVAL SECOND'
+            WHEN column_type = 'YR' THEN 'INTERVAL YEAR'
+            WHEN column_type = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+            WHEN column_type = 'N' THEN 'NUMBER'
+            WHEN column_type = 'D' THEN 'NUMERIC'
+            WHEN column_type = 'PD' THEN 'PERIOD(DATE)'
+            WHEN column_type = 'PT' THEN 'PERIOD(TIME(n))'
+            WHEN column_type = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+            WHEN column_type = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+            WHEN column_type = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+            WHEN column_type = 'F' THEN 'REAL'
+            WHEN column_type = 'I2' THEN 'SMALLINT'
+            WHEN column_type = 'AT' THEN 'TIME'
+            WHEN column_type = 'TS' THEN 'TIMESTAMP'
+            WHEN column_type = 'TZ' THEN 'TIME WITH TIME ZONE'
+            WHEN column_type = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+            WHEN column_type = 'UT' THEN 'USER‑DEFINED TYPE'
+            WHEN column_type = 'XM' THEN 'XML'
+            ELSE 'N/A'
+          END AS column_type,
+          column_comment
+
+        FROM columns
+
+    ),
+
+    joined AS (
+
+      SELECT
+          columns_transformed.table_database,
+          columns_transformed.table_schema,
+          columns_transformed.table_name,
+          tables.table_type,
+          columns_transformed.table_comment,
+          tables.table_owner,
+          columns_transformed.column_name,
+          columns_transformed.column_index,
+          columns_transformed.column_type,
+          columns_transformed.column_comment
+
+      FROM tables
+
+      JOIN columns_transformed ON
+        tables.table_schema = columns_transformed.table_schema
+        AND tables.table_name = columns_transformed.table_name
+
+    )
+
+    SELECT *
+    FROM joined
+    ORDER BY table_schema, table_name, column_index
+17:18:08.586419 [debug] [ThreadPool]: SQL status: OK in 0.85 seconds
+17:18:08.588987 [debug] [ThreadPool]: On test16649901729035843511_test_basic: ROLLBACK
+17:18:08.916352 [debug] [ThreadPool]: On test16649901729035843511_test_basic: Close
+17:18:09.262750 [info ] [MainThread]: Catalog written to C:\Users\vs255034\AppData\Local\Temp\pytest-of-vs255034\pytest-10\project5\target\catalog.json
+17:18:09.262750 [debug] [MainThread]: Connection 'generate_catalog' was properly closed.
+17:18:09.262750 [debug] [MainThread]: Connection 'test16649901729035843511_test_basic' was properly closed.
+17:18:09.262750 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:18:09.270864 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16649901729035843511_test_basic', identifier=None)".
+17:18:09.272858 [debug] [MainThread]: Using teradata connection "_test"
+17:18:09.273397 [debug] [MainThread]: On _test: 
+17:18:09.273397 [debug] [MainThread]: Opening a new connection, currently in state init
+17:18:12.607296 [debug] [MainThread]: SQL status: OK in 3.33 seconds
+17:18:12.607296 [debug] [MainThread]: Using teradata connection "_test"
+17:18:12.607841 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+DELETE DATABASE /*+ IF EXISTS */ "test16649901729035843511_test_basic" ALL;
+17:18:13.326850 [debug] [MainThread]: SQL status: OK in 0.72 seconds
+17:18:13.328544 [debug] [MainThread]: Using teradata connection "_test"
+17:18:13.328645 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+DROP DATABASE /*+ IF EXISTS */ "test16649901729035843511_test_basic";
+17:18:14.016710 [debug] [MainThread]: SQL status: OK in 0.69 seconds
+17:18:14.019285 [debug] [MainThread]: On _test: ROLLBACK
+17:18:14.347073 [debug] [MainThread]: On _test: Close
+17:18:14.687205 [debug] [MainThread]: Connection '_test' was properly closed.
+17:18:14.729394 [info ] [MainThread]: Partial parse save file not found. Starting full parse.
+17:18:14.732388 [debug] [MainThread]: Parsing macros\adapters.sql
+17:18:14.750372 [debug] [MainThread]: Parsing macros\catalog.sql
+17:18:14.757352 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+17:18:14.758895 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+17:18:14.758895 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+17:18:14.774549 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+17:18:14.808973 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+17:18:14.811138 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+17:18:14.811138 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+17:18:14.811138 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+17:18:14.811138 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+17:18:14.826793 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+17:18:14.833004 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+17:18:14.840984 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+17:18:14.846981 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+17:18:14.857936 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+17:18:14.859064 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+17:18:14.859064 [debug] [MainThread]: Parsing macros\etc\statement.sql
+17:18:14.859064 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+17:18:14.874687 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+17:18:14.874687 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+17:18:14.874687 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+17:18:14.874687 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+17:18:14.874687 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+17:18:14.874687 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+17:18:14.874687 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+17:18:14.874687 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+17:18:14.890310 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+17:18:14.890310 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+17:18:14.890310 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+17:18:14.905962 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+17:18:14.905962 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+17:18:14.921581 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+17:18:14.921581 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+17:18:14.937203 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+17:18:14.937203 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+17:18:14.937203 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+17:18:14.937203 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+17:18:14.954800 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+17:18:14.968262 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+17:18:14.974246 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+17:18:14.975515 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+17:18:14.991169 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+17:18:14.991169 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+17:18:15.006790 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+17:18:15.006790 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+17:18:15.006790 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql

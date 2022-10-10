@@ -1,0 +1,2035 @@
+17:24:14.687297 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:24:14.687297 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16649906547702642294_test_basic', identifier=None)".
+17:24:14.689330 [debug] [MainThread]: Using teradata connection "_test"
+17:24:14.689330 [debug] [MainThread]: On _test: 
+17:24:14.689330 [debug] [MainThread]: Opening a new connection, currently in state init
+17:24:17.978176 [debug] [MainThread]: SQL status: OK in 3.29 seconds
+17:24:17.978683 [debug] [MainThread]: Using teradata connection "_test"
+17:24:17.978721 [debug] [MainThread]: On _test: DELETE DATABASE /*+ IF EXISTS */ "test16649906547702642294_test_basic" ALL;
+17:24:18.308099 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1942] [Teradata Database] [Error 3802] Database 'test16649906547702642294_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+17:24:18.308601 [debug] [MainThread]: On _test: ROLLBACK
+17:24:18.639424 [debug] [MainThread]: Using teradata connection "_test"
+17:24:18.639961 [debug] [MainThread]: On _test: 
+17:24:18.640520 [debug] [MainThread]: SQL status: OK in 0.0 seconds
+17:24:18.640520 [debug] [MainThread]: Using teradata connection "_test"
+17:24:18.641057 [debug] [MainThread]: On _test: DROP DATABASE /*+ IF EXISTS */ "test16649906547702642294_test_basic";
+17:24:18.968499 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1942] [Teradata Database] [Error 3802] Database 'test16649906547702642294_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+17:24:18.968769 [debug] [MainThread]: On _test: ROLLBACK
+17:24:19.300776 [debug] [MainThread]: On _test: Close
+17:24:19.638415 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:24:19.639442 [debug] [MainThread]: Creating schema "_ReferenceKey(database=None, schema='test16649906547702642294_test_basic', identifier=None)"
+17:24:19.640562 [debug] [MainThread]: Using teradata connection "_test"
+17:24:19.641070 [debug] [MainThread]: On _test: 
+17:24:19.641642 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:24:22.928209 [debug] [MainThread]: SQL status: OK in 3.29 seconds
+17:24:22.928209 [debug] [MainThread]: Using teradata connection "_test"
+17:24:22.928750 [debug] [MainThread]: On _test: CREATE DATABASE "test16649906547702642294_test_basic"
+    -- Teradata expects db sizing params on creation. This macro is probably
+    -- useful only for testing. For production scenrios, a properly sized
+    -- database (schema) will likely exist before dbt gets called
+    AS PERMANENT = 60e6, -- 60MB
+        SPOOL = 120e6; -- 120MB
+17:24:23.648213 [debug] [MainThread]: SQL status: OK in 0.72 seconds
+17:24:23.649649 [debug] [MainThread]: On _test: COMMIT
+17:24:23.650214 [debug] [MainThread]: Using teradata connection "_test"
+17:24:23.650743 [debug] [MainThread]: On _test: COMMIT
+17:24:23.978187 [debug] [MainThread]: SQL status: OK in 0.32 seconds
+17:24:23.978577 [debug] [MainThread]: On _test: Close
+17:24:24.331001 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-05 17:24:24.341143 | 7c635932-44c8-442e-9bab-0bd610a78578 ==============================
+17:24:24.341143 [info ] [MainThread]: Running with dbt=1.1.0
+17:24:24.341143 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\profile8', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'show': False, 'which': 'seed', 'rpc_method': 'seed', 'indirect_selection': 'eager'}
+17:24:24.341143 [debug] [MainThread]: Tracking: do not track
+17:24:24.351384 [info ] [MainThread]: Partial parse save file not found. Starting full parse.
+17:24:24.392162 [debug] [MainThread]: Parsing macros\adapters.sql
+17:24:24.402442 [debug] [MainThread]: Parsing macros\catalog.sql
+17:24:24.412674 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+17:24:24.412674 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+17:24:24.420748 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+17:24:24.432890 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+17:24:24.463134 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+17:24:24.463134 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+17:24:24.463134 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+17:24:24.463134 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+17:24:24.473228 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+17:24:24.473228 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+17:24:24.473228 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+17:24:24.483376 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+17:24:24.483376 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+17:24:24.493483 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+17:24:24.505099 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+17:24:24.506152 [debug] [MainThread]: Parsing macros\etc\statement.sql
+17:24:24.516253 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+17:24:24.516253 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+17:24:24.516253 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+17:24:24.516253 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+17:24:24.516253 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+17:24:24.516253 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+17:24:24.516253 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+17:24:24.526388 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+17:24:24.526388 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+17:24:24.526388 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+17:24:24.534437 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+17:24:24.536508 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+17:24:24.544534 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+17:24:24.556655 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+17:24:24.576855 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+17:24:24.576855 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+17:24:24.586977 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+17:24:24.586977 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+17:24:24.586977 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+17:24:24.595005 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+17:24:24.607074 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+17:24:24.627325 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+17:24:24.627325 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+17:24:24.637414 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+17:24:24.647594 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+17:24:24.655677 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+17:24:24.671502 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+17:24:24.672500 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+17:24:24.677486 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql
+17:24:24.678484 [debug] [MainThread]: Parsing tests\generic\builtin.sql
+17:24:24.906191 [info ] [MainThread]: Found 0 models, 0 tests, 1 snapshot, 0 analyses, 181 macros, 0 operations, 3 seed files, 0 sources, 0 exposures, 0 metrics
+17:24:24.906191 [info ] [MainThread]: 
+17:24:24.906191 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:24:24.909253 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+17:24:24.911375 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+17:24:24.911375 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+17:24:24.911375 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:24:28.888385 [debug] [ThreadPool]: SQL status: OK in 3.98 seconds
+17:24:28.890035 [debug] [ThreadPool]: On list_schemas: Close
+17:24:29.229841 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649906547702642294_test_basic"
+17:24:29.232749 [debug] [ThreadPool]: Using teradata connection "list_None_test16649906547702642294_test_basic"
+17:24:29.233308 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: 
+17:24:29.233884 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:24:32.538683 [debug] [ThreadPool]: SQL status: OK in 3.3 seconds
+17:24:32.539212 [debug] [ThreadPool]: Using teradata connection "list_None_test16649906547702642294_test_basic"
+17:24:32.539726 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649906547702642294_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+17:24:33.218316 [debug] [ThreadPool]: SQL status: OK in 0.68 seconds
+17:24:33.219384 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: ROLLBACK
+17:24:33.548852 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: Close
+17:24:33.879305 [debug] [MainThread]: Using teradata connection "master"
+17:24:33.879844 [debug] [MainThread]: On master: 
+17:24:33.879844 [debug] [MainThread]: Opening a new connection, currently in state init
+17:24:37.178350 [debug] [MainThread]: SQL status: OK in 3.3 seconds
+17:24:37.178350 [debug] [MainThread]: On master: COMMIT
+17:24:37.179433 [debug] [MainThread]: Using teradata connection "master"
+17:24:37.179540 [debug] [MainThread]: On master: COMMIT
+17:24:37.508186 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:24:37.508186 [debug] [MainThread]: On master: Close
+17:24:37.838363 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+17:24:37.838901 [info ] [MainThread]: 
+17:24:37.841138 [debug] [Thread-93 ]: Began running node seed.snapshot_strategy_timestamp.added
+17:24:37.841956 [info ] [Thread-93 ]: 1 of 3 START seed file test16649906547702642294_test_basic.added ............... [RUN]
+17:24:37.842539 [debug] [Thread-93 ]: Acquiring new teradata connection "seed.snapshot_strategy_timestamp.added"
+17:24:37.843201 [debug] [Thread-93 ]: Began compiling node seed.snapshot_strategy_timestamp.added
+17:24:37.843767 [debug] [Thread-93 ]: finished collecting timing info
+17:24:37.844270 [debug] [Thread-93 ]: Began executing node seed.snapshot_strategy_timestamp.added
+17:24:37.848023 [debug] [Thread-93 ]: model : {'raw_sql': '', 'resource_type': 'seed', 'depends_on': {'macros': [], 'nodes': []}, 'config': {'enabled': True, 'tags': [], 'meta': {}, 'materialized': 'seed', 'persist_docs': {}, 'quoting': {}, 'column_types': {}, 'on_schema_change': 'ignore', 'post-hook': [], 'pre-hook': []}, 'schema': 'test16649906547702642294_test_basic', 'fqn': ['snapshot_strategy_timestamp', 'added'], 'unique_id': 'seed.snapshot_strategy_timestamp.added', 'package_name': 'snapshot_strategy_timestamp', 'root_path': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\project8', 'path': 'added.csv', 'original_file_path': 'seeds\\added.csv', 'name': 'added', 'alias': 'added', 'checksum': {'name': 'sha256', 'checksum': 'a3d9dd9bfad23ea273491e1e26380b03d4cac45a27dd4e9199dedaeb77c12cbd'}, 'tags': [], 'refs': [], 'sources': [], 'description': '', 'columns': {}, 'meta': {}, 'docs': {'show': True}, 'deferred': False, 'unrendered_config': {}, 'created_at': 1664990664.8791814}
+17:24:37.849047 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.added"
+17:24:37.849047 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.added: 
+17:24:37.849047 [debug] [Thread-93 ]: Opening a new connection, currently in state init
+17:24:41.148355 [debug] [Thread-93 ]: SQL status: OK in 3.3 seconds
+17:24:41.149011 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.added"
+17:24:41.149399 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.added: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "seed.snapshot_strategy_timestamp.added"} */
+
+    
+    CREATE  TABLE "test16649906547702642294_test_basic"."added"
+    
+    ("id" INTEGER,"name" LONG VARCHAR,"some_date" TIMESTAMP(0))
+    ;
+
+  
+17:24:41.819254 [debug] [Thread-93 ]: SQL status: OK in 0.67 seconds
+17:24:41.821660 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.added"
+17:24:41.822227 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.added: insert into "test16649906547702642294_test_basic"."added" ("id", "name", "some_date") values
+                (?,?,?)
+        ...
+17:24:42.498415 [debug] [Thread-93 ]: SQL status: OK in 0.68 seconds
+17:24:42.498979 [debug] [Thread-93 ]: Writing runtime SQL for node "seed.snapshot_strategy_timestamp.added"
+17:24:42.508687 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.added: COMMIT
+17:24:42.509192 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.added"
+17:24:42.509201 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.added: COMMIT
+17:24:42.854037 [debug] [Thread-93 ]: SQL status: OK in 0.34 seconds
+17:24:42.855479 [debug] [Thread-93 ]: finished collecting timing info
+17:24:42.856042 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.added: Close
+17:24:43.198553 [info ] [Thread-93 ]: 1 of 3 OK loaded seed file test16649906547702642294_test_basic.added ........... [[32mINSERT 20[0m in 5.36s]
+17:24:43.199699 [debug] [Thread-93 ]: Finished running node seed.snapshot_strategy_timestamp.added
+17:24:43.200209 [debug] [Thread-93 ]: Began running node seed.snapshot_strategy_timestamp.base
+17:24:43.200841 [info ] [Thread-93 ]: 2 of 3 START seed file test16649906547702642294_test_basic.base ................ [RUN]
+17:24:43.201226 [debug] [Thread-93 ]: Acquiring new teradata connection "seed.snapshot_strategy_timestamp.base"
+17:24:43.201889 [debug] [Thread-93 ]: Began compiling node seed.snapshot_strategy_timestamp.base
+17:24:43.202449 [debug] [Thread-93 ]: finished collecting timing info
+17:24:43.202962 [debug] [Thread-93 ]: Began executing node seed.snapshot_strategy_timestamp.base
+17:24:43.207682 [debug] [Thread-93 ]: model : {'raw_sql': '', 'resource_type': 'seed', 'depends_on': {'macros': [], 'nodes': []}, 'config': {'enabled': True, 'tags': [], 'meta': {}, 'materialized': 'seed', 'persist_docs': {}, 'quoting': {}, 'column_types': {}, 'on_schema_change': 'ignore', 'post-hook': [], 'pre-hook': []}, 'schema': 'test16649906547702642294_test_basic', 'fqn': ['snapshot_strategy_timestamp', 'base'], 'unique_id': 'seed.snapshot_strategy_timestamp.base', 'package_name': 'snapshot_strategy_timestamp', 'root_path': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\project8', 'path': 'base.csv', 'original_file_path': 'seeds\\base.csv', 'name': 'base', 'alias': 'base', 'checksum': {'name': 'sha256', 'checksum': '86dc7fd6521185b45bd27b5f5d2c808d6b61781ee713e439016f1ebc221c955d'}, 'tags': [], 'refs': [], 'sources': [], 'description': '', 'columns': {}, 'meta': {}, 'docs': {'show': True}, 'deferred': False, 'unrendered_config': {}, 'created_at': 1664990664.8821437}
+17:24:43.208213 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.base"
+17:24:43.208794 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.base: 
+17:24:43.208794 [debug] [Thread-93 ]: Opening a new connection, currently in state closed
+17:24:46.518547 [debug] [Thread-93 ]: SQL status: OK in 3.31 seconds
+17:24:46.519087 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.base"
+17:24:46.519087 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.base: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "seed.snapshot_strategy_timestamp.base"} */
+
+    
+    CREATE  TABLE "test16649906547702642294_test_basic"."base"
+    
+    ("id" INTEGER,"name" LONG VARCHAR,"some_date" TIMESTAMP(0))
+    ;
+
+  
+17:24:47.188561 [debug] [Thread-93 ]: SQL status: OK in 0.67 seconds
+17:24:47.190192 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.base"
+17:24:47.190192 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.base: insert into "test16649906547702642294_test_basic"."base" ("id", "name", "some_date") values
+                (?,?,?)
+        ...
+17:24:47.858466 [debug] [Thread-93 ]: SQL status: OK in 0.67 seconds
+17:24:47.859536 [debug] [Thread-93 ]: Writing runtime SQL for node "seed.snapshot_strategy_timestamp.base"
+17:24:47.861651 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.base: COMMIT
+17:24:47.862208 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.base"
+17:24:47.862756 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.base: COMMIT
+17:24:48.188240 [debug] [Thread-93 ]: SQL status: OK in 0.32 seconds
+17:24:48.188761 [debug] [Thread-93 ]: finished collecting timing info
+17:24:48.189319 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.base: Close
+17:24:48.531703 [info ] [Thread-93 ]: 2 of 3 OK loaded seed file test16649906547702642294_test_basic.base ............ [[32mINSERT 10[0m in 5.33s]
+17:24:48.532208 [debug] [Thread-93 ]: Finished running node seed.snapshot_strategy_timestamp.base
+17:24:48.532751 [debug] [Thread-93 ]: Began running node seed.snapshot_strategy_timestamp.newcolumns
+17:24:48.533295 [info ] [Thread-93 ]: 3 of 3 START seed file test16649906547702642294_test_basic.newcolumns .......... [RUN]
+17:24:48.533841 [debug] [Thread-93 ]: Acquiring new teradata connection "seed.snapshot_strategy_timestamp.newcolumns"
+17:24:48.534358 [debug] [Thread-93 ]: Began compiling node seed.snapshot_strategy_timestamp.newcolumns
+17:24:48.534358 [debug] [Thread-93 ]: finished collecting timing info
+17:24:48.534911 [debug] [Thread-93 ]: Began executing node seed.snapshot_strategy_timestamp.newcolumns
+17:24:48.540432 [debug] [Thread-93 ]: model : {'raw_sql': '', 'resource_type': 'seed', 'depends_on': {'macros': [], 'nodes': []}, 'config': {'enabled': True, 'tags': [], 'meta': {}, 'materialized': 'seed', 'persist_docs': {}, 'quoting': {}, 'column_types': {}, 'on_schema_change': 'ignore', 'post-hook': [], 'pre-hook': []}, 'schema': 'test16649906547702642294_test_basic', 'fqn': ['snapshot_strategy_timestamp', 'newcolumns'], 'unique_id': 'seed.snapshot_strategy_timestamp.newcolumns', 'package_name': 'snapshot_strategy_timestamp', 'root_path': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\project8', 'path': 'newcolumns.csv', 'original_file_path': 'seeds\\newcolumns.csv', 'name': 'newcolumns', 'alias': 'newcolumns', 'checksum': {'name': 'sha256', 'checksum': 'f8d6bd1748f98e85a7e4d0151e7f3b5ff9ce674645278e8eb89d2ee10712973f'}, 'tags': [], 'refs': [], 'sources': [], 'description': '', 'columns': {}, 'meta': {}, 'docs': {'show': True}, 'deferred': False, 'unrendered_config': {}, 'created_at': 1664990664.8841267}
+17:24:48.541514 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.newcolumns"
+17:24:48.542056 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.newcolumns: 
+17:24:48.542562 [debug] [Thread-93 ]: Opening a new connection, currently in state closed
+17:24:51.828696 [debug] [Thread-93 ]: SQL status: OK in 3.29 seconds
+17:24:51.829425 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.newcolumns"
+17:24:51.829568 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.newcolumns: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "seed.snapshot_strategy_timestamp.newcolumns"} */
+
+    
+    CREATE  TABLE "test16649906547702642294_test_basic"."newcolumns"
+    
+    ("id" INTEGER,"name" LONG VARCHAR,"some_date" TIMESTAMP(0),"last_initial" LONG VARCHAR)
+    ;
+
+  
+17:24:52.498624 [debug] [Thread-93 ]: SQL status: OK in 0.67 seconds
+17:24:52.500890 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.newcolumns"
+17:24:52.501429 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.newcolumns: insert into "test16649906547702642294_test_basic"."newcolumns" ("id", "name", "some_date", "last_initial") values
+                (?,?,?,?)
+        ...
+17:24:53.166719 [debug] [Thread-93 ]: SQL status: OK in 0.67 seconds
+17:24:53.169368 [debug] [Thread-93 ]: Writing runtime SQL for node "seed.snapshot_strategy_timestamp.newcolumns"
+17:24:53.172330 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.newcolumns: COMMIT
+17:24:53.172856 [debug] [Thread-93 ]: Using teradata connection "seed.snapshot_strategy_timestamp.newcolumns"
+17:24:53.172915 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.newcolumns: COMMIT
+17:24:53.498337 [debug] [Thread-93 ]: SQL status: OK in 0.32 seconds
+17:24:53.499591 [debug] [Thread-93 ]: finished collecting timing info
+17:24:53.500127 [debug] [Thread-93 ]: On seed.snapshot_strategy_timestamp.newcolumns: Close
+17:24:53.838631 [info ] [Thread-93 ]: 3 of 3 OK loaded seed file test16649906547702642294_test_basic.newcolumns ...... [[32mINSERT 10[0m in 5.30s]
+17:24:53.839240 [debug] [Thread-93 ]: Finished running node seed.snapshot_strategy_timestamp.newcolumns
+17:24:53.840886 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:24:53.841428 [debug] [MainThread]: Using teradata connection "master"
+17:24:53.841965 [debug] [MainThread]: On master: 
+17:24:53.842482 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:24:57.128904 [debug] [MainThread]: SQL status: OK in 3.29 seconds
+17:24:57.130064 [debug] [MainThread]: On master: COMMIT
+17:24:57.130619 [debug] [MainThread]: Using teradata connection "master"
+17:24:57.131127 [debug] [MainThread]: On master: COMMIT
+17:24:57.459427 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:24:57.460685 [debug] [MainThread]: On master: Close
+17:24:57.798684 [info ] [MainThread]: 
+17:24:57.799413 [info ] [MainThread]: Finished running 3 seeds in 32.89s.
+17:24:57.799916 [debug] [MainThread]: Connection 'master' was properly closed.
+17:24:57.799957 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+17:24:57.799957 [debug] [MainThread]: Connection 'list_None_test16649906547702642294_test_basic' was properly closed.
+17:24:57.800501 [debug] [MainThread]: Connection 'seed.snapshot_strategy_timestamp.newcolumns' was properly closed.
+17:24:57.804328 [info ] [MainThread]: 
+17:24:57.804873 [info ] [MainThread]: [32mCompleted successfully[0m
+17:24:57.805447 [info ] [MainThread]: 
+17:24:57.805951 [info ] [MainThread]: Done. PASS=3 WARN=0 ERROR=0 SKIP=0 TOTAL=3
+
+
+============================== 2022-10-05 17:24:57.825950 | 7c635932-44c8-442e-9bab-0bd610a78578 ==============================
+17:24:57.825950 [info ] [MainThread]: Running with dbt=1.1.0
+17:24:57.825950 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\profile8', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'which': 'snapshot', 'rpc_method': 'snapshot', 'indirect_selection': 'eager'}
+17:24:57.825950 [debug] [MainThread]: Tracking: do not track
+17:24:57.902523 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 0 files changed.
+17:24:57.902523 [debug] [MainThread]: Partial parsing enabled, no changes found, skipping parsing
+17:24:57.902523 [info ] [MainThread]: Found 0 models, 0 tests, 1 snapshot, 0 analyses, 181 macros, 0 operations, 3 seed files, 0 sources, 0 exposures, 0 metrics
+17:24:57.902523 [info ] [MainThread]: 
+17:24:57.902523 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:24:57.902523 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+17:24:57.902523 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+17:24:57.902523 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+17:24:57.902523 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:25:01.899481 [debug] [ThreadPool]: SQL status: OK in 4.0 seconds
+17:25:01.900839 [debug] [ThreadPool]: On list_schemas: Close
+17:25:02.250822 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649906547702642294_test_basic"
+17:25:02.253124 [debug] [ThreadPool]: Using teradata connection "list_None_test16649906547702642294_test_basic"
+17:25:02.253656 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: 
+17:25:02.253656 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:25:05.578960 [debug] [ThreadPool]: SQL status: OK in 3.33 seconds
+17:25:05.579571 [debug] [ThreadPool]: Using teradata connection "list_None_test16649906547702642294_test_basic"
+17:25:05.579571 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649906547702642294_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+17:25:06.258507 [debug] [ThreadPool]: SQL status: OK in 0.68 seconds
+17:25:06.259602 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: ROLLBACK
+17:25:06.580973 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: Close
+17:25:06.940211 [debug] [MainThread]: Using teradata connection "master"
+17:25:06.941371 [debug] [MainThread]: On master: 
+17:25:06.942466 [debug] [MainThread]: Opening a new connection, currently in state init
+17:25:10.245331 [debug] [MainThread]: SQL status: OK in 3.3 seconds
+17:25:10.246475 [debug] [MainThread]: On master: COMMIT
+17:25:10.247087 [debug] [MainThread]: Using teradata connection "master"
+17:25:10.248045 [debug] [MainThread]: On master: COMMIT
+17:25:10.579126 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:25:10.579229 [debug] [MainThread]: On master: Close
+17:25:10.928900 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+17:25:10.929757 [info ] [MainThread]: 
+17:25:10.931713 [debug] [Thread-97 ]: Began running node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:25:10.932250 [info ] [Thread-97 ]: 1 of 1 START snapshot test16649906547702642294_test_basic.ts_snapshot .......... [RUN]
+17:25:10.932785 [debug] [Thread-97 ]: Acquiring new teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:10.932785 [debug] [Thread-97 ]: Began compiling node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:25:10.933327 [debug] [Thread-97 ]: Compiling snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:25:10.936075 [debug] [Thread-97 ]: finished collecting timing info
+17:25:10.936075 [debug] [Thread-97 ]: Began executing node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:25:10.938307 [debug] [Thread-97 ]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:10.938850 [debug] [Thread-97 ]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+17:25:10.938850 [debug] [Thread-97 ]: Opening a new connection, currently in state init
+17:25:14.938582 [debug] [Thread-97 ]: SQL status: OK in 4.0 seconds
+17:25:14.944862 [debug] [Thread-97 ]: Writing runtime SQL for node "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:14.945536 [debug] [Thread-97 ]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:14.946074 [debug] [Thread-97 ]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: 
+17:25:14.946074 [debug] [Thread-97 ]: SQL status: OK in 0.0 seconds
+17:25:14.946611 [debug] [Thread-97 ]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:14.946611 [debug] [Thread-97 ]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+          
+  CREATE  TABLE
+  "test16649906547702642294_test_basic"."ts_snapshot"
+  
+    AS (
+        
+
+    SELECT sbq.*,
+        HASHROW(coalesce(cast(id AS VARCHAR(50) ), '')
+         || '|' || coalesce(cast(some_date AS VARCHAR(50) ), '')
+        ) AS dbt_scd_id,
+        some_date AS dbt_updated_at,
+        some_date AS dbt_valid_from,
+        nullif(some_date, some_date) AS dbt_valid_to
+    FROM (
+        
+    
+    select * from "test16649906547702642294_test_basic"."base"
+    ) AS sbq
+
+
+      ) WITH DATA
+  
+  ;
+
+
+      
+17:25:15.639067 [debug] [Thread-97 ]: SQL status: OK in 0.69 seconds
+17:25:15.641842 [debug] [Thread-97 ]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: COMMIT
+17:25:15.642973 [debug] [Thread-97 ]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:15.643629 [debug] [Thread-97 ]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: COMMIT
+17:25:15.968688 [debug] [Thread-97 ]: SQL status: OK in 0.32 seconds
+17:25:15.971593 [debug] [Thread-97 ]: finished collecting timing info
+17:25:15.973323 [debug] [Thread-97 ]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: Close
+17:25:16.304760 [info ] [Thread-97 ]: 1 of 1 OK snapshotted test16649906547702642294_test_basic.ts_snapshot .......... [[32mOK[0m in 5.37s]
+17:25:16.320870 [debug] [Thread-97 ]: Finished running node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:25:16.320870 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:25:16.320870 [debug] [MainThread]: Using teradata connection "master"
+17:25:16.320870 [debug] [MainThread]: On master: 
+17:25:16.320870 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:25:19.659584 [debug] [MainThread]: SQL status: OK in 3.34 seconds
+17:25:19.660146 [debug] [MainThread]: On master: COMMIT
+17:25:19.660720 [debug] [MainThread]: Using teradata connection "master"
+17:25:19.660720 [debug] [MainThread]: On master: COMMIT
+17:25:19.989824 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:25:19.991189 [debug] [MainThread]: On master: Close
+17:25:20.339254 [info ] [MainThread]: 
+17:25:20.340531 [info ] [MainThread]: Finished running 1 snapshot in 22.44s.
+17:25:20.341810 [debug] [MainThread]: Connection 'master' was properly closed.
+17:25:20.341810 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+17:25:20.342313 [debug] [MainThread]: Connection 'list_None_test16649906547702642294_test_basic' was properly closed.
+17:25:20.342360 [debug] [MainThread]: Connection 'snapshot.snapshot_strategy_timestamp.ts_snapshot' was properly closed.
+17:25:20.346148 [info ] [MainThread]: 
+17:25:20.346687 [info ] [MainThread]: [32mCompleted successfully[0m
+17:25:20.346687 [info ] [MainThread]: 
+17:25:20.347228 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+17:25:20.347769 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:25:20.348312 [debug] [MainThread]: Opening a new connection, currently in state init
+17:25:24.408679 [debug] [MainThread]: On _test: Close
+17:25:24.769813 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-05 17:25:24.769813 | 7c635932-44c8-442e-9bab-0bd610a78578 ==============================
+17:25:24.769813 [info ] [MainThread]: Running with dbt=1.1.0
+17:25:24.769813 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\profile8', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'vars': 'seed_name: added', 'which': 'snapshot', 'rpc_method': 'snapshot', 'indirect_selection': 'eager'}
+17:25:24.769813 [debug] [MainThread]: Tracking: do not track
+17:25:24.785473 [info ] [MainThread]: Unable to do partial parsing because config vars, config profile, or config target have changed
+17:25:24.819421 [debug] [MainThread]: Parsing macros\adapters.sql
+17:25:24.835045 [debug] [MainThread]: Parsing macros\catalog.sql
+17:25:24.835045 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+17:25:24.835045 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+17:25:24.850700 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+17:25:24.866322 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+17:25:24.881945 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+17:25:24.897562 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+17:25:24.897562 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+17:25:24.897562 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+17:25:24.897562 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+17:25:24.897562 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+17:25:24.913151 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+17:25:24.919654 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+17:25:24.926299 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+17:25:24.926299 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+17:25:24.926299 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+17:25:24.941922 [debug] [MainThread]: Parsing macros\etc\statement.sql
+17:25:24.941922 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+17:25:24.941922 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+17:25:24.941922 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+17:25:24.941922 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+17:25:24.941922 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+17:25:24.941922 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+17:25:24.941922 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+17:25:24.941922 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+17:25:24.957543 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+17:25:24.957543 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+17:25:24.957543 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+17:25:24.973164 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+17:25:24.973164 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+17:25:24.973164 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+17:25:24.988786 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+17:25:24.988786 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+17:25:25.004407 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+17:25:25.004407 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+17:25:25.004407 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+17:25:25.004407 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+17:25:25.004407 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+17:25:25.019913 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+17:25:25.035535 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+17:25:25.035535 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+17:25:25.051157 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+17:25:25.051157 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+17:25:25.066778 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+17:25:25.066778 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+17:25:25.066778 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql
+17:25:25.066778 [debug] [MainThread]: Parsing tests\generic\builtin.sql
+17:25:25.273419 [info ] [MainThread]: Found 0 models, 0 tests, 1 snapshot, 0 analyses, 181 macros, 0 operations, 3 seed files, 0 sources, 0 exposures, 0 metrics
+17:25:25.273419 [info ] [MainThread]: 
+17:25:25.273419 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:25:25.273419 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+17:25:25.273419 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+17:25:25.273419 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+17:25:25.273419 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:25:29.229207 [debug] [ThreadPool]: SQL status: OK in 3.96 seconds
+17:25:29.231076 [debug] [ThreadPool]: On list_schemas: Close
+17:25:29.579402 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649906547702642294_test_basic"
+17:25:29.579402 [debug] [ThreadPool]: Using teradata connection "list_None_test16649906547702642294_test_basic"
+17:25:29.579402 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: 
+17:25:29.579402 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:25:32.879952 [debug] [ThreadPool]: SQL status: OK in 3.3 seconds
+17:25:32.881136 [debug] [ThreadPool]: Using teradata connection "list_None_test16649906547702642294_test_basic"
+17:25:32.882809 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649906547702642294_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+17:25:33.542573 [debug] [ThreadPool]: SQL status: OK in 0.66 seconds
+17:25:33.545161 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: ROLLBACK
+17:25:33.868606 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: Close
+17:25:34.219193 [debug] [MainThread]: Using teradata connection "master"
+17:25:34.219987 [debug] [MainThread]: On master: 
+17:25:34.220427 [debug] [MainThread]: Opening a new connection, currently in state init
+17:25:37.519090 [debug] [MainThread]: SQL status: OK in 3.3 seconds
+17:25:37.520693 [debug] [MainThread]: On master: COMMIT
+17:25:37.521326 [debug] [MainThread]: Using teradata connection "master"
+17:25:37.522475 [debug] [MainThread]: On master: COMMIT
+17:25:37.848653 [debug] [MainThread]: SQL status: OK in 0.32 seconds
+17:25:37.849139 [debug] [MainThread]: On master: Close
+17:25:38.188714 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+17:25:38.189270 [info ] [MainThread]: 
+17:25:38.191408 [debug] [Thread-101]: Began running node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:25:38.191941 [info ] [Thread-101]: 1 of 1 START snapshot test16649906547702642294_test_basic.ts_snapshot .......... [RUN]
+17:25:38.193008 [debug] [Thread-101]: Acquiring new teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:38.193581 [debug] [Thread-101]: Began compiling node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:25:38.193581 [debug] [Thread-101]: Compiling snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:25:38.196782 [debug] [Thread-101]: finished collecting timing info
+17:25:38.196782 [debug] [Thread-101]: Began executing node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:25:38.204300 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:38.204300 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+17:25:38.204300 [debug] [Thread-101]: Opening a new connection, currently in state init
+17:25:42.148624 [debug] [Thread-101]: SQL status: OK in 3.94 seconds
+17:25:42.150036 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:42.150036 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+DROP table /*+ IF EXISTS */ "test16649906547702642294_test_basic"."ts_snapshot__dbt_tmp";
+17:25:42.479197 [debug] [Thread-101]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1960] [Teradata Database] [Error 3807] Object 'test16649906547702642294_test_basic.ts_snapshot__dbt_tmp' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+17:25:42.481969 [debug] [Thread-101]: use_qvci set to : false
+17:25:42.483074 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:42.483074 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: 
+17:25:42.484148 [debug] [Thread-101]: SQL status: OK in 0.0 seconds
+17:25:42.484148 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:42.484687 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:25:43.289941 [debug] [Thread-101]: SQL status: OK in 0.8 seconds
+17:25:43.294556 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:43.295221 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+        
+  CREATE  TABLE
+  "test16649906547702642294_test_basic"."ts_snapshot__dbt_tmp"
+  
+    AS (
+      SELECT * FROM (
+        WITH snapshot_query AS (
+
+        
+    
+    select * from "test16649906547702642294_test_basic"."added"
+
+    ),
+
+    snapshotted_data AS (
+
+        SELECT snapshot.*,
+            id AS dbt_unique_key
+
+        FROM "test16649906547702642294_test_basic"."ts_snapshot" AS snapshot
+
+    ),
+
+    insertions_source_data AS (
+
+        SELECT
+            snapshot_query.*,
+            id AS dbt_unique_key,
+            some_date AS dbt_updated_at,
+            some_date AS dbt_valid_from,
+            nullif(some_date, some_date) AS dbt_valid_to,
+            HASHROW(coalesce(cast(id AS VARCHAR(50) ), '')
+         || '|' || coalesce(cast(some_date AS VARCHAR(50) ), '')
+        ) AS dbt_scd_id
+
+        FROM snapshot_query
+    ),
+
+    updates_source_data AS (
+
+        SELECT
+            snapshot_query.*,
+            id AS dbt_unique_key,
+            some_date AS dbt_updated_at,
+            some_date AS dbt_valid_from,
+            some_date AS dbt_valid_to
+
+        FROM snapshot_query
+    ),
+
+    insertions AS (
+
+        SELECT
+            'insert' AS dbt_change_type,
+            source_data.*
+
+        FROM insertions_source_data AS source_data
+        LEFT OUTER JOIN snapshotted_data ON snapshotted_data.dbt_unique_key = source_data.dbt_unique_key
+        WHERE snapshotted_data.dbt_unique_key IS NULL
+           OR (
+                snapshotted_data.dbt_unique_key IS NOT NULL
+            AND snapshotted_data.dbt_valid_to IS NULL
+            AND (
+                (snapshotted_data.dbt_valid_from < source_data.some_date)
+            )
+        )
+
+    ),
+
+    updates AS (
+
+        SELECT
+            'update' AS dbt_change_type,
+            source_data.*,
+            snapshotted_data.dbt_scd_id
+
+        FROM updates_source_data AS source_data
+        JOIN snapshotted_data ON snapshotted_data.dbt_unique_key = source_data.dbt_unique_key
+        WHERE snapshotted_data.dbt_valid_to IS NULL
+        AND (
+            (snapshotted_data.dbt_valid_from < source_data.some_date)
+        )
+    )
+
+    SELECT * FROM insertions
+    UNION ALL
+    SELECT * FROM updates
+      ) D
+    ) WITH DATA
+  
+  ;
+
+
+    
+17:25:44.039225 [debug] [Thread-101]: SQL status: OK in 0.74 seconds
+17:25:44.041317 [debug] [Thread-101]: use_qvci set to : false
+17:25:44.042506 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:44.042506 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot__dbt_tmp' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:25:44.818991 [debug] [Thread-101]: SQL status: OK in 0.78 seconds
+17:25:44.823664 [debug] [Thread-101]: use_qvci set to : false
+17:25:44.824208 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:44.824748 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:25:45.619304 [debug] [Thread-101]: SQL status: OK in 0.79 seconds
+17:25:45.622867 [debug] [Thread-101]: use_qvci set to : false
+17:25:45.623995 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:45.624159 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot__dbt_tmp' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:25:46.399291 [debug] [Thread-101]: SQL status: OK in 0.78 seconds
+17:25:46.402146 [debug] [Thread-101]: use_qvci set to : false
+17:25:46.402736 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:46.403239 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:25:47.079009 [debug] [Thread-101]: SQL status: OK in 0.68 seconds
+17:25:47.085734 [debug] [Thread-101]: use_qvci set to : false
+17:25:47.086633 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:47.086724 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot__dbt_tmp' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:25:47.769163 [debug] [Thread-101]: SQL status: OK in 0.68 seconds
+17:25:47.773402 [debug] [Thread-101]: Writing runtime SQL for node "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:47.773986 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:47.774534 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+          UPDATE "test16649906547702642294_test_basic"."ts_snapshot"
+    FROM (SELECT dbt_scd_id, dbt_change_type, dbt_valid_to FROM "test16649906547702642294_test_basic"."ts_snapshot__dbt_tmp") AS DBT_INTERNAL_SOURCE
+    SET dbt_valid_to = DBT_INTERNAL_SOURCE.dbt_valid_to
+    WHERE DBT_INTERNAL_SOURCE.dbt_scd_id = "test16649906547702642294_test_basic"."ts_snapshot".dbt_scd_id
+      AND DBT_INTERNAL_SOURCE.dbt_change_type = 'update'
+      AND "test16649906547702642294_test_basic"."ts_snapshot".dbt_valid_to IS NULL
+
+      
+17:25:48.439185 [debug] [Thread-101]: SQL status: OK in 0.66 seconds
+17:25:48.439296 [debug] [Thread-101]: Writing runtime SQL for node "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:48.439296 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:48.439296 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+          INSERT INTO "test16649906547702642294_test_basic"."ts_snapshot" ("id", "name", "some_date", "dbt_updated_at", "dbt_valid_from", "dbt_valid_to", "dbt_scd_id")
+    SELECT DBT_INTERNAL_SOURCE."id",DBT_INTERNAL_SOURCE."name",DBT_INTERNAL_SOURCE."some_date",DBT_INTERNAL_SOURCE."dbt_updated_at",DBT_INTERNAL_SOURCE."dbt_valid_from",DBT_INTERNAL_SOURCE."dbt_valid_to",DBT_INTERNAL_SOURCE."dbt_scd_id"
+    FROM "test16649906547702642294_test_basic"."ts_snapshot__dbt_tmp" AS DBT_INTERNAL_SOURCE
+    WHERE DBT_INTERNAL_SOURCE.dbt_change_type = 'insert'
+
+      
+17:25:49.118648 [debug] [Thread-101]: SQL status: OK in 0.68 seconds
+17:25:49.120089 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: COMMIT
+17:25:49.120094 [debug] [Thread-101]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:25:49.120638 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: COMMIT
+17:25:49.449197 [debug] [Thread-101]: SQL status: OK in 0.33 seconds
+17:25:49.449946 [debug] [Thread-101]: finished collecting timing info
+17:25:49.450516 [debug] [Thread-101]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: Close
+17:25:49.789797 [info ] [Thread-101]: 1 of 1 OK snapshotted test16649906547702642294_test_basic.ts_snapshot .......... [[32mOK[0m in 11.60s]
+17:25:49.790783 [debug] [Thread-101]: Finished running node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:25:49.791861 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:25:49.791861 [debug] [MainThread]: Using teradata connection "master"
+17:25:49.792421 [debug] [MainThread]: On master: 
+17:25:49.792421 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:25:53.089186 [debug] [MainThread]: SQL status: OK in 3.3 seconds
+17:25:53.090268 [debug] [MainThread]: On master: COMMIT
+17:25:53.090983 [debug] [MainThread]: Using teradata connection "master"
+17:25:53.091488 [debug] [MainThread]: On master: COMMIT
+17:25:53.419570 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:25:53.420449 [debug] [MainThread]: On master: Close
+17:25:53.760127 [info ] [MainThread]: 
+17:25:53.761779 [info ] [MainThread]: Finished running 1 snapshot in 28.49s.
+17:25:53.762966 [debug] [MainThread]: Connection 'master' was properly closed.
+17:25:53.764063 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+17:25:53.764705 [debug] [MainThread]: Connection 'list_None_test16649906547702642294_test_basic' was properly closed.
+17:25:53.765212 [debug] [MainThread]: Connection 'snapshot.snapshot_strategy_timestamp.ts_snapshot' was properly closed.
+17:25:53.769012 [info ] [MainThread]: 
+17:25:53.769566 [info ] [MainThread]: [32mCompleted successfully[0m
+17:25:53.770069 [info ] [MainThread]: 
+17:25:53.770108 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+17:25:53.770611 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:25:53.770611 [debug] [MainThread]: Opening a new connection, currently in state init
+17:25:57.718600 [debug] [MainThread]: On _test: Close
+17:25:58.045506 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:25:58.046120 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:25:58.046773 [debug] [MainThread]: Using teradata connection "_test"
+17:25:58.047142 [debug] [MainThread]: On _test: 
+17:25:58.047169 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:26:01.328609 [debug] [MainThread]: SQL status: OK in 3.28 seconds
+17:26:01.328609 [debug] [MainThread]: Using teradata connection "_test"
+17:26:01.329156 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+update "test16649906547702642294_test_basic"."added" set some_date = some_date + interval '1' hour where id > 10 and id < 21
+17:26:01.989112 [debug] [MainThread]: SQL status: OK in 0.66 seconds
+17:26:01.991386 [debug] [MainThread]: On _test: COMMIT
+17:26:01.992522 [debug] [MainThread]: Using teradata connection "_test"
+17:26:01.993087 [debug] [MainThread]: On _test: COMMIT
+17:26:02.319107 [debug] [MainThread]: SQL status: OK in 0.32 seconds
+17:26:02.320266 [debug] [MainThread]: On _test: Close
+17:26:02.669882 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-05 17:26:02.669882 | 7c635932-44c8-442e-9bab-0bd610a78578 ==============================
+17:26:02.669882 [info ] [MainThread]: Running with dbt=1.1.0
+17:26:02.669882 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-10\\profile8', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'vars': 'seed_name: added', 'which': 'snapshot', 'rpc_method': 'snapshot', 'indirect_selection': 'eager'}
+17:26:02.669882 [debug] [MainThread]: Tracking: do not track
+17:26:02.731938 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 0 files changed.
+17:26:02.731938 [debug] [MainThread]: Partial parsing enabled, no changes found, skipping parsing
+17:26:02.731938 [info ] [MainThread]: Found 0 models, 0 tests, 1 snapshot, 0 analyses, 181 macros, 0 operations, 3 seed files, 0 sources, 0 exposures, 0 metrics
+17:26:02.747563 [info ] [MainThread]: 
+17:26:02.747563 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:26:02.747563 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+17:26:02.747563 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+17:26:02.747563 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+17:26:02.747563 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:26:06.688976 [debug] [ThreadPool]: SQL status: OK in 3.94 seconds
+17:26:06.693624 [debug] [ThreadPool]: On list_schemas: Close
+17:26:07.029384 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649906547702642294_test_basic"
+17:26:07.031215 [debug] [ThreadPool]: Using teradata connection "list_None_test16649906547702642294_test_basic"
+17:26:07.031215 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: 
+17:26:07.031751 [debug] [ThreadPool]: Opening a new connection, currently in state init
+17:26:10.339261 [debug] [ThreadPool]: SQL status: OK in 3.31 seconds
+17:26:10.339808 [debug] [ThreadPool]: Using teradata connection "list_None_test16649906547702642294_test_basic"
+17:26:10.339819 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649906547702642294_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+17:26:11.015489 [debug] [ThreadPool]: SQL status: OK in 0.68 seconds
+17:26:11.016606 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: ROLLBACK
+17:26:11.349663 [debug] [ThreadPool]: On list_None_test16649906547702642294_test_basic: Close
+17:26:11.689748 [debug] [MainThread]: Using teradata connection "master"
+17:26:11.689748 [debug] [MainThread]: On master: 
+17:26:11.689748 [debug] [MainThread]: Opening a new connection, currently in state init
+17:26:14.988747 [debug] [MainThread]: SQL status: OK in 3.3 seconds
+17:26:14.988747 [debug] [MainThread]: On master: COMMIT
+17:26:14.989447 [debug] [MainThread]: Using teradata connection "master"
+17:26:14.989447 [debug] [MainThread]: On master: COMMIT
+17:26:15.321109 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:26:15.321109 [debug] [MainThread]: On master: Close
+17:26:15.659211 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+17:26:15.660941 [info ] [MainThread]: 
+17:26:15.662496 [debug] [Thread-105]: Began running node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:26:15.663031 [info ] [Thread-105]: 1 of 1 START snapshot test16649906547702642294_test_basic.ts_snapshot .......... [RUN]
+17:26:15.663574 [debug] [Thread-105]: Acquiring new teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:15.664131 [debug] [Thread-105]: Began compiling node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:26:15.664664 [debug] [Thread-105]: Compiling snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:26:15.667388 [debug] [Thread-105]: finished collecting timing info
+17:26:15.668235 [debug] [Thread-105]: Began executing node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:26:15.670394 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:15.670394 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+17:26:15.670394 [debug] [Thread-105]: Opening a new connection, currently in state init
+17:26:19.629444 [debug] [Thread-105]: SQL status: OK in 3.96 seconds
+17:26:19.632499 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:19.634969 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+DROP table /*+ IF EXISTS */ "test16649906547702642294_test_basic"."ts_snapshot__dbt_tmp";
+17:26:20.339627 [debug] [Thread-105]: SQL status: OK in 0.7 seconds
+17:26:20.341756 [debug] [Thread-105]: use_qvci set to : false
+17:26:20.342905 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:20.342905 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: 
+17:26:20.343441 [debug] [Thread-105]: SQL status: OK in 0.0 seconds
+17:26:20.343990 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:20.343990 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:26:21.009084 [debug] [Thread-105]: SQL status: OK in 0.66 seconds
+17:26:21.013775 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:21.013775 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+        
+  CREATE  TABLE
+  "test16649906547702642294_test_basic"."ts_snapshot__dbt_tmp"
+  
+    AS (
+      SELECT * FROM (
+        WITH snapshot_query AS (
+
+        
+    
+    select * from "test16649906547702642294_test_basic"."added"
+
+    ),
+
+    snapshotted_data AS (
+
+        SELECT snapshot.*,
+            id AS dbt_unique_key
+
+        FROM "test16649906547702642294_test_basic"."ts_snapshot" AS snapshot
+
+    ),
+
+    insertions_source_data AS (
+
+        SELECT
+            snapshot_query.*,
+            id AS dbt_unique_key,
+            some_date AS dbt_updated_at,
+            some_date AS dbt_valid_from,
+            nullif(some_date, some_date) AS dbt_valid_to,
+            HASHROW(coalesce(cast(id AS VARCHAR(50) ), '')
+         || '|' || coalesce(cast(some_date AS VARCHAR(50) ), '')
+        ) AS dbt_scd_id
+
+        FROM snapshot_query
+    ),
+
+    updates_source_data AS (
+
+        SELECT
+            snapshot_query.*,
+            id AS dbt_unique_key,
+            some_date AS dbt_updated_at,
+            some_date AS dbt_valid_from,
+            some_date AS dbt_valid_to
+
+        FROM snapshot_query
+    ),
+
+    insertions AS (
+
+        SELECT
+            'insert' AS dbt_change_type,
+            source_data.*
+
+        FROM insertions_source_data AS source_data
+        LEFT OUTER JOIN snapshotted_data ON snapshotted_data.dbt_unique_key = source_data.dbt_unique_key
+        WHERE snapshotted_data.dbt_unique_key IS NULL
+           OR (
+                snapshotted_data.dbt_unique_key IS NOT NULL
+            AND snapshotted_data.dbt_valid_to IS NULL
+            AND (
+                (snapshotted_data.dbt_valid_from < source_data.some_date)
+            )
+        )
+
+    ),
+
+    updates AS (
+
+        SELECT
+            'update' AS dbt_change_type,
+            source_data.*,
+            snapshotted_data.dbt_scd_id
+
+        FROM updates_source_data AS source_data
+        JOIN snapshotted_data ON snapshotted_data.dbt_unique_key = source_data.dbt_unique_key
+        WHERE snapshotted_data.dbt_valid_to IS NULL
+        AND (
+            (snapshotted_data.dbt_valid_from < source_data.some_date)
+        )
+    )
+
+    SELECT * FROM insertions
+    UNION ALL
+    SELECT * FROM updates
+      ) D
+    ) WITH DATA
+  
+  ;
+
+
+    
+17:26:21.788826 [debug] [Thread-105]: SQL status: OK in 0.77 seconds
+17:26:21.791238 [debug] [Thread-105]: use_qvci set to : false
+17:26:21.792786 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:21.793289 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot__dbt_tmp' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:26:22.468798 [debug] [Thread-105]: SQL status: OK in 0.68 seconds
+17:26:22.471459 [debug] [Thread-105]: use_qvci set to : false
+17:26:22.472940 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:22.473329 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:26:23.139465 [debug] [Thread-105]: SQL status: OK in 0.67 seconds
+17:26:23.142953 [debug] [Thread-105]: use_qvci set to : false
+17:26:23.143603 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:23.144153 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot__dbt_tmp' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:26:23.821638 [debug] [Thread-105]: SQL status: OK in 0.68 seconds
+17:26:23.827177 [debug] [Thread-105]: use_qvci set to : false
+17:26:23.828215 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:23.828247 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:26:24.499405 [debug] [Thread-105]: SQL status: OK in 0.67 seconds
+17:26:24.502977 [debug] [Thread-105]: use_qvci set to : false
+17:26:24.504261 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:24.504494 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649906547702642294_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'ts_snapshot__dbt_tmp' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+17:26:25.169268 [debug] [Thread-105]: SQL status: OK in 0.66 seconds
+17:26:25.173141 [debug] [Thread-105]: Writing runtime SQL for node "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:25.173690 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:25.174232 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+          UPDATE "test16649906547702642294_test_basic"."ts_snapshot"
+    FROM (SELECT dbt_scd_id, dbt_change_type, dbt_valid_to FROM "test16649906547702642294_test_basic"."ts_snapshot__dbt_tmp") AS DBT_INTERNAL_SOURCE
+    SET dbt_valid_to = DBT_INTERNAL_SOURCE.dbt_valid_to
+    WHERE DBT_INTERNAL_SOURCE.dbt_scd_id = "test16649906547702642294_test_basic"."ts_snapshot".dbt_scd_id
+      AND DBT_INTERNAL_SOURCE.dbt_change_type = 'update'
+      AND "test16649906547702642294_test_basic"."ts_snapshot".dbt_valid_to IS NULL
+
+      
+17:26:25.859629 [debug] [Thread-105]: SQL status: OK in 0.69 seconds
+17:26:25.861466 [debug] [Thread-105]: Writing runtime SQL for node "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:25.862080 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:25.862743 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "snapshot.snapshot_strategy_timestamp.ts_snapshot"} */
+
+          INSERT INTO "test16649906547702642294_test_basic"."ts_snapshot" ("id", "name", "some_date", "dbt_updated_at", "dbt_valid_from", "dbt_valid_to", "dbt_scd_id")
+    SELECT DBT_INTERNAL_SOURCE."id",DBT_INTERNAL_SOURCE."name",DBT_INTERNAL_SOURCE."some_date",DBT_INTERNAL_SOURCE."dbt_updated_at",DBT_INTERNAL_SOURCE."dbt_valid_from",DBT_INTERNAL_SOURCE."dbt_valid_to",DBT_INTERNAL_SOURCE."dbt_scd_id"
+    FROM "test16649906547702642294_test_basic"."ts_snapshot__dbt_tmp" AS DBT_INTERNAL_SOURCE
+    WHERE DBT_INTERNAL_SOURCE.dbt_change_type = 'insert'
+
+      
+17:26:26.529173 [debug] [Thread-105]: SQL status: OK in 0.67 seconds
+17:26:26.530391 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: COMMIT
+17:26:26.530508 [debug] [Thread-105]: Using teradata connection "snapshot.snapshot_strategy_timestamp.ts_snapshot"
+17:26:26.531012 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: COMMIT
+17:26:26.859308 [debug] [Thread-105]: SQL status: OK in 0.33 seconds
+17:26:26.860107 [debug] [Thread-105]: finished collecting timing info
+17:26:26.860107 [debug] [Thread-105]: On snapshot.snapshot_strategy_timestamp.ts_snapshot: Close
+17:26:27.209295 [info ] [Thread-105]: 1 of 1 OK snapshotted test16649906547702642294_test_basic.ts_snapshot .......... [[32mOK[0m in 11.55s]
+17:26:27.209909 [debug] [Thread-105]: Finished running node snapshot.snapshot_strategy_timestamp.ts_snapshot
+17:26:27.211483 [debug] [MainThread]: Acquiring new teradata connection "master"
+17:26:27.211993 [debug] [MainThread]: Using teradata connection "master"
+17:26:27.212498 [debug] [MainThread]: On master: 
+17:26:27.212561 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:26:30.520146 [debug] [MainThread]: SQL status: OK in 3.31 seconds
+17:26:30.521337 [debug] [MainThread]: On master: COMMIT
+17:26:30.521636 [debug] [MainThread]: Using teradata connection "master"
+17:26:30.522173 [debug] [MainThread]: On master: COMMIT
+17:26:30.849169 [debug] [MainThread]: SQL status: OK in 0.33 seconds
+17:26:30.850222 [debug] [MainThread]: On master: Close
+17:26:31.199471 [info ] [MainThread]: 
+17:26:31.199471 [info ] [MainThread]: Finished running 1 snapshot in 28.45s.
+17:26:31.199977 [debug] [MainThread]: Connection 'master' was properly closed.
+17:26:31.199977 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+17:26:31.199977 [debug] [MainThread]: Connection 'list_None_test16649906547702642294_test_basic' was properly closed.
+17:26:31.199977 [debug] [MainThread]: Connection 'snapshot.snapshot_strategy_timestamp.ts_snapshot' was properly closed.
+17:26:31.199977 [info ] [MainThread]: 
+17:26:31.199977 [info ] [MainThread]: [32mCompleted successfully[0m
+17:26:31.199977 [info ] [MainThread]: 
+17:26:31.199977 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+17:26:31.199977 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:26:31.199977 [debug] [MainThread]: Opening a new connection, currently in state init
+17:26:35.199545 [debug] [MainThread]: On _test: Close
+17:26:35.552778 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:26:35.553359 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:26:35.553359 [debug] [MainThread]: Using teradata connection "_test"
+17:26:35.553359 [debug] [MainThread]: On _test: 
+17:26:35.553359 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:26:38.868674 [debug] [MainThread]: SQL status: OK in 3.32 seconds
+17:26:38.869244 [debug] [MainThread]: Using teradata connection "_test"
+17:26:38.869792 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+update "test16649906547702642294_test_basic"."added" set name = concat(cast(trim(name) as varchar(63800)), '_updated') where id < 11
+17:26:39.199161 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1970] [Teradata Database] [Error 3706] Syntax error: expected something between '(' and the 'cast' keyword.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+17:26:39.199706 [debug] [MainThread]: On _test: ROLLBACK
+17:26:39.528901 [debug] [MainThread]: On _test: Close
+17:26:39.947540 [debug] [MainThread]: Acquiring new teradata connection "_test"
+17:26:39.957114 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16649906547702642294_test_basic', identifier=None)".
+17:26:39.958257 [debug] [MainThread]: Using teradata connection "_test"
+17:26:39.958257 [debug] [MainThread]: On _test: 
+17:26:39.958257 [debug] [MainThread]: Opening a new connection, currently in state closed
+17:26:43.259777 [debug] [MainThread]: SQL status: OK in 3.3 seconds
+17:26:43.260167 [debug] [MainThread]: Using teradata connection "_test"
+17:26:43.260421 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+DELETE DATABASE /*+ IF EXISTS */ "test16649906547702642294_test_basic" ALL;
+17:26:44.059503 [debug] [MainThread]: SQL status: OK in 0.8 seconds
+17:26:44.060323 [debug] [MainThread]: Using teradata connection "_test"
+17:26:44.060832 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+DROP DATABASE /*+ IF EXISTS */ "test16649906547702642294_test_basic";
+17:26:44.759042 [debug] [MainThread]: SQL status: OK in 0.7 seconds
+17:26:44.759597 [debug] [MainThread]: On _test: ROLLBACK
+17:26:45.088852 [debug] [MainThread]: On _test: Close
+17:26:45.439688 [debug] [MainThread]: Connection '_test' was properly closed.
+17:26:45.455338 [info ] [MainThread]: Partial parse save file not found. Starting full parse.
+17:26:45.455338 [debug] [MainThread]: Parsing macros\adapters.sql
+17:26:45.477184 [debug] [MainThread]: Parsing macros\catalog.sql
+17:26:45.492807 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+17:26:45.492807 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+17:26:45.492807 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+17:26:45.507812 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+17:26:45.539058 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+17:26:45.539058 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+17:26:45.539058 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+17:26:45.554679 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+17:26:45.554679 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+17:26:45.554679 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+17:26:45.554679 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+17:26:45.570300 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+17:26:45.570300 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+17:26:45.570300 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+17:26:45.585922 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+17:26:45.585922 [debug] [MainThread]: Parsing macros\etc\statement.sql
+17:26:45.585922 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+17:26:45.585922 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+17:26:45.601543 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+17:26:45.601543 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+17:26:45.601543 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+17:26:45.601543 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+17:26:45.601543 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+17:26:45.608048 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+17:26:45.608048 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+17:26:45.608048 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+17:26:45.608048 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+17:26:45.623693 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+17:26:45.623693 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+17:26:45.639315 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+17:26:45.657196 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+17:26:45.657196 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+17:26:45.657196 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+17:26:45.657196 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+17:26:45.657196 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+17:26:45.672818 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+17:26:45.672818 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+17:26:45.688439 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+17:26:45.688439 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+17:26:45.708073 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+17:26:45.723700 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+17:26:45.723700 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+17:26:45.739321 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+17:26:45.739321 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+17:26:45.754941 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql

@@ -1,0 +1,548 @@
+04:55:54.402071 [debug] [MainThread]: Acquiring new teradata connection "_test"
+04:55:54.403068 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16650321543480386602_test_basic', identifier=None)".
+04:55:54.418506 [debug] [MainThread]: Using teradata connection "_test"
+04:55:54.420013 [debug] [MainThread]: On _test: 
+04:55:54.420406 [debug] [MainThread]: Opening a new connection, currently in state init
+04:56:05.428538 [debug] [MainThread]: SQL status: OK in 11.01 seconds
+04:56:05.429783 [debug] [MainThread]: Using teradata connection "_test"
+04:56:05.430614 [debug] [MainThread]: On _test: DELETE DATABASE /*+ IF EXISTS */ "test16650321543480386602_test_basic" ALL;
+04:56:05.749838 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1988] [Teradata Database] [Error 3802] Database 'test16650321543480386602_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+04:56:05.758631 [debug] [MainThread]: On _test: ROLLBACK
+04:56:06.081560 [debug] [MainThread]: Using teradata connection "_test"
+04:56:06.082718 [debug] [MainThread]: On _test: 
+04:56:06.084679 [debug] [MainThread]: SQL status: OK in 0.0 seconds
+04:56:06.085708 [debug] [MainThread]: Using teradata connection "_test"
+04:56:06.086887 [debug] [MainThread]: On _test: DROP DATABASE /*+ IF EXISTS */ "test16650321543480386602_test_basic";
+04:56:06.437547 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1988] [Teradata Database] [Error 3802] Database 'test16650321543480386602_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+04:56:06.439295 [debug] [MainThread]: On _test: ROLLBACK
+04:56:06.857885 [debug] [MainThread]: On _test: Close
+04:56:07.256189 [debug] [MainThread]: Acquiring new teradata connection "_test"
+04:56:07.257289 [debug] [MainThread]: Creating schema "_ReferenceKey(database=None, schema='test16650321543480386602_test_basic', identifier=None)"
+04:56:07.269613 [debug] [MainThread]: Using teradata connection "_test"
+04:56:07.270395 [debug] [MainThread]: On _test: 
+04:56:07.271391 [debug] [MainThread]: Opening a new connection, currently in state closed
+04:56:10.563930 [debug] [MainThread]: SQL status: OK in 3.29 seconds
+04:56:10.565637 [debug] [MainThread]: Using teradata connection "_test"
+04:56:10.567331 [debug] [MainThread]: On _test: CREATE DATABASE "test16650321543480386602_test_basic"
+    -- Teradata expects db sizing params on creation. This macro is probably
+    -- useful only for testing. For production scenrios, a properly sized
+    -- database (schema) will likely exist before dbt gets called
+    AS PERMANENT = 60e6, -- 60MB
+        SPOOL = 120e6; -- 120MB
+04:56:11.258761 [debug] [MainThread]: SQL status: OK in 0.69 seconds
+04:56:11.262093 [debug] [MainThread]: On _test: COMMIT
+04:56:11.263247 [debug] [MainThread]: Using teradata connection "_test"
+04:56:11.264626 [debug] [MainThread]: On _test: COMMIT
+04:56:11.653216 [debug] [MainThread]: SQL status: OK in 0.39 seconds
+04:56:11.655262 [debug] [MainThread]: On _test: Close
+04:56:12.056730 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-06 04:56:12.066036 | dc7e0b5f-3a8b-43db-8c91-c86bdcb630c9 ==============================
+04:56:12.066036 [info ] [MainThread]: Running with dbt=1.1.0
+04:56:12.066036 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-12\\profile0', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'show': False, 'which': 'seed', 'rpc_method': 'seed', 'indirect_selection': 'eager'}
+04:56:12.080691 [debug] [MainThread]: Tracking: do not track
+04:56:12.099446 [info ] [MainThread]: Partial parse save file not found. Starting full parse.
+04:56:12.399347 [debug] [MainThread]: Parsing macros\adapters.sql
+04:56:12.484237 [debug] [MainThread]: Parsing macros\catalog.sql
+04:56:12.511668 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+04:56:12.515966 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+04:56:12.532733 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+04:56:12.582810 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+04:56:12.698333 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+04:56:12.698333 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+04:56:12.698333 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+04:56:12.714052 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+04:56:12.732682 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+04:56:12.749388 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+04:56:12.749388 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+04:56:12.782740 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+04:56:12.798682 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+04:56:12.817099 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+04:56:12.832751 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+04:56:12.858857 [debug] [MainThread]: Parsing macros\etc\statement.sql
+04:56:12.874556 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+04:56:12.875551 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+04:56:12.882715 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+04:56:12.886526 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+04:56:12.889085 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+04:56:12.891445 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+04:56:12.900570 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+04:56:12.913911 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+04:56:12.925274 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+04:56:12.933649 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+04:56:12.949716 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+04:56:12.994411 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+04:56:13.004065 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+04:56:13.067594 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+04:56:13.134162 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+04:56:13.143401 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+04:56:13.165928 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+04:56:13.174084 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+04:56:13.174084 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+04:56:13.184024 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+04:56:13.205431 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+04:56:13.246818 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+04:56:13.258044 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+04:56:13.287747 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+04:56:13.318647 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+04:56:13.318647 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+04:56:13.355985 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+04:56:13.373031 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+04:56:13.373031 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql
+04:56:13.390944 [debug] [MainThread]: Parsing tests\generic\builtin.sql
+04:56:14.121876 [debug] [MainThread]: 1699: static parser successfully parsed ephemeral.sql
+04:56:14.143897 [debug] [MainThread]: 1699: static parser successfully parsed failing_model.sql
+04:56:14.154046 [debug] [MainThread]: 1699: static parser successfully parsed passing_model.sql
+04:56:14.428591 [info ] [MainThread]: Found 3 models, 2 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 1 seed file, 1 source, 0 exposures, 0 metrics
+04:56:14.434101 [info ] [MainThread]: 
+04:56:14.437557 [debug] [MainThread]: Acquiring new teradata connection "master"
+04:56:14.445038 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+04:56:14.487971 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+04:56:14.490056 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+04:56:14.490056 [debug] [ThreadPool]: Opening a new connection, currently in state init
+04:56:18.581297 [debug] [ThreadPool]: SQL status: OK in 4.09 seconds
+04:56:18.588614 [debug] [ThreadPool]: On list_schemas: Close
+04:56:18.922349 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16650321543480386602_test_basic"
+04:56:18.942601 [debug] [ThreadPool]: Using teradata connection "list_None_test16650321543480386602_test_basic"
+04:56:18.942601 [debug] [ThreadPool]: On list_None_test16650321543480386602_test_basic: 
+04:56:18.946479 [debug] [ThreadPool]: Opening a new connection, currently in state init
+04:56:22.308869 [debug] [ThreadPool]: SQL status: OK in 3.36 seconds
+04:56:22.310826 [debug] [ThreadPool]: Using teradata connection "list_None_test16650321543480386602_test_basic"
+04:56:22.312487 [debug] [ThreadPool]: On list_None_test16650321543480386602_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16650321543480386602_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16650321543480386602_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+04:56:22.979761 [debug] [ThreadPool]: SQL status: OK in 0.67 seconds
+04:56:22.985220 [debug] [ThreadPool]: On list_None_test16650321543480386602_test_basic: ROLLBACK
+04:56:23.298754 [debug] [ThreadPool]: On list_None_test16650321543480386602_test_basic: Close
+04:56:23.630031 [debug] [MainThread]: Using teradata connection "master"
+04:56:23.631210 [debug] [MainThread]: On master: 
+04:56:23.632249 [debug] [MainThread]: Opening a new connection, currently in state init
+04:56:27.039013 [debug] [MainThread]: SQL status: OK in 3.41 seconds
+04:56:27.040342 [debug] [MainThread]: On master: COMMIT
+04:56:27.041694 [debug] [MainThread]: Using teradata connection "master"
+04:56:27.042953 [debug] [MainThread]: On master: COMMIT
+04:56:27.349681 [debug] [MainThread]: SQL status: OK in 0.31 seconds
+04:56:27.351363 [debug] [MainThread]: On master: Close
+04:56:27.689720 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+04:56:27.692368 [info ] [MainThread]: 
+04:56:27.718797 [debug] [Thread-1  ]: Began running node seed.singular_tests_ephemeral.base
+04:56:27.718797 [info ] [Thread-1  ]: 1 of 1 START seed file test16650321543480386602_test_basic.base ................ [RUN]
+04:56:27.726803 [debug] [Thread-1  ]: Acquiring new teradata connection "seed.singular_tests_ephemeral.base"
+04:56:27.728114 [debug] [Thread-1  ]: Began compiling node seed.singular_tests_ephemeral.base
+04:56:27.729385 [debug] [Thread-1  ]: finished collecting timing info
+04:56:27.730405 [debug] [Thread-1  ]: Began executing node seed.singular_tests_ephemeral.base
+04:56:27.864427 [debug] [Thread-1  ]: model : {'raw_sql': '', 'resource_type': 'seed', 'depends_on': {'macros': [], 'nodes': []}, 'config': {'enabled': True, 'tags': [], 'meta': {}, 'materialized': 'seed', 'persist_docs': {}, 'quoting': {}, 'column_types': {}, 'on_schema_change': 'ignore', 'post-hook': [], 'pre-hook': []}, 'schema': 'test16650321543480386602_test_basic', 'fqn': ['singular_tests_ephemeral', 'base'], 'unique_id': 'seed.singular_tests_ephemeral.base', 'package_name': 'singular_tests_ephemeral', 'root_path': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-12\\project0', 'path': 'base.csv', 'original_file_path': 'seeds\\base.csv', 'name': 'base', 'alias': 'base', 'checksum': {'name': 'sha256', 'checksum': '86dc7fd6521185b45bd27b5f5d2c808d6b61781ee713e439016f1ebc221c955d'}, 'tags': [], 'refs': [], 'sources': [], 'description': '', 'columns': {}, 'meta': {}, 'docs': {'show': True}, 'deferred': False, 'unrendered_config': {}, 'created_at': 1665032174.26548}
+04:56:27.880197 [debug] [Thread-1  ]: Using teradata connection "seed.singular_tests_ephemeral.base"
+04:56:27.881400 [debug] [Thread-1  ]: On seed.singular_tests_ephemeral.base: 
+04:56:27.882401 [debug] [Thread-1  ]: Opening a new connection, currently in state init
+04:56:31.220858 [debug] [Thread-1  ]: SQL status: OK in 3.34 seconds
+04:56:31.222367 [debug] [Thread-1  ]: Using teradata connection "seed.singular_tests_ephemeral.base"
+04:56:31.223041 [debug] [Thread-1  ]: On seed.singular_tests_ephemeral.base: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "seed.singular_tests_ephemeral.base"} */
+
+    
+    CREATE  TABLE "test16650321543480386602_test_basic"."base"
+    
+    ("id" INTEGER,"name" LONG VARCHAR,"some_date" TIMESTAMP(0))
+    ;
+
+  
+04:56:31.898526 [debug] [Thread-1  ]: SQL status: OK in 0.67 seconds
+04:56:31.982083 [debug] [Thread-1  ]: Using teradata connection "seed.singular_tests_ephemeral.base"
+04:56:31.982083 [debug] [Thread-1  ]: On seed.singular_tests_ephemeral.base: insert into "test16650321543480386602_test_basic"."base" ("id", "name", "some_date") values
+                (?,?,?)
+        ...
+04:56:32.638452 [debug] [Thread-1  ]: SQL status: OK in 0.65 seconds
+04:56:32.652632 [debug] [Thread-1  ]: Writing runtime SQL for node "seed.singular_tests_ephemeral.base"
+04:56:32.678680 [debug] [Thread-1  ]: On seed.singular_tests_ephemeral.base: COMMIT
+04:56:32.678680 [debug] [Thread-1  ]: Using teradata connection "seed.singular_tests_ephemeral.base"
+04:56:32.679710 [debug] [Thread-1  ]: On seed.singular_tests_ephemeral.base: COMMIT
+04:56:32.998607 [debug] [Thread-1  ]: SQL status: OK in 0.32 seconds
+04:56:33.000747 [debug] [Thread-1  ]: finished collecting timing info
+04:56:33.002572 [debug] [Thread-1  ]: On seed.singular_tests_ephemeral.base: Close
+04:56:33.373130 [info ] [Thread-1  ]: 1 of 1 OK loaded seed file test16650321543480386602_test_basic.base ............ [[32mINSERT 10[0m in 5.65s]
+04:56:33.375019 [debug] [Thread-1  ]: Finished running node seed.singular_tests_ephemeral.base
+04:56:33.378263 [debug] [MainThread]: Acquiring new teradata connection "master"
+04:56:33.379613 [debug] [MainThread]: Using teradata connection "master"
+04:56:33.381146 [debug] [MainThread]: On master: 
+04:56:33.381877 [debug] [MainThread]: Opening a new connection, currently in state closed
+04:56:36.747650 [debug] [MainThread]: SQL status: OK in 3.37 seconds
+04:56:36.749129 [debug] [MainThread]: On master: COMMIT
+04:56:36.750852 [debug] [MainThread]: Using teradata connection "master"
+04:56:36.752055 [debug] [MainThread]: On master: COMMIT
+04:56:37.077987 [debug] [MainThread]: SQL status: OK in 0.32 seconds
+04:56:37.079809 [debug] [MainThread]: On master: Close
+04:56:37.454573 [info ] [MainThread]: 
+04:56:37.456277 [info ] [MainThread]: Finished running 1 seed in 23.02s.
+04:56:37.457699 [debug] [MainThread]: Connection 'master' was properly closed.
+04:56:37.458506 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+04:56:37.459088 [debug] [MainThread]: Connection 'list_None_test16650321543480386602_test_basic' was properly closed.
+04:56:37.460119 [debug] [MainThread]: Connection 'seed.singular_tests_ephemeral.base' was properly closed.
+04:56:37.476781 [info ] [MainThread]: 
+04:56:37.485165 [info ] [MainThread]: [32mCompleted successfully[0m
+04:56:37.487171 [info ] [MainThread]: 
+04:56:37.487171 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+
+
+============================== 2022-10-06 04:56:37.568070 | dc7e0b5f-3a8b-43db-8c91-c86bdcb630c9 ==============================
+04:56:37.568070 [info ] [MainThread]: Running with dbt=1.1.0
+04:56:37.570106 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-12\\profile0', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'indirect_selection': 'eager', 'which': 'test', 'rpc_method': 'test'}
+04:56:37.570106 [debug] [MainThread]: Tracking: do not track
+04:56:37.731929 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 0 files changed.
+04:56:37.731929 [debug] [MainThread]: Partial parsing enabled, no changes found, skipping parsing
+04:56:37.774800 [info ] [MainThread]: Found 3 models, 2 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 1 seed file, 1 source, 0 exposures, 0 metrics
+04:56:37.779306 [info ] [MainThread]: 
+04:56:37.782351 [debug] [MainThread]: Acquiring new teradata connection "master"
+04:56:37.782351 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16650321543480386602_test_basic"
+04:56:37.787473 [debug] [ThreadPool]: Using teradata connection "list_None_test16650321543480386602_test_basic"
+04:56:37.787473 [debug] [ThreadPool]: On list_None_test16650321543480386602_test_basic: 
+04:56:37.795255 [debug] [ThreadPool]: Opening a new connection, currently in state init
+04:56:41.201707 [debug] [ThreadPool]: SQL status: OK in 3.41 seconds
+04:56:41.203122 [debug] [ThreadPool]: Using teradata connection "list_None_test16650321543480386602_test_basic"
+04:56:41.204622 [debug] [ThreadPool]: On list_None_test16650321543480386602_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16650321543480386602_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16650321543480386602_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+04:56:41.901934 [debug] [ThreadPool]: SQL status: OK in 0.7 seconds
+04:56:41.904932 [debug] [ThreadPool]: On list_None_test16650321543480386602_test_basic: ROLLBACK
+04:56:42.229161 [debug] [ThreadPool]: On list_None_test16650321543480386602_test_basic: Close
+04:56:42.564365 [debug] [MainThread]: Using teradata connection "master"
+04:56:42.565661 [debug] [MainThread]: On master: 
+04:56:42.567458 [debug] [MainThread]: Opening a new connection, currently in state init
+04:56:45.861455 [debug] [MainThread]: SQL status: OK in 3.29 seconds
+04:56:45.863003 [debug] [MainThread]: On master: COMMIT
+04:56:45.864324 [debug] [MainThread]: Using teradata connection "master"
+04:56:45.865970 [debug] [MainThread]: On master: COMMIT
+04:56:46.271354 [debug] [MainThread]: SQL status: OK in 0.4 seconds
+04:56:46.273235 [debug] [MainThread]: On master: Close
+04:56:46.602836 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+04:56:46.604570 [info ] [MainThread]: 
+04:56:46.609728 [debug] [Thread-5  ]: Began running node test.singular_tests_ephemeral.failing
+04:56:46.611087 [info ] [Thread-5  ]: 1 of 2 START test failing ...................................................... [RUN]
+04:56:46.613027 [debug] [Thread-5  ]: Acquiring new teradata connection "test.singular_tests_ephemeral.failing"
+04:56:46.613992 [debug] [Thread-5  ]: Began compiling node test.singular_tests_ephemeral.failing
+04:56:46.615988 [debug] [Thread-5  ]: Compiling test.singular_tests_ephemeral.failing
+04:56:46.621842 [debug] [Thread-5  ]: Compiling model.singular_tests_ephemeral.ephemeral
+04:56:46.629541 [debug] [Thread-5  ]: Writing injected SQL for node "model.singular_tests_ephemeral.ephemeral"
+04:56:46.652458 [debug] [Thread-5  ]: Writing injected SQL for node "test.singular_tests_ephemeral.failing"
+04:56:46.665215 [debug] [Thread-5  ]: finished collecting timing info
+04:56:46.666462 [debug] [Thread-5  ]: Began executing node test.singular_tests_ephemeral.failing
+04:56:46.724852 [debug] [Thread-5  ]: Writing runtime SQL for node "test.singular_tests_ephemeral.failing"
+04:56:46.728164 [debug] [Thread-5  ]: Using teradata connection "test.singular_tests_ephemeral.failing"
+04:56:46.729241 [debug] [Thread-5  ]: On test.singular_tests_ephemeral.failing: 
+04:56:46.730241 [debug] [Thread-5  ]: Opening a new connection, currently in state init
+04:56:50.079184 [debug] [Thread-5  ]: SQL status: OK in 3.35 seconds
+04:56:50.080794 [debug] [Thread-5  ]: Using teradata connection "test.singular_tests_ephemeral.failing"
+04:56:50.081943 [debug] [Thread-5  ]: On test.singular_tests_ephemeral.failing: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "test.singular_tests_ephemeral.failing"} */
+SELECT
+      count(*) AS failures,
+      CASE
+      	WHEN count(*) <> 0 THEN 'true'
+      	ELSE 'false'
+      END AS should_warn,
+      CASE
+      	WHEN count(*) <> 0 THEN 'true'
+      	ELSE 'false'
+      END AS should_error
+    FROM (
+      with  __dbt__cte__ephemeral as (
+
+
+with my_cool_cte as (
+  select name, id from "test16650321543480386602_test_basic"."base"
+)
+select id, name from my_cool_cte where id is not null
+),my_other_cool_cte as (
+    select id, name from __dbt__cte__ephemeral
+    where id < 1000
+)
+select name, id from my_other_cool_cte
+      
+    ) dbt_internal_test
+04:56:50.398700 [debug] [Thread-5  ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1997] [Teradata Database] [Error 6926] WITH [RECURSIVE] clause or recursive view is not supported within WITH [RECURSIVE] definitions, views, triggers or stored procedures.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+04:56:50.401017 [debug] [Thread-5  ]: On test.singular_tests_ephemeral.failing: ROLLBACK
+04:56:50.721685 [debug] [Thread-5  ]: finished collecting timing info
+04:56:50.722683 [debug] [Thread-5  ]: On test.singular_tests_ephemeral.failing: Close
+04:56:51.059023 [debug] [Thread-5  ]: Database Error in test failing (tests\failing.sql)
+  [Version 17.20.0.5] [Session 1997] [Teradata Database] [Error 6926] WITH [RECURSIVE] clause or recursive view is not supported within WITH [RECURSIVE] definitions, views, triggers or stored procedures.
+   at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+   at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+   at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+   at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+   at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+   at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+   at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+   at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+   at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+   at database/sql.ctxDriverQuery ctxutil.go:48
+   at database/sql.(*DB).queryDC.func1 sql.go:1759
+   at database/sql.withLock sql.go:3437
+   at database/sql.(*DB).queryDC sql.go:1754
+   at database/sql.(*Conn).QueryContext sql.go:2013
+   at main.goCreateRows goside.go:666
+   at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+   at runtime.cgocallbackg1 cgocall.go:314
+   at runtime.cgocallbackg cgocall.go:233
+   at runtime.cgocallback asm_amd64.s:971
+   at runtime.goexit asm_amd64.s:1571
+  compiled SQL at target\run\singular_tests_ephemeral\tests\failing.sql
+04:56:51.060639 [error] [Thread-5  ]: 1 of 2 ERROR failing ........................................................... [[31mERROR[0m in 4.45s]
+04:56:51.062761 [debug] [Thread-5  ]: Finished running node test.singular_tests_ephemeral.failing
+04:56:51.063860 [debug] [Thread-5  ]: Began running node test.singular_tests_ephemeral.passing
+04:56:51.065154 [info ] [Thread-5  ]: 2 of 2 START test passing ...................................................... [RUN]
+04:56:51.067393 [debug] [Thread-5  ]: Acquiring new teradata connection "test.singular_tests_ephemeral.passing"
+04:56:51.067914 [debug] [Thread-5  ]: Began compiling node test.singular_tests_ephemeral.passing
+04:56:51.068488 [debug] [Thread-5  ]: Compiling test.singular_tests_ephemeral.passing
+04:56:51.084198 [debug] [Thread-5  ]: Writing injected SQL for node "test.singular_tests_ephemeral.passing"
+04:56:51.086636 [debug] [Thread-5  ]: finished collecting timing info
+04:56:51.087632 [debug] [Thread-5  ]: Began executing node test.singular_tests_ephemeral.passing
+04:56:51.094363 [debug] [Thread-5  ]: Writing runtime SQL for node "test.singular_tests_ephemeral.passing"
+04:56:51.097912 [debug] [Thread-5  ]: Using teradata connection "test.singular_tests_ephemeral.passing"
+04:56:51.098915 [debug] [Thread-5  ]: On test.singular_tests_ephemeral.passing: 
+04:56:51.098915 [debug] [Thread-5  ]: Opening a new connection, currently in state closed
+04:56:54.308877 [debug] [Thread-5  ]: SQL status: OK in 3.21 seconds
+04:56:54.310530 [debug] [Thread-5  ]: Using teradata connection "test.singular_tests_ephemeral.passing"
+04:56:54.311838 [debug] [Thread-5  ]: On test.singular_tests_ephemeral.passing: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "test.singular_tests_ephemeral.passing"} */
+SELECT
+      count(*) AS failures,
+      CASE
+      	WHEN count(*) <> 0 THEN 'true'
+      	ELSE 'false'
+      END AS should_warn,
+      CASE
+      	WHEN count(*) <> 0 THEN 'true'
+      	ELSE 'false'
+      END AS should_error
+    FROM (
+      with  __dbt__cte__ephemeral as (
+
+
+with my_cool_cte as (
+  select name, id from "test16650321543480386602_test_basic"."base"
+)
+select id, name from my_cool_cte where id is not null
+),my_other_cool_cte as (
+    select id, name from __dbt__cte__ephemeral
+    where id > 1000
+)
+select name, id from my_other_cool_cte
+      
+    ) dbt_internal_test
+04:56:54.638495 [debug] [Thread-5  ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1998] [Teradata Database] [Error 6926] WITH [RECURSIVE] clause or recursive view is not supported within WITH [RECURSIVE] definitions, views, triggers or stored procedures.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+04:56:54.639632 [debug] [Thread-5  ]: On test.singular_tests_ephemeral.passing: ROLLBACK
+04:56:54.959146 [debug] [Thread-5  ]: finished collecting timing info
+04:56:54.959750 [debug] [Thread-5  ]: On test.singular_tests_ephemeral.passing: Close
+04:56:55.312458 [debug] [Thread-5  ]: Database Error in test passing (tests\passing.sql)
+  [Version 17.20.0.5] [Session 1998] [Teradata Database] [Error 6926] WITH [RECURSIVE] clause or recursive view is not supported within WITH [RECURSIVE] definitions, views, triggers or stored procedures.
+   at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+   at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+   at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+   at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+   at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+   at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+   at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+   at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+   at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+   at database/sql.ctxDriverQuery ctxutil.go:48
+   at database/sql.(*DB).queryDC.func1 sql.go:1759
+   at database/sql.withLock sql.go:3437
+   at database/sql.(*DB).queryDC sql.go:1754
+   at database/sql.(*Conn).QueryContext sql.go:2013
+   at main.goCreateRows goside.go:666
+   at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+   at runtime.cgocallbackg1 cgocall.go:314
+   at runtime.cgocallbackg cgocall.go:233
+   at runtime.cgocallback asm_amd64.s:971
+   at runtime.goexit asm_amd64.s:1571
+  compiled SQL at target\run\singular_tests_ephemeral\tests\passing.sql
+04:56:55.314017 [error] [Thread-5  ]: 2 of 2 ERROR passing ........................................................... [[31mERROR[0m in 4.25s]
+04:56:55.316519 [debug] [Thread-5  ]: Finished running node test.singular_tests_ephemeral.passing
+04:56:55.319520 [debug] [MainThread]: Acquiring new teradata connection "master"
+04:56:55.320658 [debug] [MainThread]: Using teradata connection "master"
+04:56:55.321220 [debug] [MainThread]: On master: 
+04:56:55.322380 [debug] [MainThread]: Opening a new connection, currently in state closed
+04:56:58.609062 [debug] [MainThread]: SQL status: OK in 3.29 seconds
+04:56:58.610532 [debug] [MainThread]: On master: COMMIT
+04:56:58.611603 [debug] [MainThread]: Using teradata connection "master"
+04:56:58.613169 [debug] [MainThread]: On master: COMMIT
+04:56:58.917071 [debug] [MainThread]: SQL status: OK in 0.3 seconds
+04:56:58.918776 [debug] [MainThread]: On master: Close
+04:56:59.237024 [info ] [MainThread]: 
+04:56:59.239572 [info ] [MainThread]: Finished running 2 tests in 21.45s.
+04:56:59.241279 [debug] [MainThread]: Connection 'master' was properly closed.
+04:56:59.242083 [debug] [MainThread]: Connection 'list_None_test16650321543480386602_test_basic' was properly closed.
+04:56:59.242588 [debug] [MainThread]: Connection 'test.singular_tests_ephemeral.passing' was properly closed.
+04:56:59.255686 [info ] [MainThread]: 
+04:56:59.257016 [info ] [MainThread]: [31mCompleted with 2 errors and 0 warnings:[0m
+04:56:59.258014 [info ] [MainThread]: 
+04:56:59.259204 [error] [MainThread]: [33mDatabase Error in test failing (tests\failing.sql)[0m
+04:56:59.259204 [error] [MainThread]:   [Version 17.20.0.5] [Session 1997] [Teradata Database] [Error 6926] WITH [RECURSIVE] clause or recursive view is not supported within WITH [RECURSIVE] definitions, views, triggers or stored procedures.
+04:56:59.261367 [error] [MainThread]:    at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+04:56:59.262407 [error] [MainThread]:    at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+04:56:59.263965 [error] [MainThread]:    at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+04:56:59.265254 [error] [MainThread]:    at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+04:56:59.266477 [error] [MainThread]:    at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+04:56:59.267666 [error] [MainThread]:    at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+04:56:59.269047 [error] [MainThread]:    at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+04:56:59.270088 [error] [MainThread]:    at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+04:56:59.271536 [error] [MainThread]:    at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+04:56:59.273272 [error] [MainThread]:    at database/sql.ctxDriverQuery ctxutil.go:48
+04:56:59.274271 [error] [MainThread]:    at database/sql.(*DB).queryDC.func1 sql.go:1759
+04:56:59.274271 [error] [MainThread]:    at database/sql.withLock sql.go:3437
+04:56:59.276442 [error] [MainThread]:    at database/sql.(*DB).queryDC sql.go:1754
+04:56:59.277548 [error] [MainThread]:    at database/sql.(*Conn).QueryContext sql.go:2013
+04:56:59.279583 [error] [MainThread]:    at main.goCreateRows goside.go:666
+04:56:59.280354 [error] [MainThread]:    at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+04:56:59.281618 [error] [MainThread]:    at runtime.cgocallbackg1 cgocall.go:314
+04:56:59.282945 [error] [MainThread]:    at runtime.cgocallbackg cgocall.go:233
+04:56:59.284168 [error] [MainThread]:    at runtime.cgocallback asm_amd64.s:971
+04:56:59.285449 [error] [MainThread]:    at runtime.goexit asm_amd64.s:1571
+04:56:59.286706 [error] [MainThread]:   compiled SQL at target\run\singular_tests_ephemeral\tests\failing.sql
+04:56:59.287898 [info ] [MainThread]: 
+04:56:59.289106 [error] [MainThread]: [33mDatabase Error in test passing (tests\passing.sql)[0m
+04:56:59.290414 [error] [MainThread]:   [Version 17.20.0.5] [Session 1998] [Teradata Database] [Error 6926] WITH [RECURSIVE] clause or recursive view is not supported within WITH [RECURSIVE] definitions, views, triggers or stored procedures.
+04:56:59.291803 [error] [MainThread]:    at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+04:56:59.292977 [error] [MainThread]:    at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+04:56:59.294325 [error] [MainThread]:    at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+04:56:59.295548 [error] [MainThread]:    at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+04:56:59.296823 [error] [MainThread]:    at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+04:56:59.298078 [error] [MainThread]:    at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+04:56:59.299394 [error] [MainThread]:    at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+04:56:59.300598 [error] [MainThread]:    at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+04:56:59.301893 [error] [MainThread]:    at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+04:56:59.303101 [error] [MainThread]:    at database/sql.ctxDriverQuery ctxutil.go:48
+04:56:59.304379 [error] [MainThread]:    at database/sql.(*DB).queryDC.func1 sql.go:1759
+04:56:59.305625 [error] [MainThread]:    at database/sql.withLock sql.go:3437
+04:56:59.307012 [error] [MainThread]:    at database/sql.(*DB).queryDC sql.go:1754
+04:56:59.308095 [error] [MainThread]:    at database/sql.(*Conn).QueryContext sql.go:2013
+04:56:59.309548 [error] [MainThread]:    at main.goCreateRows goside.go:666
+04:56:59.310752 [error] [MainThread]:    at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+04:56:59.312025 [error] [MainThread]:    at runtime.cgocallbackg1 cgocall.go:314
+04:56:59.313219 [error] [MainThread]:    at runtime.cgocallbackg cgocall.go:233
+04:56:59.314501 [error] [MainThread]:    at runtime.cgocallback asm_amd64.s:971
+04:56:59.315787 [error] [MainThread]:    at runtime.goexit asm_amd64.s:1571
+04:56:59.317019 [error] [MainThread]:   compiled SQL at target\run\singular_tests_ephemeral\tests\passing.sql
+04:56:59.323135 [info ] [MainThread]: 
+04:56:59.324238 [info ] [MainThread]: Done. PASS=0 WARN=0 ERROR=2 SKIP=0 TOTAL=2
+04:57:00.185744 [debug] [MainThread]: Acquiring new teradata connection "_test"
+04:57:00.186078 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16650321543480386602_test_basic', identifier=None)".
+04:57:00.188721 [debug] [MainThread]: Using teradata connection "_test"
+04:57:00.189713 [debug] [MainThread]: On _test: 
+04:57:00.189713 [debug] [MainThread]: Opening a new connection, currently in state init
+04:57:03.412269 [debug] [MainThread]: SQL status: OK in 3.22 seconds
+04:57:03.412817 [debug] [MainThread]: Using teradata connection "_test"
+04:57:03.413443 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+DELETE DATABASE /*+ IF EXISTS */ "test16650321543480386602_test_basic" ALL;
+04:57:04.078890 [debug] [MainThread]: SQL status: OK in 0.66 seconds
+04:57:04.083155 [debug] [MainThread]: Using teradata connection "_test"
+04:57:04.084105 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+DROP DATABASE /*+ IF EXISTS */ "test16650321543480386602_test_basic";
+04:57:04.793041 [debug] [MainThread]: SQL status: OK in 0.71 seconds
+04:57:04.796105 [debug] [MainThread]: On _test: ROLLBACK
+04:57:05.119055 [debug] [MainThread]: On _test: Close
+04:57:05.450494 [debug] [MainThread]: Connection '_test' was properly closed.

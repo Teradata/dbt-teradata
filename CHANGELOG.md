@@ -1,6 +1,7 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.1.0a
 
 ### Features
+* Upgrade to dbt v1.0.0
 
 ### Fixes
 

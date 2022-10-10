@@ -5,9 +5,9 @@ import sys
 from setuptools import setup
 
 
-if sys.version_info < (3, 7) or sys.version_info >= (3, 10):
+if sys.version_info < (3, 7) or sys.version_info >= (3, 11):
     print('Error: dbt-teradata does not support this version of Python.')
-    print('Please install Python 3.7 or higher but less than 3.10.')
+    print('Please install Python 3.7 or higher but less than 3.11.')
     sys.exit(1)
 
 
@@ -17,7 +17,7 @@ with open(os.path.join(this_directory, 'README.md')) as f:
 
 
 package_name = "dbt-teradata"
-package_version = "1.0.0a"
+package_version = "1.1.0a"
 description = """The Teradata adapter plugin for dbt (data build tool)"""
 
 
@@ -45,7 +45,7 @@ setup(
         ],
     },
     install_requires=[
-        "dbt-core==1.0.6",
+        "dbt-core==1.1.0",
         "teradatasql>=16.20.0.0",
     ],
     classifiers=[
@@ -61,5 +61,5 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
     ],
-    python_requires=">=3.7,<3.10",
+    python_requires=">=3.7,<3.11",
 )

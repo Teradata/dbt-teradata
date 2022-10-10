@@ -1,0 +1,51 @@
+Pylava Maintainers
+==================
+
+* Max Nordlund (https://github.com/maxnordlund)
+* Michael Käufl (https://github.com/michael-k)
+* Susam Pal (https://github.com/susam)
+
+
+Pylava Contributors
+===================
+
+* Max Nordlund (https://github.com/maxnordlund)
+* Michael Käufl (https://github.com/michael-k)
+* Susam Pal (https://github.com/susam)
+* s-nirali (https://github.com/s-nirali)
+* Valentine (https://github.com/itsVale)
+
+
+Pylava Release Operator
+=======================
+
+* Susam Pal (https://github.com/susam)
+
+
+Pylama Maintainer
+=================
+
+* Kirill Klenov <horneds@gmail.com>
+
+
+Pylama Contributors
+===================
+
+* Ankur Dedania (https://github.com/AbsoluteMSTR)
+* Daniel Hahler (https://github.com/blueyed)
+* Daniel O'onnell' (https://github.com/mruwnik)
+* Diego Rabatone Oliveira (https://github.com/diraol)
+* Fábio C. Barrionuevo da Luz (https://github.com/luzfcb)
+* GrandVizierOlaf (https://github.com/grandvizierolaf)
+* Grzegorz Śliwiński (https://github.com/fizyk)
+* Jarek Śmiejczak (https://github.com/jotes)
+* Jens Persson (https://github.com/MrShark)
+* Johan Bloemberg (https://github.com/aequitas)
+* Michael (https://github.com/michael-k)
+* Roman Osipenko (https://github.com/romanosipenko)
+* Serg Baburin (https://github.com/gmist)
+* Tomasz Karbownicki (https://github.com/trojkat)
+* lukaszpiotr (https://github.com/lukaszpiotr)
+
+
+Note: The entries in each section are sorted in alphabetical order.

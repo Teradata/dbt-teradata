@@ -1,0 +1,64 @@
+04:55:17.449700 [debug] [MainThread]: Acquiring new teradata connection "_test"
+04:55:17.450895 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16650321162021188343_test_basic', identifier=None)".
+04:55:17.470216 [debug] [MainThread]: Using teradata connection "_test"
+04:55:17.470216 [debug] [MainThread]: On _test: 
+04:55:17.476060 [debug] [MainThread]: Opening a new connection, currently in state init
+04:55:33.874307 [debug] [MainThread]: SQL status: OK in 16.4 seconds
+04:55:33.875404 [debug] [MainThread]: Using teradata connection "_test"
+04:55:33.876564 [debug] [MainThread]: On _test: DELETE DATABASE /*+ IF EXISTS */ "test16650321162021188343_test_basic" ALL;
+04:55:34.188796 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1986] [Teradata Database] [Error 3802] Database 'test16650321162021188343_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+04:55:34.190377 [debug] [MainThread]: On _test: ROLLBACK
+04:55:34.510579 [debug] [MainThread]: Using teradata connection "_test"
+04:55:34.511742 [debug] [MainThread]: On _test: 
+04:55:34.512891 [debug] [MainThread]: SQL status: OK in 0.0 seconds
+04:55:34.513476 [debug] [MainThread]: Using teradata connection "_test"
+04:55:34.514668 [debug] [MainThread]: On _test: DROP DATABASE /*+ IF EXISTS */ "test16650321162021188343_test_basic";
+04:55:34.816893 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1986] [Teradata Database] [Error 3802] Database 'test16650321162021188343_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+04:55:34.818650 [debug] [MainThread]: On _test: ROLLBACK
+04:55:35.139902 [debug] [MainThread]: On _test: Close
+04:55:35.515261 [debug] [MainThread]: Acquiring new teradata connection "_test"
+04:55:35.517844 [debug] [MainThread]: Creating schema "_ReferenceKey(database=None, schema='test16650321162021188343_test_basic', identifier=None)"
+04:55:35.534707 [debug] [MainThread]: Using teradata connection "_test"
+04:55:35.534707 [debug] [MainThread]: On _test: 
+04:55:35.537774 [debug] [MainThread]: Opening a new connection, currently in state closed
+04:55:39.955924 [debug] [MainThread]: Connection '_test' was properly closed.

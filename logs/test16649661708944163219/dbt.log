@@ -1,0 +1,1799 @@
+10:36:11.276977 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:36:11.278004 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16649661708944163219_test_basic', identifier=None)".
+10:36:11.293711 [debug] [MainThread]: Using teradata connection "_test"
+10:36:11.293711 [debug] [MainThread]: On _test: 
+10:36:11.297306 [debug] [MainThread]: Opening a new connection, currently in state init
+10:36:25.915734 [debug] [MainThread]: SQL status: OK in 14.62 seconds
+10:36:25.916957 [debug] [MainThread]: Using teradata connection "_test"
+10:36:25.918705 [debug] [MainThread]: On _test: DELETE DATABASE /*+ IF EXISTS */ "test16649661708944163219_test_basic" ALL;
+10:36:26.491295 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1636] [Teradata Database] [Error 3802] Database 'test16649661708944163219_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:36:26.492534 [debug] [MainThread]: On _test: ROLLBACK
+10:36:26.867664 [debug] [MainThread]: Using teradata connection "_test"
+10:36:26.868245 [debug] [MainThread]: On _test: 
+10:36:26.869052 [debug] [MainThread]: SQL status: OK in 0.0 seconds
+10:36:26.870219 [debug] [MainThread]: Using teradata connection "_test"
+10:36:26.870748 [debug] [MainThread]: On _test: DROP DATABASE /*+ IF EXISTS */ "test16649661708944163219_test_basic";
+10:36:27.275716 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1636] [Teradata Database] [Error 3802] Database 'test16649661708944163219_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:36:27.277008 [debug] [MainThread]: On _test: ROLLBACK
+10:36:27.776525 [debug] [MainThread]: On _test: Close
+10:36:28.129419 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:36:28.130755 [debug] [MainThread]: Creating schema "_ReferenceKey(database=None, schema='test16649661708944163219_test_basic', identifier=None)"
+10:36:28.141875 [debug] [MainThread]: Using teradata connection "_test"
+10:36:28.141875 [debug] [MainThread]: On _test: 
+10:36:28.143595 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:36:32.029920 [debug] [MainThread]: SQL status: OK in 3.89 seconds
+10:36:32.031389 [debug] [MainThread]: Using teradata connection "_test"
+10:36:32.032775 [debug] [MainThread]: On _test: CREATE DATABASE "test16649661708944163219_test_basic"
+    -- Teradata expects db sizing params on creation. This macro is probably
+    -- useful only for testing. For production scenrios, a properly sized
+    -- database (schema) will likely exist before dbt gets called
+    AS PERMANENT = 60e6, -- 60MB
+        SPOOL = 120e6; -- 120MB
+10:36:32.897870 [debug] [MainThread]: SQL status: OK in 0.86 seconds
+10:36:32.899088 [debug] [MainThread]: On _test: COMMIT
+10:36:32.899999 [debug] [MainThread]: Using teradata connection "_test"
+10:36:32.900556 [debug] [MainThread]: On _test: COMMIT
+10:36:33.316576 [debug] [MainThread]: SQL status: OK in 0.42 seconds
+10:36:33.317797 [debug] [MainThread]: On _test: Close
+10:36:33.857775 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-05 10:36:33.893807 | cf4fbc17-2a2b-4e03-ad55-4703c757c612 ==============================
+10:36:33.893807 [info ] [MainThread]: Running with dbt=1.1.0
+10:36:33.893807 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-7\\profile0', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'show': False, 'which': 'seed', 'rpc_method': 'seed', 'indirect_selection': 'eager'}
+10:36:33.896967 [debug] [MainThread]: Tracking: do not track
+10:36:33.932395 [info ] [MainThread]: Partial parse save file not found. Starting full parse.
+10:36:34.072131 [debug] [MainThread]: Parsing macros\adapters.sql
+10:36:34.100468 [debug] [MainThread]: Parsing macros\catalog.sql
+10:36:34.116094 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+10:36:34.123537 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+10:36:34.123537 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+10:36:34.139556 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+10:36:34.213451 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+10:36:34.221649 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+10:36:34.221649 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+10:36:34.221649 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+10:36:34.265734 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+10:36:34.271609 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+10:36:34.289127 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+10:36:34.305615 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+10:36:34.322482 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+10:36:34.339345 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+10:36:34.356265 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+10:36:34.356265 [debug] [MainThread]: Parsing macros\etc\statement.sql
+10:36:34.371314 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+10:36:34.371314 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+10:36:34.379100 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+10:36:34.380390 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+10:36:34.380734 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+10:36:34.382856 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+10:36:34.384902 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+10:36:34.387099 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+10:36:34.387099 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+10:36:34.387099 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+10:36:34.401145 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+10:36:34.404174 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+10:36:34.404174 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+10:36:34.423461 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+10:36:34.453397 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+10:36:34.455393 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+10:36:34.455393 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+10:36:34.455393 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+10:36:34.472150 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+10:36:34.472150 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+10:36:34.472150 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+10:36:34.501486 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+10:36:34.504801 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+10:36:34.520780 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+10:36:34.539884 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+10:36:34.539884 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+10:36:34.571141 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+10:36:34.571141 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+10:36:34.592819 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql
+10:36:34.597379 [debug] [MainThread]: Parsing tests\generic\builtin.sql
+10:36:34.914745 [debug] [MainThread]: 1603: static parser failed on swappable.sql
+10:36:34.930981 [debug] [MainThread]: 1602: parser fallback to jinja rendering on swappable.sql
+10:36:34.933147 [debug] [MainThread]: 1699: static parser successfully parsed table_model.sql
+10:36:34.937258 [debug] [MainThread]: 1699: static parser successfully parsed view_model.sql
+10:36:35.035467 [info ] [MainThread]: Found 3 models, 0 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 1 seed file, 1 source, 0 exposures, 0 metrics
+10:36:35.037464 [info ] [MainThread]: 
+10:36:35.039492 [debug] [MainThread]: Acquiring new teradata connection "master"
+10:36:35.042868 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+10:36:35.059549 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+10:36:35.061294 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+10:36:35.062291 [debug] [ThreadPool]: Opening a new connection, currently in state init
+10:36:40.271611 [debug] [ThreadPool]: SQL status: OK in 5.21 seconds
+10:36:40.276391 [debug] [ThreadPool]: On list_schemas: Close
+10:36:40.768376 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649661708944163219_test_basic"
+10:36:40.777191 [debug] [ThreadPool]: Using teradata connection "list_None_test16649661708944163219_test_basic"
+10:36:40.777191 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: 
+10:36:40.783513 [debug] [ThreadPool]: Opening a new connection, currently in state init
+10:36:45.195357 [debug] [ThreadPool]: SQL status: OK in 4.41 seconds
+10:36:45.196576 [debug] [ThreadPool]: Using teradata connection "list_None_test16649661708944163219_test_basic"
+10:36:45.197800 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649661708944163219_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:36:46.219854 [debug] [ThreadPool]: SQL status: OK in 1.02 seconds
+10:36:46.224038 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: ROLLBACK
+10:36:46.730791 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: Close
+10:36:47.134711 [debug] [MainThread]: Using teradata connection "master"
+10:36:47.136328 [debug] [MainThread]: On master: 
+10:36:47.138269 [debug] [MainThread]: Opening a new connection, currently in state init
+10:36:50.870768 [debug] [MainThread]: SQL status: OK in 3.73 seconds
+10:36:50.872397 [debug] [MainThread]: On master: COMMIT
+10:36:50.873527 [debug] [MainThread]: Using teradata connection "master"
+10:36:50.874433 [debug] [MainThread]: On master: COMMIT
+10:36:51.248500 [debug] [MainThread]: SQL status: OK in 0.37 seconds
+10:36:51.250100 [debug] [MainThread]: On master: Close
+10:36:51.781935 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+10:36:51.784247 [info ] [MainThread]: 
+10:36:51.804834 [debug] [Thread-1  ]: Began running node seed.base.base
+10:36:51.804834 [info ] [Thread-1  ]: 1 of 1 START seed file test16649661708944163219_test_basic.base ................ [RUN]
+10:36:51.804834 [debug] [Thread-1  ]: Acquiring new teradata connection "seed.base.base"
+10:36:51.804834 [debug] [Thread-1  ]: Began compiling node seed.base.base
+10:36:51.813013 [debug] [Thread-1  ]: finished collecting timing info
+10:36:51.814053 [debug] [Thread-1  ]: Began executing node seed.base.base
+10:36:51.938338 [debug] [Thread-1  ]: model : {'raw_sql': '', 'resource_type': 'seed', 'depends_on': {'macros': [], 'nodes': []}, 'config': {'enabled': True, 'tags': [], 'meta': {}, 'materialized': 'seed', 'persist_docs': {}, 'quoting': {}, 'column_types': {}, 'on_schema_change': 'ignore', 'post-hook': [], 'pre-hook': []}, 'schema': 'test16649661708944163219_test_basic', 'fqn': ['base', 'base'], 'unique_id': 'seed.base.base', 'package_name': 'base', 'root_path': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-7\\project0', 'path': 'base.csv', 'original_file_path': 'seeds\\base.csv', 'name': 'base', 'alias': 'base', 'checksum': {'name': 'sha256', 'checksum': '86dc7fd6521185b45bd27b5f5d2c808d6b61781ee713e439016f1ebc221c955d'}, 'tags': [], 'refs': [], 'sources': [], 'description': '', 'columns': {}, 'meta': {}, 'docs': {'show': True}, 'deferred': False, 'unrendered_config': {}, 'created_at': 1664966194.9543555}
+10:36:51.939306 [debug] [Thread-1  ]: Using teradata connection "seed.base.base"
+10:36:51.940324 [debug] [Thread-1  ]: On seed.base.base: 
+10:36:51.941033 [debug] [Thread-1  ]: Opening a new connection, currently in state init
+10:36:55.434983 [debug] [Thread-1  ]: SQL status: OK in 3.49 seconds
+10:36:55.436632 [debug] [Thread-1  ]: Using teradata connection "seed.base.base"
+10:36:55.437878 [debug] [Thread-1  ]: On seed.base.base: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "seed.base.base"} */
+
+    
+    CREATE  TABLE "test16649661708944163219_test_basic"."base"
+    
+    ("id" INTEGER,"name" LONG VARCHAR,"some_date" TIMESTAMP(0))
+    ;
+
+  
+10:36:56.151747 [debug] [Thread-1  ]: SQL status: OK in 0.71 seconds
+10:36:56.214021 [debug] [Thread-1  ]: Using teradata connection "seed.base.base"
+10:36:56.218531 [debug] [Thread-1  ]: On seed.base.base: insert into "test16649661708944163219_test_basic"."base" ("id", "name", "some_date") values
+                (?,?,?)
+        ...
+10:36:56.954529 [debug] [Thread-1  ]: SQL status: OK in 0.74 seconds
+10:36:56.966352 [debug] [Thread-1  ]: Writing runtime SQL for node "seed.base.base"
+10:36:57.006457 [debug] [Thread-1  ]: On seed.base.base: COMMIT
+10:36:57.008056 [debug] [Thread-1  ]: Using teradata connection "seed.base.base"
+10:36:57.009083 [debug] [Thread-1  ]: On seed.base.base: COMMIT
+10:36:57.453565 [debug] [Thread-1  ]: SQL status: OK in 0.44 seconds
+10:36:57.455984 [debug] [Thread-1  ]: finished collecting timing info
+10:36:57.457438 [debug] [Thread-1  ]: On seed.base.base: Close
+10:36:57.811978 [info ] [Thread-1  ]: 1 of 1 OK loaded seed file test16649661708944163219_test_basic.base ............ [[32mINSERT 10[0m in 6.01s]
+10:36:57.813578 [debug] [Thread-1  ]: Finished running node seed.base.base
+10:36:57.815306 [debug] [MainThread]: Acquiring new teradata connection "master"
+10:36:57.816447 [debug] [MainThread]: Using teradata connection "master"
+10:36:57.817039 [debug] [MainThread]: On master: 
+10:36:57.817561 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:37:01.375484 [debug] [MainThread]: SQL status: OK in 3.56 seconds
+10:37:01.381157 [debug] [MainThread]: On master: COMMIT
+10:37:01.382906 [debug] [MainThread]: Using teradata connection "master"
+10:37:01.384935 [debug] [MainThread]: On master: COMMIT
+10:37:01.783751 [debug] [MainThread]: SQL status: OK in 0.4 seconds
+10:37:01.785611 [debug] [MainThread]: On master: Close
+10:37:02.143760 [info ] [MainThread]: 
+10:37:02.145444 [info ] [MainThread]: Finished running 1 seed in 27.11s.
+10:37:02.147067 [debug] [MainThread]: Connection 'master' was properly closed.
+10:37:02.148181 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+10:37:02.148800 [debug] [MainThread]: Connection 'list_None_test16649661708944163219_test_basic' was properly closed.
+10:37:02.149801 [debug] [MainThread]: Connection 'seed.base.base' was properly closed.
+10:37:02.161773 [info ] [MainThread]: 
+10:37:02.169686 [info ] [MainThread]: [32mCompleted successfully[0m
+10:37:02.171716 [info ] [MainThread]: 
+10:37:02.172728 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+
+
+============================== 2022-10-05 10:37:02.202318 | cf4fbc17-2a2b-4e03-ad55-4703c757c612 ==============================
+10:37:02.202318 [info ] [MainThread]: Running with dbt=1.1.0
+10:37:02.203318 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-7\\profile0', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'which': 'run', 'rpc_method': 'run', 'indirect_selection': 'eager'}
+10:37:02.204423 [debug] [MainThread]: Tracking: do not track
+10:37:02.388144 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 0 files changed.
+10:37:02.390578 [debug] [MainThread]: Partial parsing enabled, no changes found, skipping parsing
+10:37:02.422745 [info ] [MainThread]: Found 3 models, 0 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 1 seed file, 1 source, 0 exposures, 0 metrics
+10:37:02.430043 [info ] [MainThread]: 
+10:37:02.432848 [debug] [MainThread]: Acquiring new teradata connection "master"
+10:37:02.437127 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+10:37:02.438119 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+10:37:02.438119 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+10:37:02.445609 [debug] [ThreadPool]: Opening a new connection, currently in state init
+10:37:07.518011 [debug] [ThreadPool]: SQL status: OK in 5.07 seconds
+10:37:07.524944 [debug] [ThreadPool]: On list_schemas: Close
+10:37:08.072399 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649661708944163219_test_basic"
+10:37:08.079476 [debug] [ThreadPool]: Using teradata connection "list_None_test16649661708944163219_test_basic"
+10:37:08.079476 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: 
+10:37:08.082786 [debug] [ThreadPool]: Opening a new connection, currently in state init
+10:37:11.719123 [debug] [ThreadPool]: SQL status: OK in 3.64 seconds
+10:37:11.720347 [debug] [ThreadPool]: Using teradata connection "list_None_test16649661708944163219_test_basic"
+10:37:11.721629 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649661708944163219_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:37:12.845509 [debug] [ThreadPool]: SQL status: OK in 1.12 seconds
+10:37:12.850110 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: ROLLBACK
+10:37:13.252792 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: Close
+10:37:13.873991 [debug] [MainThread]: Using teradata connection "master"
+10:37:13.875310 [debug] [MainThread]: On master: 
+10:37:13.877184 [debug] [MainThread]: Opening a new connection, currently in state init
+10:37:17.768312 [debug] [MainThread]: SQL status: OK in 3.89 seconds
+10:37:17.768965 [debug] [MainThread]: On master: COMMIT
+10:37:17.768965 [debug] [MainThread]: Using teradata connection "master"
+10:37:17.770164 [debug] [MainThread]: On master: COMMIT
+10:37:18.168102 [debug] [MainThread]: SQL status: OK in 0.4 seconds
+10:37:18.169560 [debug] [MainThread]: On master: Close
+10:37:18.680492 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+10:37:18.682102 [info ] [MainThread]: 
+10:37:18.688569 [debug] [Thread-5  ]: Began running node model.base.swappable
+10:37:18.690306 [info ] [Thread-5  ]: 1 of 3 START table model test16649661708944163219_test_basic.swappable ......... [RUN]
+10:37:18.692130 [debug] [Thread-5  ]: Acquiring new teradata connection "model.base.swappable"
+10:37:18.693171 [debug] [Thread-5  ]: Began compiling node model.base.swappable
+10:37:18.694221 [debug] [Thread-5  ]: Compiling model.base.swappable
+10:37:18.704011 [debug] [Thread-5  ]: Writing injected SQL for node "model.base.swappable"
+10:37:18.710435 [debug] [Thread-5  ]: finished collecting timing info
+10:37:18.711441 [debug] [Thread-5  ]: Began executing node model.base.swappable
+10:37:18.801597 [debug] [Thread-5  ]: Writing runtime SQL for node "model.base.swappable"
+10:37:18.805845 [debug] [Thread-5  ]: Using teradata connection "model.base.swappable"
+10:37:18.806882 [debug] [Thread-5  ]: On model.base.swappable: 
+10:37:18.808032 [debug] [Thread-5  ]: Opening a new connection, currently in state init
+10:37:23.492802 [debug] [Thread-5  ]: SQL status: OK in 4.68 seconds
+10:37:23.493960 [debug] [Thread-5  ]: Using teradata connection "model.base.swappable"
+10:37:23.495781 [debug] [Thread-5  ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+
+  CREATE  TABLE
+  "test16649661708944163219_test_basic"."swappable__dbt_tmp"
+  
+    AS (
+        
+
+  select * from "test16649661708944163219_test_basic"."base"
+      ) WITH DATA
+  
+  ;
+
+
+10:37:24.414857 [debug] [Thread-5  ]: SQL status: OK in 0.92 seconds
+10:37:24.425453 [debug] [Thread-5  ]: Using teradata connection "model.base.swappable"
+10:37:24.425453 [debug] [Thread-5  ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+
+    DROP table /*+ IF EXISTS */ "test16649661708944163219_test_basic"."swappable";
+  
+10:37:24.778430 [debug] [Thread-5  ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1654] [Teradata Database] [Error 3807] Object 'test16649661708944163219_test_basic.swappable' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:37:24.779594 [debug] [Thread-5  ]: On model.base.swappable: ROLLBACK
+10:37:25.136577 [debug] [Thread-5  ]: Using teradata connection "model.base.swappable"
+10:37:25.137186 [debug] [Thread-5  ]: On model.base.swappable: 
+10:37:25.138581 [debug] [Thread-5  ]: SQL status: OK in 0.0 seconds
+10:37:25.139750 [debug] [Thread-5  ]: Using teradata connection "model.base.swappable"
+10:37:25.140970 [debug] [Thread-5  ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+
+    RENAME table "test16649661708944163219_test_basic"."swappable__dbt_tmp" TO "test16649661708944163219_test_basic"."swappable"
+  
+10:37:25.871072 [debug] [Thread-5  ]: SQL status: OK in 0.73 seconds
+10:37:25.888362 [debug] [Thread-5  ]: On model.base.swappable: COMMIT
+10:37:25.889361 [debug] [Thread-5  ]: Using teradata connection "model.base.swappable"
+10:37:25.890364 [debug] [Thread-5  ]: On model.base.swappable: COMMIT
+10:37:26.358419 [debug] [Thread-5  ]: SQL status: OK in 0.47 seconds
+10:37:26.368739 [debug] [Thread-5  ]: Using teradata connection "model.base.swappable"
+10:37:26.369263 [debug] [Thread-5  ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+DROP table /*+ IF EXISTS */ "test16649661708944163219_test_basic"."swappable__dbt_backup";
+10:37:26.956328 [debug] [Thread-5  ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1654] [Teradata Database] [Error 3807] Object 'test16649661708944163219_test_basic.swappable__dbt_backup' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:37:26.960947 [debug] [Thread-5  ]: finished collecting timing info
+10:37:26.961870 [debug] [Thread-5  ]: On model.base.swappable: Close
+10:37:27.385767 [info ] [Thread-5  ]: 1 of 3 OK created table model test16649661708944163219_test_basic.swappable .... [[32mOK[0m in 8.69s]
+10:37:27.388322 [debug] [Thread-5  ]: Finished running node model.base.swappable
+10:37:27.390189 [debug] [Thread-5  ]: Began running node model.base.table_model
+10:37:27.392277 [info ] [Thread-5  ]: 2 of 3 START table model test16649661708944163219_test_basic.table_model ....... [RUN]
+10:37:27.395328 [debug] [Thread-5  ]: Acquiring new teradata connection "model.base.table_model"
+10:37:27.395328 [debug] [Thread-5  ]: Began compiling node model.base.table_model
+10:37:27.397285 [debug] [Thread-5  ]: Compiling model.base.table_model
+10:37:27.398314 [debug] [Thread-5  ]: Writing injected SQL for node "model.base.table_model"
+10:37:27.407645 [debug] [Thread-5  ]: finished collecting timing info
+10:37:27.408646 [debug] [Thread-5  ]: Began executing node model.base.table_model
+10:37:27.409682 [debug] [Thread-5  ]: Writing runtime SQL for node "model.base.table_model"
+10:37:27.421833 [debug] [Thread-5  ]: Using teradata connection "model.base.table_model"
+10:37:27.422971 [debug] [Thread-5  ]: On model.base.table_model: 
+10:37:27.424519 [debug] [Thread-5  ]: Opening a new connection, currently in state closed
+10:37:32.085302 [debug] [Thread-5  ]: SQL status: OK in 4.66 seconds
+10:37:32.086531 [debug] [Thread-5  ]: Using teradata connection "model.base.table_model"
+10:37:32.088502 [debug] [Thread-5  ]: On model.base.table_model: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.table_model"} */
+
+  CREATE  TABLE
+  "test16649661708944163219_test_basic"."table_model__dbt_tmp"
+  
+    AS (
+        
+
+  select * from "test16649661708944163219_test_basic"."base"
+      ) WITH DATA
+  
+  ;
+
+
+10:37:32.821353 [debug] [Thread-5  ]: SQL status: OK in 0.73 seconds
+10:37:32.830276 [debug] [Thread-5  ]: Using teradata connection "model.base.table_model"
+10:37:32.831934 [debug] [Thread-5  ]: On model.base.table_model: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.table_model"} */
+
+    DROP table /*+ IF EXISTS */ "test16649661708944163219_test_basic"."table_model";
+  
+10:37:33.172122 [debug] [Thread-5  ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1655] [Teradata Database] [Error 3807] Object 'test16649661708944163219_test_basic.table_model' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:37:33.174669 [debug] [Thread-5  ]: On model.base.table_model: ROLLBACK
+10:37:33.534416 [debug] [Thread-5  ]: Using teradata connection "model.base.table_model"
+10:37:33.535834 [debug] [Thread-5  ]: On model.base.table_model: 
+10:37:33.537218 [debug] [Thread-5  ]: SQL status: OK in 0.0 seconds
+10:37:33.538325 [debug] [Thread-5  ]: Using teradata connection "model.base.table_model"
+10:37:33.539516 [debug] [Thread-5  ]: On model.base.table_model: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.table_model"} */
+
+    RENAME table "test16649661708944163219_test_basic"."table_model__dbt_tmp" TO "test16649661708944163219_test_basic"."table_model"
+  
+10:37:34.298844 [debug] [Thread-5  ]: SQL status: OK in 0.76 seconds
+10:37:34.305366 [debug] [Thread-5  ]: On model.base.table_model: COMMIT
+10:37:34.306960 [debug] [Thread-5  ]: Using teradata connection "model.base.table_model"
+10:37:34.307897 [debug] [Thread-5  ]: On model.base.table_model: COMMIT
+10:37:34.688169 [debug] [Thread-5  ]: SQL status: OK in 0.38 seconds
+10:37:34.691112 [debug] [Thread-5  ]: Using teradata connection "model.base.table_model"
+10:37:34.692143 [debug] [Thread-5  ]: On model.base.table_model: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.table_model"} */
+DROP table /*+ IF EXISTS */ "test16649661708944163219_test_basic"."table_model__dbt_backup";
+10:37:35.064490 [debug] [Thread-5  ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1655] [Teradata Database] [Error 3807] Object 'test16649661708944163219_test_basic.table_model__dbt_backup' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:37:35.069155 [debug] [Thread-5  ]: finished collecting timing info
+10:37:35.070349 [debug] [Thread-5  ]: On model.base.table_model: Close
+10:37:35.613227 [info ] [Thread-5  ]: 2 of 3 OK created table model test16649661708944163219_test_basic.table_model .. [[32mOK[0m in 8.22s]
+10:37:35.615276 [debug] [Thread-5  ]: Finished running node model.base.table_model
+10:37:35.617256 [debug] [Thread-5  ]: Began running node model.base.view_model
+10:37:35.618986 [info ] [Thread-5  ]: 3 of 3 START view model test16649661708944163219_test_basic.view_model ......... [RUN]
+10:37:35.621985 [debug] [Thread-5  ]: Acquiring new teradata connection "model.base.view_model"
+10:37:35.623153 [debug] [Thread-5  ]: Began compiling node model.base.view_model
+10:37:35.624146 [debug] [Thread-5  ]: Compiling model.base.view_model
+10:37:35.635866 [debug] [Thread-5  ]: Writing injected SQL for node "model.base.view_model"
+10:37:35.643480 [debug] [Thread-5  ]: finished collecting timing info
+10:37:35.645364 [debug] [Thread-5  ]: Began executing node model.base.view_model
+10:37:35.712969 [debug] [Thread-5  ]: Writing runtime SQL for node "model.base.view_model"
+10:37:35.719504 [debug] [Thread-5  ]: Using teradata connection "model.base.view_model"
+10:37:35.720265 [debug] [Thread-5  ]: On model.base.view_model: 
+10:37:35.721399 [debug] [Thread-5  ]: Opening a new connection, currently in state closed
+10:37:39.468553 [debug] [Thread-5  ]: SQL status: OK in 3.75 seconds
+10:37:39.470313 [debug] [Thread-5  ]: Using teradata connection "model.base.view_model"
+10:37:39.471423 [debug] [Thread-5  ]: On model.base.view_model: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.view_model"} */
+
+  REPLACE VIEW "test16649661708944163219_test_basic"."view_model__dbt_tmp" AS
+    
+
+  select * from "test16649661708944163219_test_basic"."base"
+
+
+10:37:40.593098 [debug] [Thread-5  ]: SQL status: OK in 1.12 seconds
+10:37:40.606301 [debug] [Thread-5  ]: Using teradata connection "model.base.view_model"
+10:37:40.607298 [debug] [Thread-5  ]: On model.base.view_model: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.view_model"} */
+
+    DROP view /*+ IF EXISTS */ "test16649661708944163219_test_basic"."view_model";
+  
+10:37:41.002961 [debug] [Thread-5  ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1656] [Teradata Database] [Error 3807] Object 'test16649661708944163219_test_basic.view_model' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:37:41.004745 [debug] [Thread-5  ]: On model.base.view_model: ROLLBACK
+10:37:41.353966 [debug] [Thread-5  ]: Using teradata connection "model.base.view_model"
+10:37:41.355312 [debug] [Thread-5  ]: On model.base.view_model: 
+10:37:41.356756 [debug] [Thread-5  ]: SQL status: OK in 0.0 seconds
+10:37:41.358055 [debug] [Thread-5  ]: Using teradata connection "model.base.view_model"
+10:37:41.359535 [debug] [Thread-5  ]: On model.base.view_model: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.view_model"} */
+
+    RENAME view "test16649661708944163219_test_basic"."view_model__dbt_tmp" TO "test16649661708944163219_test_basic"."view_model"
+  
+10:37:42.230778 [debug] [Thread-5  ]: SQL status: OK in 0.87 seconds
+10:37:42.237394 [debug] [Thread-5  ]: On model.base.view_model: COMMIT
+10:37:42.239100 [debug] [Thread-5  ]: Using teradata connection "model.base.view_model"
+10:37:42.240867 [debug] [Thread-5  ]: On model.base.view_model: COMMIT
+10:37:42.744192 [debug] [Thread-5  ]: SQL status: OK in 0.5 seconds
+10:37:42.749798 [debug] [Thread-5  ]: Using teradata connection "model.base.view_model"
+10:37:42.751284 [debug] [Thread-5  ]: On model.base.view_model: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.view_model"} */
+DROP view /*+ IF EXISTS */ "test16649661708944163219_test_basic"."view_model__dbt_backup";
+10:37:43.216376 [debug] [Thread-5  ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1656] [Teradata Database] [Error 3807] Object 'test16649661708944163219_test_basic.view_model__dbt_backup' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:37:43.222881 [debug] [Thread-5  ]: finished collecting timing info
+10:37:43.224028 [debug] [Thread-5  ]: On model.base.view_model: Close
+10:37:43.590619 [info ] [Thread-5  ]: 3 of 3 OK created view model test16649661708944163219_test_basic.view_model .... [[32mOK[0m in 7.97s]
+10:37:43.592482 [debug] [Thread-5  ]: Finished running node model.base.view_model
+10:37:43.595877 [debug] [MainThread]: Acquiring new teradata connection "master"
+10:37:43.597167 [debug] [MainThread]: Using teradata connection "master"
+10:37:43.598467 [debug] [MainThread]: On master: 
+10:37:43.599704 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:37:47.250592 [debug] [MainThread]: SQL status: OK in 3.65 seconds
+10:37:47.252326 [debug] [MainThread]: On master: COMMIT
+10:37:47.253498 [debug] [MainThread]: Using teradata connection "master"
+10:37:47.254666 [debug] [MainThread]: On master: COMMIT
+10:37:47.864108 [debug] [MainThread]: SQL status: OK in 0.61 seconds
+10:37:47.865909 [debug] [MainThread]: On master: Close
+10:37:48.297384 [info ] [MainThread]: 
+10:37:48.298733 [info ] [MainThread]: Finished running 2 table models, 1 view model in 45.87s.
+10:37:48.300727 [debug] [MainThread]: Connection 'master' was properly closed.
+10:37:48.301693 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+10:37:48.303013 [debug] [MainThread]: Connection 'list_None_test16649661708944163219_test_basic' was properly closed.
+10:37:48.304325 [debug] [MainThread]: Connection 'model.base.view_model' was properly closed.
+10:37:48.307218 [info ] [MainThread]: 
+10:37:48.319776 [info ] [MainThread]: [32mCompleted successfully[0m
+10:37:48.320544 [info ] [MainThread]: 
+10:37:48.322159 [info ] [MainThread]: Done. PASS=3 WARN=0 ERROR=0 SKIP=0 TOTAL=3
+10:37:48.323156 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:37:48.323156 [debug] [MainThread]: Using teradata connection "_test"
+10:37:48.323156 [debug] [MainThread]: On _test: 
+10:37:48.333029 [debug] [MainThread]: Opening a new connection, currently in state init
+10:37:52.572205 [debug] [MainThread]: SQL status: OK in 4.24 seconds
+10:37:52.572946 [debug] [MainThread]: Using teradata connection "_test"
+10:37:52.574238 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:37:53.736413 [debug] [MainThread]: SQL status: OK in 1.16 seconds
+10:37:53.741851 [debug] [MainThread]: On _test: ROLLBACK
+10:37:54.213159 [debug] [MainThread]: On _test: Close
+10:37:54.623262 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:37:54.629151 [debug] [MainThread]: Using teradata connection "_test"
+10:37:54.630860 [debug] [MainThread]: On _test: 
+10:37:54.632506 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:37:59.332827 [debug] [MainThread]: SQL status: OK in 4.7 seconds
+10:37:59.333334 [debug] [MainThread]: Using teradata connection "_test"
+10:37:59.333686 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:38:00.152056 [debug] [MainThread]: SQL status: OK in 0.82 seconds
+10:38:00.159023 [debug] [MainThread]: On _test: ROLLBACK
+10:38:00.561380 [debug] [MainThread]: On _test: Close
+10:38:00.911157 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:38:00.919254 [debug] [MainThread]: Using teradata connection "_test"
+10:38:00.920425 [debug] [MainThread]: On _test: 
+10:38:00.921769 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:38:04.862963 [debug] [MainThread]: SQL status: OK in 3.94 seconds
+10:38:04.864588 [debug] [MainThread]: Using teradata connection "_test"
+10:38:04.866325 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:38:05.784873 [debug] [MainThread]: SQL status: OK in 0.92 seconds
+10:38:05.792863 [debug] [MainThread]: On _test: ROLLBACK
+10:38:06.154578 [debug] [MainThread]: On _test: Close
+10:38:06.707203 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:38:06.713382 [debug] [MainThread]: Using teradata connection "_test"
+10:38:06.714345 [debug] [MainThread]: On _test: 
+10:38:06.715697 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:38:10.897531 [debug] [MainThread]: SQL status: OK in 4.18 seconds
+10:38:10.898964 [debug] [MainThread]: Using teradata connection "_test"
+10:38:10.900227 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:38:11.928523 [debug] [MainThread]: SQL status: OK in 1.03 seconds
+10:38:11.934096 [debug] [MainThread]: On _test: ROLLBACK
+10:38:12.333794 [debug] [MainThread]: On _test: Close
+10:38:12.694722 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:38:12.696417 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:38:17.560478 [debug] [MainThread]: On _test: Close
+10:38:18.095635 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:38:18.120310 [debug] [MainThread]: use_qvci set to : false
+10:38:18.123273 [debug] [MainThread]: Using teradata connection "_test"
+10:38:18.124275 [debug] [MainThread]: On _test: 
+10:38:18.125291 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:38:22.065676 [debug] [MainThread]: SQL status: OK in 3.94 seconds
+10:38:22.067304 [debug] [MainThread]: Using teradata connection "_test"
+10:38:22.068343 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+
+    SELECT
+      ColumnsV.ColumnName AS "column",
+      CASE
+        WHEN ColumnsV.ColumnType = '++' THEN 'TD_ANYTYPE'
+        WHEN ColumnsV.ColumnType = 'A1' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'AN' THEN 'ARRAY'
+        WHEN ColumnsV.ColumnType = 'I8' THEN 'BIGINT'
+        WHEN ColumnsV.ColumnType = 'BO' THEN 'BINARY LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'BF' THEN 'BYTE'
+        WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
+        WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
+        WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
+        WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'DOUBLE PRECISION'
+        WHEN ColumnsV.ColumnType = 'I' THEN 'INTEGER'
+        WHEN ColumnsV.ColumnType = 'DY' THEN 'INTERVAL DAY'
+        WHEN ColumnsV.ColumnType = 'DH' THEN 'INTERVAL DAY TO HOUR'
+        WHEN ColumnsV.ColumnType = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'DS' THEN 'INTERVAL DAY TO SECOND'
+        WHEN ColumnsV.ColumnType = 'HR' THEN 'INTERVAL HOUR'
+        WHEN ColumnsV.ColumnType = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+        WHEN ColumnsV.ColumnType = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MI' THEN 'INTERVAL MINUTE'
+        WHEN ColumnsV.ColumnType = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+        WHEN ColumnsV.ColumnType = 'MO' THEN 'INTERVAL MONTH'
+        WHEN ColumnsV.ColumnType = 'SC' THEN 'INTERVAL SECOND'
+        WHEN ColumnsV.ColumnType = 'YR' THEN 'INTERVAL YEAR'
+        WHEN ColumnsV.ColumnType = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+        WHEN ColumnsV.ColumnType = 'N' THEN 'NUMBER'
+        WHEN ColumnsV.ColumnType = 'D' THEN 'NUMERIC'
+        WHEN ColumnsV.ColumnType = 'PD' THEN 'PERIOD(DATE)'
+        WHEN ColumnsV.ColumnType = 'PT' THEN 'PERIOD(TIME(n))'
+        WHEN ColumnsV.ColumnType = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+        WHEN ColumnsV.ColumnType = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+        WHEN ColumnsV.ColumnType = 'F' THEN 'REAL'
+        WHEN ColumnsV.ColumnType = 'I2' THEN 'SMALLINT'
+        WHEN ColumnsV.ColumnType = 'AT' THEN 'TIME'
+        WHEN ColumnsV.ColumnType = 'TS' THEN 'TIMESTAMP'
+        WHEN ColumnsV.ColumnType = 'TZ' THEN 'TIME WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+        WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
+        WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        ELSE 'N/A'
+      END AS dtype,
+      CASE
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+      END AS char_size,
+      ColumnsV.DecimalTotalDigits AS numeric_precision,
+      ColumnsV.DecimalFractionalDigits AS numeric_scale,
+      NULL AS table_database,
+      ColumnsV.DatabaseName AS table_schema,
+      ColumnsV.TableName AS table_name,
+      CASE WHEN TablesV.TableKind = 'T' THEN 'table'
+        WHEN TablesV.TableKind = 'O' THEN 'table'
+        WHEN TablesV.TableKind = 'V' THEN 'view'
+        ELSE TablesV.TableKind
+      END AS table_type,
+      ColumnsV.ColumnID AS column_index
+    FROM
+    
+      DBC.ColumnsV
+    LEFT OUTER JOIN DBC.TablesV
+      ON ColumnsV.DatabaseName = TablesV.DatabaseName
+      AND ColumnsV.TableName = TablesV.TableName
+    WHERE
+      TablesV.TableKind IN ('T', 'V', 'O')
+      AND ColumnsV.DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND ColumnsV.TableName = 'base' (NOT CASESPECIFIC)
+    ORDER BY
+      ColumnsV.ColumnID
+    
+10:38:22.989055 [debug] [MainThread]: SQL status: OK in 0.92 seconds
+10:38:23.001895 [debug] [MainThread]: Using teradata connection "_test"
+10:38:23.001895 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+WITH
+        a_except_b as (
+            SELECT
+                A."id", A."name", A."some_date"
+            FROM "test16649661708944163219_test_basic"."base" as A
+            LEFT OUTER JOIN "test16649661708944163219_test_basic"."view_model" as B
+                ON A."id" = B."id" AND A."name" = B."name" AND A."some_date" = B."some_date"
+            WHERE B."id" is null
+        ),
+        b_except_a as (
+            SELECT
+                B."id", B."name", B."some_date"
+            FROM "test16649661708944163219_test_basic"."view_model" as B
+            LEFT OUTER JOIN "test16649661708944163219_test_basic"."base" as A
+                ON A."id" = B."id" AND A."name" = B."name" AND A."some_date" = B."some_date"
+            WHERE A."id" is null
+        ),
+        diff_count as (
+            SELECT
+                1 as id,
+                COUNT(*) as num_missing FROM (
+                    SELECT * FROM a_except_b
+                    UNION ALL
+                    SELECT * FROM b_except_a
+                ) as missing
+        ),
+        table_a as (
+            SELECT COUNT(*) as num_rows FROM "test16649661708944163219_test_basic"."base"
+        ),
+        table_b as (
+            SELECT COUNT(*) as num_rows FROM "test16649661708944163219_test_basic"."view_model"
+        ),
+        row_count_diff as (
+            SELECT
+                1 as id,
+                table_a.num_rows - table_b.num_rows as difference
+            FROM table_a, table_b
+        )
+        SELECT
+            row_count_diff.difference as row_count_difference,
+            diff_count.num_missing as num_mismatched
+        FROM row_count_diff
+        INNER JOIN diff_count ON row_count_diff.id = diff_count.id
+10:38:24.036661 [debug] [MainThread]: SQL status: OK in 1.03 seconds
+10:38:24.042291 [debug] [MainThread]: Using teradata connection "_test"
+10:38:24.044162 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+WITH
+        a_except_b as (
+            SELECT
+                A."id", A."name", A."some_date"
+            FROM "test16649661708944163219_test_basic"."base" as A
+            LEFT OUTER JOIN "test16649661708944163219_test_basic"."table_model" as B
+                ON A."id" = B."id" AND A."name" = B."name" AND A."some_date" = B."some_date"
+            WHERE B."id" is null
+        ),
+        b_except_a as (
+            SELECT
+                B."id", B."name", B."some_date"
+            FROM "test16649661708944163219_test_basic"."table_model" as B
+            LEFT OUTER JOIN "test16649661708944163219_test_basic"."base" as A
+                ON A."id" = B."id" AND A."name" = B."name" AND A."some_date" = B."some_date"
+            WHERE A."id" is null
+        ),
+        diff_count as (
+            SELECT
+                1 as id,
+                COUNT(*) as num_missing FROM (
+                    SELECT * FROM a_except_b
+                    UNION ALL
+                    SELECT * FROM b_except_a
+                ) as missing
+        ),
+        table_a as (
+            SELECT COUNT(*) as num_rows FROM "test16649661708944163219_test_basic"."base"
+        ),
+        table_b as (
+            SELECT COUNT(*) as num_rows FROM "test16649661708944163219_test_basic"."table_model"
+        ),
+        row_count_diff as (
+            SELECT
+                1 as id,
+                table_a.num_rows - table_b.num_rows as difference
+            FROM table_a, table_b
+        )
+        SELECT
+            row_count_diff.difference as row_count_difference,
+            diff_count.num_missing as num_mismatched
+        FROM row_count_diff
+        INNER JOIN diff_count ON row_count_diff.id = diff_count.id
+10:38:25.137572 [debug] [MainThread]: SQL status: OK in 1.09 seconds
+10:38:25.145427 [debug] [MainThread]: Using teradata connection "_test"
+10:38:25.147378 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+WITH
+        a_except_b as (
+            SELECT
+                A."id", A."name", A."some_date"
+            FROM "test16649661708944163219_test_basic"."base" as A
+            LEFT OUTER JOIN "test16649661708944163219_test_basic"."swappable" as B
+                ON A."id" = B."id" AND A."name" = B."name" AND A."some_date" = B."some_date"
+            WHERE B."id" is null
+        ),
+        b_except_a as (
+            SELECT
+                B."id", B."name", B."some_date"
+            FROM "test16649661708944163219_test_basic"."swappable" as B
+            LEFT OUTER JOIN "test16649661708944163219_test_basic"."base" as A
+                ON A."id" = B."id" AND A."name" = B."name" AND A."some_date" = B."some_date"
+            WHERE A."id" is null
+        ),
+        diff_count as (
+            SELECT
+                1 as id,
+                COUNT(*) as num_missing FROM (
+                    SELECT * FROM a_except_b
+                    UNION ALL
+                    SELECT * FROM b_except_a
+                ) as missing
+        ),
+        table_a as (
+            SELECT COUNT(*) as num_rows FROM "test16649661708944163219_test_basic"."base"
+        ),
+        table_b as (
+            SELECT COUNT(*) as num_rows FROM "test16649661708944163219_test_basic"."swappable"
+        ),
+        row_count_diff as (
+            SELECT
+                1 as id,
+                table_a.num_rows - table_b.num_rows as difference
+            FROM table_a, table_b
+        )
+        SELECT
+            row_count_diff.difference as row_count_difference,
+            diff_count.num_missing as num_mismatched
+        FROM row_count_diff
+        INNER JOIN diff_count ON row_count_diff.id = diff_count.id
+10:38:26.203760 [debug] [MainThread]: SQL status: OK in 1.05 seconds
+10:38:26.209351 [debug] [MainThread]: On _test: ROLLBACK
+10:38:26.551485 [debug] [MainThread]: On _test: Close
+10:38:26.914312 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-05 10:38:26.936927 | cf4fbc17-2a2b-4e03-ad55-4703c757c612 ==============================
+10:38:26.936927 [info ] [MainThread]: Running with dbt=1.1.0
+10:38:26.937921 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-7\\profile0', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'compile': True, 'which': 'generate', 'rpc_method': 'docs.generate', 'indirect_selection': 'eager'}
+10:38:26.939008 [debug] [MainThread]: Tracking: do not track
+10:38:27.083192 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 0 files changed.
+10:38:27.083192 [debug] [MainThread]: Partial parsing enabled, no changes found, skipping parsing
+10:38:27.104293 [info ] [MainThread]: Found 3 models, 0 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 1 seed file, 1 source, 0 exposures, 0 metrics
+10:38:27.112555 [info ] [MainThread]: 
+10:38:27.113510 [debug] [MainThread]: Acquiring new teradata connection "master"
+10:38:27.116495 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649661708944163219_test_basic"
+10:38:27.119899 [debug] [ThreadPool]: Using teradata connection "list_None_test16649661708944163219_test_basic"
+10:38:27.119899 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: 
+10:38:27.122749 [debug] [ThreadPool]: Opening a new connection, currently in state init
+10:38:31.016475 [debug] [ThreadPool]: SQL status: OK in 3.89 seconds
+10:38:31.018288 [debug] [ThreadPool]: Using teradata connection "list_None_test16649661708944163219_test_basic"
+10:38:31.019270 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649661708944163219_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:38:31.838794 [debug] [ThreadPool]: SQL status: OK in 0.82 seconds
+10:38:31.844064 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: ROLLBACK
+10:38:32.203137 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: Close
+10:38:32.614234 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+10:38:32.615315 [info ] [MainThread]: 
+10:38:32.618016 [debug] [Thread-9  ]: Began running node model.base.swappable
+10:38:32.619468 [debug] [Thread-9  ]: Acquiring new teradata connection "model.base.swappable"
+10:38:32.619996 [debug] [Thread-9  ]: Began compiling node model.base.swappable
+10:38:32.620593 [debug] [Thread-9  ]: Compiling model.base.swappable
+10:38:32.627317 [debug] [Thread-9  ]: Writing injected SQL for node "model.base.swappable"
+10:38:32.630144 [debug] [Thread-9  ]: finished collecting timing info
+10:38:32.631134 [debug] [Thread-9  ]: Began executing node model.base.swappable
+10:38:32.632646 [debug] [Thread-9  ]: finished collecting timing info
+10:38:32.633848 [debug] [Thread-9  ]: Finished running node model.base.swappable
+10:38:32.634881 [debug] [Thread-9  ]: Began running node model.base.table_model
+10:38:32.635842 [debug] [Thread-9  ]: Acquiring new teradata connection "model.base.table_model"
+10:38:32.636989 [debug] [Thread-9  ]: Began compiling node model.base.table_model
+10:38:32.637988 [debug] [Thread-9  ]: Compiling model.base.table_model
+10:38:32.645078 [debug] [Thread-9  ]: Writing injected SQL for node "model.base.table_model"
+10:38:32.647070 [debug] [Thread-9  ]: finished collecting timing info
+10:38:32.648068 [debug] [Thread-9  ]: Began executing node model.base.table_model
+10:38:32.649066 [debug] [Thread-9  ]: finished collecting timing info
+10:38:32.651547 [debug] [Thread-9  ]: Finished running node model.base.table_model
+10:38:32.651798 [debug] [Thread-9  ]: Began running node model.base.view_model
+10:38:32.653831 [debug] [Thread-9  ]: Acquiring new teradata connection "model.base.view_model"
+10:38:32.654789 [debug] [Thread-9  ]: Began compiling node model.base.view_model
+10:38:32.655788 [debug] [Thread-9  ]: Compiling model.base.view_model
+10:38:32.665245 [debug] [Thread-9  ]: Writing injected SQL for node "model.base.view_model"
+10:38:32.668166 [debug] [Thread-9  ]: finished collecting timing info
+10:38:32.669162 [debug] [Thread-9  ]: Began executing node model.base.view_model
+10:38:32.670160 [debug] [Thread-9  ]: finished collecting timing info
+10:38:32.672155 [debug] [Thread-9  ]: Finished running node model.base.view_model
+10:38:32.673587 [debug] [Thread-9  ]: Began running node seed.base.base
+10:38:32.674586 [debug] [Thread-9  ]: Acquiring new teradata connection "seed.base.base"
+10:38:32.675604 [debug] [Thread-9  ]: Began compiling node seed.base.base
+10:38:32.677603 [debug] [Thread-9  ]: Compiling seed.base.base
+10:38:32.682717 [debug] [Thread-9  ]: Writing injected SQL for node "seed.base.base"
+10:38:32.684131 [debug] [Thread-9  ]: finished collecting timing info
+10:38:32.685129 [debug] [Thread-9  ]: Began executing node seed.base.base
+10:38:32.686227 [debug] [Thread-9  ]: finished collecting timing info
+10:38:32.689346 [debug] [Thread-9  ]: Finished running node seed.base.base
+10:38:32.691342 [debug] [MainThread]: Connection 'master' was properly closed.
+10:38:32.692340 [debug] [MainThread]: Connection 'list_None_test16649661708944163219_test_basic' was properly closed.
+10:38:32.693339 [debug] [MainThread]: Connection 'seed.base.base' was properly closed.
+10:38:32.707806 [info ] [MainThread]: Done.
+10:38:33.040679 [debug] [MainThread]: Acquiring new teradata connection "generate_catalog"
+10:38:33.043255 [info ] [MainThread]: Building catalog
+10:38:33.045252 [debug] [ThreadPool]: Acquiring new teradata connection "test16649661708944163219_test_basic"
+10:38:33.109362 [debug] [ThreadPool]: use_qvci set to : false
+10:38:33.115168 [debug] [ThreadPool]: Using teradata connection "test16649661708944163219_test_basic"
+10:38:33.115993 [debug] [ThreadPool]: On test16649661708944163219_test_basic: 
+10:38:33.117033 [debug] [ThreadPool]: Opening a new connection, currently in state init
+10:38:37.373544 [debug] [ThreadPool]: SQL status: OK in 4.26 seconds
+10:38:37.374933 [debug] [ThreadPool]: Using teradata connection "test16649661708944163219_test_basic"
+10:38:37.376326 [debug] [ThreadPool]: On test16649661708944163219_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "test16649661708944163219_test_basic"} */
+WITH tables AS (
+
+        SELECT
+            NULL AS table_database,
+            DatabaseName AS table_schema,
+            TableName AS table_name,
+            CASE WHEN TableKind = 'T' THEN 'table'
+                WHEN TableKind = 'O' THEN 'view'
+                WHEN TableKind = 'V' THEN 'view'
+                ELSE TableKind
+            END AS table_type,
+            NULL AS table_owner
+
+        FROM DBC.tablesV
+
+        WHERE TableKind IN ('T', 'V', 'O')
+        AND (upper(table_schema) = upper('test16649661708944163219_test_basic'))
+
+    ),
+
+    columns AS (
+
+        SELECT
+           NULL AS table_database,
+           DatabaseName AS table_schema,
+           TableName AS table_name,
+           NULL AS table_comment,
+
+           ColumnName AS column_name,
+           ColumnID AS column_index,
+           ColumnType AS column_type,
+           CommentString AS column_comment
+
+        FROM DBC.ColumnsV
+        WHERE (upper(table_schema) = upper('test16649661708944163219_test_basic'))
+
+    ),
+
+    columns_transformed AS (
+
+        SELECT
+          table_database,
+          table_schema,
+          table_name,
+          table_comment,
+          column_name,
+          column_index,
+          CASE
+            WHEN column_type = '++' THEN 'TD_ANYTYPE'
+            WHEN column_type = 'A1' THEN 'ARRAY'
+            WHEN column_type = 'AN' THEN 'ARRAY'
+            WHEN column_type = 'I8' THEN 'BIGINT'
+            WHEN column_type = 'BO' THEN 'BINARY LARGE OBJECT'
+            WHEN column_type = 'BF' THEN 'BYTE'
+            WHEN column_type = 'BV' THEN 'BYTE VARYING'
+            WHEN column_type = 'I1' THEN 'BYTEINT'
+            WHEN column_type = 'CF' THEN 'CHARACTER'
+            WHEN column_type = 'CV' THEN 'CHARACTER'
+            WHEN column_type = 'CO' THEN 'CHARACTER LARGE OBJECT'
+            WHEN column_type = 'D' THEN 'DECIMAL'
+            WHEN column_type = 'DA' THEN 'DATE'
+            WHEN column_type = 'F' THEN 'DOUBLE PRECISION'
+            WHEN column_type = 'I' THEN 'INTEGER'
+            WHEN column_type = 'DY' THEN 'INTERVAL DAY'
+            WHEN column_type = 'DH' THEN 'INTERVAL DAY TO HOUR'
+            WHEN column_type = 'DM' THEN 'INTERVAL DAY TO MINUTE'
+            WHEN column_type = 'DS' THEN 'INTERVAL DAY TO SECOND'
+            WHEN column_type = 'HR' THEN 'INTERVAL HOUR'
+            WHEN column_type = 'HM' THEN 'INTERVAL HOUR TO MINUTE'
+            WHEN column_type = 'HS' THEN 'INTERVAL HOUR TO SECOND'
+            WHEN column_type = 'MI' THEN 'INTERVAL MINUTE'
+            WHEN column_type = 'MS' THEN 'INTERVAL MINUTE TO SECOND'
+            WHEN column_type = 'MO' THEN 'INTERVAL MONTH'
+            WHEN column_type = 'SC' THEN 'INTERVAL SECOND'
+            WHEN column_type = 'YR' THEN 'INTERVAL YEAR'
+            WHEN column_type = 'YM' THEN 'INTERVAL YEAR TO MONTH'
+            WHEN column_type = 'N' THEN 'NUMBER'
+            WHEN column_type = 'D' THEN 'NUMERIC'
+            WHEN column_type = 'PD' THEN 'PERIOD(DATE)'
+            WHEN column_type = 'PT' THEN 'PERIOD(TIME(n))'
+            WHEN column_type = 'PZ' THEN 'PERIOD(TIME(n) WITH TIME ZONE)'
+            WHEN column_type = 'PS' THEN 'PERIOD(TIMESTAMP(n))'
+            WHEN column_type = 'PM' THEN 'PERIOD(TIMESTAMP(n) WITH TIME ZONE)'
+            WHEN column_type = 'F' THEN 'REAL'
+            WHEN column_type = 'I2' THEN 'SMALLINT'
+            WHEN column_type = 'AT' THEN 'TIME'
+            WHEN column_type = 'TS' THEN 'TIMESTAMP'
+            WHEN column_type = 'TZ' THEN 'TIME WITH TIME ZONE'
+            WHEN column_type = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
+            WHEN column_type = 'UT' THEN 'USER‑DEFINED TYPE'
+            WHEN column_type = 'XM' THEN 'XML'
+            ELSE 'N/A'
+          END AS column_type,
+          column_comment
+
+        FROM columns
+
+    ),
+
+    joined AS (
+
+      SELECT
+          columns_transformed.table_database,
+          columns_transformed.table_schema,
+          columns_transformed.table_name,
+          tables.table_type,
+          columns_transformed.table_comment,
+          tables.table_owner,
+          columns_transformed.column_name,
+          columns_transformed.column_index,
+          columns_transformed.column_type,
+          columns_transformed.column_comment
+
+      FROM tables
+
+      JOIN columns_transformed ON
+        tables.table_schema = columns_transformed.table_schema
+        AND tables.table_name = columns_transformed.table_name
+
+    )
+
+    SELECT *
+    FROM joined
+    ORDER BY table_schema, table_name, column_index
+10:38:38.331953 [debug] [ThreadPool]: SQL status: OK in 0.95 seconds
+10:38:38.343149 [debug] [ThreadPool]: On test16649661708944163219_test_basic: ROLLBACK
+10:38:39.040029 [debug] [ThreadPool]: On test16649661708944163219_test_basic: Close
+10:38:39.704289 [info ] [MainThread]: Catalog written to C:\Users\vs255034\AppData\Local\Temp\pytest-of-vs255034\pytest-7\project0\target\catalog.json
+10:38:39.708063 [debug] [MainThread]: Connection 'generate_catalog' was properly closed.
+10:38:39.709165 [debug] [MainThread]: Connection 'test16649661708944163219_test_basic' was properly closed.
+
+
+============================== 2022-10-05 10:38:39.773172 | cf4fbc17-2a2b-4e03-ad55-4703c757c612 ==============================
+10:38:39.773172 [info ] [MainThread]: Running with dbt=1.1.0
+10:38:39.775213 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-7\\profile0', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'vars': 'materialized_var: view', 'select': ['swappable'], 'which': 'run', 'rpc_method': 'run', 'indirect_selection': 'eager'}
+10:38:39.775669 [debug] [MainThread]: Tracking: do not track
+10:38:39.850840 [info ] [MainThread]: Unable to do partial parsing because config vars, config profile, or config target have changed
+10:38:39.973101 [debug] [MainThread]: Parsing macros\adapters.sql
+10:38:40.029468 [debug] [MainThread]: Parsing macros\catalog.sql
+10:38:40.054097 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+10:38:40.059644 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+10:38:40.080552 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+10:38:40.136941 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+10:38:40.209888 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+10:38:40.212966 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+10:38:40.214960 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+10:38:40.216919 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+10:38:40.231298 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+10:38:40.236525 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+10:38:40.242261 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+10:38:40.253901 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+10:38:40.264660 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+10:38:40.281977 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+10:38:40.286455 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+10:38:40.302277 [debug] [MainThread]: Parsing macros\etc\statement.sql
+10:38:40.305308 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+10:38:40.312942 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+10:38:40.314973 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+10:38:40.317976 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+10:38:40.319567 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+10:38:40.321560 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+10:38:40.324046 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+10:38:40.329257 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+10:38:40.334180 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+10:38:40.340330 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+10:38:40.349130 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+10:38:40.370616 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+10:38:40.377867 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+10:38:40.414591 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+10:38:40.443725 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+10:38:40.450943 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+10:38:40.465693 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+10:38:40.472856 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+10:38:40.472856 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+10:38:40.481742 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+10:38:40.495890 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+10:38:40.538642 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+10:38:40.559507 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+10:38:40.598023 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+10:38:40.633990 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+10:38:40.640849 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+10:38:40.691951 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+10:38:40.697936 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+10:38:40.706672 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql
+10:38:40.715618 [debug] [MainThread]: Parsing tests\generic\builtin.sql
+10:38:41.233602 [debug] [MainThread]: 1603: static parser failed on swappable.sql
+10:38:41.250489 [debug] [MainThread]: 1602: parser fallback to jinja rendering on swappable.sql
+10:38:41.250489 [debug] [MainThread]: 1699: static parser successfully parsed table_model.sql
+10:38:41.258595 [debug] [MainThread]: 1699: static parser successfully parsed view_model.sql
+10:38:41.315058 [info ] [MainThread]: Found 3 models, 0 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 1 seed file, 1 source, 0 exposures, 0 metrics
+10:38:41.316563 [info ] [MainThread]: 
+10:38:41.317598 [debug] [MainThread]: Acquiring new teradata connection "master"
+10:38:41.318794 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+10:38:41.320990 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+10:38:41.322845 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+10:38:41.322845 [debug] [ThreadPool]: Opening a new connection, currently in state init
+10:38:47.051774 [debug] [ThreadPool]: SQL status: OK in 5.73 seconds
+10:38:47.057995 [debug] [ThreadPool]: On list_schemas: Close
+10:38:47.597962 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649661708944163219_test_basic"
+10:38:47.602456 [debug] [ThreadPool]: Using teradata connection "list_None_test16649661708944163219_test_basic"
+10:38:47.602979 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: 
+10:38:47.603635 [debug] [ThreadPool]: Opening a new connection, currently in state init
+10:38:52.480291 [debug] [ThreadPool]: SQL status: OK in 4.88 seconds
+10:38:52.481549 [debug] [ThreadPool]: Using teradata connection "list_None_test16649661708944163219_test_basic"
+10:38:52.483241 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649661708944163219_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:38:53.708268 [debug] [ThreadPool]: SQL status: OK in 1.22 seconds
+10:38:53.712255 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: ROLLBACK
+10:38:54.424945 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: Close
+10:38:54.834903 [debug] [MainThread]: Using teradata connection "master"
+10:38:54.836273 [debug] [MainThread]: On master: 
+10:38:54.837486 [debug] [MainThread]: Opening a new connection, currently in state init
+10:38:58.519988 [debug] [MainThread]: SQL status: OK in 3.68 seconds
+10:38:58.521902 [debug] [MainThread]: On master: COMMIT
+10:38:58.523316 [debug] [MainThread]: Using teradata connection "master"
+10:38:58.528377 [debug] [MainThread]: On master: COMMIT
+10:38:58.930215 [debug] [MainThread]: SQL status: OK in 0.4 seconds
+10:38:58.931486 [debug] [MainThread]: On master: Close
+10:38:59.348137 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+10:38:59.349788 [info ] [MainThread]: 
+10:38:59.352978 [debug] [Thread-13 ]: Began running node model.base.swappable
+10:38:59.353786 [info ] [Thread-13 ]: 1 of 1 START view model test16649661708944163219_test_basic.swappable .......... [RUN]
+10:38:59.354899 [debug] [Thread-13 ]: Acquiring new teradata connection "model.base.swappable"
+10:38:59.355452 [debug] [Thread-13 ]: Began compiling node model.base.swappable
+10:38:59.356077 [debug] [Thread-13 ]: Compiling model.base.swappable
+10:38:59.360551 [debug] [Thread-13 ]: Writing injected SQL for node "model.base.swappable"
+10:38:59.361422 [debug] [Thread-13 ]: finished collecting timing info
+10:38:59.362456 [debug] [Thread-13 ]: Began executing node model.base.swappable
+10:38:59.365447 [debug] [Thread-13 ]: Writing runtime SQL for node "model.base.swappable"
+10:38:59.367451 [debug] [Thread-13 ]: Using teradata connection "model.base.swappable"
+10:38:59.368920 [debug] [Thread-13 ]: On model.base.swappable: 
+10:38:59.368920 [debug] [Thread-13 ]: Opening a new connection, currently in state init
+10:39:03.432981 [debug] [Thread-13 ]: SQL status: OK in 4.06 seconds
+10:39:03.434529 [debug] [Thread-13 ]: Using teradata connection "model.base.swappable"
+10:39:03.436274 [debug] [Thread-13 ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+
+  REPLACE VIEW "test16649661708944163219_test_basic"."swappable__dbt_tmp" AS
+    
+
+  select * from "test16649661708944163219_test_basic"."base"
+
+
+10:39:04.554772 [debug] [Thread-13 ]: SQL status: OK in 1.11 seconds
+10:39:04.562066 [debug] [Thread-13 ]: Using teradata connection "model.base.swappable"
+10:39:04.562931 [debug] [Thread-13 ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+
+    DROP table /*+ IF EXISTS */ "test16649661708944163219_test_basic"."swappable__dbt_backup";
+  
+10:39:04.972769 [debug] [Thread-13 ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1670] [Teradata Database] [Error 3807] Object 'test16649661708944163219_test_basic.swappable__dbt_backup' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:39:04.973946 [debug] [Thread-13 ]: On model.base.swappable: ROLLBACK
+10:39:05.349772 [debug] [Thread-13 ]: Using teradata connection "model.base.swappable"
+10:39:05.350928 [debug] [Thread-13 ]: On model.base.swappable: 
+10:39:05.352021 [debug] [Thread-13 ]: SQL status: OK in 0.0 seconds
+10:39:05.352599 [debug] [Thread-13 ]: Using teradata connection "model.base.swappable"
+10:39:05.353207 [debug] [Thread-13 ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+
+    RENAME table "test16649661708944163219_test_basic"."swappable" TO "test16649661708944163219_test_basic"."swappable__dbt_backup"
+  
+10:39:06.508576 [debug] [Thread-13 ]: SQL status: OK in 1.15 seconds
+10:39:06.513385 [debug] [Thread-13 ]: Using teradata connection "model.base.swappable"
+10:39:06.514493 [debug] [Thread-13 ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+
+    DROP view /*+ IF EXISTS */ "test16649661708944163219_test_basic"."swappable";
+  
+10:39:07.224711 [debug] [Thread-13 ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1670] [Teradata Database] [Error 3807] Object 'test16649661708944163219_test_basic.swappable' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:39:07.226127 [debug] [Thread-13 ]: On model.base.swappable: ROLLBACK
+10:39:07.687309 [debug] [Thread-13 ]: Using teradata connection "model.base.swappable"
+10:39:07.688545 [debug] [Thread-13 ]: On model.base.swappable: 
+10:39:07.689735 [debug] [Thread-13 ]: SQL status: OK in 0.0 seconds
+10:39:07.690867 [debug] [Thread-13 ]: Using teradata connection "model.base.swappable"
+10:39:07.692603 [debug] [Thread-13 ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+
+    RENAME view "test16649661708944163219_test_basic"."swappable__dbt_tmp" TO "test16649661708944163219_test_basic"."swappable"
+  
+10:39:08.726662 [debug] [Thread-13 ]: SQL status: OK in 1.03 seconds
+10:39:08.731432 [debug] [Thread-13 ]: On model.base.swappable: COMMIT
+10:39:08.732686 [debug] [Thread-13 ]: Using teradata connection "model.base.swappable"
+10:39:08.733542 [debug] [Thread-13 ]: On model.base.swappable: COMMIT
+10:39:09.080135 [debug] [Thread-13 ]: SQL status: OK in 0.35 seconds
+10:39:09.085756 [debug] [Thread-13 ]: Using teradata connection "model.base.swappable"
+10:39:09.086576 [debug] [Thread-13 ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+DROP table /*+ IF EXISTS */ "test16649661708944163219_test_basic"."swappable__dbt_backup";
+10:39:10.092844 [debug] [Thread-13 ]: SQL status: OK in 1.0 seconds
+10:39:10.095750 [debug] [Thread-13 ]: finished collecting timing info
+10:39:10.097487 [debug] [Thread-13 ]: On model.base.swappable: Close
+10:39:10.710641 [info ] [Thread-13 ]: 1 of 1 OK created view model test16649661708944163219_test_basic.swappable ..... [[32mOK[0m in 11.36s]
+10:39:10.712761 [debug] [Thread-13 ]: Finished running node model.base.swappable
+10:39:10.715324 [debug] [MainThread]: Acquiring new teradata connection "master"
+10:39:10.716473 [debug] [MainThread]: Using teradata connection "master"
+10:39:10.717037 [debug] [MainThread]: On master: 
+10:39:10.718120 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:39:15.125207 [debug] [MainThread]: SQL status: OK in 4.41 seconds
+10:39:15.126819 [debug] [MainThread]: On master: COMMIT
+10:39:15.127874 [debug] [MainThread]: Using teradata connection "master"
+10:39:15.128442 [debug] [MainThread]: On master: COMMIT
+10:39:15.528005 [debug] [MainThread]: SQL status: OK in 0.4 seconds
+10:39:15.529747 [debug] [MainThread]: On master: Close
+10:39:15.929256 [info ] [MainThread]: 
+10:39:15.930522 [info ] [MainThread]: Finished running 1 view model in 34.61s.
+10:39:15.932573 [debug] [MainThread]: Connection 'master' was properly closed.
+10:39:15.933725 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+10:39:15.934846 [debug] [MainThread]: Connection 'list_None_test16649661708944163219_test_basic' was properly closed.
+10:39:15.936001 [debug] [MainThread]: Connection 'model.base.swappable' was properly closed.
+10:39:15.940395 [info ] [MainThread]: 
+10:39:15.952285 [info ] [MainThread]: [32mCompleted successfully[0m
+10:39:15.953972 [info ] [MainThread]: 
+10:39:15.955577 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+10:39:15.958224 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:39:15.963036 [debug] [MainThread]: Using teradata connection "_test"
+10:39:15.963036 [debug] [MainThread]: On _test: 
+10:39:15.967253 [debug] [MainThread]: Opening a new connection, currently in state init
+10:39:20.639540 [debug] [MainThread]: SQL status: OK in 4.67 seconds
+10:39:20.640904 [debug] [MainThread]: Using teradata connection "_test"
+10:39:20.642000 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:39:21.590515 [debug] [MainThread]: SQL status: OK in 0.95 seconds
+10:39:21.596473 [debug] [MainThread]: On _test: ROLLBACK
+10:39:22.224090 [debug] [MainThread]: On _test: Close
+10:39:22.809489 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:39:22.815776 [debug] [MainThread]: Using teradata connection "_test"
+10:39:22.817432 [debug] [MainThread]: On _test: 
+10:39:22.818408 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:39:26.577986 [debug] [MainThread]: SQL status: OK in 3.76 seconds
+10:39:26.579586 [debug] [MainThread]: Using teradata connection "_test"
+10:39:26.580614 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:39:27.624967 [debug] [MainThread]: SQL status: OK in 1.04 seconds
+10:39:27.626859 [debug] [MainThread]: On _test: ROLLBACK
+10:39:28.254990 [debug] [MainThread]: On _test: Close
+10:39:28.808650 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:39:28.816456 [debug] [MainThread]: Using teradata connection "_test"
+10:39:28.817766 [debug] [MainThread]: On _test: 
+10:39:28.818346 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:39:33.385378 [debug] [MainThread]: SQL status: OK in 4.57 seconds
+10:39:33.386707 [debug] [MainThread]: Using teradata connection "_test"
+10:39:33.388436 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:39:34.151875 [debug] [MainThread]: SQL status: OK in 0.76 seconds
+10:39:34.158525 [debug] [MainThread]: On _test: ROLLBACK
+10:39:34.502075 [debug] [MainThread]: On _test: Close
+10:39:34.852643 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:39:34.859647 [debug] [MainThread]: Using teradata connection "_test"
+10:39:34.861060 [debug] [MainThread]: On _test: 
+10:39:34.862304 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:39:39.158798 [debug] [MainThread]: SQL status: OK in 4.3 seconds
+10:39:39.160000 [debug] [MainThread]: Using teradata connection "_test"
+10:39:39.161663 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:39:40.506456 [debug] [MainThread]: SQL status: OK in 1.34 seconds
+10:39:40.511758 [debug] [MainThread]: On _test: ROLLBACK
+10:39:40.914553 [debug] [MainThread]: On _test: Close
+10:39:41.279818 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-05 10:39:41.293308 | cf4fbc17-2a2b-4e03-ad55-4703c757c612 ==============================
+10:39:41.293308 [info ] [MainThread]: Running with dbt=1.1.0
+10:39:41.294338 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-7\\profile0', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'vars': 'materialized_var: incremental', 'select': ['swappable'], 'which': 'run', 'rpc_method': 'run', 'indirect_selection': 'eager'}
+10:39:41.294338 [debug] [MainThread]: Tracking: do not track
+10:39:41.321408 [info ] [MainThread]: Unable to do partial parsing because config vars, config profile, or config target have changed
+10:39:41.383888 [debug] [MainThread]: Parsing macros\adapters.sql
+10:39:41.441044 [debug] [MainThread]: Parsing macros\catalog.sql
+10:39:41.465528 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+10:39:41.471453 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+10:39:41.492787 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+10:39:41.561159 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+10:39:41.678664 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+10:39:41.687417 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+10:39:41.690410 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+10:39:41.702625 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+10:39:41.742387 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+10:39:41.754004 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+10:39:41.767376 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+10:39:41.791551 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+10:39:41.809782 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+10:39:41.842861 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+10:39:41.849954 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+10:39:41.877962 [debug] [MainThread]: Parsing macros\etc\statement.sql
+10:39:41.894531 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+10:39:41.894531 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+10:39:41.911248 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+10:39:41.915347 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+10:39:41.915347 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+10:39:41.927295 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+10:39:41.934223 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+10:39:41.942184 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+10:39:41.946796 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+10:39:41.953431 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+10:39:41.960376 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+10:39:41.975965 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+10:39:41.977960 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+10:39:41.997619 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+10:39:42.030593 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+10:39:42.030593 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+10:39:42.043643 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+10:39:42.060454 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+10:39:42.064513 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+10:39:42.068764 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+10:39:42.078096 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+10:39:42.109429 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+10:39:42.111994 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+10:39:42.128396 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+10:39:42.160550 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+10:39:42.162538 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+10:39:42.178037 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+10:39:42.178037 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+10:39:42.188363 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql
+10:39:42.193953 [debug] [MainThread]: Parsing tests\generic\builtin.sql
+10:39:42.511387 [debug] [MainThread]: 1603: static parser failed on swappable.sql
+10:39:42.528203 [debug] [MainThread]: 1602: parser fallback to jinja rendering on swappable.sql
+10:39:42.533361 [debug] [MainThread]: 1699: static parser successfully parsed table_model.sql
+10:39:42.536525 [debug] [MainThread]: 1699: static parser successfully parsed view_model.sql
+10:39:42.645008 [info ] [MainThread]: Found 3 models, 0 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 1 seed file, 1 source, 0 exposures, 0 metrics
+10:39:42.653277 [info ] [MainThread]: 
+10:39:42.654902 [debug] [MainThread]: Acquiring new teradata connection "master"
+10:39:42.657201 [debug] [ThreadPool]: Acquiring new teradata connection "list_schemas"
+10:39:42.660678 [debug] [ThreadPool]: Using teradata connection "list_schemas"
+10:39:42.660678 [debug] [ThreadPool]: On list_schemas: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_schemas"} */
+SELECT DatabaseName AS schema_name
+        FROM DBC.DatabasesV
+10:39:42.664909 [debug] [ThreadPool]: Opening a new connection, currently in state init
+10:39:47.816581 [debug] [ThreadPool]: SQL status: OK in 5.15 seconds
+10:39:47.823390 [debug] [ThreadPool]: On list_schemas: Close
+10:39:48.246394 [debug] [ThreadPool]: Acquiring new teradata connection "list_None_test16649661708944163219_test_basic"
+10:39:48.252986 [debug] [ThreadPool]: Using teradata connection "list_None_test16649661708944163219_test_basic"
+10:39:48.254016 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: 
+10:39:48.254101 [debug] [ThreadPool]: Opening a new connection, currently in state init
+10:39:52.651153 [debug] [ThreadPool]: SQL status: OK in 4.4 seconds
+10:39:52.652988 [debug] [ThreadPool]: Using teradata connection "list_None_test16649661708944163219_test_basic"
+10:39:52.654622 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "list_None_test16649661708944163219_test_basic"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:39:53.612618 [debug] [ThreadPool]: SQL status: OK in 0.96 seconds
+10:39:53.620876 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: ROLLBACK
+10:39:54.226355 [debug] [ThreadPool]: On list_None_test16649661708944163219_test_basic: Close
+10:39:54.755673 [debug] [MainThread]: Using teradata connection "master"
+10:39:54.759545 [debug] [MainThread]: On master: 
+10:39:54.761786 [debug] [MainThread]: Opening a new connection, currently in state init
+10:39:58.425261 [debug] [MainThread]: SQL status: OK in 3.66 seconds
+10:39:58.427305 [debug] [MainThread]: On master: COMMIT
+10:39:58.428685 [debug] [MainThread]: Using teradata connection "master"
+10:39:58.429809 [debug] [MainThread]: On master: COMMIT
+10:39:58.833703 [debug] [MainThread]: SQL status: OK in 0.4 seconds
+10:39:58.835022 [debug] [MainThread]: On master: Close
+10:39:59.243597 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+10:39:59.244279 [info ] [MainThread]: 
+10:39:59.247472 [debug] [Thread-17 ]: Began running node model.base.swappable
+10:39:59.248660 [info ] [Thread-17 ]: 1 of 1 START incremental model test16649661708944163219_test_basic.swappable ... [RUN]
+10:39:59.249944 [debug] [Thread-17 ]: Acquiring new teradata connection "model.base.swappable"
+10:39:59.250750 [debug] [Thread-17 ]: Began compiling node model.base.swappable
+10:39:59.251284 [debug] [Thread-17 ]: Compiling model.base.swappable
+10:39:59.255581 [debug] [Thread-17 ]: Writing injected SQL for node "model.base.swappable"
+10:39:59.258316 [debug] [Thread-17 ]: finished collecting timing info
+10:39:59.258316 [debug] [Thread-17 ]: Began executing node model.base.swappable
+10:39:59.314191 [debug] [Thread-17 ]: Using teradata connection "model.base.swappable"
+10:39:59.315709 [debug] [Thread-17 ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+DROP view /*+ IF EXISTS */ "test16649661708944163219_test_basic"."swappable__dbt_backup";
+10:39:59.315709 [debug] [Thread-17 ]: Opening a new connection, currently in state init
+10:40:04.028590 [debug] [Thread-17 ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1679] [Teradata Database] [Error 3807] Object 'test16649661708944163219_test_basic.swappable__dbt_backup' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:40:04.032692 [debug] [Thread-17 ]: Using teradata connection "model.base.swappable"
+10:40:04.033197 [debug] [Thread-17 ]: On model.base.swappable: 
+10:40:04.033892 [debug] [Thread-17 ]: SQL status: OK in 0.0 seconds
+10:40:04.034053 [debug] [Thread-17 ]: Using teradata connection "model.base.swappable"
+10:40:04.034639 [debug] [Thread-17 ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+
+    DROP view /*+ IF EXISTS */ "test16649661708944163219_test_basic"."swappable__dbt_backup";
+  
+10:40:04.412513 [debug] [Thread-17 ]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 1679] [Teradata Database] [Error 3807] Object 'test16649661708944163219_test_basic.swappable__dbt_backup' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+10:40:04.413188 [debug] [Thread-17 ]: On model.base.swappable: ROLLBACK
+10:40:04.753033 [debug] [Thread-17 ]: Using teradata connection "model.base.swappable"
+10:40:04.753639 [debug] [Thread-17 ]: On model.base.swappable: 
+10:40:04.753639 [debug] [Thread-17 ]: SQL status: OK in 0.0 seconds
+10:40:04.754233 [debug] [Thread-17 ]: Using teradata connection "model.base.swappable"
+10:40:04.754781 [debug] [Thread-17 ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+
+    RENAME view "test16649661708944163219_test_basic"."swappable" TO "test16649661708944163219_test_basic"."swappable__dbt_backup"
+  
+10:40:05.798492 [debug] [Thread-17 ]: SQL status: OK in 1.04 seconds
+10:40:05.803262 [debug] [Thread-17 ]: Writing runtime SQL for node "model.base.swappable"
+10:40:05.806075 [debug] [Thread-17 ]: Using teradata connection "model.base.swappable"
+10:40:05.807324 [debug] [Thread-17 ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+
+   
+  CREATE  TABLE
+  "test16649661708944163219_test_basic"."swappable"
+  
+    AS (
+        
+
+  select * from "test16649661708944163219_test_basic"."base"
+      ) WITH DATA
+  
+  ;
+
+
+
+10:40:06.718670 [debug] [Thread-17 ]: SQL status: OK in 0.91 seconds
+10:40:06.723604 [debug] [Thread-17 ]: On model.base.swappable: COMMIT
+10:40:06.724469 [debug] [Thread-17 ]: Using teradata connection "model.base.swappable"
+10:40:06.725556 [debug] [Thread-17 ]: On model.base.swappable: COMMIT
+10:40:07.128103 [debug] [Thread-17 ]: SQL status: OK in 0.4 seconds
+10:40:07.130444 [debug] [Thread-17 ]: Using teradata connection "model.base.swappable"
+10:40:07.131142 [debug] [Thread-17 ]: On model.base.swappable: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "model.base.swappable"} */
+DROP view /*+ IF EXISTS */ "test16649661708944163219_test_basic"."swappable__dbt_backup";
+10:40:07.947477 [debug] [Thread-17 ]: SQL status: OK in 0.82 seconds
+10:40:07.953998 [debug] [Thread-17 ]: finished collecting timing info
+10:40:07.954524 [debug] [Thread-17 ]: On model.base.swappable: Close
+10:40:08.577822 [info ] [Thread-17 ]: 1 of 1 OK created incremental model test16649661708944163219_test_basic.swappable  [[32mOK[0m in 9.33s]
+10:40:08.580078 [debug] [Thread-17 ]: Finished running node model.base.swappable
+10:40:08.584224 [debug] [MainThread]: Acquiring new teradata connection "master"
+10:40:08.585603 [debug] [MainThread]: Using teradata connection "master"
+10:40:08.586726 [debug] [MainThread]: On master: 
+10:40:08.587435 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:40:12.762327 [debug] [MainThread]: SQL status: OK in 4.17 seconds
+10:40:12.763331 [debug] [MainThread]: On master: COMMIT
+10:40:12.764973 [debug] [MainThread]: Using teradata connection "master"
+10:40:12.766242 [debug] [MainThread]: On master: COMMIT
+10:40:13.477646 [debug] [MainThread]: SQL status: OK in 0.71 seconds
+10:40:13.479586 [debug] [MainThread]: On master: Close
+10:40:14.093027 [info ] [MainThread]: 
+10:40:14.100504 [info ] [MainThread]: Finished running 1 incremental model in 31.44s.
+10:40:14.103351 [debug] [MainThread]: Connection 'master' was properly closed.
+10:40:14.104389 [debug] [MainThread]: Connection 'list_schemas' was properly closed.
+10:40:14.106240 [debug] [MainThread]: Connection 'list_None_test16649661708944163219_test_basic' was properly closed.
+10:40:14.107514 [debug] [MainThread]: Connection 'model.base.swappable' was properly closed.
+10:40:14.125125 [info ] [MainThread]: 
+10:40:14.127093 [info ] [MainThread]: [32mCompleted successfully[0m
+10:40:14.128189 [info ] [MainThread]: 
+10:40:14.130994 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=0 SKIP=0 TOTAL=1
+10:40:14.134842 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:40:14.143242 [debug] [MainThread]: Using teradata connection "_test"
+10:40:14.143939 [debug] [MainThread]: On _test: 
+10:40:14.145992 [debug] [MainThread]: Opening a new connection, currently in state init
+10:40:18.419539 [debug] [MainThread]: SQL status: OK in 4.27 seconds
+10:40:18.420601 [debug] [MainThread]: Using teradata connection "_test"
+10:40:18.422362 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:40:19.272282 [debug] [MainThread]: SQL status: OK in 0.85 seconds
+10:40:19.278228 [debug] [MainThread]: On _test: ROLLBACK
+10:40:19.723838 [debug] [MainThread]: On _test: Close
+10:40:20.442085 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:40:20.449540 [debug] [MainThread]: Using teradata connection "_test"
+10:40:20.450933 [debug] [MainThread]: On _test: 
+10:40:20.452344 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:40:24.707819 [debug] [MainThread]: SQL status: OK in 4.26 seconds
+10:40:24.709093 [debug] [MainThread]: Using teradata connection "_test"
+10:40:24.710565 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:40:25.663171 [debug] [MainThread]: SQL status: OK in 0.95 seconds
+10:40:25.666626 [debug] [MainThread]: On _test: ROLLBACK
+10:40:26.056509 [debug] [MainThread]: On _test: Close
+10:40:26.540762 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:40:26.544065 [debug] [MainThread]: Using teradata connection "_test"
+10:40:26.545142 [debug] [MainThread]: On _test: 
+10:40:26.545807 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:40:30.374425 [debug] [MainThread]: SQL status: OK in 3.83 seconds
+10:40:30.375293 [debug] [MainThread]: Using teradata connection "_test"
+10:40:30.380580 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:40:31.274221 [debug] [MainThread]: SQL status: OK in 0.89 seconds
+10:40:31.277134 [debug] [MainThread]: On _test: ROLLBACK
+10:40:31.611886 [debug] [MainThread]: On _test: Close
+10:40:31.962629 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:40:31.967250 [debug] [MainThread]: Using teradata connection "_test"
+10:40:31.968003 [debug] [MainThread]: On _test: 
+10:40:31.968538 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:40:35.596600 [debug] [MainThread]: SQL status: OK in 3.63 seconds
+10:40:35.597820 [debug] [MainThread]: Using teradata connection "_test"
+10:40:35.599373 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+SELECT
+      NULL AS "database",
+      TableName AS name,
+      DatabaseName AS "schema",
+      CASE WHEN TableKind = 'T' THEN 'table'
+        WHEN TableKind = 'O' THEN 'table'
+        WHEN TableKind = 'V' THEN 'view'
+        ELSE TableKind
+      END AS table_type
+    FROM DBC.TablesV
+    WHERE DatabaseName = 'test16649661708944163219_test_basic' (NOT CASESPECIFIC)
+      AND TableKind IN ('T', 'V', 'O')
+
+  
+10:40:36.414952 [debug] [MainThread]: SQL status: OK in 0.81 seconds
+10:40:36.420692 [debug] [MainThread]: On _test: ROLLBACK
+10:40:36.771673 [debug] [MainThread]: On _test: Close
+10:48:24.161590 [debug] [MainThread]: Acquiring new teradata connection "_test"
+10:48:24.162592 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16649661708944163219_test_basic', identifier=None)".
+10:48:24.169333 [debug] [MainThread]: Using teradata connection "_test"
+10:48:24.169605 [debug] [MainThread]: On _test: 
+10:48:24.170849 [debug] [MainThread]: Opening a new connection, currently in state closed
+10:48:29.586167 [debug] [MainThread]: Connection '_test' was properly closed.

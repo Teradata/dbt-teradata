@@ -1,0 +1,311 @@
+09:14:54.139041 [debug] [MainThread]: Acquiring new teradata connection "_test"
+09:14:54.140378 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16650476925890267876_test_basic', identifier=None)".
+09:14:54.172677 [debug] [MainThread]: Using teradata connection "_test"
+09:14:54.173410 [debug] [MainThread]: On _test: 
+09:14:54.175406 [debug] [MainThread]: Opening a new connection, currently in state init
+09:15:09.779014 [debug] [MainThread]: SQL status: OK in 15.6 seconds
+09:15:09.779782 [debug] [MainThread]: Using teradata connection "_test"
+09:15:09.780147 [debug] [MainThread]: On _test: DELETE DATABASE /*+ IF EXISTS */ "test16650476925890267876_test_basic" ALL;
+09:15:10.100526 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 2001] [Teradata Database] [Error 3802] Database 'test16650476925890267876_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+09:15:10.104199 [debug] [MainThread]: On _test: ROLLBACK
+09:15:10.423050 [debug] [MainThread]: Using teradata connection "_test"
+09:15:10.424274 [debug] [MainThread]: On _test: 
+09:15:10.425638 [debug] [MainThread]: SQL status: OK in 0.0 seconds
+09:15:10.426862 [debug] [MainThread]: Using teradata connection "_test"
+09:15:10.427987 [debug] [MainThread]: On _test: DROP DATABASE /*+ IF EXISTS */ "test16650476925890267876_test_basic";
+09:15:10.776983 [debug] [MainThread]: teradata adapter: Teradata error: [Version 17.20.0.5] [Session 2001] [Teradata Database] [Error 3802] Database 'test16650476925890267876_test_basic' does not exist.
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).formatDatabaseError ErrorUtil.go:216
+ at gosqldriver/teradatasql.(*teradataConnection).makeChainedDatabaseError ErrorUtil.go:232
+ at gosqldriver/teradatasql.(*teradataConnection).processErrorParcel TeradataConnection.go:803
+ at gosqldriver/teradatasql.(*TeradataRows).processResponseBundle TeradataRows.go:2229
+ at gosqldriver/teradatasql.(*TeradataRows).executeSQLRequest TeradataRows.go:814
+ at gosqldriver/teradatasql.newTeradataRows TeradataRows.go:673
+ at gosqldriver/teradatasql.(*teradataStatement).QueryContext TeradataStatement.go:122
+ at gosqldriver/teradatasql.(*teradataConnection).QueryContext TeradataConnection.go:1307
+ at database/sql.ctxDriverQuery ctxutil.go:48
+ at database/sql.(*DB).queryDC.func1 sql.go:1759
+ at database/sql.withLock sql.go:3437
+ at database/sql.(*DB).queryDC sql.go:1754
+ at database/sql.(*Conn).QueryContext sql.go:2013
+ at main.goCreateRows goside.go:666
+ at _cgoexp_7cdf4597d74c_goCreateRows _cgo_gotypes.go:340
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+09:15:10.778735 [debug] [MainThread]: On _test: ROLLBACK
+09:15:11.094119 [debug] [MainThread]: On _test: Close
+09:15:11.439648 [debug] [MainThread]: Acquiring new teradata connection "_test"
+09:15:11.440290 [debug] [MainThread]: Creating schema "_ReferenceKey(database=None, schema='test16650476925890267876_test_basic', identifier=None)"
+09:15:11.447612 [debug] [MainThread]: Using teradata connection "_test"
+09:15:11.447612 [debug] [MainThread]: On _test: 
+09:15:11.447612 [debug] [MainThread]: Opening a new connection, currently in state closed
+09:15:15.178493 [debug] [MainThread]: SQL status: OK in 3.73 seconds
+09:15:15.179491 [debug] [MainThread]: Using teradata connection "_test"
+09:15:15.180276 [debug] [MainThread]: On _test: CREATE DATABASE "test16650476925890267876_test_basic"
+    -- Teradata expects db sizing params on creation. This macro is probably
+    -- useful only for testing. For production scenrios, a properly sized
+    -- database (schema) will likely exist before dbt gets called
+    AS PERMANENT = 60e6, -- 60MB
+        SPOOL = 120e6; -- 120MB
+09:15:15.895128 [debug] [MainThread]: SQL status: OK in 0.71 seconds
+09:15:15.898838 [debug] [MainThread]: On _test: COMMIT
+09:15:15.900271 [debug] [MainThread]: Using teradata connection "_test"
+09:15:15.901478 [debug] [MainThread]: On _test: COMMIT
+09:15:16.305339 [debug] [MainThread]: SQL status: OK in 0.4 seconds
+09:15:16.306701 [debug] [MainThread]: On _test: Close
+09:15:16.745293 [debug] [MainThread]: Connection '_test' was properly closed.
+
+
+============================== 2022-10-06 09:15:16.786023 | 65542536-9dd8-4fca-9611-17f1d1b1f435 ==============================
+09:15:16.786023 [info ] [MainThread]: Running with dbt=1.1.0
+09:15:16.788017 [debug] [MainThread]: running dbt with arguments {'write_json': True, 'use_colors': True, 'printer_width': 80, 'version_check': True, 'partial_parse': True, 'static_parser': True, 'profiles_dir': 'C:\\Users\\vs255034\\AppData\\Local\\Temp\\pytest-of-vs255034\\pytest-13\\profile0', 'send_anonymous_usage_stats': False, 'event_buffer_size': 100000, 'quiet': False, 'no_print': False, 'indirect_selection': 'eager', 'which': 'test', 'rpc_method': 'test'}
+09:15:16.788017 [debug] [MainThread]: Tracking: do not track
+09:15:16.826329 [info ] [MainThread]: Partial parse save file not found. Starting full parse.
+09:15:16.994104 [debug] [MainThread]: Parsing macros\adapters.sql
+09:15:17.027816 [debug] [MainThread]: Parsing macros\catalog.sql
+09:15:17.061103 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+09:15:17.063097 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+09:15:17.078880 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+09:15:17.119602 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+09:15:17.180764 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+09:15:17.183063 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+09:15:17.185087 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+09:15:17.188296 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+09:15:17.208941 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+09:15:17.208941 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+09:15:17.225878 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+09:15:17.243463 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+09:15:17.243463 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+09:15:17.276884 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+09:15:17.276884 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+09:15:17.292514 [debug] [MainThread]: Parsing macros\etc\statement.sql
+09:15:17.307071 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+09:15:17.307071 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+09:15:17.324181 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+09:15:17.324181 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+09:15:17.324181 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+09:15:17.330639 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+09:15:17.330639 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+09:15:17.330639 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+09:15:17.341617 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+09:15:17.341617 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+09:15:17.341617 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+09:15:17.358419 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+09:15:17.358419 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+09:15:17.371477 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+09:15:17.402283 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+09:15:17.411416 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+09:15:17.411416 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+09:15:17.411416 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+09:15:17.427324 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+09:15:17.428324 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+09:15:17.430633 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+09:15:17.446371 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+09:15:17.461992 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+09:15:17.466496 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+09:15:17.479213 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+09:15:17.496000 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+09:15:17.527544 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+09:15:17.527544 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+09:15:17.549182 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql
+09:15:17.553555 [debug] [MainThread]: Parsing tests\generic\builtin.sql
+09:15:17.892865 [info ] [MainThread]: Found 0 models, 2 tests, 0 snapshots, 0 analyses, 181 macros, 0 operations, 0 seed files, 0 sources, 0 exposures, 0 metrics
+09:15:17.893858 [info ] [MainThread]: 
+09:15:17.895028 [debug] [MainThread]: Acquiring new teradata connection "master"
+09:15:17.896025 [debug] [MainThread]: Using teradata connection "master"
+09:15:17.896025 [debug] [MainThread]: On master: 
+09:15:17.896653 [debug] [MainThread]: Opening a new connection, currently in state init
+09:15:21.219341 [debug] [MainThread]: SQL status: OK in 3.32 seconds
+09:15:21.220420 [debug] [MainThread]: On master: COMMIT
+09:15:21.221088 [debug] [MainThread]: Using teradata connection "master"
+09:15:21.221576 [debug] [MainThread]: On master: COMMIT
+09:15:21.529456 [debug] [MainThread]: SQL status: OK in 0.31 seconds
+09:15:21.530596 [debug] [MainThread]: On master: Close
+09:15:21.936077 [info ] [MainThread]: Concurrency: 1 threads (target='default')
+09:15:21.936835 [info ] [MainThread]: 
+09:15:21.949458 [debug] [Thread-1  ]: Began running node test.singular_tests.failing
+09:15:21.949458 [info ] [Thread-1  ]: 1 of 2 START test failing ...................................................... [RUN]
+09:15:21.950451 [debug] [Thread-1  ]: Acquiring new teradata connection "test.singular_tests.failing"
+09:15:21.951416 [debug] [Thread-1  ]: Began compiling node test.singular_tests.failing
+09:15:21.951786 [debug] [Thread-1  ]: Compiling test.singular_tests.failing
+09:15:21.952783 [debug] [Thread-1  ]: Writing injected SQL for node "test.singular_tests.failing"
+09:15:21.955666 [debug] [Thread-1  ]: finished collecting timing info
+09:15:21.955666 [debug] [Thread-1  ]: Began executing node test.singular_tests.failing
+09:15:21.961539 [debug] [Thread-1  ]: Writing runtime SQL for node "test.singular_tests.failing"
+09:15:21.978299 [debug] [Thread-1  ]: Using teradata connection "test.singular_tests.failing"
+09:15:21.979295 [debug] [Thread-1  ]: On test.singular_tests.failing: 
+09:15:21.979295 [debug] [Thread-1  ]: Opening a new connection, currently in state init
+09:15:25.521030 [debug] [Thread-1  ]: SQL status: OK in 3.54 seconds
+09:15:25.522338 [debug] [Thread-1  ]: Using teradata connection "test.singular_tests.failing"
+09:15:25.523346 [debug] [Thread-1  ]: On test.singular_tests.failing: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "test.singular_tests.failing"} */
+SELECT
+      count(*) AS failures,
+      CASE
+      	WHEN count(*) <> 0 THEN 'true'
+      	ELSE 'false'
+      END AS should_warn,
+      CASE
+      	WHEN count(*) <> 0 THEN 'true'
+      	ELSE 'false'
+      END AS should_error
+    FROM (
+      select * from (
+    select 1 as id
+) as my_subquery
+where id = 1
+      
+    ) dbt_internal_test
+09:15:26.341532 [debug] [Thread-1  ]: SQL status: OK in 0.82 seconds
+09:15:26.347390 [debug] [Thread-1  ]: finished collecting timing info
+09:15:26.347929 [debug] [Thread-1  ]: On test.singular_tests.failing: ROLLBACK
+09:15:26.660154 [debug] [Thread-1  ]: On test.singular_tests.failing: Close
+09:15:26.980840 [error] [Thread-1  ]: 1 of 2 FAIL 1 failing .......................................................... [[31mFAIL 1[0m in 5.03s]
+09:15:26.983127 [debug] [Thread-1  ]: Finished running node test.singular_tests.failing
+09:15:26.984502 [debug] [Thread-1  ]: Began running node test.singular_tests.passing
+09:15:26.985649 [info ] [Thread-1  ]: 2 of 2 START test passing ...................................................... [RUN]
+09:15:26.992975 [debug] [Thread-1  ]: Acquiring new teradata connection "test.singular_tests.passing"
+09:15:26.994605 [debug] [Thread-1  ]: Began compiling node test.singular_tests.passing
+09:15:26.994605 [debug] [Thread-1  ]: Compiling test.singular_tests.passing
+09:15:26.996633 [debug] [Thread-1  ]: Writing injected SQL for node "test.singular_tests.passing"
+09:15:26.998681 [debug] [Thread-1  ]: finished collecting timing info
+09:15:26.998681 [debug] [Thread-1  ]: Began executing node test.singular_tests.passing
+09:15:27.000708 [debug] [Thread-1  ]: Writing runtime SQL for node "test.singular_tests.passing"
+09:15:27.002540 [debug] [Thread-1  ]: Using teradata connection "test.singular_tests.passing"
+09:15:27.003537 [debug] [Thread-1  ]: On test.singular_tests.passing: 
+09:15:27.004534 [debug] [Thread-1  ]: Opening a new connection, currently in state closed
+09:15:30.641176 [debug] [Thread-1  ]: SQL status: OK in 3.64 seconds
+09:15:30.642092 [debug] [Thread-1  ]: Using teradata connection "test.singular_tests.passing"
+09:15:30.642896 [debug] [Thread-1  ]: On test.singular_tests.passing: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "node_id": "test.singular_tests.passing"} */
+SELECT
+      count(*) AS failures,
+      CASE
+      	WHEN count(*) <> 0 THEN 'true'
+      	ELSE 'false'
+      END AS should_warn,
+      CASE
+      	WHEN count(*) <> 0 THEN 'true'
+      	ELSE 'false'
+      END AS should_error
+    FROM (
+      select * from (
+    select 1 as id
+) as my_subquery
+where id = 2
+      
+    ) dbt_internal_test
+09:15:31.359065 [debug] [Thread-1  ]: SQL status: OK in 0.72 seconds
+09:15:31.363608 [debug] [Thread-1  ]: finished collecting timing info
+09:15:31.364457 [debug] [Thread-1  ]: On test.singular_tests.passing: ROLLBACK
+09:15:31.679761 [debug] [Thread-1  ]: On test.singular_tests.passing: Close
+09:15:32.028135 [info ] [Thread-1  ]: 2 of 2 PASS passing ............................................................ [[32mPASS[0m in 5.04s]
+09:15:32.030368 [debug] [Thread-1  ]: Finished running node test.singular_tests.passing
+09:15:32.032212 [debug] [MainThread]: Acquiring new teradata connection "master"
+09:15:32.032818 [debug] [MainThread]: Using teradata connection "master"
+09:15:32.033364 [debug] [MainThread]: On master: 
+09:15:32.034008 [debug] [MainThread]: Opening a new connection, currently in state closed
+09:15:35.658036 [debug] [MainThread]: SQL status: OK in 3.62 seconds
+09:15:35.658596 [debug] [MainThread]: On master: COMMIT
+09:15:35.659174 [debug] [MainThread]: Using teradata connection "master"
+09:15:35.659730 [debug] [MainThread]: On master: COMMIT
+09:15:36.067865 [debug] [MainThread]: SQL status: OK in 0.41 seconds
+09:15:36.068454 [debug] [MainThread]: On master: Close
+09:15:36.478709 [info ] [MainThread]: 
+09:15:36.480169 [info ] [MainThread]: Finished running 2 tests in 18.58s.
+09:15:36.481345 [debug] [MainThread]: Connection 'master' was properly closed.
+09:15:36.481947 [debug] [MainThread]: Connection 'test.singular_tests.passing' was properly closed.
+09:15:36.492364 [info ] [MainThread]: 
+09:15:36.493499 [info ] [MainThread]: [31mCompleted with 1 error and 0 warnings:[0m
+09:15:36.494402 [info ] [MainThread]: 
+09:15:36.495452 [error] [MainThread]: [31mFailure in test failing (tests\failing.sql)[0m
+09:15:36.496119 [error] [MainThread]:   Got 1 result, configured to fail if != 0
+09:15:36.501050 [info ] [MainThread]: 
+09:15:36.502048 [info ] [MainThread]:   compiled SQL at target\compiled\singular_tests\tests\failing.sql
+09:15:36.502678 [info ] [MainThread]: 
+09:15:36.502678 [info ] [MainThread]: Done. PASS=1 WARN=0 ERROR=1 SKIP=0 TOTAL=2
+09:15:36.505495 [debug] [MainThread]: Acquiring new teradata connection "_test"
+09:15:36.506703 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16650476925890267876_test_basic', identifier=None)".
+09:15:36.509391 [debug] [MainThread]: Using teradata connection "_test"
+09:15:36.509846 [debug] [MainThread]: On _test: 
+09:15:36.510810 [debug] [MainThread]: Opening a new connection, currently in state init
+09:15:39.959882 [debug] [MainThread]: SQL status: OK in 3.45 seconds
+09:15:39.961571 [debug] [MainThread]: Using teradata connection "_test"
+09:15:39.962829 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+DELETE DATABASE /*+ IF EXISTS */ "test16650476925890267876_test_basic" ALL;
+09:15:40.778529 [debug] [MainThread]: SQL status: OK in 0.81 seconds
+09:15:40.781445 [debug] [MainThread]: Using teradata connection "_test"
+09:15:40.782600 [debug] [MainThread]: On _test: /* {"app": "dbt", "dbt_version": "1.1.0", "profile_name": "test", "target_name": "default", "connection_name": "_test"} */
+DROP DATABASE /*+ IF EXISTS */ "test16650476925890267876_test_basic";
+09:15:41.503872 [debug] [MainThread]: SQL status: OK in 0.72 seconds
+09:15:41.506700 [debug] [MainThread]: On _test: ROLLBACK
+09:15:41.904926 [debug] [MainThread]: On _test: Close
+09:15:42.314981 [debug] [MainThread]: Connection '_test' was properly closed.
+09:15:42.359649 [info ] [MainThread]: Partial parse save file not found. Starting full parse.
+09:15:42.363552 [debug] [MainThread]: Parsing macros\adapters.sql
+09:15:42.388354 [debug] [MainThread]: Parsing macros\catalog.sql
+09:15:42.396127 [debug] [MainThread]: Parsing macros\materializations\incremental\helpers.sql
+09:15:42.401266 [debug] [MainThread]: Parsing macros\materializations\incremental\incremental.sql
+09:15:42.410027 [debug] [MainThread]: Parsing macros\materializations\seed\seed.sql
+09:15:42.434751 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot.sql
+09:15:42.477462 [debug] [MainThread]: Parsing macros\materializations\snapshot\snapshot_merge.sql
+09:15:42.480678 [debug] [MainThread]: Parsing macros\materializations\snapshot\strategies.sql
+09:15:42.482418 [debug] [MainThread]: Parsing macros\materializations\test\test.sql
+09:15:42.487949 [debug] [MainThread]: Parsing macros\adapters\columns.sql
+09:15:42.492234 [debug] [MainThread]: Parsing macros\adapters\freshness.sql
+09:15:42.504466 [debug] [MainThread]: Parsing macros\adapters\indexes.sql
+09:15:42.509952 [debug] [MainThread]: Parsing macros\adapters\metadata.sql
+09:15:42.519559 [debug] [MainThread]: Parsing macros\adapters\persist_docs.sql
+09:15:42.521557 [debug] [MainThread]: Parsing macros\adapters\relation.sql
+09:15:42.538044 [debug] [MainThread]: Parsing macros\adapters\schema.sql
+09:15:42.541668 [debug] [MainThread]: Parsing macros\etc\datetime.sql
+09:15:42.552622 [debug] [MainThread]: Parsing macros\etc\statement.sql
+09:15:42.552622 [debug] [MainThread]: Parsing macros\generic_test_sql\accepted_values.sql
+09:15:42.552622 [debug] [MainThread]: Parsing macros\generic_test_sql\not_null.sql
+09:15:42.552622 [debug] [MainThread]: Parsing macros\generic_test_sql\relationships.sql
+09:15:42.563360 [debug] [MainThread]: Parsing macros\generic_test_sql\unique.sql
+09:15:42.565348 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_alias.sql
+09:15:42.566346 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_database.sql
+09:15:42.569300 [debug] [MainThread]: Parsing macros\get_custom_name\get_custom_schema.sql
+09:15:42.571896 [debug] [MainThread]: Parsing macros\materializations\configs.sql
+09:15:42.576174 [debug] [MainThread]: Parsing macros\materializations\hooks.sql
+09:15:42.580181 [debug] [MainThread]: Parsing macros\materializations\models\incremental\column_helpers.sql
+09:15:42.584283 [debug] [MainThread]: Parsing macros\materializations\models\incremental\incremental.sql
+09:15:42.590014 [debug] [MainThread]: Parsing macros\materializations\models\incremental\is_incremental.sql
+09:15:42.590014 [debug] [MainThread]: Parsing macros\materializations\models\incremental\merge.sql
+09:15:42.619505 [debug] [MainThread]: Parsing macros\materializations\models\incremental\on_schema_change.sql
+09:15:42.635160 [debug] [MainThread]: Parsing macros\materializations\models\table\create_table_as.sql
+09:15:42.642796 [debug] [MainThread]: Parsing macros\materializations\models\table\table.sql
+09:15:42.645840 [debug] [MainThread]: Parsing macros\materializations\models\view\create_or_replace_view.sql
+09:15:42.654801 [debug] [MainThread]: Parsing macros\materializations\models\view\create_view_as.sql
+09:15:42.658437 [debug] [MainThread]: Parsing macros\materializations\models\view\helpers.sql
+09:15:42.661739 [debug] [MainThread]: Parsing macros\materializations\models\view\view.sql
+09:15:42.663653 [debug] [MainThread]: Parsing macros\materializations\seeds\helpers.sql
+09:15:42.676261 [debug] [MainThread]: Parsing macros\materializations\seeds\seed.sql
+09:15:42.693878 [debug] [MainThread]: Parsing macros\materializations\snapshots\helpers.sql
+09:15:42.710592 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot.sql
+09:15:42.726075 [debug] [MainThread]: Parsing macros\materializations\snapshots\snapshot_merge.sql
+09:15:42.728069 [debug] [MainThread]: Parsing macros\materializations\snapshots\strategies.sql
+09:15:42.743490 [debug] [MainThread]: Parsing macros\materializations\tests\helpers.sql
+09:15:42.743490 [debug] [MainThread]: Parsing macros\materializations\tests\test.sql
+09:15:42.760265 [debug] [MainThread]: Parsing macros\materializations\tests\where_subquery.sql

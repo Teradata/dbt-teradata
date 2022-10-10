@@ -1,0 +1,6 @@
+[console_scripts]
+pylava = pylava.main:shell
+
+[pytest11]
+pylava = pylava.pytest
+

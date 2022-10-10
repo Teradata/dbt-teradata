@@ -1,0 +1,28 @@
+04:44:23.931231 [debug] [MainThread]: Acquiring new teradata connection "_test"
+04:44:23.932879 [debug] [MainThread]: Dropping schema "_ReferenceKey(database=None, schema='test16653770620405547393_test_basic', identifier=None)".
+04:44:23.974374 [debug] [MainThread]: Using teradata connection "_test"
+04:44:23.975088 [debug] [MainThread]: On _test: 
+04:44:23.976518 [debug] [MainThread]: Opening a new connection, currently in state init
+04:44:25.614525 [debug] [MainThread]: teradata adapter: Got an error when attempting to open a teradata connection: '[Version 17.20.0.5] [Session 0] [Teradata SQL Driver] Hostname lookup failed for sdt54383.labs.teradata.com
+ at gosqldriver/teradatasql.formatError ErrorUtil.go:88
+ at gosqldriver/teradatasql.(*teradataConnection).makeDriverError ErrorUtil.go:179
+ at gosqldriver/teradatasql.(*nameLookup).getAddresses CopDiscovery.go:95
+ at gosqldriver/teradatasql.discoverCops CopDiscovery.go:177
+ at gosqldriver/teradatasql.newTeradataConnection TeradataConnection.go:154
+ at gosqldriver/teradatasql.(*teradataDriver).Open TeradataDriver.go:32
+ at database/sql.dsnConnector.Connect sql.go:761
+ at database/sql.(*DB).conn sql.go:1395
+ at database/sql.(*DB).Conn sql.go:1928
+ at main.goCreateConnection goside.go:289
+ at _cgoexp_7cdf4597d74c_goCreateConnection _cgo_gotypes.go:236
+ at runtime.cgocallbackg1 cgocall.go:314
+ at runtime.cgocallbackg cgocall.go:233
+ at runtime.cgocallback asm_amd64.s:971
+ at runtime.goexit asm_amd64.s:1571
+Caused by lookup sdt54383.labs.teradata.com: no such host'
+04:44:25.617909 [debug] [MainThread]: teradata adapter: Error running SQL: 
+04:44:25.619118 [debug] [MainThread]: teradata adapter: Rolling back transaction.
+04:44:25.621365 [debug] [MainThread]: teradata adapter: Error running SQL: macro drop_schema
+04:44:25.623005 [debug] [MainThread]: teradata adapter: Rolling back transaction.
+04:44:25.624560 [debug] [MainThread]: On _test: No close available on handle
+04:44:27.231196 [debug] [MainThread]: Connection '_test' was properly closed.
