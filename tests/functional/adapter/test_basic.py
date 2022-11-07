@@ -11,52 +11,46 @@ from dbt.tests.adapter.basic.test_snapshot_check_cols import BaseSnapshotCheckCo
 from dbt.tests.adapter.basic.test_snapshot_timestamp import BaseSnapshotTimestamp
 from dbt.tests.adapter.basic.test_adapter_methods import BaseAdapterMethod
 
-'''
-class TestSimpleMaterializationsMyAdapter(BaseSimpleMaterializations):
+
+class TestSimpleMaterializationsTeradata(BaseSimpleMaterializations):
     pass
 
 
-class TestSingularTestsMyAdapter(BaseSingularTests):
-    print("1st testcase")
-    pass
-
-
-class TestSingularTestsEphemeralMyAdapter(BaseSingularTestsEphemeral):
-    print("second testcase")
-    pass
-
-
-class TestEmptyMyAdapter(BaseEmpty):
-    print("Third testcase")
-    pass
-
-
-class TestEphemeralMyAdapter(BaseEphemeral):
-    print("fourth testcase")
-    pass
-
-
-class TestIncrementalMyAdapter(BaseIncremental):
-    print("Fifth testcase")
-    pass
-
-
-class TestGenericTestsMyAdapter(BaseGenericTests):
-    print("Sixth testcase")
+class TestSingularTestsMyTeradata(BaseSingularTests):
     pass
 
 '''
-class TestSnapshotCheckColsMyAdapter(BaseSnapshotCheckCols):
-    print("Seventh testcase")
+class TestSingularTestsEphemeralTeradata(BaseSingularTestsEphemeral):
     pass
 
+# FAIL
+  # test_dbt_ephemeral_data_tests: data_test_ephemeral_models - fails with
+  #   [Error 6926] WITH [RECURSIVE] clause or recursive view is not supported
+  #   within WITH [RECURSIVE] definitions, views, triggers or stored procedures.
 '''
-class TestSnapshotTimestampMyAdapter(BaseSnapshotTimestamp):
-    print("Eighth testcase")
+class TestEmptyTeradata(BaseEmpty):
+    pass
+
+
+class TestEphemeralTeradata(BaseEphemeral):
+    pass
+
+
+class TestIncrementalTeradata(BaseIncremental):
+    pass
+
+
+class TestGenericTestsTeradata(BaseGenericTests):
+    pass
+
+
+class TestSnapshotCheckColsTeradata(BaseSnapshotCheckCols):
+    pass
+
+
+class TestSnapshotTimestampTeradata(BaseSnapshotTimestamp):
     pass
 
 
 class TestBaseAdapterMethod(BaseAdapterMethod):
-    print("Ninth testcase")
     pass
-'''

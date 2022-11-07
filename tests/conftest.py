@@ -1,5 +1,8 @@
 import pytest
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Import the standard functional fixtures as a plugin
 # Note: fixtures with session scope need to be local
@@ -12,8 +15,8 @@ def dbt_profile_target():
     return {
         'type': 'teradata',
         'threads': 1,
-        'host': 'sdt54383.labs.teradata.com',
-        'user': 'dbc',
-        'password': 'dbc'
+        'host': '',
+        'user': '',
+        'password': ''
         
     }
