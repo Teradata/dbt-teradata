@@ -28,10 +28,10 @@ jobs:
           echo "my IP address is: " $(ipconfig getifaddr en0)
           mkdir /tmp/downloads
           cd /tmp/downloads
-          curl -L 'https://downloads.teradata.com/download/cdn/database/teradata-express/VantageExpress17.10_Sles12_202108300444.7z' \
-            -H 'Cookie: $TD_DOWNLOADS_MAGIC_COOKIE' --compressed -o ve.7z
+          curl -L "https://d289lrf5tw1zls.cloudfront.net/database/teradata-express/VantageExpress17.20_Sles12_20220819081111.7z?Expires=1704067200&Key-Pair-Id=APKAJ3SWQUPWKYVMO2WQ&Signature=$VE_URL_SIGNATURE" \
+            --compressed -o ve.7z
         env:
-          TD_DOWNLOADS_MAGIC_COOKIE: ${{ secrets.TD_DOWNLOADS_MAGIC_COOKIE }}
+          VE_URL_SIGNATURE: ${{ secrets.VE_URL_SIGNATURE }}
 
       - name: Unzip Vantage Express
         shell: bash
@@ -58,13 +58,13 @@ jobs:
       - name: Install TTU
         shell: bash
         run: |
-          curl -L 'https://downloads.teradata.com/download/cdn/tools/ttu/TeradataToolsAndUtilitiesBase__macosx_x86_64.17.10.11.00.tar.gz' \
-            -H 'Cookie: $TD_DOWNLOADS_MAGIC_COOKIE' --compressed -o ttu.tar.gz
+          curl -L "https://d289lrf5tw1zls.cloudfront.net/tools/ttu/TeradataToolsAndUtilitiesBase__macosx_x86_64.17.20.08.00.tar.gz?Expires=1704067200&Key-Pair-Id=APKAJ3SWQUPWKYVMO2WQ&Signature=$TTU_URL_SIGNATURE" \
+            --compressed -o ttu.tar.gz
           tar -xzf ttu.tar.gz
 
           installer -pkg ./TeradataToolsAndUtilitiesBase/*.pkg -target CurrentUserHomeDirectory
         env:
-          TD_DOWNLOADS_MAGIC_COOKIE: ${{ secrets.TD_DOWNLOADS_MAGIC_COOKIE }}
+          TTU_URL_SIGNATURE: ${{ secrets.TTU_URL_SIGNATURE }}
 
       - name: Install dependencies
         run: |
