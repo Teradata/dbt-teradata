@@ -15,8 +15,8 @@ def dbt_profile_target():
     return {
         'type': 'teradata',
         'threads': 1,
-        'host': '',
-        'user': '',
-        'password': ''
+        'host': 'localhost',
+        'user': 'dbc',
+        'password': 'dbc'
         
     }
