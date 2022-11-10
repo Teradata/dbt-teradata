@@ -460,7 +460,7 @@ sources:
     schema: "{{ target.schema }}"
     database: "{{ target.schema }}"
     freshness: # default freshness
-      warn_after: {count: 24, period: hour}
+      warn_after: {count: 25, period: hour}
     loaded_at_field: timestamp_column
     tables:
       - name: data_with_timestamp

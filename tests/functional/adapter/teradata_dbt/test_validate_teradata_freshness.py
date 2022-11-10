@@ -30,4 +30,4 @@ class Test_validate_teradata_freshness:
 
         result2=run_dbt(["source","freshness"])
         result_statuses2 = sorted(r.status for r in result2)
-        assert result_statuses2 == ["success"]
+        assert result_statuses2 == ["pass"]
