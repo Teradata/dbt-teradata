@@ -8,4 +8,5 @@ pylava~=0.3.0
 teradatasql>=17.10.0.0
 dbt-core==1.1.0
 MarkupSafe==2.0.1
+pytest-dotenv
 -e .
