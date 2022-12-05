@@ -36,7 +36,16 @@ class Test_validate_teradata_cases:
         result_statuses = sorted(r.status for r in results)
         assert result_statuses== ['success', 'success', 'success', 'success', 'success']
 
-        #check_relation_types(project.adapter,{"abc":"def"})#, "table_without_cte.sql":"table"})
+        expected = {
+            "table_with_cte": "table",
+            "table_without_cte": "table",
+            "view_with_cte": "view",
+            "view_without_cte": "view",
+            "table_with_cte_comments":"table"
+        }
+
+        check_relation_types(project.adapter, expected)
+
         relation1=relation_from_name(project.adapter,"table_with_cte")
         with_cte_result=project.run_sql(f"select count(*) as num_rows from {relation1}",fetch="one")
         assert with_cte_result[0]==1

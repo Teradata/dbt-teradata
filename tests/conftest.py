@@ -31,5 +31,11 @@ def dbt_profile_target():
         'host': hostname, #{{os.getenv('HOST'), 'localhost'}},
         'user': username, #{{os.getenv('USER'), 'dbc'}},
         'password': password, #{{os.getenv('PASSWORD'), 'dbc'}},
-        'schema': "dbt_test_{{ var('_dbt_random_suffix') }}"
+        'tmode': 'ANSI',
+        'log': '0'
     }
+
+@pytest.fixture(scope="class")
+def unique_schema(request, prefix) -> str:
+    unique_schema = f"dbt_test_{prefix}"
+    return unique_schema

@@ -117,6 +117,26 @@ table_from_source_sql="""
 SELECT * FROM {{ source('alias_source_schema', 'alias_source_table') }}
 """
 
+
+table_from_source_for_catalog_test_sql="""
+        {{
+            config(
+                materialized="table"
+            )
+        }}
+    SELECT * FROM {{ source('alias_source_schema', 'alias_source_table') }}
+"""
+
+view_from_source_for_catalog_test_sql="""
+        {{
+            config(
+                materialized="view"
+            )
+        }}
+        SELECT * FROM {{ source('alias_source_schema', 'alias_source_table') }}
+"""
+
+
 sources_yml="""
 version: 2
 sources:
@@ -510,5 +530,27 @@ SELECT * FROM {{ ref('test_table_in_timestamp_macro_test') }}
 macros_sql="""
 {% macro teradata__current_timestamp() -%}
   to_timestamp_tz('2022-01-27 15:15:21.000000-05:00')
+{%- endmacro %}
+"""
+
+#model
+dbcinfo_sql="""
+{{
+    config(
+        materialized="table",
+        schema="DBT_TEST_IS_THE_BEST"
+        )
+}}
+        SELECT * FROM dbc.dbcinfo
+"""
+
+#macro
+generate_schema_name_sql="""
+{% macro generate_schema_name(custom_schema_name, node) -%}
+  {%- if custom_schema_name is none -%}
+    {{ target.schema }}
+  {% else %}
+    {{ custom_schema_name | trim | lower }}
+  {%- endif -%}
 {%- endmacro %}
 """
