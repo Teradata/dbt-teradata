@@ -157,7 +157,7 @@ jobs:
 
           $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
 
-          pytest test/nopi
+          pytest tests/functional/adapter/test_nopi.py
       - uses: actions/upload-artifact@v2
         if: ${{ failure() ||  cancelled() }}
         with:
