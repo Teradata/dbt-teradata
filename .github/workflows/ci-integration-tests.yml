@@ -92,7 +92,7 @@ jobs:
           .logoff
           EOF
           # strip the random suffix from the pytest config
-          sed -i "s/_{prefix}//" tests/conftest.py
+          sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
 
           pytest tests/functional
       - name: Run performance tests for fastload
