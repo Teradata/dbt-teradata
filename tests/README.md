@@ -20,7 +20,7 @@ Here are the steps to run the functional tests:
    export DBT_TERADATA_USERNAME='***'
    export DBT_TERADATA_PASSWORD='***'
    
-   If there are no environment variables provided than the default values will be picked which could be found in conftest.py file.
+   If there are no environment variables provided then the default values will be picked which could be found in conftest.py file.
    
 2. Run the test with python pytest command, for e.g  
    python -m pytest .\tests\functional\adapter\test_basic.py                                         
