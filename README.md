@@ -37,6 +37,7 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 | 0.20.0.x           | ✅          | ✅          | ✅          | ✅          | ❌          |
 | 0.21.1.x           | ✅          | ✅          | ✅          | ✅          | ❌          |
 | 1.0.0.x           | ❌           | ✅          | ✅          | ✅          | ❌          |
+|1.1.0.x            | ❌           | ✅          | ✅          | ✅          | ✅          |
 
 ## Optional profile configurations
 

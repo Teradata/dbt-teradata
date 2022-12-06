@@ -10,9 +10,9 @@ jobs:
   test:
     strategy:
       matrix:
-        python: ['3.7', '3.8', '3.9']
+        python: ['3.7', '3.8', '3.9','3.10']
     runs-on: macos-10.15
-    name: Integration test
+    name: Functional test
     steps:
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -81,7 +81,7 @@ jobs:
         shell: bash
         run: ./.github/workflows/scripts/verifyVantageIsRunning.sh
       - name: Run pytest tests
-        run: pytest test/integration
+        run: pytest tests/functional
       - name: Run pytest tests with existing database
         run: |
           cat << EOF > /tmp/pytestdatabase.bteq
@@ -92,9 +92,9 @@ jobs:
           .logoff
           EOF
           # strip the random suffix from the pytest config
-          sed -i'.original' -e "s/_{{ var('_dbt_random_suffix') }}//" test/integration/*
+          sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
 
-          pytest test/integration
+          pytest tests/functional
       - name: Run performance tests for fastload
         run: |
           mkdir ~/.dbt
@@ -157,7 +157,7 @@ jobs:
 
           $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
 
-          pytest test/nopi
+          pytest tests/functional/adapter/test_nopi.py
       - uses: actions/upload-artifact@v2
         if: ${{ failure() ||  cancelled() }}
         with:
