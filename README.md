@@ -39,6 +39,11 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 | 1.0.0.x           | ❌           | ✅          | ✅          | ✅          | ❌          |
 |1.1.0.x            | ❌           | ✅          | ✅          | ✅          | ✅          |
 
+## Version compatibility 
+| dbt-teradta |  dbt-core  | dbt-teradata-util |  dbt-util      |
+|-------------|------------|-------------------|----------------|
+| 1.2.x       | 1.2.x      | 0.1.0             | 0.9.x or below |
+
 ## Optional profile configurations
 
 ### Logmech
