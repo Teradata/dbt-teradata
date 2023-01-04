@@ -135,6 +135,25 @@ my-teradata-db-profile:
       port: <port>
 ```
 
+### Retries
+
+Allows an adapter to automatically try again when the attempt to open a new connection on the database has a transient, infrequent error. This option can be set using the `retries` configuration.
+Default value is 0.
+
+```yaml
+my-teradata-db-profile:
+  target: dev
+  outputs:
+    dev:
+      type: teradata
+      host: <host>
+      user: <user>
+      password: <password>
+      schema: dbt_test
+      tmode: ANSI
+      retries: 3
+```
+
 ### Other Teradata connection parameters
 
 The plugin also supports the following Teradata connection parameters:
