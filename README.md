@@ -140,6 +140,27 @@ my-teradata-db-profile:
       port: <port>
 ```
 
+### Retries
+
+Allows an adapter to automatically try again when the attempt to open a new connection on the database has a transient, infrequent error. This option can be set using the `retries` configuration. Default value is 0. The default wait period between connection attempts is one second. `retry_timeout` (seconds) option allows us to adjust this waiting period.
+
+If `retries` is set to 3, the adapter will try to establish a new connection three times if an error occurs.
+
+```yaml
+my-teradata-db-profile:
+  target: dev
+  outputs:
+    dev:
+      type: teradata
+      host: <host>
+      user: <user>
+      password: <password>
+      schema: dbt_test
+      tmode: ANSI
+      retries: 3
+      retry_timeout: 10
+```
+
 ### Other Teradata connection parameters
 
 The plugin also supports the following Teradata connection parameters:
