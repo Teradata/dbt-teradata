@@ -39,6 +39,7 @@ class TeradataCredentials(Credentials):
     sip_support: Optional[str] = None
     teradata_values: Optional[str] = None
     retries: int = 0
+    retry_timeout: int = 1
 
     _ALIASES = {
         "UID": "username",
@@ -185,13 +186,14 @@ class TeradataConnectionManager(SQLConnectionManager):
                 connection.state = 'open'
                 return connection.handle
 
-            retryable_exceptions = [teradatasql.OperationalError,]
+            retryable_exceptions = [teradatasql.OperationalError]
 
             return cls.retry_connection(
                 connection,
                 connect=connect,
                 logger=logger,
                 retry_limit=credentials.retries,
+                retry_timeout=credentials.retry_timeout,
                 retryable_exceptions=retryable_exceptions,
             )
 
