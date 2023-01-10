@@ -1,5 +1,8 @@
-{% macro incremental_upsert(tmp_relation, target_relation, unique_key=none, statement_name="main") %}
-    {%- set dest_columns = adapter.get_columns_in_relation(target_relation) -%}
+{% macro incremental_upsert(on_schema_change, tmp_relation, target_relation, existing_relation, unique_key=none, statement_name="main") %}
+    {% set dest_columns = process_schema_changes(on_schema_change, tmp_relation, existing_relation) %}
+    {% if not dest_columns %}
+        {%- set dest_columns = adapterd.get_columns_in_relation(target_relation) -%}
+    {% endif %}
     {%- set dest_cols_csv = dest_columns | map(attribute='quoted') | join(', ') -%}
 
     {%- if unique_key is not none -%}
