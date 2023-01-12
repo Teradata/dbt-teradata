@@ -16,3 +16,4 @@ test/integration/.user.yml
 .history/
 .editorconfig
 .python-version
+logs/*
