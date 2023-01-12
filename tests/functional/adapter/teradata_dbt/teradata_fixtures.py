@@ -127,6 +127,19 @@ table_from_source_for_catalog_test_sql="""
     SELECT * FROM {{ source('alias_source_schema', 'alias_source_table') }}
 """
 
+table_from_source_for_catalog_with_schema_change_sql="""
+        {{
+            config(
+                materialized="incremental", on_schema_change='append_new_columns'
+            )
+        }}
+    SELECT * FROM {{ source('alias_source_schema', 'alias_source_table') }}
+"""
+
+alter_table_add_new_column = """
+    ALTER TABLE {schema}.test_table ADD testColumn INTEGER
+"""
+
 view_from_source_for_catalog_test_sql="""
         {{
             config(
