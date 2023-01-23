@@ -37,5 +37,5 @@ def dbt_profile_target():
 
 @pytest.fixture(scope="class")
 def unique_schema(request, prefix) -> str:
-    unique_schema = f"dbt_test_{prefix}"
+    unique_schema = f"dbt_{prefix}"   
     return unique_schema
