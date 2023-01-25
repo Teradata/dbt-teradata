@@ -1,5 +1,7 @@
 import pytest
 import os
+import random
+from datetime import datetime
 #from dotenv import load_dotenv, find_dotenv
 #from pathlib import Path
 
@@ -37,5 +39,14 @@ def dbt_profile_target():
 
 @pytest.fixture(scope="class")
 def unique_schema(request, prefix) -> str:
-    unique_schema = f"dbt_{prefix}"   
+    unique_schema = f"dbt_test_{prefix}"   
     return unique_schema
+
+@pytest.fixture(scope="class")
+def prefix():
+    # create a directory name that will be unique per test session
+    _randint = random.randint(0, 9999)
+    _runtime_timedelta = datetime.utcnow() - datetime(1970, 1, 1, 0, 0, 0)
+    _runtime = (int(_runtime_timedelta.total_seconds() * 1e6)) + _runtime_timedelta.microseconds
+    prefix = f"{_runtime}{_randint:04}"
+    return prefix

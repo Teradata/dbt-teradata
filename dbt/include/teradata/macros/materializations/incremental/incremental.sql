@@ -43,7 +43,7 @@
 
 {{ run_hooks(post_hooks, inside_transaction=True) }}
 
--- implemented this one for the grants feature
+-- implemented this for the grants feature
 {%- set grant_config = config.get('grants') -%}
 {% set should_revoke = should_revoke(existing_relation, full_refresh_mode) %}
 {% do apply_grants(target_relation, grant_config, should_revoke) %}

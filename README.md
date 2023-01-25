@@ -38,6 +38,8 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 | 0.21.1.x           | ✅          | ✅          | ✅          | ✅          | ❌          |
 | 1.0.0.x           | ❌           | ✅          | ✅          | ✅          | ❌          |
 |1.1.0.x            | ❌           | ✅          | ✅          | ✅          | ✅          |
+|1.2.0.x            | ❌           | ✅          | ✅          | ✅          | ✅          |
+
 
 ##  dbt dependent packages version compatibility
 | dbt-teradta |  dbt-core  | dbt-teradata-util |  dbt-util      |
