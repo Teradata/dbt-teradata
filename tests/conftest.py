@@ -18,6 +18,11 @@ def dbt_profile_target():
     hostname='localhost'
     username='dbc'
     password='dbc'
+
+    os.environ['DBT_TEST_USER_1'] = "test_user1"
+    os.environ['DBT_TEST_USER_2'] = "test_user2"
+    os.environ['DBT_TEST_USER_3'] = "test_user3"
+
     if os.getenv('DBT_TERADATA_SERVER_NAME'):
         hostname=os.getenv('DBT_TERADATA_SERVER_NAME')
     
