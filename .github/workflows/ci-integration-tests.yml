@@ -81,7 +81,12 @@ jobs:
         shell: bash
         run: ./.github/workflows/scripts/verifyVantageIsRunning.sh
       - name: Run pytest tests
-        run: pytest tests/functional
+
+        run: |
+          export DBT_TEST_USER_1=test_user1
+          export DBT_TEST_USER_2=test_user2
+          export DBT_TEST_USER_3=test_user3
+          pytest tests/functional
       - name: Run pytest tests with existing database
         run: |
           cat << EOF > /tmp/pytestdatabase.bteq

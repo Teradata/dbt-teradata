@@ -33,7 +33,7 @@ def dbt_profile_target():
         with con.cursor () as cur:
             cur.execute ("create user test_user1 from dbc as permanent=10000000 BYTES,password=test_user1;")
             cur.execute ("create user test_user2 from dbc as permanent=10000000 BYTES,password=test_user2;")
-            cur.execute ("create user test_user2 from dbc as permanent=10000000 BYTES,password=test_user3;")
+            cur.execute ("create user test_user3 from dbc as permanent=10000000 BYTES,password=test_user3;")
     
     return {
         'type': 'teradata',
