@@ -1,6 +1,7 @@
 import pytest
 import os
 import random
+import teradatasql
 from datetime import datetime
 #from dotenv import load_dotenv, find_dotenv
 #from pathlib import Path
@@ -19,10 +20,6 @@ def dbt_profile_target():
     username='dbc'
     password='dbc'
 
-    os.environ['DBT_TEST_USER_1'] = "test_user1"
-    os.environ['DBT_TEST_USER_2'] = "test_user2"
-    os.environ['DBT_TEST_USER_3'] = "test_user3"
-
     if os.getenv('DBT_TERADATA_SERVER_NAME'):
         hostname=os.getenv('DBT_TERADATA_SERVER_NAME')
     
@@ -31,6 +28,12 @@ def dbt_profile_target():
     
     if os.getenv('DBT_TERADATA_PASSWORD'):
         password=os.getenv('DBT_TERADATA_PASSWORD')
+
+    with teradatasql.connect ('{"host":{hostname},"user":{username},"password":{username}}') as con:
+        with con.cursor () as cur:
+            cur.execute ("create user test_user1 from dbc as permanent=10000000 BYTES,password=test_user1;")
+            cur.execute ("create user test_user2 from dbc as permanent=10000000 BYTES,password=test_user2;")
+            cur.execute ("create user test_user2 from dbc as permanent=10000000 BYTES,password=test_user3;")
     
     return {
         'type': 'teradata',

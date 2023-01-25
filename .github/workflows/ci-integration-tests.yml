@@ -80,20 +80,6 @@ jobs:
       - name: Verify Vantage Express is running
         shell: bash
         run: ./.github/workflows/scripts/verifyVantageIsRunning.sh
-      - name: Create required databases
-        run: |
-          cat << EOF > /tmp/createdbs.bteq
-          .SET EXITONDELAY ON MAXREQTIME 20
-          .logon 127.0.0.1/dbc,dbc
-          CREATE DATABASE test_user1
-            AS PERMANENT = 60e6, SPOOL = 120e6;
-          CREATE DATABASE test_user2
-            AS PERMANENT = 60e6, SPOOL = 120e6;
-          CREATE DATABASE test_user3
-            AS PERMANENT = 60e6, SPOOL = 120e6;
-          .logoff
-          EOF
-          bteq < /tmp/createdbs.bteq
       - name: Run pytest tests
         run: pytest tests/functional
       - name: Run pytest tests with existing database
