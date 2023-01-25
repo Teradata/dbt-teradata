@@ -83,9 +83,9 @@ jobs:
       - name: Run pytest tests
 
         run: |
-          export DBT_TEST_USER_1=test_user1
-          export DBT_TEST_USER_2=test_user2
-          export DBT_TEST_USER_3=test_user3
+          export DBT_TEST_USER_1=test_grants_user1
+          export DBT_TEST_USER_2=test_grants_user2
+          export DBT_TEST_USER_3=test_grants_user3
           pytest tests/functional
       - name: Run pytest tests with existing database
         run: |
