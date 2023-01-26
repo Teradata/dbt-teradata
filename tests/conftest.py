@@ -36,7 +36,15 @@ def dbt_profile_target():
             for env_var in TEST_USER_ENV_VARS:
                 user_name = os.getenv(env_var)
                 if user_name:
-                    cur.execute ("create user {} from dbc as permanent=10000000 BYTES,password={};".format(user_name,user_name))
+                    try:
+                        print("Creating user by submitting below SQL:")
+                        print("create user {} from dbc as permanent=10000000 BYTES,password={};".format(user_name,user_name))
+                        cur.execute ("create user {} from dbc as permanent=10000000 BYTES,password={};".format(user_name,user_name))
+                    except Exception as ex:
+                        if "[Error 5612]" in str (ex):
+                            print ("Ignoring", str (ex).split ("\n") [0])
+                        else:
+                            raise # rethrow
     
     return {
         'type': 'teradata',
