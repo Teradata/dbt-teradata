@@ -28,13 +28,16 @@ def dbt_profile_target():
     
     if os.getenv('DBT_TERADATA_PASSWORD'):
         password=os.getenv('DBT_TERADATA_PASSWORD')
-    '''
-    with teradatasql.connect ('{"host":"localhost","user":"dbc","password":"dbc"}') as con:
+
+    
+    with teradatasql.connect (host=hostname,user=username,password=password) as con:
         with con.cursor () as cur:
-            cur.execute ("create user test_grants_user1 from dbc as permanent=10000000 BYTES,password=test_grants_user1;")
-            cur.execute ("create user test_grants_user2 from dbc as permanent=10000000 BYTES,password=test_grants_user2;")
-            cur.execute ("create user test_grants_user3 from dbc as permanent=10000000 BYTES,password=test_grants_user3;")
-    '''
+            TEST_USER_ENV_VARS = ["DBT_TEST_USER_1", "DBT_TEST_USER_2", "DBT_TEST_USER_3"]
+            for env_var in TEST_USER_ENV_VARS:
+                user_name = os.getenv(env_var)
+                if user_name:
+                    cur.execute ("create user {} from dbc as permanent=10000000 BYTES,password={};".format(user_name,user_name))
+    
     return {
         'type': 'teradata',
         'threads': 1,
