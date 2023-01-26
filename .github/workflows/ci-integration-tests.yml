@@ -81,7 +81,6 @@ jobs:
         shell: bash
         run: ./.github/workflows/scripts/verifyVantageIsRunning.sh
       - name: Run pytest tests
-
         run: |
           export DBT_TEST_USER_1=test_grants_user1
           export DBT_TEST_USER_2=test_grants_user2

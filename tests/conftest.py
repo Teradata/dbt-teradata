@@ -38,8 +38,8 @@ def dbt_profile_target():
                 if user_name:
                     try:
                         print("Creating user by submitting below SQL:")
-                        print("create user {} from dbc as permanent=10000000 BYTES,password={};".format(user_name,user_name))
-                        cur.execute ("create user {} from dbc as permanent=10000000 BYTES,password={};".format(user_name,user_name))
+                        print("create user {} from dbc as permanent=100000000 BYTES,password={};".format(user_name,user_name))
+                        cur.execute ("create user {} from dbc as permanent=100000000 BYTES,password={};".format(user_name,user_name))
                     except Exception as ex:
                         if "[Error 5612]" in str (ex):
                             print ("Ignoring", str (ex).split ("\n") [0])
