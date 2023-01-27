@@ -90,14 +90,15 @@
   {% endcall %}
 
   {% set target_relation = this.incorporate(type='table') %}
-  {% do persist_docs(target_relation, model) %}
-
-  {{ run_hooks(post_hooks, inside_transaction=True) }}
 
   -- Apply grants
   {% set grant_config = config.get('grants') %}
   {% set should_revoke = should_revoke(old_relation, full_refresh_mode) %}
   {% do apply_grants(target_relation, grant_config, should_revoke) %}
+
+  {% do persist_docs(target_relation, model) %}
+
+  {{ run_hooks(post_hooks, inside_transaction=True) }}
 
   -- `COMMIT` happens here (for tmode=ANSI)
   {{ adapter.commit() }}
