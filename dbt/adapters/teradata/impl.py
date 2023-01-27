@@ -299,3 +299,20 @@ class TeradataAdapter(SQLAdapter):
         )
 
         return sql
+
+    
+    @available
+    def standardize_grants_dict(self, grants_table: agate.Table) -> dict:
+        """overridden this method as there were extra spaces that needed
+         to be stripped
+        """
+        grants_dict: Dict[str, List[str]] = {}
+        for row in grants_table:
+            grantee = row["grantee"].strip()
+            privilege = row["privilege_type"].strip()
+            if privilege in grants_dict.keys():
+                grants_dict[privilege].append(grantee)
+            else:
+                grants_dict.update({privilege: [grantee]})
+        return grants_dict
+    

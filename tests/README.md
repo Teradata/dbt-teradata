@@ -23,4 +23,10 @@ Here are the steps to run the functional tests:
    If there are no environment variables provided then the default values will be picked which could be found in conftest.py file.
    
 2. Run the test with python pytest command, for e.g  
-   python -m pytest .\tests\functional\adapter\test_basic.py                                         
+   python -m pytest .\tests\functional\adapter\test_basic.py   
+
+3. For running Grants test i.e test_grants, set the environment variables for three test users  
+   DBT_TEST_USER_1=""
+   DBT_TEST_USER_2=""
+   DBT_TEST_USER_3=""
+                                    
