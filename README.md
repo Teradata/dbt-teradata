@@ -38,6 +38,13 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 | 0.21.1.x           | ✅          | ✅          | ✅          | ✅          | ❌          |
 | 1.0.0.x           | ❌           | ✅          | ✅          | ✅          | ❌          |
 |1.1.0.x            | ❌           | ✅          | ✅          | ✅          | ✅          |
+|1.2.0.x            | ❌           | ✅          | ✅          | ✅          | ✅          |
+
+
+##  dbt dependent packages version compatibility
+| dbt-teradta |  dbt-core  | dbt-teradata-util |  dbt-util      |
+|-------------|------------|-------------------|----------------|
+| 1.2.x       | 1.2.x      | 0.1.0             | 0.9.x or below |
 
 ## Optional profile configurations
 
@@ -133,6 +140,27 @@ my-teradata-db-profile:
       schema: dbt_test
       tmode: ANSI
       port: <port>
+```
+
+### Retries
+
+Allows an adapter to automatically try again when the attempt to open a new connection on the database has a transient, infrequent error. This option can be set using the `retries` configuration. Default value is 0. The default wait period between connection attempts is one second. `retry_timeout` (seconds) option allows us to adjust this waiting period.
+
+If `retries` is set to 3, the adapter will try to establish a new connection three times if an error occurs.
+
+```yaml
+my-teradata-db-profile:
+  target: dev
+  outputs:
+    dev:
+      type: teradata
+      host: <host>
+      user: <user>
+      password: <password>
+      schema: dbt_test
+      tmode: ANSI
+      retries: 3
+      retry_timeout: 10
 ```
 
 ### Other Teradata connection parameters

@@ -38,6 +38,8 @@ class TeradataCredentials(Credentials):
     partition: Optional[str] = None
     sip_support: Optional[str] = None
     teradata_values: Optional[str] = None
+    retries: int = 0
+    retry_timeout: int = 1
 
     _ALIASES = {
         "UID": "username",
@@ -174,6 +176,26 @@ class TeradataConnectionManager(SQLConnectionManager):
 
         # Save the transaction mode
         cls.TMODE = credentials.tmode
+
+        logger.debug("host: {}",credentials.server);
+        logger.debug("retries: {}",credentials.retries);
+
+        if credentials.retries > 0:
+            def connect():
+                connection.handle = teradatasql.connect(**kwargs)
+                connection.state = 'open'
+                return connection.handle
+
+            retryable_exceptions = [teradatasql.OperationalError]
+
+            return cls.retry_connection(
+                connection,
+                connect=connect,
+                logger=logger,
+                retry_limit=credentials.retries,
+                retry_timeout=credentials.retry_timeout,
+                retryable_exceptions=retryable_exceptions,
+            )
 
         try:
             connection.handle = teradatasql.connect(**kwargs)
