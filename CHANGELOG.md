@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.2.0.0
 
 ### Features
 * Upgrade to dbt v1.2.0 [#55](https://github.com/Teradata/dbt-teradata/pull/55)
