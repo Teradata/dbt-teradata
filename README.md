@@ -448,6 +448,38 @@ Seeds, in addition to the above materialization modifiers, have the following op
       <project-name>:
         +use_fastload: true
     ```
+
+#### Grants
+
+Grants are supported in dbt-teradata adapter with release version 1.2.0 and above
+You can manage access to the datasets you're producing with dbt by using grants. To implement these permissions, define grants as resource configs on each model, seed, or snapshot. Define the default grants that apply to the entire project in your ```dbt_project.yml```, and define model-specific grants within each model's SQL or YAML file.
+
+for e.g. :
+  models/schema.yml
+  ```yaml
+  models:
+    - name: model_name
+      config:
+        grants:
+          select: ['user_a', 'user_b']
+  ```
+
+Another e.g. for adding multiple grants:
+
+  ```yaml
+  models:
+  - name: model_name
+    config:
+      materialized: table
+      grants:
+        select: ["user_b"]
+        insert: ["user_c"]
+  ```
+
+copy_grants is not supported in Teradata.
+More on Grants can be found over https://docs.getdbt.com/reference/resource-configs/grants
+
+
 ## Common Teradata-specific tasks
 * *collect statistics* - when a table is created or modified significantly, there might be a need to tell Teradata to collect statistics for the optimizer. It can be done using `COLLECT STATISTICS` command. You can perform this step using dbt's `post-hooks`, e.g.:
   ```yaml
