@@ -479,6 +479,29 @@ Another e.g. for adding multiple grants:
 copy_grants is not supported in Teradata.
 More on Grants can be found over https://docs.getdbt.com/reference/resource-configs/grants
 
+### Cross DB macros 
+DateDiff : DateDiff macro in teradata supports difference between dates, differece between timestamps is not supported.
+
+#### Additional steps for `Hash` macro
+
+`Hash` macro needs an `md5` function implementation. Teradata doesn't support `md5` natively. You need to install a User Defined Function (UDF):
+1. Download the md5 UDF implementation from Teradata (registration required): https://downloads.teradata.com/download/extensibility/md5-message-digest-udf.
+1. Unzip the package and go to `src` directory.
+1. Start up `bteq` and connect to your database.
+1. Create database `GLOBAL_FUNCTIONS` that will host the UDF. You can't change the database name as it's hardcoded in the macro:
+    ```sql
+    CREATE DATABASE GLOBAL_FUNCTIONS AS PERMANENT = 60e6, SPOOL = 120e6;
+    ```
+1. Create the UDF. Replace `<CURRENT_USER>` with your current database user:
+    ```sql
+    GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO <CURRENT_USER>;
+    DATABASE GLOBAL_FUNCTIONS;
+    .run file = hash_md5.btq
+    ```
+1. Grant permissions to run the UDF to your dbt user. Replace `<DBT_USER>` with the user id you use in dbt:
+    ```sql
+    GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO <DBT_USER>;
+    ```
 
 ## Common Teradata-specific tasks
 * *collect statistics* - when a table is created or modified significantly, there might be a need to tell Teradata to collect statistics for the optimizer. It can be done using `COLLECT STATISTICS` command. You can perform this step using dbt's `post-hooks`, e.g.:
