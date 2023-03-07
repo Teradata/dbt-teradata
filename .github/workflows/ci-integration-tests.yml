@@ -65,6 +65,7 @@ jobs:
           installer -pkg ./TeradataToolsAndUtilitiesBase/*.pkg -target CurrentUserHomeDirectory
         env:
           TTU_URL_SIGNATURE: ${{ secrets.TTU_URL_SIGNATURE }}
+          TD_DOWNLOADS_MAGIC_COOKIE: ${{ secrets.TD_DOWNLOADS_MAGIC_COOKIE }}
 
       - name: Install dependencies
         run: |
