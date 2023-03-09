@@ -65,7 +65,6 @@ jobs:
           installer -pkg ./TeradataToolsAndUtilitiesBase/*.pkg -target CurrentUserHomeDirectory
         env:
           TTU_URL_SIGNATURE: ${{ secrets.TTU_URL_SIGNATURE }}
-          TD_DOWNLOADS_MAGIC_COOKIE: ${{ secrets.TD_DOWNLOADS_MAGIC_COOKIE }}
 
       - name: Install dependencies
         run: |
@@ -85,7 +84,7 @@ jobs:
       - name: Prepare database
         shell: bash
         run: |
-          curl -L 'https://d289lrf5tw1zls.cloudfront.net/extensibility/udf/md5-msg-digest/md5_20080530.zip' \
+          curl -L 'https://downloads.teradata.com/download/cdn/extensibility/udf/md5-msg-digest/md5_20080530.zip' \
             -H 'Cookie: $TD_DOWNLOADS_MAGIC_COOKIE' --compressed -o md5.zip
           unzip md5.zip
           cd ./md5/src
