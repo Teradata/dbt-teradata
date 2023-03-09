@@ -99,7 +99,7 @@ class TestDateDiff(BaseUtils):
         }
     pass
 
-'''
+
 class TestHash(BaseUtils):
     @pytest.fixture(scope="class")
     def seeds(self):
@@ -113,7 +113,7 @@ class TestHash(BaseUtils):
         }
     
     pass
-'''
+
 class TestReplace(BaseUtils):
     @pytest.fixture(scope="class")
     def seeds(self):
