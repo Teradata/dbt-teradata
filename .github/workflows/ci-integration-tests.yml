@@ -84,11 +84,7 @@ jobs:
       - name: Prepare database
         shell: bash
         run: |
-          curl -L 'https://downloads.teradata.com/download/cdn/extensibility/udf/md5-msg-digest/md5_20080530.zip' \
-            -H 'Cookie: $TD_DOWNLOADS_MAGIC_COOKIE' --compressed -o md5.zip
-          unzip md5.zip
-          cd ./md5/src
-          export PATH=$PATH:"/Users/runner/Library/Application Support/teradata/client/17.10/bin/"
+          cd md5_20080530/md5/src
 
           # prepare bteq script
           cat << EOF > /tmp/install_md5.bteq
