@@ -84,6 +84,9 @@ jobs:
       - name: Prepare database
         shell: bash
         run: |
+          cd /opt/teradata
+          find .
+          
           cd md5_20080530/md5/src
 
           # prepare bteq script
