@@ -84,7 +84,10 @@ jobs:
       - name: Prepare database
         shell: bash
         run: |
-          cd "/Library/Application Support/teradata"
+          cd "/Library/Application Support"
+          find .
+          
+          cd /Users/runner
           find .
 
           cd md5_20080530/md5/src
