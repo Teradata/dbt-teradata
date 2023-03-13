@@ -84,9 +84,9 @@ jobs:
       - name: Prepare database
         shell: bash
         run: |
-          cd /opt/teradata
+          cd "/Library/Application Support/teradata"
           find .
-          
+
           cd md5_20080530/md5/src
 
           # prepare bteq script
@@ -97,7 +97,7 @@ jobs:
           GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO dbc;
           DATABASE GLOBAL_FUNCTIONS;
           .run file = hash_md5.btq
-          GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO dbc;
+          GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
           .logoff
           EOF
 
