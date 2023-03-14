@@ -498,7 +498,7 @@ DateDiff : DateDiff macro in teradata supports difference between dates, differe
     DATABASE GLOBAL_FUNCTIONS;
     .run file = hash_md5.btq
     ```
-1. Grant permissions to run the UDF to your dbt user. Replace `<DBT_USER>` with the user id you use in dbt:
+1. Grant permissions to run the UDF with grant option.
     ```sql
     GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
     ```
