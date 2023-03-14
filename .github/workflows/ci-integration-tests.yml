@@ -83,10 +83,7 @@ jobs:
 
       - name: Prepare database
         shell: bash
-        run: |
-          cd "/Library/Application Support"
-          find .
-          
+        run: |          
           cd /Users/runner
           find .
 
