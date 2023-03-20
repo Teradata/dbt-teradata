@@ -80,6 +80,28 @@ jobs:
       - name: Verify Vantage Express is running
         shell: bash
         run: ./.github/workflows/scripts/verifyVantageIsRunning.sh
+
+      - name: Prepare database
+        shell: bash
+        run: |          
+          export PATH=$PATH:"/Users/runner/Library/Application Support/teradata/client/17.20/bin"
+
+          cd md5_20080530/md5/src
+
+          # prepare bteq script
+          cat << EOF > /tmp/install_md5.bteq
+          .SET EXITONDELAY ON MAXREQTIME 20
+          .logon 127.0.0.1/dbc,dbc
+          CREATE DATABASE GLOBAL_FUNCTIONS AS PERMANENT = 60e6, SPOOL = 120e6;
+          GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO dbc;
+          DATABASE GLOBAL_FUNCTIONS;
+          .run file = hash_md5.btq
+          GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
+          .logoff
+          EOF
+
+          bteq < /tmp/install_md5.bteq
+          
       - name: Run pytest tests
         run: |
           export DBT_TEST_USER_1=test_grants_user1

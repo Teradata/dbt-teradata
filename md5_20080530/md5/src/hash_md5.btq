@@ -1,0 +1,9 @@
+/* script to install the UDF */
+
+replace function hash_md5
+  (arg varchar(32000) character set latin)
+  returns char(32) character set latin
+  language c
+  no sql
+  external name 'ci:md5:md5.h:cs:md5:md5.c:cs:md5_latin:udf_md5_latin.c:F:md5_latin'
+  parameter style td_general;
