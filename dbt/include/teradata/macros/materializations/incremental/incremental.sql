@@ -10,6 +10,9 @@
 
 {% set on_schema_change = incremental_validate_on_schema_change(config.get('on_schema_change'), default='ignore') %}
 
+-- {#-- Validate early so we don't run SQL if the strategy is invalid --#}
+{% set strategy = teradata__validate_get_incremental_strategy(config) %}
+
 {{ run_hooks(pre_hooks, inside_transaction=False) }}
 
 -- `BEGIN` happens here:
@@ -33,7 +36,17 @@
    {% do adapter.expand_target_column_types(
           from_relation=tmp_relation,
           to_relation=target_relation) %}
-   {% set build_sql = incremental_upsert(on_schema_change, tmp_relation, target_relation, existing_relation, unique_key=unique_key) %}
+   
+
+   {% set dest_columns = process_schema_changes(on_schema_change, tmp_relation, existing_relation) %}
+    {% if not dest_columns %}
+        {%- set dest_columns = adapter.get_columns_in_relation(target_relation) -%}
+    {% endif %}
+	
+	
+   {% set build_sql = teradata__get_incremental_sql(strategy, target_relation, tmp_relation, unique_key, dest_columns) %}
+
+
    {% do to_drop.append(tmp_relation) %}
 {% endif %}
 
