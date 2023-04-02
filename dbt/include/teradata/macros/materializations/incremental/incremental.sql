@@ -8,10 +8,10 @@
 {% set existing_relation = load_relation(this) %}
 {% set tmp_relation = make_temp_relation(this) %}
 
-{% set on_schema_change = incremental_validate_on_schema_change(config.get('on_schema_change'), default='ignore') %}
-
 -- {#-- Validate early so we don't run SQL if the strategy is invalid --#}
 {% set strategy = teradata__validate_get_incremental_strategy(config) %}
+
+{% set on_schema_change = incremental_validate_on_schema_change(config.get('on_schema_change'), default='ignore') %}
 
 {{ run_hooks(pre_hooks, inside_transaction=False) }}
 
