@@ -10,7 +10,7 @@ jobs:
 
   build:
 
-    runs-on: linux/amd64
+    runs-on: macos-10.15
 
     steps:
     - uses: actions/checkout@v3
