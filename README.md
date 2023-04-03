@@ -193,6 +193,10 @@ For full description of the connection parameters see https://github.com/Teradat
 * `ephemeral`
 * `incremental`
 
+#### Incremental Materialization
+Incremental materialization is supported in dbt-teradata adapter with `append` strategy as the default strategy.
+Along with `append`, `delete+insert` is also supported.
+
 ### Commands
 
 All dbt commands are supported.
@@ -482,6 +486,8 @@ More on Grants can be found over https://docs.getdbt.com/reference/resource-conf
 ### Cross DB macros 
 DateDiff : DateDiff macro in teradata supports difference between dates, differece between timestamps is not supported.
 
+For using cross DB macros, teradata-utils as a macro namespace will not be used, as cross DB macros have been migrated from teradata-utils to Dbt-Teradata.
+
 #### Additional steps for `Hash` macro
 
 `Hash` macro needs an `md5` function implementation. Teradata doesn't support `md5` natively. You need to install a User Defined Function (UDF):
@@ -502,6 +508,36 @@ DateDiff : DateDiff macro in teradata supports difference between dates, differe
     ```sql
     GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
     ```
+
+#### Compatibility
+
+|     Macro Group       |           Macro Name          |         Status        |                                 Comment                                |
+|:---------------------:|:-----------------------------:|:---------------------:|:----------------------------------------------------------------------:|
+| Cross-database macros | current_timestamp             | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | dateadd                       | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | datediff                      | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | split_part                    | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | date_trunc                    | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | hash                          | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | replace                       | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | type_string                   | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | last_day                      | :white_check_mark:    | no customization needed, see [compatibility note](#last_day)           |
+| Cross-database macros | width_bucket                  | :white_check_mark:    | no customization
+
+
+### <a name="last_day"></a>last_day
+
+`last_day` in `teradata_utils`, unlike the corresponding macro in `dbt_utils`, doesn't support `quarter` datepart.
+
+#### examples for cross DB macros
+Replace:
+{{ dbt.replace("string_text_column", "old_chars", "new_chars") }}
+{{ replace('abcgef', 'g', 'd') }}
+
+Date truncate:
+{{ dbt.date_trunc("date_part", "date") }}
+{{ dbt.date_trunc("DD", "'2018-01-05 12:00:00'") }}
+
 
 ## Common Teradata-specific tasks
 * *collect statistics* - when a table is created or modified significantly, there might be a need to tell Teradata to collect statistics for the optimizer. It can be done using `COLLECT STATISTICS` command. You can perform this step using dbt's `post-hooks`, e.g.:
