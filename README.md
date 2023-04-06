@@ -8,7 +8,7 @@ This plugin ports [dbt](https://getdbt.com) functionality to Teradata Vantage.
 pip install dbt-teradata
 ```
 
-If you are new to dbt on Teradata see [dbt with Teradata Vantage tutorial](https://quickstarts.teradata.com/docs/17.10/dbt.html).
+If you are new to dbt on Teradata see [dbt with Teradata Vantage tutorial](https://quickstarts.teradata.com/dbt.html).
 
 ## Sample profile
 
