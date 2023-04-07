@@ -195,8 +195,11 @@ For full description of the connection parameters see https://github.com/Teradat
 * `incremental`
 
 #### Incremental Materialization
-Incremental materialization is supported in dbt-teradata adapter with `append` strategy as the default strategy.
-Along with `append`, `delete+insert` is also supported.
+The following incremental materialization strategies are supported:
+* `append` (default)
+* `delete+insert`
+
+To learn more about dbt incremental strategies please check [the dbt incremental strategy documentation](https://docs.getdbt.com/docs/build/incremental-models#about-incremental_strategy).
 
 ### Commands
 
@@ -456,8 +459,7 @@ Seeds, in addition to the above materialization modifiers, have the following op
 
 #### Grants
 
-Grants are supported in dbt-teradata adapter with release version 1.2.0 and above
-You can manage access to the datasets you're producing with dbt by using grants. To implement these permissions, define grants as resource configs on each model, seed, or snapshot. Define the default grants that apply to the entire project in your ```dbt_project.yml```, and define model-specific grants within each model's SQL or YAML file.
+Grants are supported in dbt-teradata adapter with release version 1.2.0 and above. You can use grants to manage access to the datasets you're producing with dbt. To implement these permissions, define grants as resource configs on each model, seed, or snapshot. Define the default grants that apply to the entire project in your `dbt_project.yml`, and define model-specific grants within each model's SQL or YAML file.
 
 for e.g. :
   models/schema.yml
@@ -480,16 +482,45 @@ Another e.g. for adding multiple grants:
         select: ["user_b"]
         insert: ["user_c"]
   ```
+> :information_source: `copy_grants` is not supported in Teradata.
 
-copy_grants is not supported in Teradata.
-More on Grants can be found over https://docs.getdbt.com/reference/resource-configs/grants
+More on Grants can be found at https://docs.getdbt.com/reference/resource-configs/grants
 
-### Cross DB macros 
-DateDiff : DateDiff macro in teradata supports difference between dates, differece between timestamps is not supported.
+### Cross DB macros
+Starting with release 1.3, some macros were migrated from [teradata-dbt-utils](https://github.com/Teradata/dbt-teradata-utils) dbt package to the connector. See the table below for the macros supported from the connector.
 
 For using cross DB macros, teradata-utils as a macro namespace will not be used, as cross DB macros have been migrated from teradata-utils to Dbt-Teradata.
 
-#### Additional steps for `Hash` macro
+
+#### Compatibility
+
+|     Macro Group       |           Macro Name          |         Status        |                                 Comment                                |
+|:---------------------:|:-----------------------------:|:---------------------:|:----------------------------------------------------------------------:|
+| Cross-database macros | current_timestamp             | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | dateadd                       | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | datediff                      | :white_check_mark:    | custom macro provided, see [compatibility note](#datediff)             |
+| Cross-database macros | split_part                    | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | date_trunc                    | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | hash                          | :white_check_mark:    | custom macro provided, see [compatibility note](#hash)                 |
+| Cross-database macros | replace                       | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | type_string                   | :white_check_mark:    | custom macro provided                                                  |
+| Cross-database macros | last_day                      | :white_check_mark:    | no customization needed, see [compatibility note](#last_day)           |
+| Cross-database macros | width_bucket                  | :white_check_mark:    | no customization
+
+
+#### examples for cross DB macros
+Replace:
+{{ dbt.replace("string_text_column", "old_chars", "new_chars") }}
+{{ replace('abcgef', 'g', 'd') }}
+
+Date truncate:
+{{ dbt.date_trunc("date_part", "date") }}
+{{ dbt.date_trunc("DD", "'2018-01-05 12:00:00'") }}
+
+#### <a name="datediff"></a>datediff
+`datediff` macro in teradata supports difference between dates. Differece between timestamps is not supported.
+
+#### <a name="hash"></a>hash
 
 `Hash` macro needs an `md5` function implementation. Teradata doesn't support `md5` natively. You need to install a User Defined Function (UDF):
 1. Download the md5 UDF implementation from Teradata (registration required): https://downloads.teradata.com/download/extensibility/md5-message-digest-udf.
@@ -509,36 +540,9 @@ For using cross DB macros, teradata-utils as a macro namespace will not be used,
     ```sql
     GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
     ```
-
-#### Compatibility
-
-|     Macro Group       |           Macro Name          |         Status        |                                 Comment                                |
-|:---------------------:|:-----------------------------:|:---------------------:|:----------------------------------------------------------------------:|
-| Cross-database macros | current_timestamp             | :white_check_mark:    | custom macro provided                                                  |
-| Cross-database macros | dateadd                       | :white_check_mark:    | custom macro provided                                                  |
-| Cross-database macros | datediff                      | :white_check_mark:    | custom macro provided                                                  |
-| Cross-database macros | split_part                    | :white_check_mark:    | custom macro provided                                                  |
-| Cross-database macros | date_trunc                    | :white_check_mark:    | custom macro provided                                                  |
-| Cross-database macros | hash                          | :white_check_mark:    | custom macro provided                                                  |
-| Cross-database macros | replace                       | :white_check_mark:    | custom macro provided                                                  |
-| Cross-database macros | type_string                   | :white_check_mark:    | custom macro provided                                                  |
-| Cross-database macros | last_day                      | :white_check_mark:    | no customization needed, see [compatibility note](#last_day)           |
-| Cross-database macros | width_bucket                  | :white_check_mark:    | no customization
-
-
-### <a name="last_day"></a>last_day
+#### <a name="last_day"></a>last_day
 
 `last_day` in `teradata_utils`, unlike the corresponding macro in `dbt_utils`, doesn't support `quarter` datepart.
-
-#### examples for cross DB macros
-Replace:
-{{ dbt.replace("string_text_column", "old_chars", "new_chars") }}
-{{ replace('abcgef', 'g', 'd') }}
-
-Date truncate:
-{{ dbt.date_trunc("date_part", "date") }}
-{{ dbt.date_trunc("DD", "'2018-01-05 12:00:00'") }}
-
 
 ## Common Teradata-specific tasks
 * *collect statistics* - when a table is created or modified significantly, there might be a need to tell Teradata to collect statistics for the optimizer. It can be done using `COLLECT STATISTICS` command. You can perform this step using dbt's `post-hooks`, e.g.:
@@ -553,6 +557,7 @@ Date truncate:
 
 ## Support for `dbt-utils` package
 `dbt-utils` package is supported through `teradata/teradata_utils` dbt package. The package provides a compatibility layer between `dbt_utils` and `dbt-teradata`. See [teradata_utils](https://hub.getdbt.com/teradata/teradata_utils/latest/) package for install instructions.
+
 ## Limitations
 
 ### Transaction mode
