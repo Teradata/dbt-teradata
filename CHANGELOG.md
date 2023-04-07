@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.3.0.0
 
 ### Features
 * Dbt-teradata adapter is now compatible with dbt 1.3.0
