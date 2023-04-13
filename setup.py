@@ -12,7 +12,7 @@ if sys.version_info < (3, 7) or sys.version_info >= (3, 11):
 
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(this_directory, 'README.md')) as f:
+with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
@@ -45,7 +45,7 @@ setup(
         ],
     },
     install_requires=[
-        "dbt-core==1.3.0",
+        "dbt-core==1.3.3",
         "teradatasql>=16.20.0.0",
     ],
     classifiers=[
