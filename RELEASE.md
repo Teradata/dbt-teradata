@@ -3,7 +3,7 @@
 #### Bump version
 
 1. Open a branch for the release
-    - `git checkout -b releases/1.2.0rc1`
+    - `git checkout -b releases/1.2.5rc1`
 1. Update [`CHANGELOG.md`](CHANGELOG.md) with the most recent changes
 1. Bump the version using [`bump2version`](https://github.com/c4urself/bump2version/#bump2version):
     1. Dry run first by running:
