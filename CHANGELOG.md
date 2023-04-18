@@ -1,12 +1,9 @@
-## dbt-teradata 1.1.0.0
+## dbt-teradata 1.0.0a
 
 ### Features
-* dbt-teradata adapter is now compatible with dbt 1.1.0
-* Added support for python 3.10
 
 ### Fixes
-
+Added dbt-core 1.1.4 dependency to dbt-teradata 1.1.4 to remove the pytz dependency that was there in dbt-core 1.3.0 which dbt back ported to dbt 1.1.4 (https://github.com/dbt-labs/dbt-core/issues/7075)
 ### Docs
 
 ### Under the hood
-* Tests have been converted to the new test framework
