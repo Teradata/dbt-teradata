@@ -2,13 +2,16 @@ name: Docker Image CI
 
 on:
   workflow_dispatch:
+  inputs:
+      releaseVersion:
+        description: 'Provide Branch name'
+        required: true
   push:
     branches:
-         - 'IDE-23906'
+    - '${{ github.event.inputs.releaseVersion }}'
 
 env:
-  PYTHON_VERSION: 3.10
-  DBT_TERADATA_VERSION: 1.3.3.0
+  DBT_TERADATA_VERSION: ${{ github.event.inputs.releaseVersion }}
 
 jobs:
   docker:
@@ -23,6 +26,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
+          context: .
+          file: docker/Dockerfile
           push: true
           build-args: |
           tags: teradata/dbt-teradata:latest, teradata/dbt-teradata:${{ env.DBT_TERADATA_VERSION }}
