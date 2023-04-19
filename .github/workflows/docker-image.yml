@@ -1,14 +1,10 @@
 name: Docker Image CI
-
 on:
   workflow_dispatch:
-    inputs:
-      releaseVersion:
-        description: 'Provide Branch name'
-        required: true
+  pull_request:
   push:
     branches:
-    - '${{ github.event.inputs.releaseVersion }}'
+      - 'main'
 
 env:
   DBT_TERADATA_VERSION: ${{ github.event.inputs.releaseVersion }}
