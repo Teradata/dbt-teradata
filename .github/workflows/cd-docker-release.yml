@@ -1,4 +1,4 @@
-name: Docker Image CD
+name: CD Docker Release
 on:
   workflow_dispatch:
     inputs:
