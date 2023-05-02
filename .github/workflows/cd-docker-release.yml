@@ -30,9 +30,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        shell: bash
-        run: |
-          find .
         uses: docker/build-push-action@v2
         with:
           file: docker/Dockerfile
