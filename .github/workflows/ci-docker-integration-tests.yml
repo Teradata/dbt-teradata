@@ -35,6 +35,22 @@ jobs:
       - name: Running jaffle_shop dbt project from DBT Docker image
         shell: bash
         run: |
-          pwd
-          find .
-          docker run --mount type=bind,source=$PWD/jaffle_shop,target=/usr/app --mount type=bind,source=$PWD/jaffle_shop/profiles.yml,target=/root/.dbt/profiles.yml docker_dbt:latest ls
+          mkdir ~/.dbt
+          cat << EOF > ~/.dbt/profiles.yml
+          jaffle_shop:
+            outputs:
+              dev:
+                type: teradata
+                host: sdt47039.labs.teradata.com
+                user: mt255026
+                password: mt255026
+                logmech: TD2
+                schema: jaffle_shop
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+            target: dev
+          EOF
+          docker run --mount type=bind,source=$PWD/jaffle_shop,target=/usr/app --mount type=bind,source=~/.dbt/profiles.yml,target=/root/.dbt/profiles.yml docker_dbt:latest ls
