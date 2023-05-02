@@ -23,13 +23,13 @@ jobs:
           sudo sh get-docker.sh
           sudo docker run hello-world
       - name: Building Docker Image from Dockerfile
-            shell: bash
-            run: |
-              cd docker
-              docker build --tag docker_dbt .
+        shell: bash
+        run: |
+          cd docker
+          docker build --tag docker_dbt .
       - name: Clone JaffleShop DBT Project
-            shell: bash
-            run: |
-              git clone https://github.com/Teradata/jaffle_shop-dev.git jaffle_shop
-              pwd
+        shell: bash
+        run: |
+          git clone https://github.com/Teradata/jaffle_shop-dev.git jaffle_shop
+          pwd
 
