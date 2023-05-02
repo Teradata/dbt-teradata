@@ -27,9 +27,11 @@ jobs:
         run: |
           cd docker
           docker build --tag docker_dbt .
+          docker images
       - name: Clone JaffleShop DBT Project
         shell: bash
         run: |
           git clone https://github.com/Teradata/jaffle_shop-dev.git jaffle_shop
           pwd
+          docker run --mount type=bind,source=jaffle_shop,target=/usr/app --mount type=bind,source=jaffle_shop/profiles.yml,target=/root/.dbt/profiles.yml docker_dbt:latest ls
 
