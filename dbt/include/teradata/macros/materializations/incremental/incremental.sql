@@ -11,6 +11,8 @@
 -- {#-- Validate early so we don't run SQL if the strategy is invalid --#}
 {% set strategy = teradata__validate_get_incremental_strategy(config) %}
 
+{% set incremental_predicates = config.get('incremental_predicates', none) %}
+
 {% set on_schema_change = incremental_validate_on_schema_change(config.get('on_schema_change'), default='ignore') %}
 
 {{ run_hooks(pre_hooks, inside_transaction=False) }}
@@ -44,7 +46,7 @@
     {% endif %}
 	
 	
-   {% set build_sql = teradata__get_incremental_sql(strategy, target_relation, tmp_relation, unique_key, dest_columns) %}
+   {% set build_sql = teradata__get_incremental_sql(strategy, target_relation, tmp_relation, unique_key, dest_columns,incremental_predicates) %}
 
 
    {% do to_drop.append(tmp_relation) %}

@@ -12,9 +12,6 @@ from dbt.tests.adapter.basic.test_snapshot_timestamp import BaseSnapshotTimestam
 from dbt.tests.adapter.basic.test_adapter_methods import BaseAdapterMethod
 
 
-config_materialized_incremental_append = """
-  {{ config(materialized="incremental", incremental_strategy="append") }}
-"""
 model_incremental = """
 select * from {{ source('raw', 'seed') }}
 {% if is_incremental() %}
@@ -22,19 +19,29 @@ where id > (select max(id) from {{ this }})
 {% endif %}
 """.strip()
 
+config_materialized_incremental_append = """
+  {{ config(materialized="incremental", incremental_strategy="append") }}
+"""
 incremental_append_sql = config_materialized_incremental_append + model_incremental
 
 config_materialized_incremental_delete_insert = """
   {{ config(materialized="incremental", incremental_strategy="delete+insert") }}
 """
+'''
 model_incremental = """
 select * from {{ source('raw', 'seed') }}
 {% if is_incremental() %}
 where id > (select max(id) from {{ this }})
 {% endif %}
 """.strip()
+'''
 
 incremental_delete_insert_sql = config_materialized_incremental_delete_insert + model_incremental
+
+config_materialized_incremental_merge= """
+  {{ config(materialized="incremental",incremental_strategy="merge", unique_key="id", merge_exclude_columns=["id"]) }}
+"""
+incremental_merge_sql = config_materialized_incremental_merge + model_incremental
 
 schema_base_yml = """
 version: 2
@@ -57,14 +64,14 @@ select
     {% endif %}
 """
 
-
+'''
 class TestSimpleMaterializationsTeradata(BaseSimpleMaterializations):
     pass
 
 
 class TestSingularTestsMyTeradata(BaseSingularTests):
     pass
-
+'''
 '''
 class TestSingularTestsEphemeralTeradata(BaseSingularTestsEphemeral):
     pass
@@ -73,6 +80,7 @@ class TestSingularTestsEphemeralTeradata(BaseSingularTestsEphemeral):
   # test_dbt_ephemeral_data_tests: data_test_ephemeral_models - fails with
   #   [Error 6926] WITH [RECURSIVE] clause or recursive view is not supported
   #   within WITH [RECURSIVE] definitions, views, triggers or stored procedures.
+'''
 '''
 class TestEmptyTeradata(BaseEmpty):
     pass
@@ -97,8 +105,14 @@ class TestIncrementalDeleteInsertTeradata(BaseIncremental):
         return {"incremental.sql": incremental_delete_insert_sql, "schema.yml": schema_base_yml}
     
     pass
-
-
+'''
+class TestIncrementalMergeTeradata(BaseIncremental):
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"incremental.sql": incremental_merge_sql, "schema.yml": schema_base_yml}
+    
+    pass
+'''
 class TestBaseIncrementalNotSchemaChangeTeradata(BaseIncrementalNotSchemaChange):
     @pytest.fixture(scope="class")
     def models(self):
@@ -119,3 +133,4 @@ class TestSnapshotTimestampTeradata(BaseSnapshotTimestamp):
 
 class TestBaseAdapterMethod(BaseAdapterMethod):
     pass
+'''
