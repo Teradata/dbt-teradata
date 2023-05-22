@@ -65,6 +65,18 @@
             {% endset %}
             {% do predicates.append(unique_key_match) %}
         {% endif %}
+    {% else %}
+        {% set PI= teradata__listing_PI(source) %}
+        {% if PI and PI|length > 0 %}
+            {% set ukey = PI[0] %}
+            {% if ukey and ukey|length > 0 %}
+                {% set unique_key = ukey[0] %}
+            {% endif %}
+        {% endif %}
+        {% set unique_key_match %}
+            DBT_INTERNAL_SOURCE.{{ unique_key }} = DBT_INTERNAL_DEST.{{ unique_key }}
+        {% endset %}
+        {% do predicates.append(unique_key_match) %}
     {% endif %}
 
     {{ sql_header if sql_header is not none }}
@@ -75,10 +87,30 @@
 
     {% if unique_key %}
     when matched then update set
-        {% for column_name in update_columns -%}
-            {{ column_name }} = DBT_INTERNAL_SOURCE.{{ column_name }}
-            {%- if not loop.last %}, {%- endif %}
-        {%- endfor %}
+        {% set final_result = [] %}
+        {% if unique_key is sequence and unique_key is not mapping and unique_key is not string %}
+            {% set quoted_keys = [] %}
+            {% for key in unique_key %}
+                {% set quoted_key = adapter.quote(key) %}
+                {% set _ = quoted_keys.append(quoted_key) %}
+            {% endfor %}
+            {% for column_name in update_columns -%}
+                {% if column_name not in quoted_keys %}
+                    {% set snippet %}
+                        {{column_name}}=DBT_INTERNAL_SOURCE.{{ column_name }}
+                    {% endset %}
+                    {% do final_result.append(snippet) %}
+                {% endif %}
+            {% endfor %}
+            {{ final_result | join(',')}}
+        {% else %}
+            {% for column_name in update_columns -%}
+                {% if column_name != adapter.quote(unique_key) -%}
+                    {{ column_name }} = DBT_INTERNAL_SOURCE.{{ column_name }}
+                    {%- if not loop.last %}, {%- endif %}
+                {% endif %} 
+            {%- endfor %}
+        {% endif %}
     {% endif %}
 
     when not matched then insert

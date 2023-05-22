@@ -15,6 +15,9 @@
 
 {% set on_schema_change = incremental_validate_on_schema_change(config.get('on_schema_change'), default='ignore') %}
 
+{%- set preexisting_tmp_relation = load_cached_relation(tmp_relation) -%}
+{{ drop_relation_if_exists(preexisting_tmp_relation) }}
+
 {{ run_hooks(pre_hooks, inside_transaction=False) }}
 
 -- `BEGIN` happens here:

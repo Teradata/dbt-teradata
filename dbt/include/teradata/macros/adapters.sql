@@ -257,3 +257,13 @@ CURRENT_TIMESTAMP(6)
   {% do run_query(sql) %}
 
 {% endmacro %}
+
+{% macro teradata__listing_PI(relation) %}
+  {% call statement('listing_PI', fetch_result=True, auto_begin=False) -%}
+    sel TRIM (TRAILING FROM ColumnName) as "ColumnName"
+      From DBC.IndicesV where 
+        DatabaseName='{{relation.schema}}' and tablename='{{relation.name}}'
+        and IndexType='P';
+  {%- endcall %}
+ {{ return(load_result('listing_PI').data) }}
+{% endmacro %}
