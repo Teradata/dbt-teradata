@@ -66,17 +66,9 @@
             {% do predicates.append(unique_key_match) %}
         {% endif %}
     {% else %}
-        {% set PI= teradata__listing_PI(source) %}
-        {% if PI and PI|length > 0 %}
-            {% set ukey = PI[0] %}
-            {% if ukey and ukey|length > 0 %}
-                {% set unique_key = ukey[0] %}
-            {% endif %}
-        {% endif %}
-        {% set unique_key_match %}
-            DBT_INTERNAL_SOURCE.{{ unique_key }} = DBT_INTERNAL_DEST.{{ unique_key }}
-        {% endset %}
-        {% do predicates.append(unique_key_match) %}
+        {% set error_msg= "Unique key is required for merge incremental strategy, please provide unique key in configuration and try again
+        or consider using Append strategy" %}
+        {% do exceptions.raise_compiler_error(error_msg) %}
     {% endif %}
 
     {{ sql_header if sql_header is not none }}

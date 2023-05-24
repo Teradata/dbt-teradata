@@ -29,11 +29,6 @@ config_materialized_incremental_delete_insert = """
 """
 incremental_delete_insert_sql = config_materialized_incremental_delete_insert + model_incremental
 
-config_materialized_incremental_merge_without_unique_key= """
-  {{ config(materialized="incremental",incremental_strategy="merge")}}
-"""
-incremental_merge_without_unique_key_sql = config_materialized_incremental_merge_without_unique_key + model_incremental
-
 config_materialized_incremental_merge= """
   {{ config(materialized="incremental",incremental_strategy="merge", unique_key='id')}}
 """
@@ -104,13 +99,6 @@ class TestIncrementalDeleteInsertTeradata(BaseIncremental):
     @pytest.fixture(scope="class")
     def models(self):
         return {"incremental.sql": incremental_delete_insert_sql, "schema.yml": schema_base_yml}
-    
-    pass
-
-class TestIncrementalMergeTeradataWithoutUniqueKey(BaseIncremental):
-    @pytest.fixture(scope="class")
-    def models(self):
-        return {"incremental.sql": incremental_merge_without_unique_key_sql, "schema.yml": schema_base_yml}
     
     pass
 
