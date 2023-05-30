@@ -198,6 +198,7 @@ For full description of the connection parameters see https://github.com/Teradat
 The following incremental materialization strategies are supported:
 * `append` (default)
 * `delete+insert`
+* `merge`
 
 To learn more about dbt incremental strategies please check [the dbt incremental strategy documentation](https://docs.getdbt.com/docs/build/incremental-models#about-incremental_strategy).
 
