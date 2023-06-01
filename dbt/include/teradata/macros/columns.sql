@@ -1,7 +1,5 @@
-/* This macro is used when there is mismatch in column types from source while incremental modelling.
-For e.g We had a incremental run already for a project and later some user came and played with column type of 
-one of the column of the source and changed it e.g from varchar(20) changed it to varchar(25)
-So to sync up the data types this macro comes into play.
+/* The macro had to be overridden for Teradata because original macro uses `column` keyword that is not supported
+ nor needed in Teradata's `ALTER TABLE` syntax.
 */
 {% macro teradata__alter_column_type(relation, column_name, new_column_type) -%}
   {#
