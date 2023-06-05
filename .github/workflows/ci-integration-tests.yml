@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         python: ['3.7', '3.8', '3.9','3.10']
-    runs-on: macos-latest
+    runs-on: macos-11
     name: Functional test
     steps:
       - name: Setup Python
