@@ -4,8 +4,8 @@
 * Merge incremental strategy is now supported in dbt-teradata
 
 ### Fixes
-* Fixed the bug (https://github.com/Teradata/dbt-teradata/issues/77), this is related to change in column types of
-    columns in source, in response to which dbt runs alter table commands and few others which have to be aligned with teradata.
+* Fixed the bug (https://github.com/Teradata/dbt-teradata/issues/77), this is related to change in column type in source.
+    
 ### Docs
 
 ### Under the hood
