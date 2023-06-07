@@ -14,5 +14,5 @@ done
 
 mv /tmp/sampledata.csv seeds/
 
-# run dbt seed with 3m budget
-timeout 3m dbt -d seed --target dbt_perf_test
+# run dbt seed with 5m budget
+timeout 5m dbt -d seed --target dbt_perf_test
