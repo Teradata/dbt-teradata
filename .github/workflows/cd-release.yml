@@ -12,6 +12,8 @@ jobs:
     name: Release
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
@@ -44,7 +46,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           tag_name: v${{ github.event.inputs.releaseVersion }}
           release_name: dbt-teradata v${{ github.event.inputs.releaseVersion }}
