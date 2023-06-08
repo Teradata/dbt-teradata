@@ -43,7 +43,7 @@ jobs:
                 type: teradata
                 host: dbt-teradata-kov5i42lw6n5x294.env.clearscape.teradata.com
                 user: demo_user
-                password: dbt-teradata
+                password: dbt_teradata
                 logmech: TD2
                 schema: jaffle_shop
                 tmode: ANSI
