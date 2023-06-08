@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.3.3.1
 
 ### Features
 * Merge incremental strategy is now supported in dbt-teradata
