@@ -10,6 +10,12 @@ pip install dbt-teradata
 
 If you are new to dbt on Teradata see [dbt with Teradata Vantage tutorial](https://quickstarts.teradata.com/dbt.html).
 
+**_NOTE:_** If the virtual environment in Python is not activating properly on Windows, you can try running the below command in the command-line interface (CLI) before attempting to activate the virtual environment.
+
+```
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUse
+```
+
 ## Sample profile
 
 Here is a working example of a `dbt-teradata` profile:
