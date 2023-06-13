@@ -1,0 +1,150 @@
+name: CI Integration Tests
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - 'main'
+
+env:
+  db_host: "dbt-t3gwet5u19m2zwm9.env.clearscape.teradata.com"
+  db_username: "demo_user"
+  db_password: "dbt-teradata"
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        python: ['3.7', '3.8', '3.9','3.10']
+    runs-on: ubuntu-latest
+    name: Functional test
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements_dev.txt
+
+          # install timeout command
+          export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=yes
+          export HOMEBREW_NO_INSTALL_CLEANUP=yes
+          export HOMEBREW_NO_INSTALL_UPGRADE=yes
+          brew install coreutils jq
+
+      - name: Prepare database
+        shell: bash
+        run: |          
+          export PATH=$PATH:"/Users/runner/Library/Application Support/teradata/client/17.20/bin"
+
+          cd md5_20080530/md5/src
+
+          # prepare bteq script
+          cat << EOF > /tmp/install_md5.bteq
+          .SET EXITONDELAY ON MAXREQTIME 20
+          .logon $db_host/$db_username,$db_password
+          CREATE DATABASE GLOBAL_FUNCTIONS AS PERMANENT = 60e6, SPOOL = 120e6;
+          GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO dbc;
+          DATABASE GLOBAL_FUNCTIONS;
+          .run file = hash_md5.btq
+          GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
+          .logoff
+          EOF
+
+          bteq < /tmp/install_md5.bteq
+          
+      - name: Run pytest tests
+        run: |
+          export DBT_TEST_USER_1=test_grants_user1
+          export DBT_TEST_USER_2=test_grants_user2
+          export DBT_TEST_USER_3=test_grants_user3
+          pytest tests/functional
+      - name: Run pytest tests with existing database
+        run: |
+          export DBT_TEST_USER_1=test_grants_user1
+          export DBT_TEST_USER_2=test_grants_user2
+          export DBT_TEST_USER_3=test_grants_user3
+          cat << EOF > /tmp/pytestdatabase.bteq
+          .SET EXITONDELAY ON MAXREQTIME 20
+          .logon $db_host/$db_username,$db_password
+          CREATE DATABASE DBT_TEST
+            AS PERMANENT = 60e6, SPOOL = 120e6;
+          .logoff
+          EOF
+          # strip the random suffix from the pytest config
+          sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
+
+          pytest tests/functional
+      - name: Run performance tests for fastload
+        run: |
+          mkdir ~/.dbt
+          cat << EOF > ~/.dbt/profiles.yml
+          teradata:
+            outputs:
+              dbt_perf_test:
+                type: teradata
+                host: $db_host
+                user: $db_username
+                password: $db_password
+                logmech: TD2
+                schema: dbt_perf_test
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_catalog_test:
+                type: teradata
+                host: $db_host
+                user: $db_username
+                password: $db_password
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+          EOF
+          cd $GITHUB_WORKSPACE/test/performance
+          ./run.sh
+      - name: Run catalog tests
+        run: |
+          # set DisableQVCI to false - this will give us data type info for views in DBC.ColumnsJQV
+          sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
+          M internal 551=false
+          W
+          EOF
+
+          tpareset -y Enable QVCI
+          "
+
+          $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
+
+          cd $GITHUB_WORKSPACE/test/catalog/with_qvci
+          ./run.sh
+          cd $GITHUB_WORKSPACE/test/catalog/without_qvci
+          ./run.sh
+      - name: Run nopi tests
+        run: |
+          sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
+          M general 53=N
+          W
+          EOF
+
+          tpareset -y Disable PrimaryIndexDefault
+          "
+
+          $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
+
+          pytest tests/functional/adapter/test_nopi.py
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() ||  cancelled() }}
+        with:
+          name: virtualbox-logs
+          path: /Users/runner/VirtualBox*
