@@ -26,16 +26,10 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
 
-      - name: Install dependencies
+      - name: Install requirements
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements_dev.txt
-
-          # install timeout command
-          export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=yes
-          export HOMEBREW_NO_INSTALL_CLEANUP=yes
-          export HOMEBREW_NO_INSTALL_UPGRADE=yes
-          brew install coreutils jq
 
       - name: Prepare database
         shell: bash
