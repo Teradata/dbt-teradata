@@ -6,11 +6,6 @@ on:
     branches:
       - 'main'
 
-env:
-  db_host: "dbt-t3gwet5u19m2zwm9.env.clearscape.teradata.com"
-  db_username: "demo_user"
-  db_password: "dbt-teradata"
-
 jobs:
   test:
     strategy:
@@ -26,6 +21,17 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
 
+      - name: Install TTU
+        shell: bash
+        run: |
+          curl -L "https://d289lrf5tw1zls.cloudfront.net/tools/ttu/TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.20.15.00.tar.gz?Expires=1704067200&Key-Pair-Id=APKAJ3SWQUPWKYVMO2WQ&Signature=$TTU_URL_SIGNATURE_UBUNTU" \
+            --compressed -o ttu.tar.gz
+          tar -xzf ttu.tar.gz
+          cd TeradataToolsAndUtilitiesBase
+          ./setup.sh a
+        env:
+          TTU_URL_SIGNATURE_UBUNTU: ${{ secrets.TTU_URL_SIGNATURE_UBUNTU }}
+
       - name: Install requirements
         run: |
           python -m pip install --upgrade pip
@@ -34,14 +40,14 @@ jobs:
       - name: Prepare database
         shell: bash
         run: |          
-          export PATH=$PATH:"/Users/runner/Library/Application Support/teradata/client/17.20/bin"
+          export PATH=$PATH:"/opt/teradata/client/17.20/bin"
 
           cd md5_20080530/md5/src
 
           # prepare bteq script
           cat << EOF > /tmp/install_md5.bteq
           .SET EXITONDELAY ON MAXREQTIME 20
-          .logon $db_host/$db_username,$db_password
+          .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
           CREATE DATABASE GLOBAL_FUNCTIONS AS PERMANENT = 60e6, SPOOL = 120e6;
           GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO dbc;
           DATABASE GLOBAL_FUNCTIONS;
@@ -51,6 +57,11 @@ jobs:
           EOF
 
           bteq < /tmp/install_md5.bteq
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
+          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
+          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+
           
       - name: Run pytest tests
         run: |
@@ -65,7 +76,7 @@ jobs:
           export DBT_TEST_USER_3=test_grants_user3
           cat << EOF > /tmp/pytestdatabase.bteq
           .SET EXITONDELAY ON MAXREQTIME 20
-          .logon $db_host/$db_username,$db_password
+          .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
           CREATE DATABASE DBT_TEST
             AS PERMANENT = 60e6, SPOOL = 120e6;
           .logoff
@@ -74,6 +85,11 @@ jobs:
           sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
 
           pytest tests/functional
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
+          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
+          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+
       - name: Run performance tests for fastload
         run: |
           mkdir ~/.dbt
@@ -82,9 +98,9 @@ jobs:
             outputs:
               dbt_perf_test:
                 type: teradata
-                host: $db_host
-                user: $db_username
-                password: $db_password
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
                 logmech: TD2
                 schema: dbt_perf_test
                 tmode: ANSI
@@ -94,9 +110,9 @@ jobs:
                 retries: 1
               dbt_catalog_test:
                 type: teradata
-                host: $db_host
-                user: $db_username
-                password: $db_password
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
                 logmech: TD2
                 schema: dbt_catalog_test
                 tmode: ANSI
@@ -107,6 +123,11 @@ jobs:
           EOF
           cd $GITHUB_WORKSPACE/test/performance
           ./run.sh
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
+          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
+          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+        
       - name: Run catalog tests
         run: |
           # set DisableQVCI to false - this will give us data type info for views in DBC.ColumnsJQV
