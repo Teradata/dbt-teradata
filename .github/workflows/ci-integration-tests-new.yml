@@ -28,7 +28,7 @@ jobs:
             --compressed -o ttu.tar.gz
           tar -xzf ttu.tar.gz
           cd TeradataToolsAndUtilitiesBase
-          ./setup.sh a
+          sudo ./setup.sh a
         env:
           TTU_URL_SIGNATURE_UBUNTU: ${{ secrets.TTU_URL_SIGNATURE_UBUNTU }}
 
