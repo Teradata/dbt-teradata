@@ -5,9 +5,9 @@ import sys
 from setuptools import setup
 
 
-if sys.version_info < (3, 7) or sys.version_info >= (3, 11):
+if sys.version_info < (3, 7) or sys.version_info >= (3, 12):
     print('Error: dbt-teradata does not support this version of Python.')
-    print('Please install Python 3.7 or higher but less than 3.11.')
+    print('Please install Python 3.7 or higher but less than 3.12.')
     sys.exit(1)
 
 
@@ -45,7 +45,7 @@ setup(
         ],
     },
     install_requires=[
-        "dbt-core==1.3.3",
+        "dbt-core==1.4.6",
         "teradatasql>=16.20.0.0",
     ],
     classifiers=[
@@ -61,6 +61,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
-    python_requires=">=3.7,<3.11",
+    python_requires=">=3.7,<3.12",
 )

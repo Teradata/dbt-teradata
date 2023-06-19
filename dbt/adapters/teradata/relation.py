@@ -1,7 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from dbt.adapters.base.relation import BaseRelation, Policy
-from dbt.exceptions import RuntimeException
+from dbt.exceptions import DbtRuntimeError
 
 @dataclass
 class TeradataQuotePolicy(Policy):
@@ -19,13 +19,13 @@ class TeradataIncludePolicy(Policy):
 
 @dataclass(frozen=True, eq=False, repr=False)
 class TeradataRelation(BaseRelation):
-    quote_policy: TeradataQuotePolicy = TeradataQuotePolicy()
-    include_policy: TeradataIncludePolicy = TeradataIncludePolicy()
+    quote_policy: Policy = field(default_factory=lambda: TeradataQuotePolicy())
+    include_policy: Policy = field(default_factory=lambda: TeradataIncludePolicy())
     quote_character: str = '"'
 
     def render(self):
         if self.include_policy.database and self.include_policy.schema:
-            raise RuntimeException(
+            raise DbtRuntimeError(
                 f"Got a teradata relation with schema and database set to "
                 "include, but only one can be set"
             )
