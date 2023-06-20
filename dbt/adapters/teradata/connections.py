@@ -59,7 +59,7 @@ class TeradataCredentials(Credentials):
             self.database is not None and
             self.database != self.schema
         ):
-            raise dbt.exceptions.RuntimeException(
+            raise dbt.exceptions.DbtRuntimeError(
                 f"    schema: {self.schema} \n"
                 f"    database: {self.database} \n"
                 f"On Teradata, database must be omitted or have the same value as"
@@ -68,7 +68,7 @@ class TeradataCredentials(Credentials):
 
         # Only allow the ANSI transaction mode
         if self.tmode != "ANSI":
-            raise dbt.exceptions.RuntimeException(
+            raise dbt.exceptions.DbtRuntimeError(
                 f"This version only allows a tmode of ANSI."
             )
 
@@ -208,7 +208,7 @@ class TeradataConnectionManager(SQLConnectionManager):
             connection.handle = None
             connection.state = 'fail'
 
-            raise dbt.exceptions.FailedToConnectException(str(e))
+            raise dbt.exceptions.FailedToConnectError(str(e))
 
         return connection
 
@@ -233,19 +233,19 @@ class TeradataConnectionManager(SQLConnectionManager):
                 logger.debug("Failed to release connection!")
                 pass
 
-            raise dbt.exceptions.DatabaseException(str(e).strip()) from e
+            raise dbt.exceptions.DbtDatabaseError(str(e).strip()) from e
 
         except Exception as e:
             logger.debug("Error running SQL: {}", sql)
             logger.debug("Rolling back transaction.")
             self.rollback_if_open()
-            if isinstance(e, dbt.exceptions.RuntimeException):
+            if isinstance(e, dbt.exceptions.DbtRuntimeError):
                 # during a sql query, an internal to dbt exception was raised.
                 # this sounds a lot like a signal handler and probably has
                 # useful information, so raise it without modification.
                 raise
 
-            raise dbt.exceptions.RuntimeException(e) from e
+            raise dbt.exceptions.DbtRuntimeError(e) from e
 
     @classmethod
     def get_response(cls, cursor):
