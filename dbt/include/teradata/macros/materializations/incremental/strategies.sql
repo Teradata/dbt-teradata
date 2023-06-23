@@ -24,16 +24,38 @@
 {% endmacro %}
 
 
-{% macro teradata__get_delete_insert_merge_sql(target_relation, tmp_relation, unique_key, dest_columns) %}
+{% macro teradata__get_delete_insert_merge_sql(target_relation, tmp_relation, unique_key, dest_columns, incremental_predicates) %}
     {%- set dest_cols_csv = dest_columns | map(attribute='quoted') | join(', ') -%}
 
     {%- if unique_key is not none -%}
-    DELETE
-    FROM {{ target_relation }}
-    WHERE ({{ unique_key }}) IN (
-        SELECT ({{ unique_key }})
-        FROM {{ tmp_relation }}
-    );
+        {% if unique_key is sequence and unique_key is not string %}
+            delete from {{target_relation }}
+            where (
+                {% for key in unique_key %}
+                    {{ tmp_relation }}.{{ key }} = {{ target_relation }}.{{ key }}
+                    {{ "and " if not loop.last}}
+                {% endfor %}
+                {% if incremental_predicates %}
+                    {% for predicate in incremental_predicates %}
+                        and {{ predicate }}
+                    {% endfor %}
+                {% endif %}
+            );
+        {% else %}    
+            DELETE
+            FROM {{ target_relation }}
+            WHERE ({{ unique_key }}) IN (
+                SELECT ({{ unique_key }})
+                FROM {{ tmp_relation }}
+            )
+            {%- if incremental_predicates %}
+                {% for predicate in incremental_predicates %}
+                    and {{ predicate }}
+                {% endfor %}
+            {%- endif -%};
+
+        {% endif %}
+        
     {%- endif %}
 
     INSERT INTO {{ target_relation }} ({{ dest_cols_csv }})
