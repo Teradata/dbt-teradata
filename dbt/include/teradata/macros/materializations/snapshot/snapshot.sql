@@ -255,7 +255,7 @@
     {#-- don't access the column by name, to avoid dealing with casing issues on snowflake #}
     {%- set now = run_query(select_current_time)[0][0] -%}
     {% if now is none or now is undefined -%}
-        {%- do exceptions.raise_compiler_error('Could not get a snapshot start time from the database') -%}
+        {%- do exceptions.CompilationError('Could not get a snapshot start time from the database') -%}
     {%- endif %}
     {% set updated_at = snapshot_string_as_time(now) %}
 
@@ -266,7 +266,7 @@
     {% elif check_cols_config is iterable and (check_cols_config | length) > 0 %}
         {% set check_cols = check_cols_config %}
     {% else %}
-        {% do exceptions.raise_compiler_error("Invalid value for 'check_cols': " ~ check_cols_config) %}
+        {% do exceptions.CompilationError("Invalid value for 'check_cols': " ~ check_cols_config) %}
     {% endif %}
 
     {%- set row_changed_expr -%}
