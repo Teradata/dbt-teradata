@@ -60,7 +60,7 @@ class TestIncrementalPredicatesDeleteInsertTeradata(BaseIncrementalPredicates):
         }
     pass
 
-'''
+
 class TestPredicatesDeleteInsertTeradata(BaseIncrementalPredicates):
     @pytest.fixture(scope="class")
     def models(self):
@@ -84,4 +84,4 @@ class TestPredicatesDeleteInsertTeradata(BaseIncrementalPredicates):
                 "+incremental_strategy": "delete+insert"
             }
         }
-'''
+
