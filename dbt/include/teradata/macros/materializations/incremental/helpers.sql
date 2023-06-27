@@ -19,7 +19,7 @@
 
 {% macro teradata__get_incremental_sql(strategy, target_relation, tmp_relation, unique_key, dest_columns,incremental_predicates) %}
   {% if strategy == 'delete+insert' %}
-    {% do return(teradata__get_delete_insert_merge_sql(target_relation, tmp_relation, unique_key, dest_columns)) %}
+    {% do return(teradata__get_delete_insert_merge_sql(target_relation, tmp_relation, unique_key, dest_columns, incremental_predicates)) %}
   {% elif strategy == 'append' %}
     {% do return(teradata__get_incremental_append_sql(target_relation, tmp_relation,  dest_columns)) %}
   {% elif strategy == 'merge' %}
