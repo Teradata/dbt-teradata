@@ -27,7 +27,7 @@
 {% macro teradata__get_delete_insert_merge_sql(target_relation, tmp_relation, unique_key, dest_columns, incremental_predicates) %}
     {%- set dest_cols_csv = dest_columns | map(attribute='quoted') | join(', ') -%}
 
-    {%- if unique_key is not none -%}
+    {%- if unique_key -%}
         {% if unique_key is sequence and unique_key is not string %}
             delete from {{target_relation }}
             where (
