@@ -1,10 +1,3 @@
-
-{% macro teradata__snapshot_string_as_time(timestamp) -%}
-    {%- set timestamp_string = timestamp.strftime('%Y-%m-%d %H:%M:%S.%f%z') -%}
-    {%- set result = "TO_TIMESTAMP_TZ('" ~ "{0}:{1}".format(timestamp_string[:-2], timestamp_string[-2:]) ~ "')" -%}
-    {{ return(result) }}
-{%- endmacro %}
-
 {% macro snapshot_staging_table(strategy, source_sql, target_relation) -%}
 
     WITH snapshot_query AS (
