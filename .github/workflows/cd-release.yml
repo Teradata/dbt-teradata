@@ -61,7 +61,7 @@ jobs:
           git add CHANGELOG.md
           git commit -m "resetting CHANGELOG.md for the next release"
           git push
-      -name: changing dockerfile version
+      - name: changing dockerfile version
         shell: bash
         run: |
           git checkout main
