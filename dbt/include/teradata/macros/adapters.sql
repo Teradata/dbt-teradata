@@ -62,9 +62,6 @@
 
 {% endmacro %}
 
-{% macro teradata__current_timestamp() -%}
-CURRENT_TIMESTAMP(6)
-{%- endmacro %}
 
 {% macro teradata__rename_relation(from_relation, to_relation) -%}
   {#
