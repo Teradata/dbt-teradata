@@ -61,3 +61,11 @@ jobs:
           git add CHANGELOG.md
           git commit -m "resetting CHANGELOG.md for the next release"
           git push
+      - name: changing dockerfile version
+        shell: bash
+        run: |
+          git checkout main
+          sed -i "48s/.*/RUN python -m pip install dbt-teradata==$RELEASE_VERSION/g" docker/Dockerfile
+          git add docker/Dockerfile
+          git commit -m "syncing version in Docker file"
+          git push
