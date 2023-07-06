@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.4.0.0
 
 ### Features
 * Added python 3.11 support.
