@@ -3,7 +3,7 @@ name: Update TD Github copy
 on:
   workflow_dispatch:
   schedule:
-     - cron:  '* * * * *'
+     - cron:  '0 7 * * *'
 
 jobs:
   main:
