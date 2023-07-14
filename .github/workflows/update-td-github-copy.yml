@@ -3,7 +3,7 @@ name: Update TD Github copy
 on:
   workflow_dispatch:
   schedule:
-     - cron:  '* * * * *'
+     - cron:  '0 7 * * *'
 
 jobs:
   main:
@@ -24,6 +24,6 @@ jobs:
           # we add remote, ignore error if it already exists
           git remote add very-origin https://$REMOTE_GH_TOKEN@github.com/Teradata/dbt-teradata || true
           git pull very-origin main
-          git push origin main
+          git push origin main || true
         env:
           REMOTE_GH_TOKEN: ${{ secrets.REMOTE_GH_TOKEN }}
