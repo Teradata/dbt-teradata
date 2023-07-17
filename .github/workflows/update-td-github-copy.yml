@@ -21,7 +21,7 @@ jobs:
           set -v
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "<>"
-          git config pull.ff only
+          git config pull.rebase true
           # we add remote, ignore error if it already exists
           git remote add very-origin https://$REMOTE_GH_TOKEN@github.com/Teradata/dbt-teradata || true
           git pull --rebase very-origin main
