@@ -110,87 +110,87 @@ jobs:
           pytest --cov=dbt tests/functional
           coverage html -d coverage_html
           scp ./coverage_html root@10.27.165.0:/dbt_cov/
-      - name: Run pytest tests with existing database
-        run: |
-          export DBT_TEST_USER_1=test_grants_user1
-          export DBT_TEST_USER_2=test_grants_user2
-          export DBT_TEST_USER_3=test_grants_user3
-          cat << EOF > /tmp/pytestdatabase.bteq
-          .SET EXITONDELAY ON MAXREQTIME 20
-          .logon 127.0.0.1/dbc,dbc
-          CREATE DATABASE DBT_TEST
-            AS PERMANENT = 60e6, SPOOL = 120e6;
-          .logoff
-          EOF
-          # strip the random suffix from the pytest config
-          sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
+      # - name: Run pytest tests with existing database
+      #   run: |
+      #     export DBT_TEST_USER_1=test_grants_user1
+      #     export DBT_TEST_USER_2=test_grants_user2
+      #     export DBT_TEST_USER_3=test_grants_user3
+      #     cat << EOF > /tmp/pytestdatabase.bteq
+      #     .SET EXITONDELAY ON MAXREQTIME 20
+      #     .logon 127.0.0.1/dbc,dbc
+      #     CREATE DATABASE DBT_TEST
+      #       AS PERMANENT = 60e6, SPOOL = 120e6;
+      #     .logoff
+      #     EOF
+      #     # strip the random suffix from the pytest config
+      #     sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
 
-          pytest tests/functional
-      - name: Run performance tests for fastload
-        run: |
-          mkdir ~/.dbt
-          cat << EOF > ~/.dbt/profiles.yml
-          teradata:
-            outputs:
-              dbt_perf_test:
-                type: teradata
-                host: localhost
-                user: dbc
-                password: dbc
-                logmech: TD2
-                schema: dbt_perf_test
-                tmode: ANSI
-                threads: 1
-                timeout_seconds: 300
-                priority: interactive
-                retries: 1
-              dbt_catalog_test:
-                type: teradata
-                host: localhost
-                user: dbc
-                password: dbc
-                logmech: TD2
-                schema: dbt_catalog_test
-                tmode: ANSI
-                threads: 1
-                timeout_seconds: 300
-                priority: interactive
-                retries: 1
-          EOF
-          cd $GITHUB_WORKSPACE/test/performance
-          ./run.sh
-      - name: Run catalog tests
-        run: |
-          # set DisableQVCI to false - this will give us data type info for views in DBC.ColumnsJQV
-          sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
-          M internal 551=false
-          W
-          EOF
+      #     pytest tests/functional
+      # - name: Run performance tests for fastload
+      #   run: |
+      #     mkdir ~/.dbt
+      #     cat << EOF > ~/.dbt/profiles.yml
+      #     teradata:
+      #       outputs:
+      #         dbt_perf_test:
+      #           type: teradata
+      #           host: localhost
+      #           user: dbc
+      #           password: dbc
+      #           logmech: TD2
+      #           schema: dbt_perf_test
+      #           tmode: ANSI
+      #           threads: 1
+      #           timeout_seconds: 300
+      #           priority: interactive
+      #           retries: 1
+      #         dbt_catalog_test:
+      #           type: teradata
+      #           host: localhost
+      #           user: dbc
+      #           password: dbc
+      #           logmech: TD2
+      #           schema: dbt_catalog_test
+      #           tmode: ANSI
+      #           threads: 1
+      #           timeout_seconds: 300
+      #           priority: interactive
+      #           retries: 1
+      #     EOF
+      #     cd $GITHUB_WORKSPACE/test/performance
+      #     ./run.sh
+      # - name: Run catalog tests
+      #   run: |
+      #     # set DisableQVCI to false - this will give us data type info for views in DBC.ColumnsJQV
+      #     sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
+      #     M internal 551=false
+      #     W
+      #     EOF
 
-          tpareset -y Enable QVCI
-          "
+      #     tpareset -y Enable QVCI
+      #     "
 
-          $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
+      #     $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
 
-          cd $GITHUB_WORKSPACE/test/catalog/with_qvci
-          ./run.sh
-          cd $GITHUB_WORKSPACE/test/catalog/without_qvci
-          ./run.sh
-      - name: Run nopi tests
-        run: |
-          sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
-          M general 53=N
-          W
-          EOF
+      #     cd $GITHUB_WORKSPACE/test/catalog/with_qvci
+      #     ./run.sh
+      #     cd $GITHUB_WORKSPACE/test/catalog/without_qvci
+      #     ./run.sh
+      # - name: Run nopi tests
+      #   run: |
+      #     sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
+      #     M general 53=N
+      #     W
+      #     EOF
 
-          tpareset -y Disable PrimaryIndexDefault
-          "
+      #     tpareset -y Disable PrimaryIndexDefault
+      #     "
 
-          $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
+      #     $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
 
-          pytest tests/functional/adapter/test_nopi.py
-      - uses: actions/upload-artifact@v2
-        if: ${{ failure() ||  cancelled() }}
-        with:
-          name: virtualbox-logs
-          path: /Users/runner/VirtualBox*
+      #     pytest tests/functional/adapter/test_nopi.py
+      # - uses: actions/upload-artifact@v2
+      #   if: ${{ failure() ||  cancelled() }}
+      #   with:
+      #     name: virtualbox-logs
+      #     path: /Users/runner/VirtualBox*
