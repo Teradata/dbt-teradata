@@ -24,6 +24,6 @@ jobs:
           # we add remote, ignore error if it already exists
           git remote add very-origin https://$REMOTE_GH_TOKEN@github.com/Teradata/dbt-teradata || true
           git pull very-origin main
-          git push -u origin main
+          git push -u origin IDE-24038_ra255028_dbt
         env:
           REMOTE_GH_TOKEN: ${{ secrets.REMOTE_GH_TOKEN }}
