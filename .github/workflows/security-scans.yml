@@ -38,7 +38,7 @@ jobs:
           cov-capture --project-dir /dbt/dbt-teradata --dir /dbt_scan --language python
       - name: Coverity - Analyze
         run: |
-          export PATH=$PATH:/opt/cov-analysis/bin
+          export PATH=$PATH:/coverity/bin
           coverity analyze --project-dir /dbt_scan
       - name: Coverity - Commit Defects
         run: |
