@@ -44,7 +44,7 @@ jobs:
         run: |
           rm /tmp/coverity-token.txt
           export PATH=$PATH:/coverity/bin
-          echo '$COVERITY_TOKEN' > /tmp/coverity-token.txt
+          echo $COVERITY_TOKEN > /tmp/coverity-token.txt
           chmod 600 /tmp/coverity-token.txt
           cov-commit-defects \
             --url 'https://coverity.td.teradata.com:8443' \
