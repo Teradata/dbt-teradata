@@ -42,13 +42,14 @@ jobs:
           coverity analyze --dir /dbt_scan
       - name: Coverity - Commit Defects
         run: |
+          rm /tmp/coverity-token.txt
           export PATH=$PATH:/coverity/bin
-          echo "$COVERITY_TOKEN" > /tmp/coverity-token.txt
+          echo '$COVERITY_TOKEN' > /tmp/coverity-token.txt
           chmod 600 /tmp/coverity-token.txt
           cov-commit-defects \
             --url 'https://coverity.td.teradata.com:8443' \
             --dir /dbt_scan \
-            --stream "3rd Developer Tools_dbt_teradata" \
+            --stream "dbt_stream_test" \
             --auth-key-file /tmp/coverity-token.txt
         env:
           COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
