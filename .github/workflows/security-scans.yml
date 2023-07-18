@@ -39,7 +39,7 @@ jobs:
       - name: Coverity - Analyze
         run: |
           export PATH=$PATH:/coverity/bin
-          coverity analyze --project-dir /dbt_scan
+          coverity analyze --dir /dbt_scan
       - name: Coverity - Commit Defects
         run: |
           export PATH=$PATH:/coverity/bin
