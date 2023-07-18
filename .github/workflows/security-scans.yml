@@ -42,7 +42,6 @@ jobs:
           coverity analyze --dir /dbt_scan
       - name: Coverity - Commit Defects
         run: |
-          rm /tmp/coverity-token.txt
           export PATH=$PATH:/coverity/bin
           echo $COVERITY_TOKEN > /tmp/coverity-token.txt
           chmod 600 /tmp/coverity-token.txt
