@@ -25,7 +25,7 @@ jobs:
         run: |
           rm -rf /dbt
           mkdir /dbt
-          cd /dbt; git clone https://github.td.teradata.com/DeveloperTools/dbt-teradata
+          cd /dbt; git clone https://${{ secrets.GH_TOKEN }}@github.td.teradata.com/DeveloperTools/dbt-teradata.git
       - name: Coverity - Configure
         run: |
           rm -rf dbt_scan
