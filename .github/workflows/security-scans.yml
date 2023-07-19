@@ -2,8 +2,6 @@ name: Security Scans
 
 on:
   workflow_dispatch:
-  schedule:
-     - cron:  '30 7 * * *'
 
 jobs:
   security-scans:
