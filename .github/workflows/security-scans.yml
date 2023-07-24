@@ -56,13 +56,13 @@ jobs:
           mkdir  /bd_scan
           cd /bd_scan
           python3 -m venv env
-          . ./env/bin/activate
-          pip3 install /dbt/dbt-teradata/dist/*.gz
-          pip3 freeze > requirements.txt
 
       - name: Run BlackDuck Scan
         run: |
           cd /bd_scan
+          . ./env/bin/activate
+          pip3 install /dbt/dbt-teradata/dist/*.gz
+          pip3 freeze > requirements.txt
           bash <(curl -s -L https://detect.synopsys.com/detect7.sh) \
           --blackduck.url=https://bdhub.td.teradata.com \
           --blackduck.always.trust.cert=true \
@@ -79,4 +79,3 @@ jobs:
           --detect.pip.project.name=dbt-teradata \
           --detect.source.path=env/lib/python3.10/site-packages/dbt_teradata-1.0.0a0.egg-info \
           --detect.pip.requirements.path=requirements.txt
-          . ./env/bin/deactivate
