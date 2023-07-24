@@ -20,6 +20,9 @@ jobs:
           rm -rf /dbt
           mkdir /dbt
           cd /dbt; git clone https://${{ secrets.GH_TOKEN }}@github.td.teradata.com/DeveloperTools/dbt-teradata.git
+      - name: Build dbt teradata package
+        run: |
+          cd /dbt/dbt-teradata; rm -fr dist/*; python setup.py sdist bdist_wheel
       - name: Coverity - Configure
         run: |
           rm -rf dbt_scan
@@ -46,3 +49,34 @@ jobs:
             --auth-key-file /tmp/coverity-token.txt
         env:
           COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
+
+      - name: BlackDuck Configure
+        run: |
+          rm -rf /bd_scan
+          mkdir  /bd_scan
+          cd /bd_scan
+          python3 -m venv env
+          . ./env/bin/activate
+          pip3 install /dbt/dbt-teradata/dist/*.gz
+          pip3 freeze > requirements.txt
+
+      - name: Run BlackDuck Scan
+        run: |
+          cd /bd_scan
+          bash <(curl -s -L https://detect.synopsys.com/detect7.sh) \
+          --blackduck.url=https://bdhub.td.teradata.com \
+          --blackduck.always.trust.cert=true \
+          --blackduck.api.token=${{ secrets.BLACKDUCK_TOKEN }} \
+          --detect.project.name=JUPYTERUX_dbt \
+          --detect.project.version.name=development \
+          --detect.code.location.name=JUPYTERUX_dbt-development \
+          --detect.bom.aggregate.name=JUPYTERUX_dbt-develop \
+          --detect.cleanup=false \
+          --detect.output.path=/dbt \
+          --blackduck.timeout=1500 \
+          --detect.pip.only.project.tree=true \
+          --detect.pip.project.version.name=1.0.0a0 \
+          --detect.pip.project.name=dbt-teradata \
+          --detect.source.path=env/lib/python3.10/site-packages/dbt_teradata-1.0.0a0.egg-info \
+          --detect.pip.requirements.path=requirements.txt
+          . ./env/bin/deactivate
