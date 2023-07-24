@@ -22,7 +22,7 @@ jobs:
           cd /dbt; git clone https://${{ secrets.GH_TOKEN }}@github.td.teradata.com/DeveloperTools/dbt-teradata.git
       - name: Build dbt teradata package
         run: |
-          cd /dbt/dbt-teradata; rm -fr dist/*; python setup.py sdist bdist_wheel
+          cd /dbt/dbt-teradata; rm -fr dist/*; python3 setup.py sdist bdist_wheel
       - name: Coverity - Configure
         run: |
           rm -rf dbt_scan
