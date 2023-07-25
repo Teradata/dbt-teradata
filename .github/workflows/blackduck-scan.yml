@@ -2,6 +2,8 @@ name: BlackDuck Scan
 
 on:
   workflow_dispatch:
+  schedule:
+     - cron:  '45 7 * * 5'
 
 jobs:
   blackduck-scan:
