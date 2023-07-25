@@ -41,10 +41,6 @@ class BaseCachingTest:
         adapter = project.adapter
         assert len(adapter.cache.relations) == 1
         relation = list(adapter.cache.relations).pop()
-        print("#"*100)
-        print(relation.schema+"\n")
-        print(project.test_schema)
-        print("#"*100)
         assert relation.schema == project.test_schema
         assert relation.schema == project.test_schema
 
