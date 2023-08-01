@@ -1,6 +1,6 @@
 # dbt-teradata
 
-This plugin ports [dbt](https://getdbt.com) functionality to Teradata Vantage.
+The dbt Teradata adapter lets you use [dbt](https://getdbt.com) with Teradata Vantage.
 
 ## Installation
 
