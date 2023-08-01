@@ -2,6 +2,8 @@
 
 The dbt Teradata adapter lets you use [dbt](https://getdbt.com) with Teradata Vantage.
 
+**_NOTE:_** This adapter is maintained by Teradata. We are accelerating our release cadence. Starting October 1st, 2023, we will release `dbt-teradata` within 4 weeks of a minor release or within 8 weeks of a major release of `dbt-core`.
+
 ## Installation
 
 ```
