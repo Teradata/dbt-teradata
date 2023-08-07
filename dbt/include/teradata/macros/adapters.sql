@@ -28,7 +28,7 @@
   {%- set index = config.get('index', default='') -%}
   {% set contract_config = config.get('contract') %}
   {% if contract_config and contract_config.enforced %}
-    {{ exceptions.warn('Model contracts are not currently supported.') }}
+    {{ exceptions.raise_compiler_error('Model contracts are not currently supported.') }}
   {% endif %}
 
   {{ sql_header if sql_header is not none }}
@@ -61,7 +61,7 @@
   {%- set sql_header = config.get('sql_header', none) -%}
   {% set contract_config = config.get('contract') %}
   {% if contract_config and contract_config.enforced %}
-    {{ exceptions.warn('Model contracts are not currently supported.') }}
+    {{ exceptions.raise_compiler_error('Model contracts are not currently supported.') }}
   {% endif %}
 
   {{ sql_header if sql_header is not none }}
