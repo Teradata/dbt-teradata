@@ -26,6 +26,10 @@
   {%- set table_option = config.get('table_option', default='') -%}
   {%- set with_statistics = config.get('with_statistics', default=False)| as_bool -%}
   {%- set index = config.get('index', default='') -%}
+  {% set contract_config = config.get('contract') %}
+  {% if contract_config and contract_config.enforced %}
+    {{ exceptions.warn('Model contracts are not currently supported.') }}
+  {% endif %}
 
   {{ sql_header if sql_header is not none }}
   CREATE {{ table_kind }} TABLE
@@ -55,6 +59,10 @@
 
 {% macro teradata__create_view_as(relation, sql) -%}
   {%- set sql_header = config.get('sql_header', none) -%}
+  {% set contract_config = config.get('contract') %}
+  {% if contract_config and contract_config.enforced %}
+    {{ exceptions.warn('Model contracts are not currently supported.') }}
+  {% endif %}
 
   {{ sql_header if sql_header is not none }}
   REPLACE VIEW {{ relation.include(database=False) }} AS
