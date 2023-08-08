@@ -49,6 +49,7 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 |1.2.x.x            | ❌           | ✅          | ✅          | ✅          | ✅          | ❌
 |1.3.x.x            | ❌           | ✅          | ✅          | ✅          | ✅          | ❌
 |1.4.x.x            | ❌           | ✅          | ✅          | ✅          | ✅          | ✅
+|1.5.x.x            | ❌           | ✅          | ✅          | ✅          | ✅          | ✅
 
 
 ##  dbt dependent packages version compatibility
@@ -564,6 +565,9 @@ Date truncate:
   )}}
   ```
   See [Collecting Statistics documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/RAyUdGfvREwbO9J0DMNpLw) for more information.
+
+## Support for model contracts
+Model constracts are not yet supported with dbt-teradata.
 
 ## Support for `dbt-utils` package
 `dbt-utils` package is supported through `teradata/teradata_utils` dbt package. The package provides a compatibility layer between `dbt_utils` and `dbt-teradata`. See [teradata_utils](https://hub.getdbt.com/teradata/teradata_utils/latest/) package for install instructions.
