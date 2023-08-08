@@ -2,7 +2,7 @@
 
 ### Features
 * Stubbed the model contracts as contracts are not yet supported.
-* More adapter zone tests are added. 
+* More adapter zone tests have been added. 
 ### Fixes
 
 ### Docs
