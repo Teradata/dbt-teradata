@@ -1,0 +1,50 @@
+name: Coverity Scan
+
+on:
+  workflow_dispatch:
+  schedule:
+     - cron:  '30 7 * * 5'
+
+jobs:
+  coverity-scan:
+    if: github.repository == 'DeveloperTools/dbt-teradata'
+    runs-on: [self-hosted]
+    defaults:
+      run:
+        shell: bash
+    name: Coverity Scan
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Clone dbt Teradata Adapter
+        run: |
+          rm -rf /dbt
+          mkdir /dbt
+          cd /dbt; git clone https://${{ secrets.GH_TOKEN }}@github.td.teradata.com/DeveloperTools/dbt-teradata.git
+      - name: Coverity - Configure
+        run: |
+          rm -rf dbt_scan
+          mkdir  dbt_scan
+          export PATH=$PATH:/coverity/bin
+          cov-configure --python
+      - name: Coverity - Capture
+        run: |
+          export PATH=$PATH:/coverity/bin
+          cov-capture --project-dir /dbt/dbt-teradata --dir /dbt_scan --language python
+      - name: Coverity - Analyze
+        run: |
+          export PATH=$PATH:/coverity/bin
+          coverity analyze --dir /dbt_scan
+      - name: Coverity - Commit Defects
+        run: |
+          export PATH=$PATH:/coverity/bin
+          echo ${{ secrets.COVERITY_TOKEN }} > /tmp/coverity-token.txt
+          chmod 600 /tmp/coverity-token.txt
+          cov-commit-defects \
+            --url 'https://coverity.td.teradata.com:8443' \
+            --dir /dbt_scan \
+            --stream "dbt_stream_test" \
+            --auth-key-file /tmp/coverity-token.txt
+        env:
+          COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
