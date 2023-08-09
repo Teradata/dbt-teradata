@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0
+## dbt-teradata 1.5.4
 
 ### Features
 * Stubbed the model contracts as contracts are not yet supported.
