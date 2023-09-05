@@ -321,3 +321,6 @@ class TeradataAdapter(SQLAdapter):
         Not used to validate custom strategies defined by end users.
         """
         return ["delete+insert","append","merge"]
+    
+    def debug_query(self) -> None:
+        self.execute("select 1 as id")
