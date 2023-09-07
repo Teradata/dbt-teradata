@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from typing import Optional, Tuple, Any
 
 
-@dataclass(init=False)
+@dataclass
 class TeradataCredentials(Credentials):
     server: str
     database: Optional[str] = None
