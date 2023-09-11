@@ -322,5 +322,3 @@ class TeradataAdapter(SQLAdapter):
         """
         return ["delete+insert","append","merge"]
     
-    def debug_query(self) -> None:
-        self.execute("select 1 as id")
