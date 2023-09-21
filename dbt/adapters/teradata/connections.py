@@ -55,6 +55,7 @@ class TeradataCredentials(Credentials):
     logon_timeout: Optional[int] = None
     https_port: Optional[int] = None
     connect_timeout: Optional[int] = None
+    request_timeout: Optional[int] = None
 
     _ALIASES = {
         "UID": "username",
@@ -136,7 +137,8 @@ class TeradataCredentials(Credentials):
             "runstartup",
             "logon_timeout",
             "https_port",
-            "connect_timeout"
+            "connect_timeout",
+            "request_timeout"
         )
 
 
@@ -235,6 +237,8 @@ class TeradataConnectionManager(SQLConnectionManager):
            kwargs["https_port"]=credentials.https_port
         if credentials.connect_timeout:
            kwargs["connect_timeout"]=credentials.connect_timeout
+        if credentials.request_timeout:
+           kwargs["request_timeout"]=credentials.request_timeout
 
         # Save the transaction mode
         cls.TMODE = credentials.tmode
