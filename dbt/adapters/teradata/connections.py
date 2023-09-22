@@ -40,6 +40,22 @@ class TeradataCredentials(Credentials):
     teradata_values: Optional[str] = None
     retries: int = 0
     retry_timeout: int = 1
+    sslmode: Optional[str] = None
+    sslca: Optional[str] = None
+    sslcapath: Optional[str] = None
+    sslcrc: Optional[str] = None
+    sslcipher: Optional[str] = None
+    sslprotocol: Optional[str] = None
+    browser: Optional[str] = None
+    browser_tab_timeout: Optional[int] = None
+    browser_timeout: Optional[int] = None
+    sp_spl: Optional[bool] = None
+    sessions: Optional[int] = None
+    runstartup: Optional[bool] = None
+    logon_timeout: Optional[int] = None
+    https_port: Optional[int] = None
+    connect_timeout: Optional[int] = None
+    request_timeout: Optional[int] = None
 
     _ALIASES = {
         "UID": "username",
@@ -106,7 +122,23 @@ class TeradataCredentials(Credentials):
             "max_message_body",
             "partition",
             "sip_support",
-            "teradata_values"
+            "teradata_values",
+            "sslmode",
+            "sslca",
+            "sslcapath",
+            "sslcrc",
+            "sslcipher",
+            "sslprotocol",
+            "browser",
+            "browser_tab_timeout",
+            "browser_timeout",
+            "sp_spl",
+            "sessions",
+            "runstartup",
+            "logon_timeout",
+            "https_port",
+            "connect_timeout",
+            "request_timeout"
         )
 
 
@@ -136,9 +168,11 @@ class TeradataConnectionManager(SQLConnectionManager):
         kwargs = {}
 
         kwargs["host"] = credentials.server
-        kwargs["user"] = credentials.username
-        kwargs["password"] = credentials.password
         kwargs["tmode"] = credentials.tmode
+        if credentials.username:
+           kwargs["user"] = credentials.username
+        if credentials.password:
+            kwargs["password"] = credentials.password
         if credentials.logmech:
             kwargs["logmech"] = credentials.logmech
         if credentials.account:
@@ -173,12 +207,41 @@ class TeradataConnectionManager(SQLConnectionManager):
           kwargs["teradata_values"] = credentials.teradata_values
         if credentials.port:
             kwargs["dbs_port"] = credentials.port
+        if credentials.sslmode:
+           kwargs["sslmode"] = credentials.sslmode
+        if credentials.sslca:
+           kwargs["sslca"] = credentials.sslca
+        if credentials.sslcapath:
+           kwargs["sslcapath"] = credentials.sslcapath
+        if credentials.sslcrc:
+           kwargs["sslcrc"] = credentials.sslcrc
+        if credentials.sslcipher:
+           kwargs["sslcipher"] = credentials.sslcipher
+        if credentials.sslprotocol:
+           kwargs["sslprotocol"] = credentials.sslprotocol
+        if credentials.browser:
+           kwargs["browser"]=credentials.browser
+        if credentials.browser_tab_timeout:
+           kwargs["browser_tab_timeout"]=credentials.browser_tab_timeout
+        if credentials.browser_timeout:
+           kwargs["browser_timeout"]=credentials.browser_timeout
+        if credentials.sp_spl:
+           kwargs["sp_spl"]=credentials.sp_spl
+        if credentials.sessions:
+           kwargs["sessions"]=credentials.sessions
+        if credentials.runstartup:
+           kwargs["runstartup"]=credentials.runstartup
+        if credentials.logon_timeout:
+           kwargs["logon_timeout"]=credentials.logon_timeout
+        if credentials.https_port:
+           kwargs["https_port"]=credentials.https_port
+        if credentials.connect_timeout:
+           kwargs["connect_timeout"]=credentials.connect_timeout
+        if credentials.request_timeout:
+           kwargs["request_timeout"]=credentials.request_timeout
 
         # Save the transaction mode
         cls.TMODE = credentials.tmode
-
-        logger.debug("host: {}",credentials.server);
-        logger.debug("retries: {}",credentials.retries);
 
         if credentials.retries > 0:
             def connect():
