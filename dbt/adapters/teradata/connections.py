@@ -10,13 +10,16 @@ from dbt.adapters.base import Credentials
 from dbt.events import AdapterLogger
 logger = AdapterLogger("teradata")
 from dataclasses import dataclass
-from typing import Optional, Tuple, Any
+from typing import Optional, Tuple, Any, Dict
 
 
-@dataclass(init=False)
-class TeradataCredentials(Credentials):
+@dataclass
+class TeradataCredentials(Credentials):        
+     # Mandatory required arguments.
     server: str
-    database: Optional[str] = None
+    # Specifying database is optional
+    database: Optional[str]
+
     username: Optional[str] = None
     password: Optional[str] = None
     port: Optional[str] = None
@@ -40,18 +43,13 @@ class TeradataCredentials(Credentials):
     teradata_values: Optional[str] = None
     retries: int = 0
     retry_timeout: int = 1
-
+    
     _ALIASES = {
         "UID": "username",
         "user": "username",
         "PWD": "password",
         "host": "server"
     }
-
-    def __init__(self, **kwargs):
-      for k, v in kwargs.items():
-        setattr(self, k, v)
-        self.database = None
 
     def __post_init__(self):
         # teradata classifies database and schema as the same thing
@@ -106,10 +104,17 @@ class TeradataCredentials(Credentials):
             "max_message_body",
             "partition",
             "sip_support",
-            "teradata_values"
+            "teradata_values",
         )
-
-
+    
+    @classmethod
+    def __pre_deserialize__(cls, data: Dict[Any, Any]) -> Dict[Any, Any]:
+        # If database is not defined as adapter credentials
+        data = super().__pre_deserialize__(data)
+        if "database" not in data:
+            data["database"] = None
+        return data
+    
 class TeradataConnectionManager(SQLConnectionManager):
     TYPE = "teradata"
     TMODE = "ANSI"
@@ -136,9 +141,11 @@ class TeradataConnectionManager(SQLConnectionManager):
         kwargs = {}
 
         kwargs["host"] = credentials.server
-        kwargs["user"] = credentials.username
-        kwargs["password"] = credentials.password
         kwargs["tmode"] = credentials.tmode
+        if credentials.username:
+           kwargs["user"] = credentials.username
+        if credentials.password:
+            kwargs["password"] = credentials.password
         if credentials.logmech:
             kwargs["logmech"] = credentials.logmech
         if credentials.account:
@@ -176,9 +183,6 @@ class TeradataConnectionManager(SQLConnectionManager):
 
         # Save the transaction mode
         cls.TMODE = credentials.tmode
-
-        logger.debug("host: {}",credentials.server);
-        logger.debug("retries: {}",credentials.retries);
 
         if credentials.retries > 0:
             def connect():
