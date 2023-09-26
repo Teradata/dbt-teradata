@@ -51,7 +51,7 @@ def dbt_profile_target():
         'user': username, #{{os.getenv('USER'), 'dbc'}},
         'password': password, #{{os.getenv('PASSWORD'), 'dbc'}},
         'tmode': 'ANSI',
-        'log': '0'
+        'log': '1'
     }
 
 @pytest.fixture(scope="class")
