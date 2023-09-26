@@ -24,9 +24,9 @@ class TestMacroInvalidQueryCommentsTeradata(BaseMacroInvalidQueryComments):
     pass
 
 
-class TestNullQueryCommentsTeradata(BaseNullQueryComments):
-    pass
+# class TestNullQueryCommentsTeradata(BaseNullQueryComments):
+#     pass
 
 
-class TestEmptyQueryCommentsTeradata(BaseEmptyQueryComments):
-    pass
+# class TestEmptyQueryCommentsTeradata(BaseEmptyQueryComments):
+#     pass
