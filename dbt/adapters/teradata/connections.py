@@ -10,13 +10,16 @@ from dbt.adapters.base import Credentials
 from dbt.events import AdapterLogger
 logger = AdapterLogger("teradata")
 from dataclasses import dataclass
-from typing import Optional, Tuple, Any
+from typing import Optional, Tuple, Any, Dict
 
 
-@dataclass(init=False)
-class TeradataCredentials(Credentials):
+@dataclass
+class TeradataCredentials(Credentials):        
+     # Mandatory required arguments.
     server: str
-    database: Optional[str] = None
+    # Specifying database is optional
+    database: Optional[str]
+
     username: Optional[str] = None
     password: Optional[str] = None
     port: Optional[str] = None
@@ -63,11 +66,6 @@ class TeradataCredentials(Credentials):
         "PWD": "password",
         "host": "server"
     }
-
-    def __init__(self, **kwargs):
-      for k, v in kwargs.items():
-        setattr(self, k, v)
-        self.database = None
 
     def __post_init__(self):
         # teradata classifies database and schema as the same thing
@@ -140,8 +138,15 @@ class TeradataCredentials(Credentials):
             "connect_timeout",
             "request_timeout"
         )
-
-
+    
+    @classmethod
+    def __pre_deserialize__(cls, data: Dict[Any, Any]) -> Dict[Any, Any]:
+        # If database is not defined as adapter credentials
+        data = super().__pre_deserialize__(data)
+        if "database" not in data:
+            data["database"] = None
+        return data
+    
 class TeradataConnectionManager(SQLConnectionManager):
     TYPE = "teradata"
     TMODE = "ANSI"
