@@ -31,22 +31,3 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TESTPYPI_TOKEN }}
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          tag_name: v${{ github.event.inputs.releaseVersion }}
-          release_name: dbt-teradata v${{ github.event.inputs.releaseVersion }}
-          body_path: ./CHANGELOG.md
-          draft: false
-          prerelease: false
-      - name: reset changelog
-        shell: bash
-        run: |
-          git checkout main
-          cp CHANGELOG.md.template CHANGELOG.md
-          git add CHANGELOG.md
-          git commit -m "resetting CHANGELOG.md for the next release"
-          git push
