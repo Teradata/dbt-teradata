@@ -8,6 +8,8 @@
 * Addition of few more connection paramaters for example: sslmode, sslcipher etc. (https://github.com/Teradata/dbt-teradata/pull/106)
 
 ### Docs
+* Model contracts are not yet supported 
+* materialized_view is not yet supported
 
 ### Under the hood
 * Addition of some more adapter zone testcases
