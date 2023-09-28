@@ -193,6 +193,22 @@ The plugin also supports the following Teradata connection parameters:
 * partition
 * sip_support
 * teradata_values
+* sslmode
+* sslca
+* sslcapath
+* sslcrc
+* sslcipher
+* sslprotocol
+* browser
+* browser_tab_timeout
+* browser_timeout
+* sp_spl
+* sessions
+* runstartup
+* logon_timeout
+* https_port
+* connect_timeout
+* request_timeout
 
 For full description of the connection parameters see https://github.com/Teradata/python-driver#connection-parameters.
 
