@@ -22,17 +22,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements_dev.txt
-      - name: Bump version
-        shell: bash
-        run: |
-          git checkout -b releases/$RELEASE_VERSION
-          git config --global user.email "developers@teradata.com"
-          git config --global user.name "Teradata GitHub Actions"
-          bumpversion --tag --commit --new-version $RELEASE_VERSION num
-          git push --set-upstream origin releases/$RELEASE_VERSION
-          git push --tags
-        env:
-          RELEASE_VERSION: ${{ github.event.inputs.releaseVersion }}
       - name: Upload to PyPi
         shell: bash
         run: |
