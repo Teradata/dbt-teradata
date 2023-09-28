@@ -1,13 +1,9 @@
 name: CD Release TESTPYPI
 on:
   workflow_dispatch:
-    inputs:
-      releaseVersion:
-        description: 'Semantic version of the release'
-        required: true
-
+  
 jobs:
-  cdRelease:
+  cdReleaseTestpypi:
     runs-on: ubuntu-latest
     name: Release
     steps:
