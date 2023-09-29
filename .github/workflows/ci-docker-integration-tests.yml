@@ -41,9 +41,9 @@ jobs:
             outputs:
               dev:
                 type: teradata
-                host: dbt-teradata-kov5i42lw6n5x294.env.clearscape.teradata.com
+                host: dbt-teradata-t3gwet5u19m2zwm9.env.clearscape.teradata.com
                 user: demo_user
-                password: dbt_teradata
+                password: dbt-teradata
                 logmech: TD2
                 schema: jaffle_shop
                 tmode: ANSI
