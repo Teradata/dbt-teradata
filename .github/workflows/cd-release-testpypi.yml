@@ -46,9 +46,9 @@ jobs:
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          with:
-            tag_name: v${{ github.event.inputs.releaseVersion }}
-            release_name: dbt-teradata v${{ github.event.inputs.releaseVersion }}
-            body_path: ./CHANGELOG.md
-            draft: false
-            prerelease: false
+        with:
+          tag_name: v${{ github.event.inputs.releaseVersion }}
+          release_name: dbt-teradata v${{ github.event.inputs.releaseVersion }}
+          body_path: ./CHANGELOG.md
+          draft: false
+          prerelease: false
