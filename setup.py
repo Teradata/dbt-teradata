@@ -40,6 +40,7 @@ setup(
         'dbt.include.teradata': [
             'macros/*.sql',
             'macros/materializations/**/*.sql',
+            'macros/utils/**/*.sql',
             'dbt_project.yml',
             'sample_profiles.yml',
         ],
