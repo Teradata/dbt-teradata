@@ -90,7 +90,7 @@ jobs:
 
           # prepare bteq script
           cat << EOF > /tmp/install_md5.bteq
-          .SET EXITONDELAY ON MAXREQTIME 28
+          .SET EXITONDELAY ON MAXREQTIME 32
           .logon 127.0.0.1/dbc,dbc
           CREATE DATABASE GLOBAL_FUNCTIONS AS PERMANENT = 60e6, SPOOL = 120e6;
           GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO dbc;
