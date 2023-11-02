@@ -28,7 +28,7 @@ jobs:
           echo "my IP address is: " $(ipconfig getifaddr en0)
           mkdir /tmp/downloads
           cd /tmp/downloads
-          curl -L "https://d289lrf5tw1zls.cloudfront.net/database/teradata-express/VantageExpress17.20_Sles12_20220819081111.7z?Expires=1704067200&Key-Pair-Id=APKAJ3SWQUPWKYVMO2WQ&Signature=$VE_URL_SIGNATURE" \
+          curl -L "https://d289lrf5tw1zls.cloudfront.net/database/teradata-express/VantageExpress17.20_Sles12_20220819081111.7z?Expires=1735689600&Signature=$VE_URL_SIGNATURE&Key-Pair-Id=APKAJ3SWQUPWKYVMO2WQ" \
             --compressed -o ve.7z
         env:
           VE_URL_SIGNATURE: ${{ secrets.VE_URL_SIGNATURE }}
@@ -58,7 +58,7 @@ jobs:
       - name: Install TTU
         shell: bash
         run: |
-          curl -L "https://d289lrf5tw1zls.cloudfront.net/tools/ttu/TeradataToolsAndUtilitiesBase__macosx_x86_64.17.20.08.00.tar.gz?Expires=1704067200&Key-Pair-Id=APKAJ3SWQUPWKYVMO2WQ&Signature=$TTU_URL_SIGNATURE" \
+          curl -L "https://d289lrf5tw1zls.cloudfront.net/tools/ttu/TeradataToolsAndUtilitiesBase__macosx_x86_64.17.20.08.00.tar.gz?Expires=1735689600&Signature=$TTU_URL_SIGNATURE&Key-Pair-Id=APKAJ3SWQUPWKYVMO2WQ" \
             --compressed -o ttu.tar.gz
           tar -xzf ttu.tar.gz
 
