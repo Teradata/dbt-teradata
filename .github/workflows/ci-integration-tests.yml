@@ -28,7 +28,7 @@ jobs:
           echo "my IP address is: " $(ipconfig getifaddr en0)
           mkdir /tmp/downloads
           cd /tmp/downloads
-          curl -L "https://d289lrf5tw1zls.cloudfront.net/database/teradata-express/VantageExpress17.10_Sles12_20220622072238.7z?Expires=1699017159&Signature=NkUGDoabykXbwuZq8J0~jX92pC7YI5jV97lcI1RjztSvM4llAtjq5wEiWxCzeVbrQefb-llt4DBzBvp8e0Ay-EJtJWyRFAiXZ5tlA9FOQVJo44UervIyRI~g1Q0HsCBQJ-zfYmw07jOQ0KvgbRYBLWZHEzEHDHdDCY04ygC9QGMajJn1XHhPczIY4zRvJTcrF0uy2vZzBhh0CJGo8l1hsk9Z~Tg5uR~~hOi06QoX6tkskjAetDllmyFcdLVWi0nbHog1UuGg7OOlLelLfBFGOJVwFv4neUGqTASjnS2xI2xYoTJlMOzMN2Hg4GGm08Wldt-tWHeidriyqeqoUMZ2Sg__&Key-Pair-Id=APKAJ3SWQUPWKYVMO2WQ" \
+          curl -L "https://d289lrf5tw1zls.cloudfront.net/database/teradata-express/VantageExpress17.20_Sles12_20230220064202.7z?Expires=1699018464&Signature=Mf2ZSVrSuTKasHsMxkitAMJG6ND9VHa29K-Gg1iZyYWyGkYVughkZm1B2YZaWd6nruCESttXY2MH9u7NCRqBM7QykAXHS4CQ6Pgo5MdE-7WZ7x9l7U1oIPorQcRGSVLBqMV2vOux~pfizAL83DkIVt~6jDgdo84RqVHm~vEIWD29B5sOTM3OEtipUgfWcKsZQoQoDwBnIuAFfMagJNjliof5soeS9hWKnB~06v5UsWZICAoPLR18lhDQRzq6mnd0rs24Di8bhdItm6IduVzSAjJyrXAK6BQn72nECZhk5UFtdACD067WVL8e5p7E5B1jgkuM60yeP5lZYBpoEskkEQ__&Key-Pair-Id=APKAJ3SWQUPWKYVMO2WQ" \
             --compressed -o ve.7z
         env:
           VE_URL_SIGNATURE: ${{ secrets.VE_URL_SIGNATURE }}
