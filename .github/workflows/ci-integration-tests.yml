@@ -42,7 +42,7 @@ jobs:
       - name: Install Vantage Express
         shell: bash
         run: |
-          export VM_IMAGE_DIR="/tmp/downloads/VantageExpress17.20_Sles12"
+          export VM_IMAGE_DIR="/tmp/downloads/VantageExpress17.10_Sles12"
           DEFAULT_VM_NAME="vantage-express"
           VM_NAME="${VM_NAME:-$DEFAULT_VM_NAME}"
           vboxmanage createvm --name "$VM_NAME" --register --ostype openSUSE_64
