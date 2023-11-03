@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost '/etc/init.d/tpa start'
+sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost 'tail -200 /var/log/messages' || true
+
 # add bteq to path
 export PATH=$PATH:"/Users/runner/Library/Application Support/teradata/client/17.20/bin/"
 
