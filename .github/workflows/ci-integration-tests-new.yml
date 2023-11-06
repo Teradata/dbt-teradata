@@ -10,7 +10,7 @@ jobs:
   test:
     strategy:
       matrix:
-        python: ['3.9']
+        python: ['3.10']
     runs-on: ubuntu-latest
     name: Functional test
     steps:
