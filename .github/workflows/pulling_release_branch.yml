@@ -1,8 +1,5 @@
 name: pulling_release_branch
 
-on:
-  workflow_dispatch:
-
 jobs:
   main:
     runs-on: [self-hosted, on-prem]
