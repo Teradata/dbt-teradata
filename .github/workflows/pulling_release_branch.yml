@@ -1,6 +1,9 @@
 name: pulling_release_branch
 
-on: [push]
+on:
+  workflow_dispatch:
+  schedule:
+     - cron:  '0 7 * * *'
 jobs:
   main:
     runs-on: [self-hosted, on-prem]
