@@ -138,6 +138,9 @@ jobs:
           DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
           DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
           DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+          DBT_TERADATA_SERVER_NAME_1: ${{ vars.DBT_TERADATA_SERVER_NAME_1 }}
+          DBT_TERADATA_USERNAME_1: ${{ vars.DBT_TERADATA_USERNAME_1 }}
+          DBT_TERADATA_PASSWORD_1: ${{ vars.DBT_TERADATA_PASSWORD_1 }}
         
       - name: Run catalog tests
         run: |
