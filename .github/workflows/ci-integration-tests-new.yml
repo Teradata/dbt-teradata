@@ -151,9 +151,9 @@ jobs:
       
       - name: Run nopi tests
         run: |
-          sed -i "s/hostname=.*/hostname='$DBT_TERADATA_SERVER_NAME_2'/g" tests/conftest.py
-          sed -i "s/username=.*/username='$DBT_TERADATA_USERNAME_2'/g" tests/conftest.py
-          sed -i "s/password=.*/password='$DBT_TERADATA_PASSWORD_2'/g" tests/conftest.py
+          sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME_2'/g" tests/conftest.py
+          sed -i "s/username=demo.*/username='$DBT_TERADATA_USERNAME_2'/g" tests/conftest.py
+          sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD_2'/g" tests/conftest.py
           echo "****************************************************"
           cat tests/conftest.py
           echo "****************************************************"
