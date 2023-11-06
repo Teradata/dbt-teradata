@@ -1,5 +1,6 @@
 name: pulling_release_branch
 
+on: [push]
 jobs:
   main:
     runs-on: [self-hosted, on-prem]
