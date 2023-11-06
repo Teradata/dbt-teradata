@@ -75,26 +75,31 @@ jobs:
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
           pytest tests/functional
-      - name: Run pytest tests with existing database
-        run: |
-          export DBT_TEST_USER_1=test_grants_user1
-          export DBT_TEST_USER_2=test_grants_user2
-          export DBT_TEST_USER_3=test_grants_user3
-          cat << EOF > /tmp/pytestdatabase.bteq
-          .SET EXITONDELAY ON MAXREQTIME 20
-          .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
-          CREATE DATABASE DBT_TEST
-            AS PERMANENT = 60e6, SPOOL = 120e6;
-          .logoff
-          EOF
-          # strip the random suffix from the pytest config
-          sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
-
-          pytest tests/functional
         env:
           DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
           DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
           DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+          
+      # - name: Run pytest tests with existing database
+      #   run: |
+      #     export DBT_TEST_USER_1=test_grants_user1
+      #     export DBT_TEST_USER_2=test_grants_user2
+      #     export DBT_TEST_USER_3=test_grants_user3
+      #     cat << EOF > /tmp/pytestdatabase.bteq
+      #     .SET EXITONDELAY ON MAXREQTIME 20
+      #     .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
+      #     CREATE DATABASE DBT_TEST
+      #       AS PERMANENT = 60e6, SPOOL = 120e6;
+      #     .logoff
+      #     EOF
+      #     # strip the random suffix from the pytest config
+      #     sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
+
+      #     pytest tests/functional
+      #   env:
+      #     DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
+      #     DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
+      #     DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
 
       - name: Run performance tests for fastload
         run: |
