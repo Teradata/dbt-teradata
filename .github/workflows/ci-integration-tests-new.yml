@@ -63,97 +63,73 @@ jobs:
       #     DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
 
           
-      # - name: Run pytest tests
-      #   run: |
-      #     sed -i "s/localhost/$DBT_TERADATA_SERVER_NAME/g" tests/conftest.py
-      #     sed -i "s/username='dbc'/username='$DBT_TERADATA_USERNAME'/g" tests/conftest.py
-      #     sed -i "s/password='dbc'/password='$DBT_TERADATA_PASSWORD'/g" tests/conftest.py
-      #     echo "****************************************************"
-      #     cat tests/conftest.py
-      #     echo "****************************************************"
-      #     export DBT_TEST_USER_1=test_grants_user1
-      #     export DBT_TEST_USER_2=test_grants_user2
-      #     export DBT_TEST_USER_3=test_grants_user3
-      #     pytest tests/functional
-      #   env:
-      #     DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
-      #     DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
-      #     DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
-          
-      # - name: Run pytest tests with existing database
-      #   run: |
-      #     export DBT_TEST_USER_1=test_grants_user1
-      #     export DBT_TEST_USER_2=test_grants_user2
-      #     export DBT_TEST_USER_3=test_grants_user3
-      #     cat << EOF > /tmp/pytestdatabase.bteq
-      #     .SET EXITONDELAY ON MAXREQTIME 20
-      #     .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
-      #     CREATE DATABASE DBT_TEST
-      #       AS PERMANENT = 60e6, SPOOL = 120e6;
-      #     .logoff
-      #     EOF
-      #     # strip the random suffix from the pytest config
-      #     sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
-
-      #     pytest tests/functional
-      #   env:
-      #     DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
-      #     DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
-      #     DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
-
-      # - name: Run performance tests for fastload
-      #   run: |
-      #     mkdir ~/.dbt
-      #     cat << EOF > ~/.dbt/profiles.yml
-      #     teradata:
-      #       outputs:
-      #         dbt_perf_test:
-      #           type: teradata
-      #           host: $DBT_TERADATA_SERVER_NAME
-      #           user: $DBT_TERADATA_USERNAME
-      #           password: $DBT_TERADATA_PASSWORD
-      #           logmech: TD2
-      #           schema: dbt_perf_test
-      #           tmode: ANSI
-      #           threads: 1
-      #           timeout_seconds: 300
-      #           priority: interactive
-      #           retries: 1
-      #         dbt_catalog_test:
-      #           type: teradata
-      #           host: $DBT_TERADATA_SERVER_NAME_1
-      #           user: $DBT_TERADATA_USERNAME_1
-      #           password: $DBT_TERADATA_PASSWORD_1
-      #           logmech: TD2
-      #           schema: dbt_catalog_test
-      #           tmode: ANSI
-      #           threads: 1
-      #           timeout_seconds: 300
-      #           priority: interactive
-      #           retries: 1
-      #     EOF
-      #     cd $GITHUB_WORKSPACE/test/performance
-      #     ./run.sh
-      #   env:
-      #     DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
-      #     DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
-      #     DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
-      #     DBT_TERADATA_SERVER_NAME_1: ${{ vars.DBT_TERADATA_SERVER_NAME_1 }}
-      #     DBT_TERADATA_USERNAME_1: ${{ vars.DBT_TERADATA_USERNAME_1 }}
-      #     DBT_TERADATA_PASSWORD_1: ${{ vars.DBT_TERADATA_PASSWORD_1 }}
-        
-      # - name: Run catalog tests
-      #   run: |
-      #     cd $GITHUB_WORKSPACE/test/catalog/with_qvci
-      #     ./run.sh
-      #     cd $GITHUB_WORKSPACE/test/catalog/without_qvci
-      #     ./run.sh
-      
-      - name: Run nopi tests
+      - name: Run pytest tests
         run: |
           sed -i "s/localhost/$DBT_TERADATA_SERVER_NAME/g" tests/conftest.py
           sed -i "s/username='dbc'/username='$DBT_TERADATA_USERNAME'/g" tests/conftest.py
           sed -i "s/password='dbc'/password='$DBT_TERADATA_PASSWORD'/g" tests/conftest.py
+          echo "****************************************************"
+          cat tests/conftest.py
+          echo "****************************************************"
+          export DBT_TEST_USER_1=test_grants_user1
+          export DBT_TEST_USER_2=test_grants_user2
+          export DBT_TEST_USER_3=test_grants_user3
+          pytest tests/functional
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
+          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
+          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+
+      - name: Run performance tests for fastload
+        run: |
+          mkdir ~/.dbt
+          cat << EOF > ~/.dbt/profiles.yml
+          teradata:
+            outputs:
+              dbt_perf_test:
+                type: teradata
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
+                logmech: TD2
+                schema: dbt_perf_test
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_catalog_test:
+                type: teradata
+                host: $DBT_TERADATA_SERVER_NAME_1
+                user: $DBT_TERADATA_USERNAME_1
+                password: $DBT_TERADATA_PASSWORD_1
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+          EOF
+          cd $GITHUB_WORKSPACE/test/performance
+          ./run.sh
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
+          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
+          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+          DBT_TERADATA_SERVER_NAME_1: ${{ vars.DBT_TERADATA_SERVER_NAME_1 }}
+          DBT_TERADATA_USERNAME_1: ${{ vars.DBT_TERADATA_USERNAME_1 }}
+          DBT_TERADATA_PASSWORD_1: ${{ vars.DBT_TERADATA_PASSWORD_1 }}
+        
+      - name: Run catalog tests
+        run: |
+          cd $GITHUB_WORKSPACE/test/catalog/with_qvci
+          ./run.sh
+          cd $GITHUB_WORKSPACE/test/catalog/without_qvci
+          ./run.sh
+      
+      - name: Run nopi tests
+        run: |
           sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME_2'/g" tests/conftest.py
           sed -i "s/username=demo.*/username='$DBT_TERADATA_USERNAME_2'/g" tests/conftest.py
           sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD_2'/g" tests/conftest.py
@@ -162,9 +138,6 @@ jobs:
           echo "****************************************************"
           pytest tests/functional/adapter/test_nopi.py
         env:
-          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
-          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
-          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
           DBT_TERADATA_SERVER_NAME_2: ${{ vars.DBT_TERADATA_SERVER_NAME_2 }}
           DBT_TERADATA_USERNAME_2: ${{ vars.DBT_TERADATA_USERNAME_2 }}
           DBT_TERADATA_PASSWORD_2: ${{ vars.DBT_TERADATA_PASSWORD_2 }}
