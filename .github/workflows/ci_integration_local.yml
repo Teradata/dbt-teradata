@@ -1,4 +1,4 @@
-name: CI Integration Tests
+name: CI Integration Tests Local
 on:
   workflow_dispatch:
   pull_request:
