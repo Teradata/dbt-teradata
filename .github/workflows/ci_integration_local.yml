@@ -86,26 +86,26 @@ jobs:
            python -m pip install --upgrade pip
            pip install -r requirements_dev.txt
 
-      - name: Prepare database
-        shell: bash
-        run: |          
-          export PATH=$PATH:"/Users/runner/Library/Application Support/teradata/client/17.20/bin"
+#       - name: Prepare database
+#         shell: bash
+#         run: |          
+#           export PATH=$PATH:"/Users/runner/Library/Application Support/teradata/client/17.20/bin"
 
-          cd md5_20080530/md5/src
+#           cd md5_20080530/md5/src
 
-          # prepare bteq script
-          cat << EOF > /tmp/install_md5.bteq
-          .SET EXITONDELAY ON MAXREQTIME 20
-          .logon sdt62740.labs.teradata.com/dbc,dbc
-          CREATE DATABASE GLOBAL_FUNCTIONS AS PERMANENT = 60e6, SPOOL = 120e6;
-          GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO dbc;
-          DATABASE GLOBAL_FUNCTIONS;
-          .run file = hash_md5.btq
-          GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
-          .logoff
-          EOF
+#           # prepare bteq script
+#           cat << EOF > /tmp/install_md5.bteq
+#           .SET EXITONDELAY ON MAXREQTIME 20
+#           .logon sdt62740.labs.teradata.com/dbc,dbc
+#           CREATE DATABASE GLOBAL_FUNCTIONS AS PERMANENT = 60e6, SPOOL = 120e6;
+#           GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO dbc;
+#           DATABASE GLOBAL_FUNCTIONS;
+#           .run file = hash_md5.btq
+#           GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
+#           .logoff
+#           EOF
 
-          bteq < /tmp/install_md5.bteq
+#           bteq < /tmp/install_md5.bteq
           
       - name: Run pytest tests
         run: |
