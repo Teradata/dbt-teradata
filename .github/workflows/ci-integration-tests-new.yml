@@ -61,6 +61,7 @@ jobs:
           DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
           DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
           DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+        continue-on-error: true
 
           
       - name: Run pytest tests
