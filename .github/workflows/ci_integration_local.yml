@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         python: ['3.7.16', '3.8', '3.9','3.10', '3.11']
-    runs-on: vaa-cdt-ubuntu-7040
+    runs-on: self-hosted
     name: Functional test
     steps:
       - name: Setup Python
