@@ -65,9 +65,12 @@ jobs:
           
       - name: Run pytest tests
         run: |
-          sed -i "s|localhost|$DBT_TERADATA_SERVER_NAME|g" tests/conftest.py
-          sed -i "s|username='dbc'|username='$DBT_TERADATA_USERNAME'|g" tests/conftest.py
-          sed -i "s|password='dbc'|password='$DBT_TERADATA_PASSWORD'|g" tests/conftest.py
+          sed -i "s/localhost/$DBT_TERADATA_SERVER_NAME/g" tests/conftest.py
+          sed -i "s/username='dbc'/username='$DBT_TERADATA_USERNAME'/g" tests/conftest.py
+          sed -i "s/password='dbc'/password='$DBT_TERADATA_PASSWORD'/g" tests/conftest.py
+          echo "****************************************************"
+          cat tests/conftest.py
+          echo "****************************************************"
           export DBT_TEST_USER_1=test_grants_user1
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
