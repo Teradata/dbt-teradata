@@ -22,27 +22,21 @@ jobs:
           -H 'accept: application/json' \
           -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
           -H 'Content-Type: appliion/json' \
-          -d '{
-          "operation": "start"
-          }'
+          -d '{ "operation": "start" }'
 
           curl -X 'PATCH' \
           'https://api.clearscape.teradata.com/environments/dbt-teradata-2' \
           -H 'accept: appliion/json' \
           -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
           -H 'Content-Type: appliion/json' \
-          -d '{
-          "operation": "start"
-          }'
+          -d '{ "operation": "start" }'
 
           curl -X 'PATCH' \
           'https://api.clearscape.teradata.com/environments/dbt-teradata-3' \
           -H 'accept: appliion/json' \
           -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
           -H 'Content-Type: appliion/json' \
-          -d '{
-          "operation": "start"
-          }'
+          -d '{ "operation": "start" }'
         
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -174,27 +168,21 @@ jobs:
           -H 'accept: application/json' \
           -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
           -H 'Content-Type: application/json' \
-          -d '{
-          "operation": "stop"
-          }'
+          -d '{ "operation": "stop" }'
 
           curl -X 'PATCH' \
           'https://api.clearscape.teradata.com/environments/dbt-teradata-2' \
           -H 'accept: application/json' \
           -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
           -H 'Content-Type: application/json' \
-          -d '{
-          "operation": "stop"
-          }'
+          -d '{ "operation": "stop" }'
 
           curl -X 'PATCH' \
           'https://api.clearscape.teradata.com/environments/dbt-teradata-3' \
           -H 'accept: application/json' \
           -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
           -H 'Content-Type: application/json' \
-          -d '{
-          "operation": "stop"
-          }'
+          -d '{ "operation": "stop" }'
           
       - uses: actions/upload-artifact@v2
         if: ${{ failure() ||  cancelled() }}
