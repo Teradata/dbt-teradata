@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost '/etc/init.d/tpa start'
-sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost 'tail -200 /var/log/messages' || true
-
 # add bteq to path
 export PATH=$PATH:"/Users/runner/Library/Application Support/teradata/client/17.20/bin/"
 
@@ -20,7 +17,7 @@ do
   echo "Trying to connect to Vantage Express. Attempt $n. This might take a minute."
   bteq < /tmp/test.bteq && break
   n=$((n+1))
-  sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@127.0.0.1 'tail -200 /var/log/messages' || true
+  sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost 'tail -200 /var/log/messages' || true
   echo "Waiting 10 seconds before the next attempt."
   sleep 10
 done
