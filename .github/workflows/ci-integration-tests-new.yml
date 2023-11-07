@@ -14,6 +14,36 @@ jobs:
     runs-on: ubuntu-latest
     name: Functional test
     steps:
+      - name: Start Clearscape DBS
+        shell: bash
+        run: |
+          curl -X 'PATCH' \
+          'https://api.clearscape.teradata.com/environments/dbt-teradata-1' \
+          -H 'accept: application/json' \
+          -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
+          -H 'Content-Type: application/json' \
+          -d '{
+          "operation": "start"
+          }'
+
+          curl -X 'PATCH' \
+          'https://api.clearscape.teradata.com/environments/dbt-teradata-2' \
+          -H 'accept: application/json' \
+          -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
+          -H 'Content-Type: application/json' \
+          -d '{
+          "operation": "start"
+          }'
+
+          curl -X 'PATCH' \
+          'https://api.clearscape.teradata.com/environments/dbt-teradata-3' \
+          -H 'accept: application/json' \
+          -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
+          -H 'Content-Type: application/json' \
+          -d '{
+          "operation": "start"
+          }'
+        
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
@@ -141,6 +171,37 @@ jobs:
           DBT_TERADATA_SERVER_NAME_2: ${{ vars.DBT_TERADATA_SERVER_NAME_2 }}
           DBT_TERADATA_USERNAME_2: ${{ vars.DBT_TERADATA_USERNAME_2 }}
           DBT_TERADATA_PASSWORD_2: ${{ vars.DBT_TERADATA_PASSWORD_2 }}
+
+      - name: Stop Clearscape DBS
+        shell: bash
+        run: |
+          curl -X 'PATCH' \
+          'https://api.clearscape.teradata.com/environments/dbt-teradata-1' \
+          -H 'accept: application/json' \
+          -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
+          -H 'Content-Type: application/json' \
+          -d '{
+          "operation": "stop"
+          }'
+
+          curl -X 'PATCH' \
+          'https://api.clearscape.teradata.com/environments/dbt-teradata-2' \
+          -H 'accept: application/json' \
+          -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
+          -H 'Content-Type: application/json' \
+          -d '{
+          "operation": "stop"
+          }'
+
+          curl -X 'PATCH' \
+          'https://api.clearscape.teradata.com/environments/dbt-teradata-3' \
+          -H 'accept: application/json' \
+          -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
+          -H 'Content-Type: application/json' \
+          -d '{
+          "operation": "stop"
+          }'
+          
       - uses: actions/upload-artifact@v2
         if: ${{ failure() ||  cancelled() }}
         with:
