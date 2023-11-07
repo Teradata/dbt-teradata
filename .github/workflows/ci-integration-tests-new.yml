@@ -149,23 +149,23 @@ jobs:
           DBT_TERADATA_USERNAME_1: ${{ vars.DBT_TERADATA_USERNAME_1 }}
           DBT_TERADATA_PASSWORD_1: ${{ vars.DBT_TERADATA_PASSWORD_1 }}
         
-      # - name: Run catalog tests
-      #   run: |
-      #     cd $GITHUB_WORKSPACE/test/catalog/with_qvci
-      #     ./run.sh
-      #     cd $GITHUB_WORKSPACE/test/catalog/without_qvci
-      #     ./run.sh
+      - name: Run catalog tests
+        run: |
+          cd $GITHUB_WORKSPACE/test/catalog/with_qvci
+          ./run.sh
+          cd $GITHUB_WORKSPACE/test/catalog/without_qvci
+          ./run.sh
       
-      # - name: Run nopi tests
-      #   run: |
-      #     sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME_2'/g" tests/conftest.py
-      #     sed -i "s/username=demo.*/username='$DBT_TERADATA_USERNAME_2'/g" tests/conftest.py
-      #     sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD_2'/g" tests/conftest.py
-      #     pytest tests/functional/adapter/test_nopi.py
-      #   env:
-      #     DBT_TERADATA_SERVER_NAME_2: ${{ vars.DBT_TERADATA_SERVER_NAME_2 }}
-      #     DBT_TERADATA_USERNAME_2: ${{ vars.DBT_TERADATA_USERNAME_2 }}
-      #     DBT_TERADATA_PASSWORD_2: ${{ vars.DBT_TERADATA_PASSWORD_2 }}
+      - name: Run nopi tests
+        run: |
+          sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME_2'/g" tests/conftest.py
+          sed -i "s/username=demo.*/username='$DBT_TERADATA_USERNAME_2'/g" tests/conftest.py
+          sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD_2'/g" tests/conftest.py
+          pytest tests/functional/adapter/test_nopi.py
+        env:
+          DBT_TERADATA_SERVER_NAME_2: ${{ vars.DBT_TERADATA_SERVER_NAME_2 }}
+          DBT_TERADATA_USERNAME_2: ${{ vars.DBT_TERADATA_USERNAME_2 }}
+          DBT_TERADATA_PASSWORD_2: ${{ vars.DBT_TERADATA_PASSWORD_2 }}
 
       # - name: Stop Clearscape DBS
       #   if: always()
