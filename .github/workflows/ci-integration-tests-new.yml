@@ -68,30 +68,30 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements_dev.txt
 
-      - name: Prepare database
-        shell: bash
-        run: |          
-          export PATH=$PATH:"/opt/teradata/client/17.20/bin"
+      # - name: Prepare database
+      #   shell: bash
+      #   run: |          
+      #     export PATH=$PATH:"/opt/teradata/client/17.20/bin"
 
-          cd md5_20080530/md5/src
+      #     cd md5_20080530/md5/src
 
-          # prepare bteq script
-           << EOF > /tmp/install_md5.bteq
-          .SET EXITONDELAY ON MAXREQTIME 20
-          .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
-          CREATE DATABASE GLOBAL_FUNCTIONS AS PERMANENT = 60e6, SPOOL = 120e6;
-          GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO $DBT_TERADATA_USERNAME;
-          DATABASE GLOBAL_FUNCTIONS;
-          .run file = hash_md5.btq
-          GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
-          .logoff
-          EOF
+      #     # prepare bteq script
+      #      << EOF > /tmp/install_md5.bteq
+      #     .SET EXITONDELAY ON MAXREQTIME 20
+      #     .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
+      #     CREATE DATABASE GLOBAL_FUNCTIONS AS PERMANENT = 60e6, SPOOL = 120e6;
+      #     GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO $DBT_TERADATA_USERNAME;
+      #     DATABASE GLOBAL_FUNCTIONS;
+      #     .run file = hash_md5.btq
+      #     GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
+      #     .logoff
+      #     EOF
 
-          bteq < /tmp/install_md5.bteq
-        env:
-          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
-          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
-          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+      #     bteq < /tmp/install_md5.bteq
+      #   env:
+      #     DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
+      #     DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
+      #     DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
 
           
       - name: Run pytest tests
