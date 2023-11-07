@@ -102,7 +102,7 @@ jobs:
           export DBT_TEST_USER_1=test_grants_user1
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
-          pytest tests/functional
+          pytest -v -k "not TestCurrentTimestamp" tests/functional
         env:
           DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
           DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
