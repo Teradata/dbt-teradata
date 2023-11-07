@@ -76,7 +76,9 @@ jobs:
       #     cd md5_20080530/md5/src
 
       #     # prepare bteq script
-      #      << EOF > /tmp/install_md5.bteq
+      
+      #     cat << EOF > /tmp/install_md5.bteq
+
       #     .SET EXITONDELAY ON MAXREQTIME 20
       #     .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
       #     CREATE DATABASE GLOBAL_FUNCTIONS AS PERMANENT = 60e6, SPOOL = 120e6;
