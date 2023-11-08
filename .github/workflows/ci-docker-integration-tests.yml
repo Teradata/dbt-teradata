@@ -41,9 +41,9 @@ jobs:
             outputs:
               dev:
                 type: teradata
-                host: dbt-teradata-t3gwet5u19m2zwm9.env.clearscape.teradata.com
-                user: demo_user
-                password: dbt-teradata
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
                 logmech: TD2
                 schema: jaffle_shop
                 tmode: ANSI
@@ -58,3 +58,7 @@ jobs:
           docker run --mount type=bind,source=$PWD/jaffle_shop,target=/usr/app --mount type=bind,source=$PWD/profiles.yml,target=/root/.dbt/profiles.yml docker_dbt:latest seed
           docker run --mount type=bind,source=$PWD/jaffle_shop,target=/usr/app --mount type=bind,source=$PWD/profiles.yml,target=/root/.dbt/profiles.yml docker_dbt:latest run
           docker run --mount type=bind,source=$PWD/jaffle_shop,target=/usr/app --mount type=bind,source=$PWD/profiles.yml,target=/root/.dbt/profiles.yml docker_dbt:latest test
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
+          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
+          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
