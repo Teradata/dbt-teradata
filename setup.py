@@ -40,12 +40,13 @@ setup(
         'dbt.include.teradata': [
             'macros/*.sql',
             'macros/materializations/**/*.sql',
+            'macros/utils/*.sql',
             'dbt_project.yml',
             'sample_profiles.yml',
         ],
     },
     install_requires=[
-        "dbt-core==1.6.2",
+        "dbt-core==1.6.7",
         "teradatasql>=16.20.0.0",
     ],
     classifiers=[
