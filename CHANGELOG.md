@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.6.7a
 
 ### Features
 * dbt-teradata 1.6.7 is now compatible with dbt-core 1.6.7
