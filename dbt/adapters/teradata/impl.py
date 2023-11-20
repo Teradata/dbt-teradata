@@ -6,7 +6,6 @@ import agate
 import dbt
 import dbt.exceptions
 
-from dbt.adapters.capability import CapabilityDict, CapabilitySupport, Support, Capability
 from dbt.adapters.base.impl import catch_as_completed
 from dbt.adapters.base.relation import InformationSchema
 from dbt.adapters.sql import SQLAdapter
