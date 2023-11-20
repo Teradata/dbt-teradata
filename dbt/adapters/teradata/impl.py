@@ -51,12 +51,6 @@ class TeradataAdapter(SQLAdapter):
     Column = TeradataColumn
     ConnectionManager = TeradataConnectionManager
 
-    _capabilities: CapabilityDict = CapabilityDict(
-    {
-        Capability.TableLastModifiedMetadata: CapabilitySupport(support=Support.Full)
-    }
-    )
-
     @classmethod
     def date_function(cls):
         return 'current_date()'
