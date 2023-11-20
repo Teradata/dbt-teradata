@@ -18,7 +18,7 @@ class TeradataCredentials(Credentials):
      # Mandatory required arguments.
     server: str
     # Specifying database is optional
-    database: Optional[str]
+    database: Optional[str] = None
 
     username: Optional[str] = None
     password: Optional[str] = None
