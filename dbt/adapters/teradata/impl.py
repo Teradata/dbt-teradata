@@ -12,7 +12,6 @@ from dbt.adapters.sql import SQLAdapter
 from dbt.adapters.teradata import TeradataConnectionManager
 from dbt.adapters.teradata import TeradataRelation
 from dbt.adapters.teradata import TeradataColumn
-from dbt.adapters.capability import CapabilityDict, CapabilitySupport, Support, Capability
 from dbt.adapters.base.meta import available
 from dbt.adapters.base import BaseRelation
 from dbt.clients.agate_helper import DEFAULT_TYPE_TESTER, table_from_rows
@@ -50,12 +49,6 @@ class TeradataAdapter(SQLAdapter):
     Relation = TeradataRelation
     Column = TeradataColumn
     ConnectionManager = TeradataConnectionManager
-
-    _capabilities: CapabilityDict = CapabilityDict(
-        {
-            Capability.SchemaMetadataByRelations: CapabilitySupport(support=Support.Full)
-        }
-    )
 
     @classmethod
     def date_function(cls):
