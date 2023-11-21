@@ -10,7 +10,6 @@ from dbt.tests.adapter.dbt_show.fixtures import (
 )
 
 
-# -- Below we define base classes for tests you import based on if your adapter supports dbt show or not --
 class BaseShowLimit:
     @pytest.fixture(scope="class")
     def models(self):
@@ -39,7 +38,7 @@ class BaseShowLimit:
         # ensure limit was injected in compiled_code when limit specified in command args
         limit = results.args.get("limit")
         if limit > 0:
-            assert f"top {limit}" in results.results[0].node.compiled_code
+            assert f"top {limit}" in results.results[0].node.compiled_code    #used top keyword in place of limit keyword
 
 
 class BaseShowSqlHeader:
