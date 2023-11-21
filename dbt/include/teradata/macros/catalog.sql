@@ -1,4 +1,4 @@
-
+--Decompose the existing get_catalog() macro in order to minimize redundancy with body of get_catalog_relations(). This introduces some additional macros
 {% macro teradata__get_catalog(information_schema, schemas) -%}
     {% set use_qvci = var("use_qvci", "false") | as_bool %}
     {{ log("use_qvci set to : " ~ use_qvci) }}
@@ -17,6 +17,7 @@
     {{ return(load_result('catalog').table) }}
 {%- endmacro %}
 
+--A new macro, get_catalog_relations() which accepts a list of relations, rather than a list of schemas.
 {% macro teradata__get_catalog_relations(information_schema, relations) -%}
     {% set use_qvci = var("use_qvci", "false") | as_bool %}
     {{ log("use_qvci set to : " ~ use_qvci) }}
@@ -35,6 +36,7 @@
     {{ return(load_result('catalog').table) }}
 {%- endmacro %}
 
+--get_catalog_tables_sql() copied straight from pre-existing get_catalog() everything you would normally fetch from DBC.tablesV
 {% macro teradata__get_catalog_tables_sql(information_schema) -%}
     SELECT			
         NULL AS table_database,
@@ -49,6 +51,7 @@
     FROM {{ information_schema_name(schema) }}.tablesV
 {%- endmacro %}
 
+--get_catalog_columns_sql() copied straight from pre-existing get_catalog() everything you would normally fetch from DBC.ColumnsJQV and DBC.ColumnsV
 {% macro teradata__get_catalog_columns_sql(information_schema) -%}
     SELECT
         NULL AS table_database,
@@ -148,6 +151,8 @@
     ORDER BY table_schema, table_name, column_index
 {%- endmacro %}
 
+--get_catalog_schemas_where_clause_sql(schemas) copied straight from pre-existing get_catalog(). This uses jinja to loop through the provided schema list and make a big WHERE clause of the form:
+--     WHERE info_schema.tables.table_schema IN "schema1" OR info_schema.tables.table_schema IN "schema2" [OR ...]
 {% macro teradata__get_catalog_schemas_where_clause_sql(schemas) -%}
     WHERE (
         {%- for schema in schemas -%}
@@ -156,6 +161,19 @@
     )
 {%- endmacro %}
 
+--get_catalog_relations_where_clause_sql(relations) this is likely the only new thing
+--        This macro is effectively an evolution of the old get_catalog WHERE clause, except now it has the following control flow.
+
+--       Keep in mind that relation in this instance can be a standalone schema, not necessarily an object with a three-part identifier.
+
+--        for relation provided list of relations
+--        1. if relation has an identifier and a schema
+--            1. then write WHERE clause to filter on both
+--        2. elif relation has a schema
+--            1. do what was normally done, filter where info_schema.table.table_schema == relation.schema 
+--        3. else throw exception. Houston we do not have a something we can use.
+    
+--        The result of the above is that dbt can, with "laser-precision" fetch metadata for only the relations it needs, rather than the superset of "all the relations in all the schemas in which dbt has relations".
 {% macro teradata__get_catalog_relations_where_clause_sql(relations) -%}
     where (
         {%- for relation in relations -%}
