@@ -17,6 +17,8 @@ from typing import Optional, Tuple, Any, Dict
 class TeradataCredentials(Credentials):        
      # Mandatory required arguments.
     server: str
+    retries: int = 0
+    retry_timeout: int = 1
     # Specifying database is optional
     database: Optional[str] = None
 
@@ -41,8 +43,6 @@ class TeradataCredentials(Credentials):
     partition: Optional[str] = None
     sip_support: Optional[str] = None
     teradata_values: Optional[str] = None
-    retries: int = 0
-    retry_timeout: int = 1
     sslmode: Optional[str] = None
     sslca: Optional[str] = None
     sslcapath: Optional[str] = None
