@@ -51,6 +51,7 @@ class TeradataAdapter(SQLAdapter):
     Column = TeradataColumn
     ConnectionManager = TeradataConnectionManager
 
+    # adding full support for SchemaMetadataByRelations and TableLastModifiedMetadata in capability dictionary
     _capabilities: CapabilityDict = CapabilityDict(
     {
         Capability.SchemaMetadataByRelations: CapabilitySupport(support=Support.Full),
