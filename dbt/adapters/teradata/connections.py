@@ -15,11 +15,9 @@ from typing import Optional, Tuple, Any, Dict
 
 @dataclass
 class TeradataCredentials(Credentials):        
-     # Mandatory required arguments.
-    server: str
-    # Specifying database is optional
-    database: Optional[str]
-
+    server: Optional[str] = None
+    database: Optional[str] = None
+    schema: Optional[str] = None
     username: Optional[str] = None
     password: Optional[str] = None
     port: Optional[str] = None
@@ -68,6 +66,13 @@ class TeradataCredentials(Credentials):
     }
 
     def __post_init__(self):
+        if self.username is None:
+            raise dbt.exceptions.DbtRuntimeError("Must specify `user` in profile")
+        elif self.password is None:
+            raise dbt.exceptions.DbtRuntimeError("Must specify `password` in profile")
+        elif self.schema is None:
+            raise dbt.exceptions.DbtRuntimeError("Must specify `schema` in profile")
+        
         # teradata classifies database and schema as the same thing
         if (
             self.database is not None and
