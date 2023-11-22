@@ -53,6 +53,7 @@
 
 --get_catalog_columns_sql() copied straight from pre-existing get_catalog() everything you would normally fetch from DBC.ColumnsJQV and DBC.ColumnsV
 {% macro teradata__get_catalog_columns_sql(information_schema) -%}
+    {% set use_qvci = var("use_qvci", "false") | as_bool %}
     SELECT
         NULL AS table_database,
         DatabaseName AS table_schema,
