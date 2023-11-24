@@ -169,8 +169,8 @@ jobs:
       - name: Delete CSAE environment
         if: always()
         run: |
-          curl --location --request DELETE "https://api.clearscape.teradata.com/environments/$CSAE_ENV_NAME" \
-            --header "Authorization: Bearer $CSAE_TOKEN"
+          curl -s -L --request DELETE "https://api.clearscape.teradata.com/environments/$CSAE_ENV_NAME" \
+            -H "Authorization: Bearer $CSAE_TOKEN"
         env:
           CSAE_TOKEN: '${{ secrets.CSAE_TOKEN }}'
           CSAE_ENV_NAME: '${{ steps.define-environment-name.outputs.env-name}}'
