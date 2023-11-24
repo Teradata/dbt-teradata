@@ -156,9 +156,9 @@ jobs:
 
       - name: Run nopi tests
         run: |
-          sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME_2'/g" tests/conftest.py
-          sed -i "s/username=demo.*/username='$DBT_TERADATA_USERNAME_2'/g" tests/conftest.py
-          sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD_2'/g" tests/conftest.py
+          sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME'/g" tests/conftest.py
+          sed -i "s/username=demo.*/username='$DBT_TERADATA_USERNAME'/g" tests/conftest.py
+          sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD'/g" tests/conftest.py
           pytest tests/functional/adapter/test_nopi.py
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
