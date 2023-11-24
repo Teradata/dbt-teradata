@@ -14,7 +14,7 @@ pytest_plugins = ["dbt.tests.fixtures.project"]
 
 # The profile dictionary, used to write out profiles.yml
 # dbt will supply a unique schema per test, so we do not specify 'schema' here
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def dbt_profile_target():
     hostname='localhost'
     username='dbc'
@@ -22,14 +22,14 @@ def dbt_profile_target():
 
     if os.getenv('DBT_TERADATA_SERVER_NAME'):
         hostname=os.getenv('DBT_TERADATA_SERVER_NAME')
-    
+
     if os.getenv('DBT_TERADATA_USERNAME'):
         username=os.getenv('DBT_TERADATA_USERNAME')
-    
+
     if os.getenv('DBT_TERADATA_PASSWORD'):
         password=os.getenv('DBT_TERADATA_PASSWORD')
 
-    
+
     with teradatasql.connect (host=hostname,user=username,password=password) as con:
         with con.cursor () as cur:
             TEST_USER_ENV_VARS = ["DBT_TEST_USER_1", "DBT_TEST_USER_2", "DBT_TEST_USER_3"]
@@ -43,7 +43,7 @@ def dbt_profile_target():
                             print ("Ignoring", str (ex).split ("\n") [0])
                         else:
                             raise # rethrow
-    
+
     return {
         'type': 'teradata',
         'threads': 1,
@@ -54,9 +54,9 @@ def dbt_profile_target():
         'log': '0'
     }
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="module")
 def unique_schema(request, prefix) -> str:
-    unique_schema = f"dbt_test_{prefix}"   
+    unique_schema = f"dbt_test_{prefix}"
     return unique_schema
 
 @pytest.fixture(scope="class")
