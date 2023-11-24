@@ -14,7 +14,7 @@ pytest_plugins = ["dbt.tests.fixtures.project"]
 
 # The profile dictionary, used to write out profiles.yml
 # dbt will supply a unique schema per test, so we do not specify 'schema' here
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def dbt_profile_target():
     hostname='localhost'
     username='dbc'
@@ -54,12 +54,12 @@ def dbt_profile_target():
         'log': '0'
     }
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="class")
 def unique_schema(request, prefix) -> str:
     unique_schema = f"dbt_test_{prefix}"
     return unique_schema
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="class")
 def prefix():
     # create a directory name that will be unique per test session
     _randint = random.randint(0, 9999)

@@ -2,7 +2,6 @@ twine
 bump2version
 wheel
 pytest~=7.0
-pytest-xdist~=3.5
 tox~=3.2
 dbt-tests-adapter~=1.6.7
 pylava~=0.3.0
