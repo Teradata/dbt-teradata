@@ -97,7 +97,7 @@ jobs:
           export DBT_TEST_USER_1=test_grants_user1
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
-          pytest -v -k "not TestCurrentTimestamp" tests/functional
+          pytest -n auto -v -k "not TestCurrentTimestamp" tests/functional
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
@@ -159,7 +159,7 @@ jobs:
           sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME'/g" tests/conftest.py
           sed -i "s/username=demo.*/username='$DBT_TERADATA_USERNAME'/g" tests/conftest.py
           sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD'/g" tests/conftest.py
-          pytest tests/functional/adapter/test_nopi.py
+          pytest -n auto tests/functional/adapter/test_nopi.py
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
