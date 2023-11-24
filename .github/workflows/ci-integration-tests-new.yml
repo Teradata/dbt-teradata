@@ -18,6 +18,7 @@ jobs:
       - name: Define CSAE env name
         id: define-environment-name
         run: |
+          PYTHON_VERSION=$($PYTHON_VERSION | tr -d '.') # remove dots from version
           echo "env-name=dbt-ci-$PYTHON_VERSION-$(date +%s%N)" >> $GITHUB_OUTPUT
         env:
           PYTHON_VERSION: ${{ matrix.python }}
