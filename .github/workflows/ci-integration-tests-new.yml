@@ -31,8 +31,8 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python }}
 
-      - name: Create CSAE environment
-        id: create-csae-environment
+      - name: Create CSAE environments
+        id: create-csae-environments
         shell: bash
         run: |
           RESULT=$(curl -s -L 'https://api.clearscape.teradata.com/environments' \
@@ -88,7 +88,7 @@ jobs:
 
           bteq < /tmp/install_md5.bteq
         env:
-          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
+          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
@@ -102,7 +102,7 @@ jobs:
           export DBT_TEST_USER_3=test_grants_user3
           pytest -v -k "not TestCurrentTimestamp" tests/functional
         env:
-          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
+          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
@@ -138,10 +138,10 @@ jobs:
                 retries: 1
           EOF
         env:
-          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
+          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
-          DBT_TERADATA_SERVER_NAME_1: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
+          DBT_TERADATA_SERVER_NAME_1: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME_1: dbc
           DBT_TERADATA_PASSWORD_1: ${{ secrets.CSAE_ENV_PASSWORD }}
 
@@ -164,7 +164,7 @@ jobs:
           sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD'/g" tests/conftest.py
           pytest tests/functional/adapter/test_nopi.py
         env:
-          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
+          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
