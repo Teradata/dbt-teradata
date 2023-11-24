@@ -34,17 +34,7 @@ jobs:
       - name: Create CSAE environments
         id: create-csae-environments
         shell: bash
-        run: |
-          RESULT=$(curl -s -L 'https://api.clearscape.teradata.com/environments' \
-            -H "Authorization: Bearer $CSAE_TOKEN" \
-            -H 'Content-Type: application/json' \
-            --data-raw "{
-                \"name\": \"$CSAE_ENV_NAME\",
-                \"region\": \"us-central\",
-                \"password\": \"$CSAE_ENV_PASSWORD\"
-            }")
-          TERADATA_SERVER_NAME=$(echo $RESULT | jq -r '.dnsName')
-          echo "teradata-server-name=$TERADATA_SERVER_NAME" >> $GITHUB_OUTPUT
+        run: ./.github/workflows/scripts/createTestEnvironments.sh
         env:
           CSAE_TOKEN: ${{ secrets.CSAE_TOKEN }}
           CSAE_ENV_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
@@ -126,6 +116,18 @@ jobs:
                 retries: 1
               dbt_catalog_test:
                 type: teradata
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_catalog_test_qvci:
+                type: teradata
                 host: $DBT_TERADATA_SERVER_NAME_1
                 user: $DBT_TERADATA_USERNAME_1
                 password: $DBT_TERADATA_PASSWORD_1
@@ -141,7 +143,7 @@ jobs:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
-          DBT_TERADATA_SERVER_NAME_1: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
+          DBT_TERADATA_SERVER_NAME_1: ${{ steps.create-csae-environments.outputs.teradata-server-name-qvci }}
           DBT_TERADATA_USERNAME_1: dbc
           DBT_TERADATA_PASSWORD_1: ${{ secrets.CSAE_ENV_PASSWORD }}
 
