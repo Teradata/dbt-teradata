@@ -39,7 +39,7 @@ jobs:
                 \"password\": \"$CSAE_ENV_PASSWORD\"
             }")
           TERADATA_SERVER_NAME=$(echo $RESULT | jq -r '.dnsName')
-          echo "teradata-server-name=$TERADATA_SERVER_NAME" >> $GITHUB_OUTPUT
+          echo "teradata-server-name=$TERADATA_SERVER_NAME.env.clearscape.teradata.com" >> $GITHUB_OUTPUT
         env:
           CSAE_TOKEN: ${{ secrets.CSAE_TOKEN }}
           CSAE_ENV_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
