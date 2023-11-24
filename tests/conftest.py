@@ -59,7 +59,7 @@ def unique_schema(request, prefix) -> str:
     unique_schema = f"dbt_test_{prefix}"
     return unique_schema
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="module")
 def prefix():
     # create a directory name that will be unique per test session
     _randint = random.randint(0, 9999)
