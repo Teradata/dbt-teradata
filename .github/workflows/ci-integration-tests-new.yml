@@ -31,7 +31,7 @@ jobs:
       - name: Create CSAE environment
         shell: bash
         run: |
-          RESULT=$(curl -L 'https://api.clearscape.teradata.com/environments' \
+          RESULT=$(curl -s -L 'https://api.clearscape.teradata.com/environments' \
             -H "Authorization: Bearer $CSAE_TOKEN" \
             -H 'Content-Type: application/json' \
             --data-raw "{
