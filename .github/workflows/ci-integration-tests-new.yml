@@ -86,7 +86,7 @@ jobs:
           bteq < /tmp/install_md5.bteq
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
-          DBT_TERADATA_USERNAME: demo_user
+          DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
 
@@ -101,7 +101,7 @@ jobs:
           pytest -v -k "not TestCurrentTimestamp" tests/functional
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
-          DBT_TERADATA_USERNAME: demo_user
+          DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
       - name: Setup environment for performance and catalog tests
@@ -137,10 +137,10 @@ jobs:
           EOF
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
-          DBT_TERADATA_USERNAME: demo_user
+          DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
           DBT_TERADATA_SERVER_NAME_1: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
-          DBT_TERADATA_USERNAME_1: demo_user
+          DBT_TERADATA_USERNAME_1: dbc
           DBT_TERADATA_PASSWORD_1: ${{ secrets.CSAE_ENV_PASSWORD }}
 
       - name: Run performance tests
@@ -163,7 +163,7 @@ jobs:
           pytest tests/functional/adapter/test_nopi.py
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
-          DBT_TERADATA_USERNAME: demo_user
+          DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
       - name: Delete CSAE environment
