@@ -15,6 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     name: Functional test
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+
       - name: Define CSAE env name
         id: define-environment-name
         run: |
@@ -22,12 +30,7 @@ jobs:
           echo "env-name=dbt-ci-$PYTHON_VERSION-$(date +%s%N)" >> $GITHUB_OUTPUT
         env:
           PYTHON_VERSION: ${{ matrix.python }}
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Check out repository code
-        uses: actions/checkout@v4
+
       - name: Create CSAE environment
         id: create-csae-environment
         shell: bash
@@ -46,6 +49,7 @@ jobs:
           CSAE_TOKEN: ${{ secrets.CSAE_TOKEN }}
           CSAE_ENV_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
           CSAE_ENV_NAME: ${{ steps.define-environment-name.outputs.env-name}}
+
       - name: Install TTU
         shell: bash
         run: |
@@ -87,7 +91,6 @@ jobs:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environment.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
-
 
       - name: Run pytest tests
         run: |
