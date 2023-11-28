@@ -9,48 +9,35 @@ on:
 jobs:
   test:
     strategy:
-      max-parallel: 1
       matrix:
-        python: ['3.10']
+        python: ['3.8', '3.9', '3.10', '3.11']
     runs-on: ubuntu-latest
     name: Functional test
     steps:
-      # - name: Start Clearscape DBS
-      #   shell: bash
-      #   run: |
-      #     curl -X 'PATCH' \
-      #       'https://api.clearscape.teradata.com/environments/dbt-teradata-1' \
-      #       -H 'accept: application/json' \
-      #       -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
-      #       -H 'Content-Type: application/json' \
-      #       -d '{
-      #       "operation": "start"
-      #     }'
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-      #     curl -X 'PATCH' \
-      #       'https://api.clearscape.teradata.com/environments/dbt-teradata-2' \
-      #       -H 'accept: application/json' \
-      #       -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
-      #       -H 'Content-Type: application/json' \
-      #       -d '{
-      #       "operation": "start"
-      #     }'
-
-      #     curl -X 'PATCH' \
-      #       'https://api.clearscape.teradata.com/environments/dbt-teradata-3' \
-      #       -H 'accept: application/json' \
-      #       -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
-      #       -H 'Content-Type: application/json' \
-      #       -d '{
-      #       "operation": "start"
-      #     }'
-        
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
-      - name: Check out repository code
-        uses: actions/checkout@v2
+
+      - name: Define CSAE env name
+        id: define-environment-name
+        run: |
+          PYTHON_VERSION=$(echo -n "$PYTHON_VERSION" | tr -d '.') # remove dots from version
+          echo "env-name=dbt-ci-$PYTHON_VERSION-$(date +%s%N)" >> $GITHUB_OUTPUT
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+
+      - name: Create CSAE environments
+        id: create-csae-environments
+        shell: bash
+        run: ./.github/workflows/scripts/createTestEnvironments.sh
+        env:
+          CSAE_TOKEN: ${{ secrets.CSAE_TOKEN }}
+          CSAE_ENV_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
+          CSAE_ENV_NAME: ${{ steps.define-environment-name.outputs.env-name}}
 
       - name: Install TTU
         shell: bash
@@ -68,34 +55,32 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements_dev.txt
 
-      # - name: Prepare database
-      #   shell: bash
-      #   run: |          
-      #     export PATH=$PATH:"/opt/teradata/client/17.20/bin"
+      - name: Prepare database
+        shell: bash
+        run: |
+          export PATH=$PATH:"/opt/teradata/client/17.20/bin"
 
-      #     cd md5_20080530/md5/src
+          cd md5_20080530/md5/src
 
-      #     # prepare bteq script
-      
-      #     cat << EOF > /tmp/install_md5.bteq
+          # prepare bteq script
 
-      #     .SET EXITONDELAY ON MAXREQTIME 20
-      #     .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
-      #     CREATE DATABASE GLOBAL_FUNCTIONS AS PERMANENT = 60e6, SPOOL = 120e6;
-      #     GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO $DBT_TERADATA_USERNAME;
-      #     DATABASE GLOBAL_FUNCTIONS;
-      #     .run file = hash_md5.btq
-      #     GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
-      #     .logoff
-      #     EOF
+          cat << EOF > /tmp/install_md5.bteq
 
-      #     bteq < /tmp/install_md5.bteq
-      #   env:
-      #     DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
-      #     DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
-      #     DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+          .SET EXITONDELAY ON MAXREQTIME 20
+          .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
+          GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO $DBT_TERADATA_USERNAME;
+          DATABASE GLOBAL_FUNCTIONS;
+          .run file = hash_md5.btq
+          GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
+          .logoff
+          EOF
 
-          
+          bteq < /tmp/install_md5.bteq
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
+          DBT_TERADATA_USERNAME: dbc
+          DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
+
       - name: Run pytest tests
         run: |
           sed -i "s/localhost/$DBT_TERADATA_SERVER_NAME/g" tests/conftest.py
@@ -106,11 +91,11 @@ jobs:
           export DBT_TEST_USER_3=test_grants_user3
           pytest -v -k "not TestCurrentTimestamp" tests/functional
         env:
-          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
-          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
-          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
+          DBT_TERADATA_USERNAME: dbc
+          DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
-      - name: Run performance tests for fastload
+      - name: Setup environment for performance and catalog tests
         run: |
           mkdir ~/.dbt
           cat << EOF > ~/.dbt/profiles.yml
@@ -130,9 +115,21 @@ jobs:
                 retries: 1
               dbt_catalog_test:
                 type: teradata
-                host: $DBT_TERADATA_SERVER_NAME_1
-                user: $DBT_TERADATA_USERNAME_1
-                password: $DBT_TERADATA_PASSWORD_1
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_catalog_test_qvci:
+                type: teradata
+                host: $DBT_TERADATA_SERVER_NAME_QVCI
+                user: $DBT_TERADATA_USERNAME_QVCI
+                password: $DBT_TERADATA_PASSWORD_QVCI
                 logmech: TD2
                 schema: dbt_catalog_test
                 tmode: ANSI
@@ -141,67 +138,40 @@ jobs:
                 priority: interactive
                 retries: 1
           EOF
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
+          DBT_TERADATA_USERNAME: dbc
+          DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
+          DBT_TERADATA_SERVER_NAME_QVCI: ${{ steps.create-csae-environments.outputs.teradata-server-name-qvci }}
+          DBT_TERADATA_USERNAME_QVCI: dbc
+          DBT_TERADATA_PASSWORD_QVCI: ${{ secrets.CSAE_ENV_PASSWORD }}
+
+      - name: Run performance tests
+        run: |
           cd $GITHUB_WORKSPACE/test/performance
           ./run.sh
-        env:
-          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
-          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
-          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
-          DBT_TERADATA_SERVER_NAME_1: ${{ vars.DBT_TERADATA_SERVER_NAME_1 }}
-          DBT_TERADATA_USERNAME_1: ${{ vars.DBT_TERADATA_USERNAME_1 }}
-          DBT_TERADATA_PASSWORD_1: ${{ vars.DBT_TERADATA_PASSWORD_1 }}
-        
+
       - name: Run catalog tests
         run: |
-          cd $GITHUB_WORKSPACE/test/catalog/with_qvci
-          ./run.sh
+          # cd $GITHUB_WORKSPACE/test/catalog/with_qvci
+          # ./run.sh
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
           ./run.sh
-      
+
       - name: Run nopi tests
         run: |
-          sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME_2'/g" tests/conftest.py
-          sed -i "s/username=demo.*/username='$DBT_TERADATA_USERNAME_2'/g" tests/conftest.py
-          sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD_2'/g" tests/conftest.py
+          sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME'/g" tests/conftest.py
+          sed -i "s/username=demo.*/username='$DBT_TERADATA_USERNAME'/g" tests/conftest.py
+          sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD'/g" tests/conftest.py
           pytest tests/functional/adapter/test_nopi.py
         env:
-          DBT_TERADATA_SERVER_NAME_2: ${{ vars.DBT_TERADATA_SERVER_NAME_2 }}
-          DBT_TERADATA_USERNAME_2: ${{ vars.DBT_TERADATA_USERNAME_2 }}
-          DBT_TERADATA_PASSWORD_2: ${{ vars.DBT_TERADATA_PASSWORD_2 }}
+          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
+          DBT_TERADATA_USERNAME: dbc
+          DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
-      # - name: Stop Clearscape DBS
-      #   if: always()
-      #   shell: bash
-      #   run: |
-      #     curl -X 'PATCH' \
-      #       'https://api.clearscape.teradata.com/environments/dbt-teradata-1' \
-      #       -H 'accept: application/json' \
-      #       -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
-      #       -H 'Content-Type: application/json' \
-      #       -d '{
-      #       "operation": "stop"
-      #     }'
-
-      #     curl -X 'PATCH' \
-      #       'https://api.clearscape.teradata.com/environments/dbt-teradata-2' \
-      #       -H 'accept: application/json' \
-      #       -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
-      #       -H 'Content-Type: application/json' \
-      #       -d '{
-      #       "operation": "stop"
-      #     }'
-
-      #     curl -X 'PATCH' \
-      #       'https://api.clearscape.teradata.com/environments/dbt-teradata-3' \
-      #       -H 'accept: application/json' \
-      #       -H 'Authorization: Bearer 2OKQYw4jhaCO3T7UBLjYmsoTxs73IG9q4Ps3kZT6DpnKBKO2mLYd4k6QkGuwW9db' \
-      #       -H 'Content-Type: application/json' \
-      #       -d '{
-      #       "operation": "stop"
-      #     }'
-          
-      - uses: actions/upload-artifact@v2
-        if: ${{ failure() ||  cancelled() }}
-        with:
-          name: virtualbox-logs
-          path: /Users/runner/VirtualBox*
+      - name: Delete CSAE environment
+        if: always()
+        run: ./.github/workflows/scripts/deleteTestEnvironments.sh
+        env:
+          CSAE_TOKEN: '${{ secrets.CSAE_TOKEN }}'
+          CSAE_ENV_NAME: '${{ steps.define-environment-name.outputs.env-name}}'
