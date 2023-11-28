@@ -33,7 +33,9 @@ jobs:
       - name: Create CSAE environments
         id: create-csae-environments
         shell: bash
-        run: ./.github/workflows/scripts/createTestEnvironments.sh
+        run: |
+          chmod 777 .github/workflows/scripts/createTestEnvironments.sh
+          ./.github/workflows/scripts/createTestEnvironments.sh
         env:
           CSAE_TOKEN: ${{ secrets.CSAE_TOKEN }}
           CSAE_ENV_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
@@ -171,7 +173,9 @@ jobs:
 
       - name: Delete CSAE environment
         if: always()
-        run: ./.github/workflows/scripts/deleteTestEnvironments.sh
+        run: |
+          chmod 777 .github/workflows/scripts/deleteTestEnvironments.sh
+          ./.github/workflows/scripts/deleteTestEnvironments.sh
         env:
           CSAE_TOKEN: '${{ secrets.CSAE_TOKEN }}'
           CSAE_ENV_NAME: '${{ steps.define-environment-name.outputs.env-name}}'
