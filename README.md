@@ -534,6 +534,8 @@ For using cross DB macros, teradata-utils as a macro namespace will not be used,
 | Cross-database macros | type_string                   | :white_check_mark:    | custom macro provided                                                  |
 | Cross-database macros | last_day                      | :white_check_mark:    | no customization needed, see [compatibility note](#last_day)           |
 | Cross-database macros | width_bucket                  | :white_check_mark:    | no customization
+| SQL generators        | generate_series               | :white_check_mark:    | custom macro provided
+| SQL generators        | date_spine                    | :white_check_mark:    | no customization
 
 
 #### examples for cross DB macros
