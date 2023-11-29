@@ -14,12 +14,10 @@ from typing import Optional, Tuple, Any, Dict
 
 
 @dataclass
-class TeradataCredentials(Credentials):        
-    server: Optional[str] = None
-    database: Optional[str] = None
-    schema: Optional[str] = None
-    username: Optional[str] = None
-    password: Optional[str] = None
+class TeradataCredentials(Credentials):
+    server: str
+    username: str
+    password: str
     port: Optional[str] = None
     tmode: Optional[str] = "ANSI"
     logmech: Optional[str] = None
@@ -66,18 +64,10 @@ class TeradataCredentials(Credentials):
     }
 
     def __post_init__(self):
-        if self.username is None:
-            raise dbt.exceptions.DbtRuntimeError("Must specify `user` in profile")
-        elif self.password is None:
-            raise dbt.exceptions.DbtRuntimeError("Must specify `password` in profile")
-        elif self.schema is None:
-            raise dbt.exceptions.DbtRuntimeError("Must specify `schema` in profile")
-        
         # teradata classifies database and schema as the same thing
-        if (
-            self.database is not None and
-            self.database != self.schema
-        ):
+        if not self.database:
+            self.database = self.schema
+        elif self.database != self.schema:
             raise dbt.exceptions.DbtRuntimeError(
                 f"    schema: {self.schema} \n"
                 f"    database: {self.database} \n"
@@ -143,15 +133,13 @@ class TeradataCredentials(Credentials):
             "connect_timeout",
             "request_timeout"
         )
-    
+
     @classmethod
-    def __pre_deserialize__(cls, data: Dict[Any, Any]) -> Dict[Any, Any]:
-        # If database is not defined as adapter credentials
-        data = super().__pre_deserialize__(data)
-        if "database" not in data:
-            data["database"] = None
-        return data
-    
+    def translate_aliases(cls, kwargs: Dict[str, Any], recurse: bool = False) -> Dict[str, Any]:
+        if "database" not in kwargs:
+            kwargs["database"] = ''
+        return super().translate_aliases(kwargs, recurse)
+
 class TeradataConnectionManager(SQLConnectionManager):
     TYPE = "teradata"
     TMODE = "ANSI"
