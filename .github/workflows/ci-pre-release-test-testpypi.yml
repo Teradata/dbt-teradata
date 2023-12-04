@@ -46,7 +46,9 @@ jobs:
                 retries: 1
             target: dev
           EOF
+          cat ~/.dbt/profiles.yml
           cd jaffle_shop
+          ls
           dbt debug
           dbt seed
           dbt run
