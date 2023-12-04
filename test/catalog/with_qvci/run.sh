@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-dbt -d seed --target dbt_catalog_test_qvci --full-refresh
-dbt -d run --target dbt_catalog_test_qvci
-dbt -d docs generate --target dbt_catalog_test_qvci
+dbt -d seed --target dbt_catalog_test --full-refresh
+dbt -d run --target dbt_catalog_test
+dbt -d docs generate --target dbt_catalog_test
 
 
 assertJsonElementEquals() {
