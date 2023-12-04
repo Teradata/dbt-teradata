@@ -46,6 +46,7 @@ jobs:
                 retries: 1
             target: dev
           EOF
+          
           cat ~/.dbt/profiles.yml
           cd jaffle_shop
           ls
