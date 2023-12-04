@@ -44,6 +44,7 @@ jobs:
       - name: Delete dummy branch
         shell: bash
         run: |
+          git checkout main
           git branch --delete dummy_release/$RELEASE_VERSION
         env:
           RELEASE_VERSION: ${{ github.event.inputs.releaseVersion }}
