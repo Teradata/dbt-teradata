@@ -25,7 +25,7 @@ jobs:
         shell: bash
         run: |
           git clone https://github.com/Teradata/jaffle_shop-dev.git jaffle_shop
-      - name: Running jaffle_shop dbt TestPyPi
+      - name: Setup profiles.yml
         shell: bash
         run: |
           mkdir ~/.dbt
@@ -46,7 +46,10 @@ jobs:
                 retries: 1
             target: dev
           EOF
-          
+
+      - name: Running jaffle_shop project
+        shell: bash
+        run: |
           cat ~/.dbt/profiles.yml
           cd jaffle_shop
           ls
