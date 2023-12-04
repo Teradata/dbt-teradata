@@ -14,12 +14,10 @@ from typing import Optional, Tuple, Any, Dict
 
 
 @dataclass
-class TeradataCredentials(Credentials):        
-     # Mandatory required arguments.
-    server: str
-    # Specifying database is optional
-    database: Optional[str]
-
+class TeradataCredentials(Credentials):
+    server: Optional[str] = None
+    database: Optional[str] = None
+    schema: Optional[str] = None
     username: Optional[str] = None
     password: Optional[str] = None
     port: Optional[str] = None
@@ -68,10 +66,16 @@ class TeradataCredentials(Credentials):
     }
 
     def __post_init__(self):
+        if self.username is None:
+            raise dbt.exceptions.DbtRuntimeError("Must specify `user` in profile")
+        elif self.password is None:
+            raise dbt.exceptions.DbtRuntimeError("Must specify `password` in profile")
+        elif self.schema is None:
+            raise dbt.exceptions.DbtRuntimeError("Must specify `schema` in profile")
         # teradata classifies database and schema as the same thing
         if (
-            self.database is not None and
-            self.database != self.schema
+                self.database is not None and
+                self.database != self.schema
         ):
             raise dbt.exceptions.DbtRuntimeError(
                 f"    schema: {self.schema} \n"
@@ -138,7 +142,7 @@ class TeradataCredentials(Credentials):
             "connect_timeout",
             "request_timeout"
         )
-    
+
     @classmethod
     def __pre_deserialize__(cls, data: Dict[Any, Any]) -> Dict[Any, Any]:
         # If database is not defined as adapter credentials
@@ -146,7 +150,7 @@ class TeradataCredentials(Credentials):
         if "database" not in data:
             data["database"] = None
         return data
-    
+
 class TeradataConnectionManager(SQLConnectionManager):
     TYPE = "teradata"
     TMODE = "ANSI"

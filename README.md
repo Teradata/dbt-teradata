@@ -51,6 +51,7 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 |1.4.x.x            | ❌           | ✅          | ✅          | ✅          | ✅          | ✅
 |1.5.x              | ❌           | ✅          | ✅          | ✅          | ✅          | ✅
 |1.6.x              | ❌           | ❌          | ✅          | ✅          | ✅          | ✅
+|1.7.x              | ❌           | ❌          | ✅          | ✅          | ✅          | ✅
 
 
 ##  dbt dependent packages version compatibility
@@ -58,6 +59,7 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 |-------------|------------|-------------------|----------------|
 | 1.2.x       | 1.2.x      | 0.1.0             | 0.9.x or below |
 | 1.6.7       | 1.6.7      | 1.1.1             | 1.1.1          |
+| 1.7.0       | 1.7.3      | 1.1.1             | 1.1.1          |
 
 ## Optional profile configurations
 
@@ -535,6 +537,8 @@ For using cross DB macros, teradata-utils as a macro namespace will not be used,
 | Cross-database macros | type_string                   | :white_check_mark:    | custom macro provided                                                  |
 | Cross-database macros | last_day                      | :white_check_mark:    | no customization needed, see [compatibility note](#last_day)           |
 | Cross-database macros | width_bucket                  | :white_check_mark:    | no customization
+| SQL generators        | generate_series               | :white_check_mark:    | custom macro provided
+| SQL generators        | date_spine                    | :white_check_mark:    | no customization
 
 
 #### examples for cross DB macros
