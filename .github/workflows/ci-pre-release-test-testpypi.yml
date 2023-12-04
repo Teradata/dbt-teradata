@@ -1,13 +1,15 @@
 name: CI Pre Release Test TestPyPi
 on:
   workflow_dispatch:
-    branches:
-      - 'main'
+    pull_request:
+    push:
+      branches:
+        - 'main'
 
 jobs:
   cdRelease:
     runs-on: ubuntu-latest
-    name: Docker Integration Tests
+    name: CI Pre Release Test TestPyPi
     steps:
       - uses: actions/checkout@v2
       - name: Setup Python
@@ -23,7 +25,7 @@ jobs:
         shell: bash
         run: |
           git clone https://github.com/Teradata/jaffle_shop-dev.git jaffle_shop
-      - name: Running jaffle_shop dbt project from DBT Docker image
+      - name: Running jaffle_shop dbt TestPyPi
         shell: bash
         run: |
           mkdir ~/.dbt
@@ -44,6 +46,7 @@ jobs:
                 retries: 1
             target: dev
           EOF
+          cd jaffle_shop
           dbt debug
           dbt seed
           dbt run
