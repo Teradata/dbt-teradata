@@ -1,0 +1,55 @@
+name: CI Pre Release Test TestPyPi
+on:
+  workflow_dispatch:
+    branches:
+      - 'main'
+
+jobs:
+  cdRelease:
+    runs-on: ubuntu-latest
+    name: Docker Integration Tests
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dbt-teradata
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple dbt-teradata
+      - name: Clone JaffleShop DBT Project
+        shell: bash
+        run: |
+          git clone https://github.com/Teradata/jaffle_shop-dev.git jaffle_shop
+      - name: Running jaffle_shop dbt project from DBT Docker image
+        shell: bash
+        run: |
+          mkdir ~/.dbt
+          cat << EOF > profiles.yml
+          jaffle_shop:
+            outputs:
+              dev:
+                type: teradata
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
+                logmech: TD2
+                schema: jaffle_shop
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+            target: dev
+          EOF
+          dbt debug
+          dbt seed
+          dbt run
+          dbt test
+          dbt docs generate
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
+          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
+          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
