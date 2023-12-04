@@ -12,14 +12,12 @@
 * Added Metadata freshness check feature
     https://github.com/dbt-labs/dbt-core/issues/8704
 
-* Extends the implementation of the --limit flag to wrap the underlying 
-  query into a CTE and append a LIMIT {limit} clause.
-    https://github.com/dbt-labs/dbt-core/issues/8496
-
 * Migrated date_spine() and dependent macros
     https://github.com/dbt-labs/dbt-core/issues/8172
 
 ### Fixes
+* Fixed issue related to dbt show with limit option
+    https://github.com/Teradata/dbt-teradata/issues/125
 
 ### Docs
 * Stubbed model contracts support
