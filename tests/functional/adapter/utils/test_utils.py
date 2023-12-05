@@ -2,6 +2,7 @@ import pytest
 from dbt.tests.adapter.utils.test_current_timestamp import BaseCurrentTimestamp
 from dbt.tests.adapter.utils.test_hash import BaseHash
 from tests.functional.adapter.utils.base_utils import BaseUtils
+from dbt.tests.adapter.utils.test_get_powers_of_two import BaseGetPowersOfTwo
 from tests.functional.adapter.utils.fixtures_utils import( 
     seeds__data_date_trunc_csv, 
     models__test_date_trunc_sql,
@@ -23,6 +24,10 @@ from tests.functional.adapter.utils.fixtures_utils import(
     seeds__data_hash_csv,
     models__test_hash_sql,
     models__test_hash_yml,
+    models__test_generate_series_sql,
+    models__test_generate_series_yml,
+    models__test_get_intervals_between_sql,
+    models__test_get_intervals_between_yml,
     )
 
 
@@ -144,3 +149,30 @@ class TestSplitPart(BaseUtils):
         }
     pass
 
+
+class TestGenerateSeries(BaseUtils):
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {
+            "test_generate_series.yml": models__test_generate_series_yml,
+            "test_generate_series.sql": self.interpolate_macro_namespace(
+                models__test_generate_series_sql, "generate_series"
+            ),
+        }
+    
+    pass
+
+class TestGetIntervalsBetween(BaseUtils):
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {
+            "test_get_intervals_between.yml": models__test_get_intervals_between_yml,
+            "test_get_intervals_between.sql": self.interpolate_macro_namespace(
+                models__test_get_intervals_between_sql, "get_intervals_between"
+            ),
+        }
+    
+    pass
+
+class TestGetPowersOfTwo(BaseGetPowersOfTwo):
+    pass
