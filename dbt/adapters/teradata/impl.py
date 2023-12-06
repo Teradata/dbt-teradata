@@ -6,7 +6,8 @@ import agate
 import dbt
 import dbt.exceptions
 
-from dbt.adapters.base.impl import catch_as_completed
+from dbt.adapters.base.impl import catch_as_completed, ConstraintSupport
+from dbt.contracts.graph.nodes import ConstraintType
 from dbt.adapters.base.relation import InformationSchema
 from dbt.adapters.sql import SQLAdapter
 from dbt.adapters.teradata import TeradataConnectionManager
@@ -50,6 +51,14 @@ class TeradataAdapter(SQLAdapter):
     Relation = TeradataRelation
     Column = TeradataColumn
     ConnectionManager = TeradataConnectionManager
+
+    CONSTRAINT_SUPPORT = {
+        ConstraintType.check: ConstraintSupport.ENFORCED,
+        ConstraintType.not_null: ConstraintSupport.ENFORCED,
+        ConstraintType.unique: ConstraintSupport.ENFORCED,
+        ConstraintType.primary_key: ConstraintSupport.ENFORCED,
+        ConstraintType.foreign_key: ConstraintSupport.ENFORCED,
+    }
 
     # adding full support for SchemaMetadataByRelations and TableLastModifiedMetadata in capability dictionary
     _capabilities: CapabilityDict = CapabilityDict(

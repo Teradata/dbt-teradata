@@ -5,13 +5,13 @@ from dbt.tests.adapter.constraints.test_constraints import BaseTableContractSqlH
 from dbt.tests.adapter.constraints.test_constraints import BaseIncrementalContractSqlHeader
 from dbt.tests.adapter.constraints.test_constraints import BaseModelConstraintsRuntimeEnforcement
 from dbt.tests.adapter.constraints.test_constraints import BaseConstraintQuotedColumn
+from dbt.tests.adapter.constraints.test_constraints import BaseConstraintsColumnsEqual
 
 '''
-******* Below test cases are enabled once Model contrants feature added in dbt-teradata ******
+# ******* Below test cases are enabled once Model contrants feature added in dbt-teradata ******
 
 class TestIncrementalConstraintsRollback(BaseIncrementalConstraintsRollback):
     pass
-
 
 
 class TestTableContractSqlHeader(BaseTableContractSqlHeader):
@@ -32,3 +32,6 @@ class TestModelConstraintsRuntimeEnforcement(BaseModelConstraintsRuntimeEnforcem
 class TestConstraintQuotedColumn(BaseConstraintQuotedColumn):
     pass
 '''
+
+class TestTeradataConstraintsColumnsEqual(BaseConstraintsColumnsEqual):
+    pass

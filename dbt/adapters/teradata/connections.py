@@ -355,3 +355,8 @@ class TeradataConnectionManager(SQLConnectionManager):
                         return None, None
             if not ignored:
                 raise # rethrow
+
+    # this method will return the datatype as string
+    @classmethod
+    def data_type_code_to_name(cls, type_code) -> str:
+        return str(type_code)

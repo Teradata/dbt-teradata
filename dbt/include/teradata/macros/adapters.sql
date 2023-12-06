@@ -27,13 +27,15 @@
   {%- set with_statistics = config.get('with_statistics', default=False)| as_bool -%}
   {%- set index = config.get('index', default='') -%}
   {% set contract_config = config.get('contract') %}
-  {% if contract_config and contract_config.enforced %}
-    {{ exceptions.raise_compiler_error('Model contracts are not currently supported.') }}
-  {% endif %}
 
   {{ sql_header if sql_header is not none }}
   CREATE {{ table_kind }} TABLE
   {{ relation.include(database=False) }}
+  {%- if contract_config.enforced -%}
+    {{ get_assert_columns_equivalent(sql) }}    -- this macro compares the contract information in schema and sql file of model
+    {{ get_table_columns_and_constraints() }}   -- loop through user_provided_columns to create DDL with data types and constraints
+    {%- set sql = get_select_subquery(sql) %}
+  {% endif %}
   {% if table_option |length -%}
   , {{ table_option }}
   {%- endif -%}
@@ -60,8 +62,8 @@
 {% macro teradata__create_view_as(relation, sql) -%}
   {%- set sql_header = config.get('sql_header', none) -%}
   {% set contract_config = config.get('contract') %}
-  {% if contract_config and contract_config.enforced %}
-    {{ exceptions.raise_compiler_error('Model contracts are not currently supported.') }}
+  {% if contract_config.enforced %}
+    {{ get_assert_columns_equivalent(sql) }}          -- this macro compares the contract information in schema and sql file of model
   {% endif %}
 
   {{ sql_header if sql_header is not none }}
