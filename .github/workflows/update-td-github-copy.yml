@@ -7,7 +7,7 @@ on:
 
 jobs:
   main:
-    runs-on: self-hosted
+    runs-on: [self-hosted, on-prem]
     if: github.repository == 'DeveloperTools/dbt-teradata'
     timeout-minutes: 10
     steps:
@@ -23,7 +23,7 @@ jobs:
           git config --global user.email "<>"
           # we add remote, ignore error if it already exists
           git remote add very-origin https://$REMOTE_GH_TOKEN@github.com/Teradata/dbt-teradata || true
-          git pull very-origin Release_branch_1.6.5
-          git push -f origin Release_branch_1.6.5
+          git pull very-origin main
+          git push -f origin main
         env:
           REMOTE_GH_TOKEN: ${{ secrets.REMOTE_GH_TOKEN }}
