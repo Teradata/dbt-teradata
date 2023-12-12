@@ -7,7 +7,7 @@ on:
 
 jobs:
   main:
-    runs-on: [self-hosted, on-prem]
+    runs-on: self-hosted
     if: github.repository == 'DeveloperTools/dbt-teradata'
     timeout-minutes: 10
     steps:
