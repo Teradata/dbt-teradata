@@ -1,13 +1,18 @@
 from contextlib import contextmanager
 
 import teradatasql
-
+import time
 import dbt.exceptions
 from dbt.adapters.sql import SQLConnectionManager
 from dbt.contracts.connection import AdapterResponse
 from dbt.contracts.connection import Connection
 from dbt.adapters.base import Credentials
 from dbt.events import AdapterLogger
+from dbt.events.contextvars import get_node_info
+from dbt.events.functions import fire_event
+from dbt.events.types import ConnectionUsed, SQLQuery, SQLQueryStatus
+from dbt.utils import cast_to_str
+
 logger = AdapterLogger("teradata")
 from dataclasses import dataclass
 from typing import Optional, Tuple, Any, Dict
@@ -84,12 +89,6 @@ class TeradataCredentials(Credentials):
                 f" schema."
             )
 
-        # Only allow the ANSI transaction mode
-        if self.tmode != "ANSI":
-            raise dbt.exceptions.DbtRuntimeError(
-                f"This version only allows a tmode of ANSI."
-            )
-
     @property
     def type(self):
         return "teradata"
@@ -153,19 +152,21 @@ class TeradataCredentials(Credentials):
 
 class TeradataConnectionManager(SQLConnectionManager):
     TYPE = "teradata"
-    TMODE = "ANSI"
 
     def add_begin_query(self):
-        if self.TMODE == 'ANSI':
-            return self.add_query('', auto_begin=False)
-        elif self.TMODE == 'TERA':
-            return self.add_query('BEGIN TRANSACTION', auto_begin=False)
+        pass
 
     def add_commit_query(self):
-        if self.TMODE == 'ANSI':
-            return self.add_query('COMMIT', auto_begin=False)
-        elif self.TMODE == 'TERA':
-            return self.add_query('', auto_begin=False)
+        pass
+
+    def begin(self):
+        pass
+
+    def commit(self):
+        pass
+
+    def clear_transaction(self):
+        pass
 
     @classmethod
     def open(cls, connection):
@@ -336,10 +337,42 @@ class TeradataConnectionManager(SQLConnectionManager):
         sql: str,
         auto_begin: bool = True,
         bindings: Optional[Any] = None,
-        abridge_sql_log: bool = False
+        abridge_sql_log: bool = False,
     ) -> Tuple[Connection, Any]:
+        connection = self.get_thread_connection()
         try:
-            return SQLConnectionManager.add_query(self, sql, auto_begin, bindings, abridge_sql_log)
+            fire_event(
+                ConnectionUsed(
+                    conn_type=self.TYPE,
+                    conn_name=cast_to_str(connection.name),
+                    node_info=get_node_info(),
+                )
+            )
+
+            with self.exception_handler(sql):
+                if abridge_sql_log:
+                    log_sql = "{}...".format(sql[:512])
+                else:
+                    log_sql = sql
+
+                fire_event(
+                    SQLQuery(
+                        conn_name=cast_to_str(connection.name), sql=log_sql, node_info=get_node_info()
+                    )
+                )
+                pre = time.time()
+
+                cursor = connection.handle.cursor()
+                cursor.execute(sql, bindings)
+
+                fire_event(
+                    SQLQueryStatus(
+                        status=str(self.get_response(cursor)),
+                        elapsed=round((time.time() - pre)),
+                        node_info=get_node_info(),
+                    )
+                )
+                return connection, cursor
         except Exception as ex:
             ignored = False
             query = sql.strip()
