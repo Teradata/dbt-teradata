@@ -112,7 +112,8 @@ class TeradataAdapter(SQLAdapter):
         decimals = agate_table.aggregate(agate.MaxPrecision(col_idx))
         return "FLOAT" if decimals else "INTEGER"
 
-    def quote(self, identifier):
+    @classmethod
+    def quote(cls, identifier):
         return '"{}"'.format(identifier)
 
     def list_relations_without_caching(

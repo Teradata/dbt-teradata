@@ -28,42 +28,67 @@
   {%- set index = config.get('index', default='') -%}
   {% set contract_config = config.get('contract') %}
 
-  {{ sql_header if sql_header is not none }}
-  CREATE {{ table_kind }} TABLE
-  {{ relation.include(database=False) }}
   {%- if contract_config.enforced -%}
-    {{ get_assert_columns_equivalent(sql) }}    -- this macro compares the contract information in schema and sql file of model
-    {{ get_table_columns_and_constraints() }}   -- loop through user_provided_columns to create DDL with data types and constraints
-    {%- set sql = get_select_subquery(sql) %}
-  {% endif %}
-  {% if table_option |length -%}
-  , {{ table_option }}
-  {%- endif -%}
-  {% if sql.strip().upper().startswith('WITH') %}
-    AS (
-      SELECT * FROM (
-        {{ sql }}
-      ) D
-    ) WITH DATA
-  {% else %}
-    AS (
-        {{ sql }}
-      ) WITH DATA
-  {% endif %}
-  {%- if with_statistics -%}
-    AND STATISTICS
-  {%- endif %}
-  {% if index |length -%}
-  {{ index }}
-  {%- endif -%};
+    {{ sql_header if sql_header is not none }}
+    {% call statement('create_table') %}
+      CREATE {{ table_kind }} TABLE
+      {{ relation.include(database=False) }}
+      {% if table_option |length -%}
+      , {{ table_option }}
+      {%- endif -%}
 
+      {# below macro compares the contract information in schema and sql file of model #}
+      {{ get_assert_columns_equivalent(sql) }}
+
+      {# below macro loop through user_provided_columns to create DDL with data types and constraints #}
+      {{ get_table_columns_and_constraints() }} ;
+
+      {%- if with_statistics -%}
+      AND STATISTICS
+      {%- endif %}
+      {% if index |length -%}
+        {{ index }}
+      {%- endif -%};
+    {% endcall %}
+
+    insert into {{ relation }} (
+      {{ adapter.dispatch('get_column_names', 'dbt')() }}
+    )
+    {{ get_select_subquery(sql) }}
+    ;
+  {% else %}
+    {{ sql_header if sql_header is not none }}
+    CREATE {{ table_kind }} TABLE
+    {{ relation.include(database=False) }}
+    {% if table_option |length -%}
+    , {{ table_option }}
+    {%- endif -%}
+    {% if sql.strip().upper().startswith('WITH') %}
+      AS (
+        SELECT * FROM (
+          {{ sql }}
+        ) D
+      ) WITH DATA
+    {% else %}
+      AS (
+          {{ sql }}
+        ) WITH DATA
+    {% endif %}
+    {%- if with_statistics -%}
+      AND STATISTICS
+    {%- endif %}
+    {% if index |length -%}
+    {{ index }}
+    {%- endif -%};
+  {% endif %}
 {% endmacro %}
 
 {% macro teradata__create_view_as(relation, sql) -%}
   {%- set sql_header = config.get('sql_header', none) -%}
   {% set contract_config = config.get('contract') %}
   {% if contract_config.enforced %}
-    {{ get_assert_columns_equivalent(sql) }}          -- this macro compares the contract information in schema and sql file of model
+    {# below macro compares the contract information in schema and sql file of model #}
+    {{ get_assert_columns_equivalent(sql) }}
   {% endif %}
 
   {{ sql_header if sql_header is not none }}

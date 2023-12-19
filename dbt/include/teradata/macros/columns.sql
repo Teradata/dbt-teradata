@@ -30,3 +30,19 @@
   {% endcall %}
 
 {% endmacro %}
+
+
+{#
+  Builds a query that results in the same schema as the given select_sql statement, without necessitating a data scan.
+  Useful for running a query in a 'pre-flight' context, such as model contract enforcement (assert_columns_equivalent macro).
+  Overriding this macro as limit keyword in not supported in teradata
+#}
+{% macro teradata__get_empty_subquery_sql(select_sql, select_sql_header=none) %}
+    {%- if select_sql_header is not none -%}
+    {{ select_sql_header }}
+    {%- endif -%}
+    select * from (
+        {{ select_sql }}
+    ) as __dbt_sbq
+    sample 0
+{% endmacro %}
