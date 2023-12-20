@@ -153,6 +153,11 @@ class TeradataCredentials(Credentials):
 class TeradataConnectionManager(SQLConnectionManager):
     TYPE = "teradata"
 
+    '''
+    disabling transactional logic by default for dbt-teradata
+    by disabling add_begin_query(), add_commit_query(), begin(), commit()
+    and clear_transaction() methods
+    '''
     def add_begin_query(self):
         pass
 
@@ -331,7 +336,10 @@ class TeradataConnectionManager(SQLConnectionManager):
           rows_affected = num_rows,
           code='SUCCESS'
         )
-
+    '''
+    overriding add_query method to disable
+    transactional logic for dbt-teradata
+    '''
     def add_query(
         self,
         sql: str,

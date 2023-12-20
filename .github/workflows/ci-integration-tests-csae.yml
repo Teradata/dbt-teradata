@@ -112,7 +112,7 @@ jobs:
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
           DBT_TERADATA_TMODE: TERA
 
-      - name: Setup environment for performance and catalog tests
+      - name: Setup environment with ANSI for performance and catalog tests
         run: |
           mkdir ~/.dbt
           cat << EOF > ~/.dbt/profiles.yml
@@ -163,12 +163,68 @@ jobs:
           DBT_TERADATA_USERNAME_QVCI: dbc
           DBT_TERADATA_PASSWORD_QVCI: ${{ secrets.CSAE_ENV_PASSWORD }}
 
-      - name: Run performance tests
+      - name: Run performance tests with ANSI
         run: |
           cd $GITHUB_WORKSPACE/test/performance
           ./run.sh
 
-      - name: Run catalog tests
+      - name: Run catalog tests with ANSI
+        run: |
+          # cd $GITHUB_WORKSPACE/test/catalog/with_qvci
+          # ./run.sh
+          cd $GITHUB_WORKSPACE/test/catalog/without_qvci
+          ./run.sh
+
+      - name: Setup environment with TERA for performance and catalog tests
+        run: |
+          rm ~/.dbt/profiles.yml
+          cat << EOF > ~/.dbt/profiles.yml
+          teradata:
+            outputs:
+              dbt_perf_test:
+                type: teradata
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
+                logmech: TD2
+                schema: dbt_perf_test
+                tmode: TERA
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_catalog_test:
+                type: teradata
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: TERA
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_catalog_test_qvci:
+                type: teradata
+                host: $DBT_TERADATA_SERVER_NAME_QVCI
+                user: $DBT_TERADATA_USERNAME_QVCI
+                password: $DBT_TERADATA_PASSWORD_QVCI
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: TERA
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+          EOF
+
+      - name: Run performance tests with TERA
+        run: |
+          cd $GITHUB_WORKSPACE/test/performance
+          ./run.sh
+
+      - name: Run catalog tests with TERA
         run: |
           # cd $GITHUB_WORKSPACE/test/catalog/with_qvci
           # ./run.sh
