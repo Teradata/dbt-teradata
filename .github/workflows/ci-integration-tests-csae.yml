@@ -219,6 +219,13 @@ jobs:
                 priority: interactive
                 retries: 1
           EOF
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
+          DBT_TERADATA_USERNAME: dbc
+          DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
+          DBT_TERADATA_SERVER_NAME_QVCI: ${{ steps.create-csae-environments.outputs.teradata-server-name-qvci }}
+          DBT_TERADATA_USERNAME_QVCI: dbc
+          DBT_TERADATA_PASSWORD_QVCI: ${{ secrets.CSAE_ENV_PASSWORD }}
 
       - name: Run performance tests with TERA
         run: |
