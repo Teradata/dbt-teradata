@@ -3,7 +3,7 @@ from dbt.tests.util import run_dbt
 
 macro_calling_procedure = """
 {% macro run_proc() %}
-    {% do run_query("CALL CurrencyConversionProcedureANSI(100.00, 'USD', 'EUR');") %} 
+    {% do run_query("CALL dummy_test_tmode.CurrencyConversionProcedureANSI(100.00, 'USD', 'EUR');") %} 
 {% endmacro %}
 """
 
