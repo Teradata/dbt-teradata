@@ -78,6 +78,63 @@ jobs:
           EOF
 
           bteq < /tmp/install_md5.bteq
+          
+          cat << EOF > /tmp/create_procedure_in_tera.bteq
+          .SET EXITONDELAY ON MAXREQTIME 20
+          .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
+          create multiset table currency_table (amount  DECIMAL(18, 2), original_currency VARCHAR(3), converted_amount DECIMAL(18, 2)); 
+          
+          REPLACE PROCEDURE CurrencyConversionProcedureTERA(
+              IN p_amount DECIMAL(18, 2),
+              IN p_original_currency VARCHAR(3),
+              IN p_target_currency VARCHAR(3)
+          )
+          BEGIN
+              DECLARE v_exchange_rate DECIMAL(18, 6);
+              SET v_exchange_rate = 1.2;
+              INSERT INTO currency_table (
+                  amount,
+                  original_currency,
+                  converted_amount
+              ) VALUES (
+                  p_amount,
+                  p_original_currency,
+                  p_amount * v_exchange_rate
+              );
+          END;
+          .logoff
+          EOF
+          
+          bteq < /tmp/create_procedure_in_tera.bteq
+          
+          cat << EOF > /tmp/create_procedure_in_ansi.bteq
+          .SET SESSION TRANSACTION ANSI;
+          .SET EXITONDELAY ON MAXREQTIME 20
+          .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
+          
+          REPLACE PROCEDURE CurrencyConversionProcedureANSI(
+              IN p_amount DECIMAL(18, 2),
+              IN p_original_currency VARCHAR(3),
+              IN p_target_currency VARCHAR(3)
+          )
+          BEGIN
+              DECLARE v_exchange_rate DECIMAL(18, 6);
+              SET v_exchange_rate = 1.2;
+              INSERT INTO currency_table (
+                  amount,
+                  original_currency,
+                  converted_amount
+              ) VALUES (
+                  p_amount,
+                  p_original_currency,
+                  p_amount * v_exchange_rate
+              );
+          END;
+          .logoff
+          EOF
+          
+          bteq < /tmp/create_procedure_in_ansi.bteq
+
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
