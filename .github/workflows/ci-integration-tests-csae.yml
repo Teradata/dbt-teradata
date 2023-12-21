@@ -98,6 +98,7 @@ jobs:
           .SET EXITONDELAY ON MAXREQTIME 20
           .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
           .COMPILE file = CurrencyConversionProcedureANSI.sql
+          commit;
           .logoff
           EOF
           
