@@ -7,9 +7,6 @@ TestIncrementalForeignKeyConstraint
 )
 
 from fixtures import(
-model_schema_yml,
-my_model_sql,
-my_model_with_nulls_sql,
 my_model_with_quoted_column_name_sql,
 model_quoted_column_schema_yml,
 constrained_model_schema_yml,
@@ -17,18 +14,13 @@ my_model_wrong_order_depends_on_fk_sql,
 foreign_key_model_sql,
 model_fk_constraint_schema_yml,
 my_model_incremental_wrong_order_depends_on_fk_sql,
-create_table_macro_sql,
-my_incremental_model_sql,
-my_model_incremental_with_nulls_sql
+create_table_macro_sql
 )
 
 from dbt.tests.util import (
     run_dbt,
-    get_manifest,
-    run_dbt_and_capture,
     write_file,
     read_file,
-    relation_from_name,
 )
 
 def _normalize_whitespace(input: str) -> str:
