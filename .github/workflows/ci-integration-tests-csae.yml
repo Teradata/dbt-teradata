@@ -79,13 +79,15 @@ jobs:
 
           bteq < /tmp/install_md5.bteq
           
+          cd ../../../tests/functional/adapter
+          
           cat << EOF > /tmp/create_procedure_in_tera.bteq
           .SET EXITONDELAY ON MAXREQTIME 20
           .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
           create user dummy_test_tmode from dbc as permanent=100000000 BYTES,password=dummy_test_tmode;
           GRANT ALL ON dummy_test_tmode to dbc;
           create multiset table dummy_test_tmode.currency_table (amount  DECIMAL(18, 2), original_currency VARCHAR(3), converted_amount DECIMAL(18, 2));
-          .COMPILE file = tests/functional/adapter/CurrencyConversionProcedureTERA.sql
+          .COMPILE file = CurrencyConversionProcedureTERA.sql
           .logoff
           EOF
           
@@ -95,7 +97,7 @@ jobs:
           .SET SESSION TRANSACTION ANSI;
           .SET EXITONDELAY ON MAXREQTIME 20
           .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
-          .COMPILE file = tests/functional/adapter/CurrencyConversionProcedureANSI.sql
+          .COMPILE file = CurrencyConversionProcedureANSI.sql
           .logoff
           EOF
           
