@@ -6,7 +6,7 @@ REPLACE PROCEDURE dummy_test_tmode.CurrencyConversionProcedureANSI(
 BEGIN
     DECLARE v_exchange_rate DECIMAL(18, 6);
     SET v_exchange_rate = 1.2;
-    INSERT INTO currency_table (
+    INSERT INTO dummy_test_tmode.currency_table (
         amount,
         original_currency,
         converted_amount
