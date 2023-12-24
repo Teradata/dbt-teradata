@@ -169,7 +169,7 @@ class TeradataAdapter(SQLAdapter):
         manifest: Manifest,
     ) -> agate.Table:
         if len(schemas) != 1:
-            dbt.exceptions.CompilationError(
+            raise dbt.exceptions.CompilationError(
                 f'Expected only one schema in _get_one_catalog() for Teradata adapter, found '
                 f'{schemas}'
             )
