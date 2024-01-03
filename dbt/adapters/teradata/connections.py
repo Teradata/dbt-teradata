@@ -261,6 +261,16 @@ class TeradataConnectionManager(SQLConnectionManager):
         if credentials.retries > 0:
             def connect():
                 connection.handle = teradatasql.connect(**kwargs)
+                if credentials.tmode == "TERA":
+                    note_for_tera = '''
+----------------------------------------------------------------------------------
+IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode
+and may not support all use cases.
+We strongly advise validating all records or transformations utilizing this mode
+to preempt any potential anomalies or errors
+----------------------------------------------------------------------------------
+                    '''
+                    logger.info(note_for_tera)
                 connection.state = 'open'
                 return connection.handle
 
@@ -277,6 +287,16 @@ class TeradataConnectionManager(SQLConnectionManager):
 
         try:
             connection.handle = teradatasql.connect(**kwargs)
+            if credentials.tmode == "TERA":
+                note_for_tera = '''
+----------------------------------------------------------------------------------
+IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode
+and may not support all use cases.
+We strongly advise validating all records or transformations utilizing this mode
+to preempt any potential anomalies or errors
+----------------------------------------------------------------------------------
+                '''
+                logger.info(note_for_tera)
             connection.state = 'open'
         except teradatasql.Error as e:
             logger.debug("Got an error when attempting to open a teradata "
@@ -343,44 +363,13 @@ class TeradataConnectionManager(SQLConnectionManager):
     def add_query(
         self,
         sql: str,
-        auto_begin: bool = True,
+        auto_begin: bool = False, #this avoid calling begin() method of SQLConnectionManager and hence disabling transactional logic
         bindings: Optional[Any] = None,
-        abridge_sql_log: bool = False,
+        abridge_sql_log: bool = False
     ) -> Tuple[Connection, Any]:
         connection = self.get_thread_connection()
         try:
-            fire_event(
-                ConnectionUsed(
-                    conn_type=self.TYPE,
-                    conn_name=cast_to_str(connection.name),
-                    node_info=get_node_info(),
-                )
-            )
-
-            with self.exception_handler(sql):
-                if abridge_sql_log:
-                    log_sql = "{}...".format(sql[:512])
-                else:
-                    log_sql = sql
-
-                fire_event(
-                    SQLQuery(
-                        conn_name=cast_to_str(connection.name), sql=log_sql, node_info=get_node_info()
-                    )
-                )
-                pre = time.time()
-
-                cursor = connection.handle.cursor()
-                cursor.execute(sql, bindings)
-
-                fire_event(
-                    SQLQueryStatus(
-                        status=str(self.get_response(cursor)),
-                        elapsed=round((time.time() - pre)),
-                        node_info=get_node_info(),
-                    )
-                )
-                return connection, cursor
+            return SQLConnectionManager.add_query(self, sql, auto_begin, bindings, abridge_sql_log)
         except Exception as ex:
             ignored = False
             query = sql.strip()
