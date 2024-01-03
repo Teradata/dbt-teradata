@@ -367,7 +367,6 @@ to preempt any potential anomalies or errors
         bindings: Optional[Any] = None,
         abridge_sql_log: bool = False
     ) -> Tuple[Connection, Any]:
-        connection = self.get_thread_connection()
         try:
             return SQLConnectionManager.add_query(self, sql, auto_begin, bindings, abridge_sql_log)
         except Exception as ex:
