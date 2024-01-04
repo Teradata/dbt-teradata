@@ -88,6 +88,16 @@ class TeradataCredentials(Credentials):
                 f"On Teradata, database must be omitted or have the same value as"
                 f" schema."
             )
+        if self.tmode == "TERA":
+            note_for_tera = '''
+----------------------------------------------------------------------------------
+IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode
+and may not support all use cases.
+We strongly advise validating all records or transformations utilizing this mode
+to preempt any potential anomalies or errors
+----------------------------------------------------------------------------------
+            '''
+            logger.info(note_for_tera)
 
     @property
     def type(self):
@@ -261,16 +271,6 @@ class TeradataConnectionManager(SQLConnectionManager):
         if credentials.retries > 0:
             def connect():
                 connection.handle = teradatasql.connect(**kwargs)
-                if credentials.tmode == "TERA":
-                    note_for_tera = '''
-----------------------------------------------------------------------------------
-IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode
-and may not support all use cases.
-We strongly advise validating all records or transformations utilizing this mode
-to preempt any potential anomalies or errors
-----------------------------------------------------------------------------------
-                    '''
-                    logger.info(note_for_tera)
                 connection.state = 'open'
                 return connection.handle
 
@@ -287,16 +287,6 @@ to preempt any potential anomalies or errors
 
         try:
             connection.handle = teradatasql.connect(**kwargs)
-            if credentials.tmode == "TERA":
-                note_for_tera = '''
-----------------------------------------------------------------------------------
-IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode
-and may not support all use cases.
-We strongly advise validating all records or transformations utilizing this mode
-to preempt any potential anomalies or errors
-----------------------------------------------------------------------------------
-                '''
-                logger.info(note_for_tera)
             connection.state = 'open'
         except teradatasql.Error as e:
             logger.debug("Got an error when attempting to open a teradata "
