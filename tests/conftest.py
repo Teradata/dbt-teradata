@@ -19,6 +19,7 @@ def dbt_profile_target():
     hostname='localhost'
     username='dbc'
     password='dbc'
+    tmode='ANSI'
 
     if os.getenv('DBT_TERADATA_SERVER_NAME'):
         hostname=os.getenv('DBT_TERADATA_SERVER_NAME')
@@ -28,6 +29,9 @@ def dbt_profile_target():
 
     if os.getenv('DBT_TERADATA_PASSWORD'):
         password=os.getenv('DBT_TERADATA_PASSWORD')
+
+    if os.getenv('DBT_TERADATA_TMODE'):
+        tmode=os.getenv('DBT_TERADATA_TMODE')
 
 
     with teradatasql.connect (host=hostname,user=username,password=password) as con:
@@ -50,7 +54,7 @@ def dbt_profile_target():
         'host': hostname, #{{os.getenv('HOST'), 'localhost'}},
         'user': username, #{{os.getenv('USER'), 'dbc'}},
         'password': password, #{{os.getenv('PASSWORD'), 'dbc'}},
-        'tmode': 'ANSI',
+        'tmode': tmode,
         'log': '0'
     }
 

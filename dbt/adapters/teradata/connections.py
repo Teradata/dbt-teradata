@@ -1,13 +1,18 @@
 from contextlib import contextmanager
 
 import teradatasql
-
+import time
 import dbt.exceptions
 from dbt.adapters.sql import SQLConnectionManager
 from dbt.contracts.connection import AdapterResponse
 from dbt.contracts.connection import Connection
 from dbt.adapters.base import Credentials
 from dbt.events import AdapterLogger
+from dbt.events.contextvars import get_node_info
+from dbt.events.functions import fire_event
+from dbt.events.types import ConnectionUsed, SQLQuery, SQLQueryStatus
+from dbt.utils import cast_to_str
+
 logger = AdapterLogger("teradata")
 from dataclasses import dataclass
 from typing import Optional, Tuple, Any, Dict
@@ -83,12 +88,16 @@ class TeradataCredentials(Credentials):
                 f"On Teradata, database must be omitted or have the same value as"
                 f" schema."
             )
-
-        # Only allow the ANSI transaction mode
-        if self.tmode != "ANSI":
-            raise dbt.exceptions.DbtRuntimeError(
-                f"This version only allows a tmode of ANSI."
-            )
+        if self.tmode == "TERA":
+            note_for_tera = '''
+----------------------------------------------------------------------------------
+IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode
+and may not support all use cases.
+We strongly advise validating all records or transformations utilizing this mode
+to preempt any potential anomalies or errors
+----------------------------------------------------------------------------------
+            '''
+            logger.info(note_for_tera)
 
     @property
     def type(self):
@@ -153,19 +162,26 @@ class TeradataCredentials(Credentials):
 
 class TeradataConnectionManager(SQLConnectionManager):
     TYPE = "teradata"
-    TMODE = "ANSI"
 
+    '''
+    disabling transactional logic by default for dbt-teradata
+    by disabling add_begin_query(), add_commit_query(), begin(), commit()
+    and clear_transaction() methods
+    '''
     def add_begin_query(self):
-        if self.TMODE == 'ANSI':
-            return self.add_query('', auto_begin=False)
-        elif self.TMODE == 'TERA':
-            return self.add_query('BEGIN TRANSACTION', auto_begin=False)
+        pass
 
     def add_commit_query(self):
-        if self.TMODE == 'ANSI':
-            return self.add_query('COMMIT', auto_begin=False)
-        elif self.TMODE == 'TERA':
-            return self.add_query('', auto_begin=False)
+        pass
+
+    def begin(self):
+        pass
+
+    def commit(self):
+        pass
+
+    def clear_transaction(self):
+        pass
 
     @classmethod
     def open(cls, connection):
@@ -330,11 +346,14 @@ class TeradataConnectionManager(SQLConnectionManager):
           rows_affected = num_rows,
           code='SUCCESS'
         )
-
+    '''
+    overriding add_query method to disable
+    transactional logic for dbt-teradata
+    '''
     def add_query(
         self,
         sql: str,
-        auto_begin: bool = True,
+        auto_begin: bool = False, #this avoid calling begin() method of SQLConnectionManager and hence disabling transactional logic
         bindings: Optional[Any] = None,
         abridge_sql_log: bool = False
     ) -> Tuple[Connection, Any]:
