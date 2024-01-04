@@ -58,7 +58,7 @@ createEnvWithQVCI() {
   echo "teradata-server-name-qvci=$TERADATA_SERVER_NAME" >> $GITHUB_OUTPUT
 }
 
-background createRegularEnv
-background createEnvWithQVCI
+createRegularEnv
+createEnvWithQVCI
 
 reap
