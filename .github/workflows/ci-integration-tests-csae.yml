@@ -44,14 +44,13 @@ jobs:
       - name: Install TTU
         shell: bash
         run: |
-          aws s3 cp s3://teradata-download/devtools/dbt/TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.20.22.00.tar.gz .
-          tar -xzf TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.20.22.00.tar.gz
+          curl -L "https://d289lrf5tw1zls.cloudfront.net/tools/ttu/TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.20.15.00.tar.gz?Expires=1704067200&Key-Pair-Id=APKAJ3SWQUPWKYVMO2WQ&Signature=$TTU_URL_SIGNATURE_UBUNTU" \
+            --compressed -o ttu.tar.gz
+          tar -xzf ttu.tar.gz
           cd TeradataToolsAndUtilitiesBase
           sudo ./setup.sh a
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+          TTU_URL_SIGNATURE_UBUNTU: ${{ secrets.TTU_URL_SIGNATURE_UBUNTU }}
 
       - name: Install requirements
         run: |
