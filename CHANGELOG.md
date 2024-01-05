@@ -2,7 +2,8 @@
 
 ### Features
 * Model contracts are now supported with dbt-teradata
-* Initial addition of Tera Mode in dbt-teradata
+* Initial addition of Tera Mode in dbt-teradata 
+  (However as it is an initial release we urge you to verify the records and transformation)
 
 ### Fixes
 * Fixed the bug related to missing keyword 'raise' in one of the exception handling 
