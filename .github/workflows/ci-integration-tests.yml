@@ -106,7 +106,7 @@ jobs:
           
           cat << EOF > /tmp/create_procedure_in_tera.bteq
           .SET EXITONDELAY ON MAXREQTIME 20
-          .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
+          .logon 127.0.0.1/dbc,dbc
           create user dummy_test_tmode from dbc as permanent=100000000 BYTES,password=dummy_test_tmode;
           GRANT ALL ON dummy_test_tmode to dbc;
           create multiset table dummy_test_tmode.currency_table (amount  DECIMAL(18, 2), original_currency VARCHAR(3), converted_amount DECIMAL(18, 2));
@@ -119,7 +119,7 @@ jobs:
           cat << EOF > /tmp/create_procedure_in_ansi.bteq
           .SET SESSION TRANSACTION ANSI;
           .SET EXITONDELAY ON MAXREQTIME 20
-          .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
+          .logon 127.0.0.1/dbc,dbc
           .COMPILE file = CurrencyConversionProcedureANSI.sql
           commit;
           .logoff
