@@ -159,7 +159,7 @@ jobs:
 #          sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
 #
 #          pytest tests/functional
-      - name: Run performance tests for fastload
+      - name: Run performance tests for fastload In ANSI
         run: |
           mkdir ~/.dbt
           cat << EOF > ~/.dbt/profiles.yml
@@ -192,7 +192,7 @@ jobs:
           EOF
           cd $GITHUB_WORKSPACE/test/performance
           ./run.sh
-      - name: Run catalog tests
+      - name: Run catalog tests in ANSI
         run: |
           # set DisableQVCI to false - this will give us data type info for views in DBC.ColumnsJQV
           sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
@@ -209,6 +209,58 @@ jobs:
           ./run.sh
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
           ./run.sh
+
+      - name: Run performance tests for fastload In TERA
+        run: |
+          mkdir ~/.dbt
+          cat << EOF > ~/.dbt/profiles.yml
+          teradata:
+            outputs:
+              dbt_perf_test:
+                type: teradata
+                host: localhost
+                user: dbc
+                password: dbc
+                logmech: TD2
+                schema: dbt_perf_test
+                tmode: TERA
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_catalog_test:
+                type: teradata
+                host: localhost
+                user: dbc
+                password: dbc
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: TERA
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+          EOF
+          cd $GITHUB_WORKSPACE/test/performance
+          ./run.sh
+      - name: Run catalog tests in TERA
+        run: |
+          # set DisableQVCI to false - this will give us data type info for views in DBC.ColumnsJQV
+          sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
+          M internal 551=false
+          W
+          EOF
+
+          tpareset -y Enable QVCI
+          "
+
+          $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
+
+          cd $GITHUB_WORKSPACE/test/catalog/with_qvci
+          ./run.sh
+          cd $GITHUB_WORKSPACE/test/catalog/without_qvci
+          ./run.sh
+
       - name: Run nopi tests
         run: |
           sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
