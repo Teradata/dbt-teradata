@@ -224,7 +224,6 @@ jobs:
 
       - name: Run performance tests for fastload In TERA
         run: |
-          mkdir ~/.dbt
           cat << EOF > ~/.dbt/profiles.yml
           teradata:
             outputs:
