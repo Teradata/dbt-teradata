@@ -189,6 +189,18 @@ jobs:
                 timeout_seconds: 300
                 priority: interactive
                 retries: 1
+              dbt_catalog_test_qvci:
+                type: teradata
+                host: localhost
+                user: dbc
+                password: dbc
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
           EOF
           cd $GITHUB_WORKSPACE/test/performance
           ./run.sh
@@ -229,6 +241,18 @@ jobs:
                 priority: interactive
                 retries: 1
               dbt_catalog_test:
+                type: teradata
+                host: localhost
+                user: dbc
+                password: dbc
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: TERA
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_catalog_test_qvci:
                 type: teradata
                 host: localhost
                 user: dbc
