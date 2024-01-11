@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.7.1a
 
 ### Features
 * Model contracts are now supported with dbt-teradata v1.7.1 and onwards
