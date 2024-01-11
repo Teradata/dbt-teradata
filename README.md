@@ -55,11 +55,11 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 
 
 ##  dbt dependent packages version compatibility
-| dbt-teradta |  dbt-core  | dbt-teradata-util |  dbt-util      |
-|-------------|------------|-------------------|----------------|
-| 1.2.x       | 1.2.x      | 0.1.0             | 0.9.x or below |
-| 1.6.7       | 1.6.7      | 1.1.1             | 1.1.1          |
-| 1.7.0       | 1.7.3      | 1.1.1             | 1.1.1          |
+| dbt-teradata | dbt-core | dbt-teradata-util |  dbt-util      |
+|--------------|----------|-------------------|----------------|
+| 1.2.x        | 1.2.x    | 0.1.0             | 0.9.x or below |
+| 1.6.7        | 1.6.7    | 1.1.1             | 1.1.1          |
+| 1.7.x        | 1.7.x    | 1.1.1             | 1.1.1          |
 
 ## Optional profile configurations
 
@@ -609,7 +609,7 @@ To find more on model contracts please follow dbt documentations https://docs.ge
 
 ### Transaction mode
 Both ANSI and TERA modes are now supported in dbt-teradata. TERA mode's support is introduced with dbt-teradata 1.7.1, it is an initial implementation.
-IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode and may not support some use cases. We strongly advise validating all records or transformations utilizing this mode to preempt any potential anomalies or errors
+###### IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode and may not support some use cases. We strongly advise validating all records or transformations utilizing this mode to preempt any potential anomalies or errors
 
 ## Credits
 
