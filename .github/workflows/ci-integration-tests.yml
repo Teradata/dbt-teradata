@@ -133,14 +133,14 @@ jobs:
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
           pytest -v -k "not TestCurrentTimestamp and not TestProcedureANSIInTERA and not TestProcedureTERAInTERA" tests/functional
-          coverage html -d coverage_html
+          
 
       - name: Run pytest tests with TERA mode
         run: |
           export DBT_TEST_USER_1=test_grants_user1
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
-          sed -i "s/tmode='ANSI'/tmode='TERA'/g" tests/conftest.py
+          sed -i'' -e "s/tmode='ANSI'/tmode='TERA'/g" tests/conftest.py
           pytest -v -k "not TestCurrentTimestamp and not TestProcedureTERAInANSI and not TestProcedureANSIInANSI" tests/functional
 
 #      - name: Run pytest tests with existing database
@@ -189,6 +189,18 @@ jobs:
                 timeout_seconds: 300
                 priority: interactive
                 retries: 1
+              dbt_catalog_test_qvci:
+                type: teradata
+                host: localhost
+                user: dbc
+                password: dbc
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
           EOF
           cd $GITHUB_WORKSPACE/test/performance
           ./run.sh
@@ -212,7 +224,6 @@ jobs:
 
       - name: Run performance tests for fastload In TERA
         run: |
-          mkdir ~/.dbt
           cat << EOF > ~/.dbt/profiles.yml
           teradata:
             outputs:
@@ -229,6 +240,18 @@ jobs:
                 priority: interactive
                 retries: 1
               dbt_catalog_test:
+                type: teradata
+                host: localhost
+                user: dbc
+                password: dbc
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: TERA
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_catalog_test_qvci:
                 type: teradata
                 host: localhost
                 user: dbc
