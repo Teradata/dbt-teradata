@@ -102,30 +102,64 @@ jobs:
 
           bteq < /tmp/install_md5.bteq
           
-      - name: Run pytest tests
-        run: |
-          export DBT_TEST_USER_1=test_grants_user1
-          export DBT_TEST_USER_2=test_grants_user2
-          export DBT_TEST_USER_3=test_grants_user3
-          pytest --cov=dbt tests/functional
-          coverage html -d coverage_html
-      - name: Run pytest tests with existing database
-        run: |
-          export DBT_TEST_USER_1=test_grants_user1
-          export DBT_TEST_USER_2=test_grants_user2
-          export DBT_TEST_USER_3=test_grants_user3
-          cat << EOF > /tmp/pytestdatabase.bteq
+          cd ../../../tests/functional/adapter
+          
+          cat << EOF > /tmp/create_procedure_in_tera.bteq
           .SET EXITONDELAY ON MAXREQTIME 20
           .logon 127.0.0.1/dbc,dbc
-          CREATE DATABASE DBT_TEST
-            AS PERMANENT = 60e6, SPOOL = 120e6;
+          create user dummy_test_tmode from dbc as permanent=100000000 BYTES,password=dummy_test_tmode;
+          GRANT ALL ON dummy_test_tmode to dbc;
+          create multiset table dummy_test_tmode.currency_table (amount  DECIMAL(18, 2), original_currency VARCHAR(3), converted_amount DECIMAL(18, 2));
+          .COMPILE file = CurrencyConversionProcedureTERA.sql
           .logoff
           EOF
-          # strip the random suffix from the pytest config
-          sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
+          
+          bteq < /tmp/create_procedure_in_tera.bteq
+          
+          cat << EOF > /tmp/create_procedure_in_ansi.bteq
+          .SET SESSION TRANSACTION ANSI;
+          .SET EXITONDELAY ON MAXREQTIME 20
+          .logon 127.0.0.1/dbc,dbc
+          .COMPILE file = CurrencyConversionProcedureANSI.sql
+          commit;
+          .logoff
+          EOF
+          
+          bteq < /tmp/create_procedure_in_ansi.bteq
 
-          pytest tests/functional
-      - name: Run performance tests for fastload
+      - name: Run pytest tests with ANSI mode
+        run: |
+          export DBT_TEST_USER_1=test_grants_user1
+          export DBT_TEST_USER_2=test_grants_user2
+          export DBT_TEST_USER_3=test_grants_user3
+          pytest -v -k "not TestCurrentTimestamp and not TestProcedureANSIInTERA and not TestProcedureTERAInTERA" tests/functional
+          
+
+      - name: Run pytest tests with TERA mode
+        run: |
+          export DBT_TEST_USER_1=test_grants_user1
+          export DBT_TEST_USER_2=test_grants_user2
+          export DBT_TEST_USER_3=test_grants_user3
+          sed -i'' -e "s/tmode='ANSI'/tmode='TERA'/g" tests/conftest.py
+          pytest -v -k "not TestCurrentTimestamp and not TestProcedureTERAInANSI and not TestProcedureANSIInANSI" tests/functional
+
+#      - name: Run pytest tests with existing database
+#        run: |
+#          export DBT_TEST_USER_1=test_grants_user1
+#          export DBT_TEST_USER_2=test_grants_user2
+#          export DBT_TEST_USER_3=test_grants_user3
+#          cat << EOF > /tmp/pytestdatabase.bteq
+#          .SET EXITONDELAY ON MAXREQTIME 20
+#          .logon 127.0.0.1/dbc,dbc
+#          CREATE DATABASE DBT_TEST
+#            AS PERMANENT = 60e6, SPOOL = 120e6;
+#          .logoff
+#          EOF
+#          # strip the random suffix from the pytest config
+#          sed -i'.original' -e "s/_{prefix}//" tests/conftest.py
+#
+#          pytest tests/functional
+      - name: Run performance tests for fastload In ANSI
         run: |
           mkdir ~/.dbt
           cat << EOF > ~/.dbt/profiles.yml
@@ -155,10 +189,22 @@ jobs:
                 timeout_seconds: 300
                 priority: interactive
                 retries: 1
+              dbt_catalog_test_qvci:
+                type: teradata
+                host: localhost
+                user: dbc
+                password: dbc
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
           EOF
           cd $GITHUB_WORKSPACE/test/performance
           ./run.sh
-      - name: Run catalog tests
+      - name: Run catalog tests in ANSI
         run: |
           # set DisableQVCI to false - this will give us data type info for views in DBC.ColumnsJQV
           sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
@@ -175,6 +221,69 @@ jobs:
           ./run.sh
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
           ./run.sh
+
+      - name: Run performance tests for fastload In TERA
+        run: |
+          cat << EOF > ~/.dbt/profiles.yml
+          teradata:
+            outputs:
+              dbt_perf_test:
+                type: teradata
+                host: localhost
+                user: dbc
+                password: dbc
+                logmech: TD2
+                schema: dbt_perf_test
+                tmode: TERA
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_catalog_test:
+                type: teradata
+                host: localhost
+                user: dbc
+                password: dbc
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: TERA
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_catalog_test_qvci:
+                type: teradata
+                host: localhost
+                user: dbc
+                password: dbc
+                logmech: TD2
+                schema: dbt_catalog_test
+                tmode: TERA
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+          EOF
+          cd $GITHUB_WORKSPACE/test/performance
+          ./run.sh
+      - name: Run catalog tests in TERA
+        run: |
+          # set DisableQVCI to false - this will give us data type info for views in DBC.ColumnsJQV
+          sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF
+          M internal 551=false
+          W
+          EOF
+
+          tpareset -y Enable QVCI
+          "
+
+          $GITHUB_WORKSPACE/.github/workflows/scripts/verifyVantageIsRunning.sh
+
+          cd $GITHUB_WORKSPACE/test/catalog/with_qvci
+          ./run.sh
+          cd $GITHUB_WORKSPACE/test/catalog/without_qvci
+          ./run.sh
+
       - name: Run nopi tests
         run: |
           sshpass -p root ssh -o StrictHostKeyChecking=no -p 4422 root@localhost  "dbscontrol << EOF

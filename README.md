@@ -589,7 +589,18 @@ Date truncate:
   See [Collecting Statistics documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/RAyUdGfvREwbO9J0DMNpLw) for more information.
 
 ## Support for model contracts
-Model constracts are not yet supported with dbt-teradata.
+Model contracts are supported with dbt-teradata v1.7.1 and onwards.
+Constraint support and enforcement in dbt-teradata
+
+| Constraint type |	Support	Platform | enforcement |
+|-----------------|------------------|-------------|
+| not_null	      | ✅ Supported	 | ✅ Enforced |
+| primary_key	  | ✅ Supported	 | ✅ Enforced |
+| foreign_key	  | ✅ Supported	 | ✅ Enforced |
+| unique	      | ✅ Supported	 | ✅ Enforced |
+| check	          | ✅ Supported	 | ✅ Enforced |
+
+To find more on model contracts please follow dbt documentations https://docs.getdbt.com/docs/collaborate/govern/model-contracts
 
 ## Support for `dbt-utils` package
 `dbt-utils` package is supported through `teradata/teradata_utils` dbt package. The package provides a compatibility layer between `dbt_utils` and `dbt-teradata`. See [teradata_utils](https://hub.getdbt.com/teradata/teradata_utils/latest/) package for install instructions.
@@ -597,7 +608,8 @@ Model constracts are not yet supported with dbt-teradata.
 ## Limitations
 
 ### Transaction mode
-Only ANSI transaction mode is supported.
+Both ANSI and TERA modes are now supported in dbt-teradata. TERA mode's support is introduced with dbt-teradata 1.7.1, it is an initial implementation.
+IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode and may not support some use cases. We strongly advise validating all records or transformations utilizing this mode to preempt any potential anomalies or errors
 
 ## Credits
 
