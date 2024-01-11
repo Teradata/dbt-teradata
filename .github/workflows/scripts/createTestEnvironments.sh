@@ -37,7 +37,8 @@ createRegularEnv() {
   --data-raw "{
       \"name\": \"$CSAE_ENV_NAME\",
       \"region\": \"us-central\",
-      \"password\": \"$CSAE_ENV_PASSWORD\"
+      \"password\": \"$CSAE_ENV_PASSWORD\",
+      \"startupScript\": \"#!/bin/bash\n\ndbscontrol << EOF\nm g 53=P\nW\nEOF\n\"
   }")
   local TERADATA_SERVER_NAME=$(echo $RESULT | jq -r '.dnsName')
   echo "teradata-server-name=$TERADATA_SERVER_NAME" >> $GITHUB_OUTPUT
