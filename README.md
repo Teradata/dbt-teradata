@@ -589,7 +589,7 @@ Date truncate:
   See [Collecting Statistics documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/RAyUdGfvREwbO9J0DMNpLw) for more information.
 
 ## Support for model contracts
-Model contracts are supported with dbt-teradata v1.7.4 and onwards.
+Model contracts are supported with dbt-teradata v1.7.1 and onwards.
 Constraint support and enforcement in dbt-teradata
 
 | Constraint type |	Support	Platform | enforcement |
@@ -608,9 +608,8 @@ To find more on model contracts please follow dbt documentations https://docs.ge
 ## Limitations
 
 ### Transaction mode
-ANSI and TERA mode are supported in dbt-teradata
-TERA mode's support is recently added and is still in initial state. It may not support all use cases.
-We strongly advise validating all records or transformations utilizing this mode to preempt any potential anomalies or errors.
+Both ANSI and TERA modes are now supported in dbt-teradata. TERA mode's support is introduced with dbt-teradata 1.7.1, it is an initial implementation.
+IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode and may not support some use cases. We strongly advise validating all records or transformations utilizing this mode to preempt any potential anomalies or errors
 
 ## Credits
 

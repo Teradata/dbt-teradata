@@ -92,9 +92,9 @@ class TeradataCredentials(Credentials):
             note_for_tera = '''
 ----------------------------------------------------------------------------------
 IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode
-and may not support all use cases.
-We strongly advise validating all records or transformations utilizing this mode
-to preempt any potential anomalies or errors
+ and may not support some use cases. 
+ We strongly advise validating all records or transformations utilizing this mode
+  to preempt any potential anomalies or errors
 ----------------------------------------------------------------------------------
             '''
             logger.info(note_for_tera)
