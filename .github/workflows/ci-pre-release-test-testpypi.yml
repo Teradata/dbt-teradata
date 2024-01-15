@@ -46,6 +46,10 @@ jobs:
                 retries: 1
             target: dev
           EOF
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
+          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
+          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
 
       - name: Running jaffle_shop project
         shell: bash
@@ -58,7 +62,3 @@ jobs:
           dbt run
           dbt test
           dbt docs generate
-        env:
-          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
-          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
-          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
