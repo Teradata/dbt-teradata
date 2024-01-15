@@ -1,10 +1,6 @@
 name: CI Pre Release Test TestPyPi
 on:
   workflow_dispatch:
-    pull_request:
-    push:
-      branches:
-        - 'main'
 
 jobs:
   cdRelease:
