@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           mkdir ~/.dbt
-          cat << EOF > profiles.yml
+          cat << EOF > ~/.dbt/profiles.yml
           jaffle_shop:
             outputs:
               dev:
