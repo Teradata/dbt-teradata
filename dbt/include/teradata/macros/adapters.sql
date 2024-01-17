@@ -20,67 +20,77 @@
     {%- endcall %}
 {% endmacro %}
 
-{% macro teradata__create_table_as(temporary, relation, sql) -%}
-  {%- set sql_header = config.get('sql_header', none) -%}
-  {%- set table_kind = config.get('table_kind', default='') -%}
-  {%- set table_option = config.get('table_option', default='') -%}
-  {%- set with_statistics = config.get('with_statistics', default=False)| as_bool -%}
-  {%- set index = config.get('index', default='') -%}
-  {% set contract_config = config.get('contract') %}
+{% macro teradata__create_table_as(temporary, relation, compiled_code, language='sql') -%}
+  {%- if language == 'sql' -%}
+    {%- set sql_header = config.get('sql_header', none) -%}
+    {%- set table_kind = config.get('table_kind', default='') -%}
+    {%- set table_option = config.get('table_option', default='') -%}
+    {%- set with_statistics = config.get('with_statistics', default=False)| as_bool -%}
+    {%- set index = config.get('index', default='') -%}
+    {% set contract_config = config.get('contract') %}
 
-  {%- if contract_config.enforced -%}
-    {{ sql_header if sql_header is not none }}
-    {% call statement('create_table') %}
+    {%- if contract_config.enforced -%}
+      {{ sql_header if sql_header is not none }}
+      {% call statement('create_table') %}
+        CREATE {{ table_kind }} TABLE
+        {{ relation.include(database=False) }}
+        {% if table_option |length -%}
+        , {{ table_option }}
+        {%- endif -%}
+
+        {# below macro compares the contract information in schema and sql file of model #}
+        {{ get_assert_columns_equivalent(sql) }}
+
+        {# below macro loop through user_provided_columns to create DDL with data types and constraints #}
+        {{ get_table_columns_and_constraints() }} ;
+
+        {%- if with_statistics -%}
+        AND STATISTICS
+        {%- endif %}
+        {% if index |length -%}
+          {{ index }}
+        {%- endif -%};
+      {% endcall %}
+
+      insert into {{ relation }} (
+        {{ adapter.dispatch('get_column_names', 'dbt')() }}
+      )
+      {{ get_select_subquery(sql) }}
+      ;
+    {% else %}
+      {{ sql_header if sql_header is not none }}
       CREATE {{ table_kind }} TABLE
       {{ relation.include(database=False) }}
       {% if table_option |length -%}
       , {{ table_option }}
       {%- endif -%}
-
-      {# below macro compares the contract information in schema and sql file of model #}
-      {{ get_assert_columns_equivalent(sql) }}
-
-      {# below macro loop through user_provided_columns to create DDL with data types and constraints #}
-      {{ get_table_columns_and_constraints() }} ;
-
+      {% if sql.strip().upper().startswith('WITH') %}
+        AS (
+          SELECT * FROM (
+            {{ compiled_code }}
+          ) D
+        ) WITH DATA
+      {% else %}
+        AS (
+            {{ compiled_code }}
+          ) WITH DATA
+      {% endif %}
       {%- if with_statistics -%}
-      AND STATISTICS
+        AND STATISTICS
       {%- endif %}
       {% if index |length -%}
-        {{ index }}
+      {{ index }}
       {%- endif -%};
-    {% endcall %}
-
-    insert into {{ relation }} (
-      {{ adapter.dispatch('get_column_names', 'dbt')() }}
-    )
-    {{ get_select_subquery(sql) }}
-    ;
-  {% else %}
-    {{ sql_header if sql_header is not none }}
-    CREATE {{ table_kind }} TABLE
-    {{ relation.include(database=False) }}
-    {% if table_option |length -%}
-    , {{ table_option }}
-    {%- endif -%}
-    {% if sql.strip().upper().startswith('WITH') %}
-      AS (
-        SELECT * FROM (
-          {{ sql }}
-        ) D
-      ) WITH DATA
-    {% else %}
-      AS (
-          {{ sql }}
-        ) WITH DATA
     {% endif %}
-    {%- if with_statistics -%}
-      AND STATISTICS
-    {%- endif %}
-    {% if index |length -%}
-    {{ index }}
-    {%- endif -%};
-  {% endif %}
+  {%- elif language == 'python' -%}
+    {{ print("************* In create_table_as, language is python") }}
+    {{ print("************* compiled_code, START") }}
+    {{ print(compiled_code) }}
+    {{ print("************* compiled_code, END") }}
+    {{ py_write_table(compiled_code=compiled_code, target_relation=relation, temporary=temporary) }}
+  {%- else -%}
+      {% do exceptions.raise_compiler_error("teradata__create_table_as macro didn't get supported language, it got %s" % language) %}
+  {%- endif -%}
 {% endmacro %}
 
 {% macro teradata__create_view_as(relation, sql) -%}
