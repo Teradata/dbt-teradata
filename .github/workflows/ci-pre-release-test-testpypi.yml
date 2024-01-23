@@ -12,6 +12,26 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
+
+      - name: Define CSAE env name
+        id: define-environment-name
+        run: |
+          PYTHON_VERSION=$(echo -n "$PYTHON_VERSION" | tr -d '.') # remove dots from version
+          echo "env-name=dbt-ci-$PYTHON_VERSION-$(date +%s%N)" >> $GITHUB_OUTPUT
+        env:
+          PYTHON_VERSION: 3.9
+
+      - name: Create CSAE environments
+        id: create-csae-environments
+        shell: bash
+        run: |
+          chmod 777 .github/workflows/scripts/createTestEnvironments.sh
+          ./.github/workflows/scripts/createTestEnvironments.sh
+        env:
+          CSAE_TOKEN: ${{ secrets.CSAE_TOKEN }}
+          CSAE_ENV_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
+          CSAE_ENV_NAME: ${{ steps.define-environment-name.outputs.env-name}}
+          
       - name: Install dbt-teradata
         shell: bash
         run: |
@@ -43,9 +63,9 @@ jobs:
             target: dev
           EOF
         env:
-          DBT_TERADATA_SERVER_NAME: ${{ vars.DBT_TERADATA_SERVER_NAME }}
-          DBT_TERADATA_USERNAME: ${{ vars.DBT_TERADATA_USERNAME }}
-          DBT_TERADATA_PASSWORD: ${{ vars.DBT_TERADATA_PASSWORD }}
+          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
+          DBT_TERADATA_USERNAME: dbc
+          DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
       - name: Running jaffle_shop project
         shell: bash
@@ -58,3 +78,12 @@ jobs:
           dbt run
           dbt test
           dbt docs generate
+        
+      - name: Delete CSAE environment
+        if: always()
+        run: |
+          chmod 777 .github/workflows/scripts/deleteTestEnvironments.sh
+          ./.github/workflows/scripts/deleteTestEnvironments.sh
+        env:
+          CSAE_TOKEN: '${{ secrets.CSAE_TOKEN }}'
+          CSAE_ENV_NAME: '${{ steps.define-environment-name.outputs.env-name}}'
