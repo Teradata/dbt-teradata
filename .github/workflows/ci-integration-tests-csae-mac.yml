@@ -95,7 +95,7 @@ jobs:
           bteq < /tmp/create_procedure_in_ansi.bteq
 
         env:
-          DBT_TERADATA_SERVER_NAME: ${{ needs.createInstance.outputs.RegularDB }}
+          DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
