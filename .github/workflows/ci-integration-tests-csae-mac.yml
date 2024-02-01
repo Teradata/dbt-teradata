@@ -9,7 +9,6 @@ on:
 jobs:
   createInstance:
     runs-on: ubuntu-latest
-    name: Functional test
     outputs:
       env-name: ${{ steps.define-environment-name.outputs.env-name }}
       RegularDB: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
@@ -97,6 +96,42 @@ jobs:
 
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
+          DBT_TERADATA_USERNAME: dbc
+          DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
+
+  FunctionalTests:
+    strategy:
+      matrix:
+        python: ['3.8', '3.9', '3.10', '3.11']
+      max-parallel: 1
+
+    runs-on: macos-latest
+    needs: createInstance
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements_dev.txt
+
+      - name: Run pytest tests with ANSI mode
+        run: |
+          sed -i "s/localhost/$DBT_TERADATA_SERVER_NAME/g" tests/conftest.py
+          sed -i "s/username='dbc'/username='$DBT_TERADATA_USERNAME'/g" tests/conftest.py
+          sed -i "s/password='dbc'/password='$DBT_TERADATA_PASSWORD'/g" tests/conftest.py
+          export DBT_TEST_USER_1=test_grants_user1
+          export DBT_TEST_USER_2=test_grants_user2
+          export DBT_TEST_USER_3=test_grants_user3
+          pytest -v -k "not TestCurrentTimestamp and not TestProcedureANSIInTERA and not TestProcedureTERAInTERA" tests/functional
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ needs.createInstance.outputs.RegularDB }}
           DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
