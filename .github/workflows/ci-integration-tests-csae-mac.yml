@@ -1,4 +1,4 @@
-name: CI Integration Tests CSAE
+name: CI Integration Tests CSAE MAC
 on:
   workflow_dispatch:
   pull_request:
