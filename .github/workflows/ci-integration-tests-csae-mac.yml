@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Functional test
     outputs:
+      env-name: ${{ steps.define-environment-name.outputs.env-name }}
       RegularDB: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
       QVCIDB: ${{ steps.create-csae-environments.outputs.teradata-server-name-qvci }}
     steps:
@@ -116,5 +117,5 @@ jobs:
           ./.github/workflows/scripts/deleteTestEnvironments.sh
         env:
           CSAE_TOKEN: '${{ secrets.CSAE_TOKEN_VARUN }}'
-          CSAE_ENV_NAME: '${{ needs.createInstance.outputs.RegularDB }}'
+          CSAE_ENV_NAME: '${{ needs.createInstance.outputs.env-name }}'
     
