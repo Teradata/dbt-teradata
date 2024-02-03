@@ -102,7 +102,7 @@ jobs:
   FunctionalTests:
     strategy:
       matrix:
-        python: ['3.8']
+        python: ['3.8', '3.9', '3.10', '3.11']
       max-parallel: 1
 
     runs-on: macos-latest
