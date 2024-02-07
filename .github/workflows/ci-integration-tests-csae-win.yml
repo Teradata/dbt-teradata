@@ -122,13 +122,13 @@ jobs:
       - name: mapping
         id: mapping
         run: |
-          if [ ${{ matrix.python }} -eq  '3.8' ]; then
+          if [ "${{ matrix.python }}" -eq  "3.8" ]; then
             echo "db-user=dbt_user_3_8" >> $GITHUB_OUTPUT
-          else if [ ${{ matrix.python }} -eq  '3.9' ]; then
+          elif [ "${{ matrix.python }}" -eq  "3.9" ]; then
             echo "db-user=dbt_user_3_9" >> $GITHUB_OUTPUT
-          else if [ ${{ matrix.python }} -eq  '3.10' ]; then
+          elif [ "${{ matrix.python }}" -eq  "3.10" ]; then
             echo "db-user=dbt_user_3_10" >> $GITHUB_OUTPUT
-          else if [ ${{ matrix.python }} -eq  '3.11' ]; then
+          elif [ "${{ matrix.python }}" -eq  "3.11" ]; then
             echo "db-user=dbt_user_3_11" >> $GITHUB_OUTPUT
           fi
 
