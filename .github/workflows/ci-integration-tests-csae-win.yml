@@ -90,10 +90,10 @@ jobs:
 
           cat << EOF > /tmp/creating_databases.bteq
           .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
-          create user dbt_user_3_8 from dbc as permanent=100000000 BYTES,password=\"$DBT_TERADATA_PASSWORD\";
-          create user dbt_user_3_9 from dbc as permanent=100000000 BYTES,password=\"$DBT_TERADATA_PASSWORD\";
-          create user dbt_user_3_10 from dbc as permanent=100000000 BYTES,password=\"$DBT_TERADATA_PASSWORD\";
-          create user dbt_user_3_11 from dbc as permanent=100000000 BYTES,password=\"$DBT_TERADATA_PASSWORD\";
+          create user dbt_user_3_8 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          create user dbt_user_3_9 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          create user dbt_user_3_10 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          create user dbt_user_3_11 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
           .logoff
           EOF
           
