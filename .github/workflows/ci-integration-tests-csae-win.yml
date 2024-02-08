@@ -90,22 +90,22 @@ jobs:
 
           cat << EOF > /tmp/creating_databases.bteq
           .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
-          create user dbt_user_3_8 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          create user dbt_user_3_8 from dbc as permanent=2000000000 BYTES,password="$DBT_TERADATA_PASSWORD";
           grant all on dbc to dbt_user_3_8 with grant option;
           grant all on dbt_user_3_8 to dbt_user_3_8 with grant option;
           grant all on dbt_user_3_8 to dbc with grant option;
           
-          create user dbt_user_3_9 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          create user dbt_user_3_9 from dbc as permanent=2000000000 BYTES,password="$DBT_TERADATA_PASSWORD";
           grant all on dbc to dbt_user_3_9 with grant option;
           grant all on dbt_user_3_9 to dbt_user_3_9 with grant option;
           grant all on dbt_user_3_9 to dbc with grant option;
           
-          create user dbt_user_3_10 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          create user dbt_user_3_10 from dbc as permanent=2000000000 BYTES,password="$DBT_TERADATA_PASSWORD";
           grant all on dbc to dbt_user_3_10 with grant option;
           grant all on dbt_user_3_10 to dbt_user_3_10 with grant option;
           grant all on dbt_user_3_10 to dbc with grant option;
           
-          create user dbt_user_3_11 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          create user dbt_user_3_11 from dbc as permanent=2000000000 BYTES,password="$DBT_TERADATA_PASSWORD";
           grant all on dbc to dbt_user_3_11 with grant option;
           grant all on dbt_user_3_11 to dbt_user_3_11 with grant option;
           grant all on dbt_user_3_11 to dbc with grant option;
@@ -118,22 +118,22 @@ jobs:
 
           cat << EOF > /tmp/creating_databases_qvci.bteq
           .logon $DBT_TERADATA_SERVER_NAME_QVCI/$DBT_TERADATA_USERNAME_QVCI,$DBT_TERADATA_PASSWORD_QVCI
-          create user dbt_user_3_8 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          create user dbt_user_3_8 from dbc as permanent=2000000000 BYTES,password="$DBT_TERADATA_PASSWORD";
           grant all on dbc to dbt_user_3_8 with grant option;
           grant all on dbt_user_3_8 to dbt_user_3_8 with grant option;
           grant all on dbt_user_3_8 to dbc with grant option;
           
-          create user dbt_user_3_9 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          create user dbt_user_3_9 from dbc as permanent=2000000000 BYTES,password="$DBT_TERADATA_PASSWORD";
           grant all on dbc to dbt_user_3_9 with grant option;
           grant all on dbt_user_3_9 to dbt_user_3_9 with grant option;
           grant all on dbt_user_3_9 to dbc with grant option;
           
-          create user dbt_user_3_10 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          create user dbt_user_3_10 from dbc as permanent=2000000000 BYTES,password="$DBT_TERADATA_PASSWORD";
           grant all on dbc to dbt_user_3_10 with grant option;
           grant all on dbt_user_3_10 to dbt_user_3_10 with grant option;
           grant all on dbt_user_3_10 to dbc with grant option;
           
-          create user dbt_user_3_11 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          create user dbt_user_3_11 from dbc as permanent=2000000000 BYTES,password="$DBT_TERADATA_PASSWORD";
           grant all on dbc to dbt_user_3_11 with grant option;
           grant all on dbt_user_3_11 to dbt_user_3_11 with grant option;
           grant all on dbt_user_3_11 to dbc with grant option;
