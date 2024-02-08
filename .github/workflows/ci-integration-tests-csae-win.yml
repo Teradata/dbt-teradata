@@ -91,17 +91,64 @@ jobs:
           cat << EOF > /tmp/creating_databases.bteq
           .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
           create user dbt_user_3_8 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          grant all on dbc to dbt_user_3_8 with grant option;
+          grant all on dbt_user_3_8 to dbt_user_3_8 with grant option;
+          grant all on dbt_user_3_8 to dbc with grant option;
+          
           create user dbt_user_3_9 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          grant all on dbc to dbt_user_3_9 with grant option;
+          grant all on dbt_user_3_9 to dbt_user_3_9 with grant option;
+          grant all on dbt_user_3_9 to dbc with grant option;
+          
           create user dbt_user_3_10 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          grant all on dbc to dbt_user_3_10 with grant option;
+          grant all on dbt_user_3_10 to dbt_user_3_10 with grant option;
+          grant all on dbt_user_3_10 to dbc with grant option;
+          
           create user dbt_user_3_11 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          grant all on dbc to dbt_user_3_11 with grant option;
+          grant all on dbt_user_3_11 to dbt_user_3_11 with grant option;
+          grant all on dbt_user_3_11 to dbc with grant option;
+          
           .logoff
           EOF
           
           bteq < /tmp/creating_databases.bteq
+
+
+          cat << EOF > /tmp/creating_databases_qvci.bteq
+          .logon $DBT_TERADATA_SERVER_NAME_QVCI/$DBT_TERADATA_USERNAME_QVCI,$DBT_TERADATA_PASSWORD_QVCI
+          create user dbt_user_3_8 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          grant all on dbc to dbt_user_3_8 with grant option;
+          grant all on dbt_user_3_8 to dbt_user_3_8 with grant option;
+          grant all on dbt_user_3_8 to dbc with grant option;
+          
+          create user dbt_user_3_9 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          grant all on dbc to dbt_user_3_9 with grant option;
+          grant all on dbt_user_3_9 to dbt_user_3_9 with grant option;
+          grant all on dbt_user_3_9 to dbc with grant option;
+          
+          create user dbt_user_3_10 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          grant all on dbc to dbt_user_3_10 with grant option;
+          grant all on dbt_user_3_10 to dbt_user_3_10 with grant option;
+          grant all on dbt_user_3_10 to dbc with grant option;
+          
+          create user dbt_user_3_11 from dbc as permanent=100000000 BYTES,password="$DBT_TERADATA_PASSWORD";
+          grant all on dbc to dbt_user_3_11 with grant option;
+          grant all on dbt_user_3_11 to dbt_user_3_11 with grant option;
+          grant all on dbt_user_3_11 to dbc with grant option;
+          
+          .logoff
+          EOF
+
+          bteq < /tmp/creating_databases_qvci.bteq
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
+          DBT_TERADATA_SERVER_NAME_QVCI: ${{ steps.create-csae-environments.outputs.teradata-server-name-qvci }}
+          DBT_TERADATA_USERNAME_QVCI: dbc
+          DBT_TERADATA_PASSWORD_QVCI: ${{ secrets.CSAE_ENV_PASSWORD }}
 
   FunctionalTests:
     strategy:
@@ -219,7 +266,7 @@ jobs:
           DBT_TERADATA_USERNAME: ${{ steps.mapping.outputs.db-user}}
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
           DBT_TERADATA_SERVER_NAME_QVCI: ${{ needs.createInstance.outputs.QVCIDB }}
-          DBT_TERADATA_USERNAME_QVCI: dbc
+          DBT_TERADATA_USERNAME_QVCI: ${{ steps.mapping.outputs.db-user}}
           DBT_TERADATA_PASSWORD_QVCI: ${{ secrets.CSAE_ENV_PASSWORD }}
 
       - name: Run performance tests with ANSI
@@ -281,7 +328,7 @@ jobs:
           DBT_TERADATA_USERNAME: ${{ steps.mapping.outputs.db-user}}
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
           DBT_TERADATA_SERVER_NAME_QVCI: ${{ needs.createInstance.outputs.QVCIDB }}
-          DBT_TERADATA_USERNAME_QVCI: dbc
+          DBT_TERADATA_USERNAME_QVCI: ${{ steps.mapping.outputs.db-user}}
           DBT_TERADATA_PASSWORD_QVCI: ${{ secrets.CSAE_ENV_PASSWORD }}
 
       - name: Run performance tests with TERA
