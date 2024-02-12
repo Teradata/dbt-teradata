@@ -88,6 +88,16 @@ jobs:
           
           bteq < /tmp/create_procedure_in_ansi.bteq
 
+          cat << EOF > /tmp/modify_user_perm_space.bteq
+          .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
+          sel sum(maxperm), sum(currentperm), databasename from diskspace group by 3 order by 1;
+          modify user demo_user as perm=1000000000 BYTES;
+          sel sum(maxperm), sum(currentperm), databasename from diskspace group by 3 order by 1;
+          .logoff
+          EOF
+          
+          bteq < /tmp/modify_user_perm_space.bteq
+
           cat << EOF > /tmp/creating_databases.bteq
           .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
           create user dbt_user_3_8 from dbc as permanent=1000000000 BYTES,password="$DBT_TERADATA_PASSWORD";
@@ -115,7 +125,16 @@ jobs:
           
           bteq < /tmp/creating_databases.bteq
 
-
+          cat << EOF > /tmp/modify_user_perm_space_QVCI.bteq
+          .logon $DBT_TERADATA_SERVER_NAME_QVCI/$DBT_TERADATA_USERNAME_QVCI,$DBT_TERADATA_PASSWORD_QVCI
+          sel sum(maxperm), sum(currentperm), databasename from diskspace group by 3 order by 1;
+          modify user demo_user as perm=1000000000 BYTES;
+          sel sum(maxperm), sum(currentperm), databasename from diskspace group by 3 order by 1;
+          .logoff
+          EOF
+          
+          bteq < /tmp/modify_user_perm_space_QVCI.bteq
+          
           cat << EOF > /tmp/creating_databases_qvci.bteq
           .logon $DBT_TERADATA_SERVER_NAME_QVCI/$DBT_TERADATA_USERNAME_QVCI,$DBT_TERADATA_PASSWORD_QVCI
           create user dbt_user_3_8 from dbc as permanent=1000000000 BYTES,password="$DBT_TERADATA_PASSWORD";
