@@ -92,9 +92,9 @@ jobs:
       - name: Running jaffle_shop project
         shell: pwsh
         run: |
-          
           cd jaffle_shop
           ls
+          Get-Content "..\.dbt\profiles.yml"
           $env:DBT_PROFILES_DIR= "..\.dbt"
           dbt debug
           dbt seed
