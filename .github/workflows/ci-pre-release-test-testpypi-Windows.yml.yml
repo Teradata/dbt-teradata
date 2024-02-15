@@ -51,9 +51,6 @@ jobs:
         with:
           python-version: 3.9
           
-      - name: Set up Git
-        uses: actions/setup-git@v2
-          
       - name: Install dbt-teradata
         shell: pwsh
         run: |
