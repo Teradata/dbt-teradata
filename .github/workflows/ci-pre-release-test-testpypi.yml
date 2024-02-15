@@ -1,4 +1,4 @@
-name: CI Pre Release Test TestPyPi
+name: CI Pre Release Test TestPyPi LINUX
 on:
   workflow_dispatch:
   workflow_run:
