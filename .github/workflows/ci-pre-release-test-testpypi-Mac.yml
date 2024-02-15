@@ -13,7 +13,7 @@ jobs:
     outputs:
       env-name: ${{ steps.define-environment-name.outputs.env-name }}
       RegularDB: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
-    name: CI Pre Release Test TestPyPi
+    name: CreateInstance
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
