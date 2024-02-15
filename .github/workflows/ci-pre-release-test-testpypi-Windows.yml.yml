@@ -65,15 +65,18 @@ jobs:
       - name: Setup profiles.yml
         shell: pwsh
         run: |
+          $TERADATA_SERVER_NAME = $env:DBT_TERADATA_SERVER_NAME
+          $TERADATA_USERNAME = $env:DBT_TERADATA_USERNAME
+          $TERADATA_PASSWORD = $env:DBT_TERADATA_PASSWORD
           mkdir .dbt
           $content= @"
           jaffle_shop:
             outputs:
               dev:
                 type: teradata
-                host: $DBT_TERADATA_SERVER_NAME
-                user: $DBT_TERADATA_USERNAME
-                password: $DBT_TERADATA_PASSWORD
+                host: $TERADATA_SERVER_NAME
+                user: $TERADATA_USERNAME
+                password: $TERADATA_PASSWORD
                 logmech: TD2
                 schema: jaffle_shop
                 tmode: ANSI
