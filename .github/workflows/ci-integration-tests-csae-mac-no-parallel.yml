@@ -1,4 +1,4 @@
-name: CI Integration Tests CSAE MAC No Parallel
+name: CI Integration Tests CSAE Mac No Parallel
 on:
   workflow_dispatch:
   pull_request:
