@@ -1,5 +1,5 @@
 import pytest
-from dbt.tests.util import run_dbt, run_dbt_and_capture, relation_from_name
+from dbt.tests.util import run_dbt
 
 sample_seed_csv = """
 id,json_column
