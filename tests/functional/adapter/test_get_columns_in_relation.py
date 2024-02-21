@@ -21,13 +21,6 @@ from {{ ref('sample_seed') }}
 sel * from source
 """
 
-# generate_column_names_sql="""
-# {% macro generate_column_names(model) -%}
-#     {% set columns = adapter.get_columns_in_relation(ref('model')) %}
-#     {{ return(columns) }}
-# {%- endmacro %}
-# """
-
 class Test_columns_in_relation:
 
     @pytest.fixture(scope="class")
@@ -53,12 +46,6 @@ class Test_columns_in_relation:
         return{
             "models__model.sql": models__model_sql,
         }
-
-    # @pytest.fixture(scope="class")
-    # def macros(self):
-    #     return {
-    #         "generate_column_names.sql": generate_column_names_sql
-    #     }
 
     def test_get_columns_in_relation(self, project):
         results=run_dbt(["seed"])
