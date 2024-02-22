@@ -167,6 +167,7 @@
         WHEN ColumnsV.ColumnType = 'SZ' THEN 'TIMESTAMP WITH TIME ZONE'
         WHEN ColumnsV.ColumnType = 'UT' THEN 'USER‑DEFINED TYPE'
         WHEN ColumnsV.ColumnType = 'XM' THEN 'XML'
+        WHEN ColumnsV.ColumnType = 'JN' THEN 'JSON'
         ELSE 'N/A'
       END AS dtype,
       CASE
