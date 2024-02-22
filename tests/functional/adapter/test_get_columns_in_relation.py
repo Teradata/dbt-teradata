@@ -1,3 +1,14 @@
+"""
+We will be creating a seed table from 'sample_seed_csv'.
+If we look at the 'project_config_update': we can see se are setting the datatype of 'json_column' as JSON.
+In 'model_model_sql' model, we will fetch the columns,datatypes and few other fields of sample_seed table with help of
+macro 'get_columns_in_relation'.
+As we have now added support for JSON datatype, we will retrieve JSON datatype for 'json_column' and will build the
+'model_model_sql' model.
+Previously it would have returned N/A as datatype for 'json_column' and would have failed to build the
+'model_model_sql'
+"""
+
 import pytest
 from dbt.tests.util import run_dbt
 
