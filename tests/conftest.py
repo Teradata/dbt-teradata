@@ -19,17 +19,21 @@ def dbt_profile_target():
     hostname='localhost'
     username='dbc'
     password='dbc'
+    tmode='ANSI'
 
     if os.getenv('DBT_TERADATA_SERVER_NAME'):
         hostname=os.getenv('DBT_TERADATA_SERVER_NAME')
-    
+
     if os.getenv('DBT_TERADATA_USERNAME'):
         username=os.getenv('DBT_TERADATA_USERNAME')
-    
+
     if os.getenv('DBT_TERADATA_PASSWORD'):
         password=os.getenv('DBT_TERADATA_PASSWORD')
 
-    
+    if os.getenv('DBT_TERADATA_TMODE'):
+        tmode=os.getenv('DBT_TERADATA_TMODE')
+
+
     with teradatasql.connect (host=hostname,user=username,password=password) as con:
         with con.cursor () as cur:
             TEST_USER_ENV_VARS = ["DBT_TEST_USER_1", "DBT_TEST_USER_2", "DBT_TEST_USER_3"]
@@ -43,20 +47,20 @@ def dbt_profile_target():
                             print ("Ignoring", str (ex).split ("\n") [0])
                         else:
                             raise # rethrow
-    
+
     return {
         'type': 'teradata',
         'threads': 1,
         'host': hostname, #{{os.getenv('HOST'), 'localhost'}},
         'user': username, #{{os.getenv('USER'), 'dbc'}},
         'password': password, #{{os.getenv('PASSWORD'), 'dbc'}},
-        'tmode': 'ANSI',
+        'tmode': tmode,
         'log': '0'
     }
 
 @pytest.fixture(scope="class")
 def unique_schema(request, prefix) -> str:
-    unique_schema = f"dbt_test_{prefix}"   
+    unique_schema = f"dbt_test_{prefix}"
     return unique_schema
 
 @pytest.fixture(scope="class")

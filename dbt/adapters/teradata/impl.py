@@ -6,12 +6,14 @@ import agate
 import dbt
 import dbt.exceptions
 
-from dbt.adapters.base.impl import catch_as_completed
+from dbt.adapters.base.impl import catch_as_completed, ConstraintSupport
+from dbt.contracts.graph.nodes import ConstraintType
 from dbt.adapters.base.relation import InformationSchema
 from dbt.adapters.sql import SQLAdapter
 from dbt.adapters.teradata import TeradataConnectionManager
 from dbt.adapters.teradata import TeradataRelation
 from dbt.adapters.teradata import TeradataColumn
+from dbt.adapters.capability import CapabilityDict, CapabilitySupport, Support, Capability
 from dbt.adapters.base.meta import available
 from dbt.adapters.base import BaseRelation
 from dbt.clients.agate_helper import DEFAULT_TYPE_TESTER, table_from_rows
@@ -49,6 +51,22 @@ class TeradataAdapter(SQLAdapter):
     Relation = TeradataRelation
     Column = TeradataColumn
     ConnectionManager = TeradataConnectionManager
+
+    CONSTRAINT_SUPPORT = {
+        ConstraintType.check: ConstraintSupport.ENFORCED,
+        ConstraintType.not_null: ConstraintSupport.ENFORCED,
+        ConstraintType.unique: ConstraintSupport.ENFORCED,
+        ConstraintType.primary_key: ConstraintSupport.ENFORCED,
+        ConstraintType.foreign_key: ConstraintSupport.ENFORCED,
+    }
+
+    # adding full support for SchemaMetadataByRelations and TableLastModifiedMetadata in capability dictionary
+    _capabilities: CapabilityDict = CapabilityDict(
+    {
+        Capability.SchemaMetadataByRelations: CapabilitySupport(support=Support.Full),
+        Capability.TableLastModifiedMetadata: CapabilitySupport(support=Support.Full)
+    }
+    )
 
     @classmethod
     def date_function(cls):
@@ -94,7 +112,8 @@ class TeradataAdapter(SQLAdapter):
         decimals = agate_table.aggregate(agate.MaxPrecision(col_idx))
         return "FLOAT" if decimals else "INTEGER"
 
-    def quote(self, identifier):
+    @classmethod
+    def quote(cls, identifier):
         return '"{}"'.format(identifier)
 
     def list_relations_without_caching(
@@ -160,7 +179,7 @@ class TeradataAdapter(SQLAdapter):
         manifest: Manifest,
     ) -> agate.Table:
         if len(schemas) != 1:
-            dbt.exceptions.CompilationError(
+            raise dbt.exceptions.CompilationError(
                 f'Expected only one schema in _get_one_catalog() for Teradata adapter, found '
                 f'{schemas}'
             )
@@ -321,3 +340,4 @@ class TeradataAdapter(SQLAdapter):
         Not used to validate custom strategies defined by end users.
         """
         return ["delete+insert","append","merge"]
+    

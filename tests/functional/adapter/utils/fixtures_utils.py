@@ -318,3 +318,76 @@ models:
           actual: actual
           expected: expected
 """
+
+
+####################################################################### END ###################################################
+
+################################################################################################################################
+# fixtures for "test_generate_series"
+################################################################################################################################
+
+models__test_generate_series_sql = """
+with generated_numbers as (
+    {{ dbt.generate_series(10) }}
+), expected_numbers as (
+    select 1  as expected FROM (SELECT 1 AS "DUMMY") AS "DUAL"
+    union all
+    select 2 as expected FROM (SELECT 2 AS "DUMMY") AS "DUAL"
+    union all
+    select 3 as expected FROM (SELECT 3 AS "DUMMY") AS "DUAL"
+    union all
+    select 4 as expected FROM (SELECT 4 AS "DUMMY") AS "DUAL"
+    union all
+    select 5 as expected FROM (SELECT 5 AS "DUMMY") AS "DUAL"
+    union all
+    select 6 as expected FROM (SELECT 6 AS "DUMMY") AS "DUAL"
+    union all
+    select 7 as expected FROM (SELECT 7 AS "DUMMY") AS "DUAL"
+    union all
+    select 8 as expected FROM (SELECT 8 AS "DUMMY") AS "DUAL"
+    union all
+    select 9 as expected FROM (SELECT 9 AS "DUMMY") AS "DUAL"
+    union all
+    select 10 as expected FROM (SELECT 10 AS "DUMMY") AS "DUAL"
+), joined as (
+    select
+        generated_numbers.generated_number,
+        expected_numbers.expected
+    from generated_numbers
+    left join expected_numbers on generated_numbers.generated_number = expected_numbers.expected
+)
+
+SELECT * from joined
+"""
+
+models__test_generate_series_yml = """
+version: 2
+models:
+  - name: test_generate_series
+    tests:
+      - assert_equal:
+          actual: generated_number
+          expected: expected
+"""
+
+####################################################################### END ###################################################
+
+################################################################################################################################
+# fixtures for "get_intervals_between"
+################################################################################################################################
+
+models__test_get_intervals_between_sql = """
+SELECT
+  {{ get_intervals_between("'2023-01-09'", "'2023-12-09'", "month") }} as intervals,
+  11 as expected
+"""
+
+models__test_get_intervals_between_yml = """
+version: 2
+models:
+  - name: test_get_intervals_between
+    tests:
+      - assert_equal:
+          actual: intervals
+          expected: expected
+"""

@@ -1,0 +1,118 @@
+name: CI Pre Release Test TestPyPi MAC
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["CD Release TESTPYPI"]
+    types:
+      - completed
+
+jobs:
+  trigger:
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    outputs:
+      env-name: ${{ steps.define-environment-name.outputs.env-name }}
+      RegularDB: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
+    name: CreateInstance
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Define CSAE env name
+        id: define-environment-name
+        run: |
+          PYTHON_VERSION=$(echo -n "$PYTHON_VERSION" | tr -d '.') # remove dots from version
+          echo "env-name=dbt-ci-$PYTHON_VERSION-$(date +%s%N)" >> $GITHUB_OUTPUT
+        env:
+          PYTHON_VERSION: 3.9
+
+      - name: Create CSAE environments
+        id: create-csae-environments
+        shell: bash
+        run: |
+          chmod 777 .github/workflows/scripts/createTestEnvironments.sh
+          ./.github/workflows/scripts/createTestEnvironments.sh
+        env:
+          CSAE_TOKEN: ${{ secrets.CSAE_TOKEN_VARUN }}
+          CSAE_ENV_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
+          CSAE_ENV_NAME: ${{ steps.define-environment-name.outputs.env-name}}
+    
+  Testing-Pre-Release:
+    runs-on: macos-latest
+    needs: trigger
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+          
+      - name: Install dbt-teradata
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple dbt-teradata
+          
+      - name: Clone JaffleShop DBT Project
+        shell: bash
+        run: |
+          git clone https://github.com/Teradata/jaffle_shop-dev.git jaffle_shop
+          
+      - name: Setup profiles.yml
+        shell: bash
+        run: |
+          mkdir ~/.dbt
+          cat << EOF > ~/.dbt/profiles.yml
+          jaffle_shop:
+            outputs:
+              dev:
+                type: teradata
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
+                logmech: TD2
+                schema: jaffle_shop
+                tmode: ANSI
+                threads: 1
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+            target: dev
+          EOF
+        env:
+          DBT_TERADATA_SERVER_NAME: ${{ needs.trigger.outputs.RegularDB }}
+          DBT_TERADATA_USERNAME: dbc
+          DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
+
+      - name: Running jaffle_shop project
+        shell: bash
+        run: |
+          cat ~/.dbt/profiles.yml
+          cd jaffle_shop
+          ls
+          dbt debug
+          dbt seed
+          dbt run
+          dbt test
+          dbt docs generate
+          
+  Delete_instance:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    needs: [trigger, Testing-Pre-Release]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        
+      - name: Delete CSAE environment
+        if: always()
+        run: |
+          chmod 777 .github/workflows/scripts/deleteTestEnvironments.sh
+          ./.github/workflows/scripts/deleteTestEnvironments.sh
+        env:
+          CSAE_TOKEN: '${{ secrets.CSAE_TOKEN_VARUN }}'
+          CSAE_ENV_NAME: '${{ needs.trigger.outputs.env-name}}'

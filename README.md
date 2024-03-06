@@ -50,12 +50,16 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 |1.3.x.x            | ❌           | ✅          | ✅          | ✅          | ✅          | ❌
 |1.4.x.x            | ❌           | ✅          | ✅          | ✅          | ✅          | ✅
 |1.5.x              | ❌           | ✅          | ✅          | ✅          | ✅          | ✅
+|1.6.x              | ❌           | ❌          | ✅          | ✅          | ✅          | ✅
+|1.7.x              | ❌           | ❌          | ✅          | ✅          | ✅          | ✅
 
 
 ##  dbt dependent packages version compatibility
-| dbt-teradta |  dbt-core  | dbt-teradata-util |  dbt-util      |
-|-------------|------------|-------------------|----------------|
-| 1.2.x       | 1.2.x      | 0.1.0             | 0.9.x or below |
+| dbt-teradata | dbt-core | dbt-teradata-util |  dbt-util      |
+|--------------|----------|-------------------|----------------|
+| 1.2.x        | 1.2.x    | 0.1.0             | 0.9.x or below |
+| 1.6.7        | 1.6.7    | 1.1.1             | 1.1.1          |
+| 1.7.x        | 1.7.x    | 1.1.1             | 1.1.1          |
 
 ## Optional profile configurations
 
@@ -192,6 +196,22 @@ The plugin also supports the following Teradata connection parameters:
 * partition
 * sip_support
 * teradata_values
+* sslmode
+* sslca
+* sslcapath
+* sslcrc
+* sslcipher
+* sslprotocol
+* browser
+* browser_tab_timeout
+* browser_timeout
+* sp_spl
+* sessions
+* runstartup
+* logon_timeout
+* https_port
+* connect_timeout
+* request_timeout
 
 For full description of the connection parameters see https://github.com/Teradata/python-driver#connection-parameters.
 
@@ -517,6 +537,8 @@ For using cross DB macros, teradata-utils as a macro namespace will not be used,
 | Cross-database macros | type_string                   | :white_check_mark:    | custom macro provided                                                  |
 | Cross-database macros | last_day                      | :white_check_mark:    | no customization needed, see [compatibility note](#last_day)           |
 | Cross-database macros | width_bucket                  | :white_check_mark:    | no customization
+| SQL generators        | generate_series               | :white_check_mark:    | custom macro provided
+| SQL generators        | date_spine                    | :white_check_mark:    | no customization
 
 
 #### examples for cross DB macros
@@ -567,7 +589,18 @@ Date truncate:
   See [Collecting Statistics documentation](https://docs.teradata.com/r/76g1CuvvQlYBjb2WPIuk3g/RAyUdGfvREwbO9J0DMNpLw) for more information.
 
 ## Support for model contracts
-Model constracts are not yet supported with dbt-teradata.
+Model contracts are supported with dbt-teradata v1.7.1 and onwards.
+Constraint support and enforcement in dbt-teradata
+
+| Constraint type |	Support	Platform | enforcement |
+|-----------------|------------------|-------------|
+| not_null	      | ✅ Supported	 | ✅ Enforced |
+| primary_key	  | ✅ Supported	 | ✅ Enforced |
+| foreign_key	  | ✅ Supported	 | ✅ Enforced |
+| unique	      | ✅ Supported	 | ✅ Enforced |
+| check	          | ✅ Supported	 | ✅ Enforced |
+
+To find more on model contracts please follow dbt documentations https://docs.getdbt.com/docs/collaborate/govern/model-contracts
 
 ## Support for `dbt-utils` package
 `dbt-utils` package is supported through `teradata/teradata_utils` dbt package. The package provides a compatibility layer between `dbt_utils` and `dbt-teradata`. See [teradata_utils](https://hub.getdbt.com/teradata/teradata_utils/latest/) package for install instructions.
@@ -575,7 +608,8 @@ Model constracts are not yet supported with dbt-teradata.
 ## Limitations
 
 ### Transaction mode
-Only ANSI transaction mode is supported.
+Both ANSI and TERA modes are now supported in dbt-teradata. TERA mode's support is introduced with dbt-teradata 1.7.1, it is an initial implementation.
+###### IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode and may not support some use cases. We strongly advise validating all records or transformations utilizing this mode to preempt any potential anomalies or errors
 
 ## Credits
 
