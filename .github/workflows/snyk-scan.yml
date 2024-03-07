@@ -6,28 +6,11 @@ on:
      - cron:  '45 7 * * 5'
 
 jobs:
-  snyk-scan:
-    name: "Run Snyk scan on dbt-teradata"
-    runs-on: [self-hosted]
-    strategy:
-      max-parallel: 1
-      matrix:
-        python-version: ["3.11"]
+  security:
+    runs-on: ubuntu-latest
     steps:
-      - name: "Checkout ${{ github.ref }} ( ${{ github.sha }} )"
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          persist-credentials: false      
-      - name: "Install Python"
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-          cache-dependency-path: ./dev/breeze/setup*
-      - name: "Install dbt-teradata"
-        run: pip install -r requirements.txt
+      - uses: actions/checkout@master
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python@main
+        uses: snyk/actions/python@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
