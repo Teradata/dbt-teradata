@@ -8,7 +8,7 @@ on:
 jobs:
   snyk-scan:
     name: "Run Snyk scan on dbt-teradata"
-    runs-on: "ubuntu-22.04"
+    runs-on: [self-hosted]
     strategy:
       max-parallel: 1
       matrix:
