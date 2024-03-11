@@ -41,7 +41,7 @@
       {{ get_assert_columns_equivalent(sql) }}
 
       {# below macro loop through user_provided_columns to create DDL with data types and constraints #}
-      {{ get_table_columns_and_constraints() }} ;
+      {{ get_table_columns_and_constraints() }}
 
       {%- if with_statistics -%}
       AND STATISTICS
