@@ -2,7 +2,7 @@ import pytest
 import os
 import random
 import teradatasql
-from datetime import datetime
+from datetime import datetime, timezone, UTC
 #from dotenv import load_dotenv, find_dotenv
 #from pathlib import Path
 
@@ -67,7 +67,7 @@ def unique_schema(request, prefix) -> str:
 def prefix():
     # create a directory name that will be unique per test session
     _randint = random.randint(0, 9999)
-    _runtime_timedelta = datetime.utcnow() - datetime(1970, 1, 1, 0, 0, 0)
+    _runtime_timedelta = datetime.now(timezone.utc) - datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     _runtime = (int(_runtime_timedelta.total_seconds() * 1e6)) + _runtime_timedelta.microseconds
     prefix = f"{_runtime}{_randint:04}"
     return prefix
