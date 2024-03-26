@@ -28,6 +28,7 @@
     {%- set dest_cols_csv = dest_columns | map(attribute='quoted') | join(', ') -%}
 
     {%- if unique_key -%}
+    {% call statement('delete_table') %}
         {% if unique_key is sequence and unique_key is not string %}
             delete from {{target_relation }}
             where (
@@ -55,9 +56,8 @@
             {%- endif -%};
 
         {% endif %}
-        
+    {% endcall %}
     {%- endif %}
-
     INSERT INTO {{ target_relation }} ({{ dest_cols_csv }})
        SELECT {{ dest_cols_csv }}
        FROM {{ tmp_relation }}

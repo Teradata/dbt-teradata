@@ -57,29 +57,44 @@
     {{ get_select_subquery(sql) }}
     ;
   {% else %}
+    {#- Changing the code of this macro as in rows_affected are not getting populated in run_results.json -#}
+    {#- Changing it from (create table as) to (create with no data + insert+select) -#}
     {{ sql_header if sql_header is not none }}
-    CREATE {{ table_kind }} TABLE
-    {{ relation.include(database=False) }}
-    {% if table_option |length -%}
-    , {{ table_option }}
-    {%- endif -%}
-    {% if sql.strip().upper().startswith('WITH') %}
-      AS (
+    {% call statement('create_table') %}
+      CREATE {{ table_kind }} TABLE
+      {{ relation.include(database=False) }}
+      {% if table_option |length -%}
+      , {{ table_option }}
+      {%- endif -%}
+      {% if sql.strip().upper().startswith('WITH') %}
+        AS (
+          SELECT * FROM (
+            {{ sql }}
+          ) D
+        ) with no data
+      {% else %}
+        AS (
+            {{ sql }}
+          )with no data
+      {% endif %}
+      {%- if with_statistics -%}
+        AND STATISTICS
+      {%- endif %}
+      {% if index |length -%}
+        {{ index }}
+      {%- endif -%};
+    {% endcall %}
+
+    insert into {{ relation }}
+      {% if sql.strip().upper().startswith('WITH') %}
+
         SELECT * FROM (
           {{ sql }}
-        ) D
-      ) WITH DATA
+      ) D
     {% else %}
-      AS (
           {{ sql }}
-        ) WITH DATA
     {% endif %}
-    {%- if with_statistics -%}
-      AND STATISTICS
-    {%- endif %}
-    {% if index |length -%}
-    {{ index }}
-    {%- endif -%};
+    ;
   {% endif %}
 {% endmacro %}
 

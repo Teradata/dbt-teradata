@@ -337,14 +337,17 @@ class TeradataConnectionManager(SQLConnectionManager):
 
     @classmethod
     def get_response(cls, cursor):
-        # There's no real way to get this from teradatasql, so just return "OK"
         num_rows = 0
+        activity = "success"
+        message = "OK"
         if cursor is not None and cursor.rowcount is not None:
-          num_rows = cursor.rowcount
+            num_rows = cursor.rowcount
+            activity = cursor.activityname
+            message = "activity: {}, rows_affected: {}".format(cursor.activityname, cursor.rowcount)
         return AdapterResponse(
-          _message="OK",
-          rows_affected = num_rows,
-          code='SUCCESS'
+          _message=message,
+          rows_affected=num_rows,
+          code=activity
         )
     '''
     overriding add_query method to disable
