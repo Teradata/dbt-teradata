@@ -12,11 +12,12 @@ jobs:
       - uses: actions/checkout@master
       - name: Run Snyk to check for vulnerabilities
         run: |
-          pip freeze > remove.txt
-          pip uninstall -y -r remove.txt
+          virtualenv test_env
+          source test_env/bin/activate
           pip install -r requirements_dev.txt
           export SNYK_TOKEN=$SNYK_TOKEN
           ~/snyk code test
           ~/snyk test --file=requirements_dev.txt --command=python3 --package-manager=pip
+          rm -rf test_evn
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
