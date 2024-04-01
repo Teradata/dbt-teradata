@@ -12,8 +12,7 @@ jobs:
       - uses: actions/checkout@master
       - name: Run Snyk to check for vulnerabilities
         run: |
-          pip freeze | xargs pip uninstall -y
-          pip freeze --exclude-editable | xargs pip uninstall -y
+          pip uninstall -y -r <(pip freeze)
           pip install -r requirements_dev.txt
           export SNYK_TOKEN=$SNYK_TOKEN
           ~/snyk code test
