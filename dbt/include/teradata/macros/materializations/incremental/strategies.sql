@@ -135,3 +135,32 @@
         )
 
 {% endmacro %}
+
+{% macro teradata__get_incremental_valid_history_sql(target, source, unique_key, valid_period, valid_from, valid_to, use_valid_to_time, resolve_conflicts) -%}
+    {{ log("**************** in teradata__get_incremental_valid_history_sql macro")  }}
+    {{ log("**************** target: " ~ target)  }}
+    {{ log("**************** source: " ~ source)  }}
+    {{ log("**************** unique_key: " ~ unique_key)  }}
+    {{ log("**************** valid_period: " ~ valid_period)  }}
+    {{ log("**************** valid_from: " ~ valid_from)  }}
+    {{ log("**************** valid_to: " ~ valid_to)  }}
+    {{ log("**************** use_valid_to_time: " ~ use_valid_to_time)  }}
+    {{ log("**************** resolve_conflicts: " ~ resolve_conflicts)  }}
+    {% if unique_key %}
+        {% if unique_key is "yes" %}
+            {% if use_valid_to_time is "no" %}
+                {% set end_date= "'9999-12-31 23:59:59.9999" %}
+            {% endif %}
+            
+
+
+
+        {% else %}
+            {% set error_msg= "Failed" %}
+            {% do exceptions.CompilationError(error_msg) %}
+        {% endif %}
+    {% else %}
+        {% set error_msg= "Unique key is required for valid_history incremental strategy, please provide unique key in configuration and try again" %}
+        {% do exceptions.CompilationError(error_msg) %}
+    {% endif %}
+{% endmacro %}
