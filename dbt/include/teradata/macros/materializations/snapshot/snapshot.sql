@@ -1,6 +1,8 @@
 {% materialization snapshot, adapter='teradata' %}
   {%- set config = model['config'] -%}
 
+  {% do set_query_band() %}
+
   {%- set target_table = model.get('alias', model.get('name')) -%}
 
   {%- set strategy_name = config.get('strategy') -%}

@@ -14,3 +14,12 @@
       {{ "SAMPLE " ~ limit if limit != none }}
     ) dbt_internal_test
 {%- endmacro %}
+
+
+{%- materialization test, adapter='teradata' -%}
+
+    {% do set_query_band() %}
+    {% set relations = materialization_test_default() %}
+
+    {{ return(relations) }}
+{% endmaterialization %}

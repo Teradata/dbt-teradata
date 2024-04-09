@@ -305,3 +305,13 @@
   {% do run_query(sql) %}
 
 {% endmacro %}
+
+{% macro set_query_band() %}
+  {{ log("Setting query_band") }}
+  {% set query_band = config.get('query_band') %}
+  {% if query_band %}
+    {% set query_band = query_band |replace("{model}",model.name) %}
+    {% do run_query("set query_band = '{}' update for session;".format(query_band)) %}
+    {{ print("\n\t Query Band updated to ['{}']".format(query_band)) }}
+  {% endif %}
+{% endmacro %}

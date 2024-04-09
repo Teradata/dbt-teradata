@@ -2,6 +2,8 @@
 
 {% materialization incremental, adapter='teradata' -%}
 
+{% do set_query_band() %}
+
 {% set unique_key = config.get('unique_key') %}
 
 {% set target_relation = this.incorporate(type='table') %}

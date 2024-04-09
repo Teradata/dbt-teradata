@@ -62,6 +62,7 @@ class TeradataCredentials(Credentials):
     https_port: Optional[int] = None
     connect_timeout: Optional[int] = None
     request_timeout: Optional[int] = None
+    query_band: Optional[str] = None                    # query_band parameter will be populated by profiles.yml, but it not a connection parameter so this won't be used to connect by driver
 
     _ALIASES = {
         "UID": "username",
@@ -149,7 +150,8 @@ to preempt any potential anomalies or errors
             "logon_timeout",
             "https_port",
             "connect_timeout",
-            "request_timeout"
+            "request_timeout",
+            "query_band"
         )
 
     @classmethod
@@ -272,6 +274,25 @@ class TeradataConnectionManager(SQLConnectionManager):
             def connect():
                 connection.handle = teradatasql.connect(**kwargs)
                 connection.state = 'open'
+
+                # checking if query_band connection parameter exists. If it does -> executing the set query_band sql
+                if credentials.query_band:
+                    try:
+                        cur = connection.handle.cursor()
+                        query_band_text = credentials.query_band
+                        query_band_str = "set query_band = '{}' for session;".format(query_band_text)
+                        cur.execute(query_band_str)
+                        cur.execute("sel GetQueryBand();")
+                        rows = cur.fetchone()
+                        logger.debug("Query Band set to {}".format(rows))
+                        logger.info("Query Band set to {}".format(rows))
+                    except teradatasql.Error as ex:
+                        logger.debug(ex)
+                        logger.info("Please verify query_band parameter in profiles.yml file")
+                        raise dbt.exceptions.DbtRuntimeError(str(ex))
+
+                    return connection.handle
+
                 return connection.handle
 
             retryable_exceptions = [teradatasql.OperationalError]
@@ -288,6 +309,24 @@ class TeradataConnectionManager(SQLConnectionManager):
         try:
             connection.handle = teradatasql.connect(**kwargs)
             connection.state = 'open'
+
+            # checking if query_band connection parameter exists. If it does -> executing the set query_band sql
+            if credentials.query_band:
+                try:
+                    cursor = connection.handle.cursor()
+                    query_band_txt = credentials.query_band
+                    query_band_string = "set query_band = '{}' for session;".format(query_band_txt)
+                    cursor.execute(query_band_string)
+                    cursor.execute("sel GetQueryBand();")
+                    row = cursor.fetchone()
+                    logger.debug("Query Band set to {}".format(row))
+                except teradatasql.Error as e:
+                    logger.debug(e)
+                    logger.info("Please verify query_band parameter in profiles.yml file")
+                    raise dbt.exceptions.DbtRuntimeError(str(e))
+
+                return connection
+
         except teradatasql.Error as e:
             logger.debug("Got an error when attempting to open a teradata "
                          "connection: '{}'"
