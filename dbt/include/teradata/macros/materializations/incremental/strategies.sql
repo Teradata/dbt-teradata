@@ -146,15 +146,92 @@
     {{ log("**************** valid_to: " ~ valid_to)  }}
     {{ log("**************** use_valid_to_time: " ~ use_valid_to_time)  }}
     {{ log("**************** resolve_conflicts: " ~ resolve_conflicts)  }}
+    {%- set source_columns = adapter.get_columns_in_relation(source) -%}
+    {{ log("**************** source_columns: " ~ source_columns)  }}
     {% if unique_key %}
-        {% if unique_key is "yes" %}
-            {% if use_valid_to_time is "no" %}
-                {% set end_date= "'9999-12-31 23:59:59.9999" %}
+        {% if resolve_conflicts == "yes" %}
+            {% if use_valid_to_time == "no" %}
+                {% set end_date= "'9999-12-31 23:59:59.9999'" %}
             {% endif %}
-            
-
-
-
+             {% call statement('dropping existing staging tables') %}
+                drop table hist_prep_1;
+            {% endcall %}
+            {% call statement('creating staging tables') %}
+                create set table hist_prep_1 as {{ target }} with no data ;
+            {% endcall %}
+            {% call statement('removing_duplicates') %}
+                insert into  hist_prep_1
+                        sel distinct
+                    {{ unique_key }}
+                    ,PERIOD({{ valid_from }}, {{ end_date }} (timestamp))
+                    ,Value_txt
+                    from {{ source }}
+                    qualify rank() over(partition by {{ unique_key }}, {{ valid_from }} order by Value_txt)=1;
+            {% endcall %}
+            {% call statement('dropping existing staging tables') %}
+                drop table hist_prep_2;
+            {% endcall %}
+            {% call statement('creating staging tables') %}
+                create set table hist_prep_2 as {{ target }} with no data ;
+            {% endcall %}
+            {% call statement('adjust overlapping slices') %}
+                ins hist_prep_2
+                sel
+                {{ unique_key }}
+                ,PERIOD(
+                    begin(Valid_per)
+                    ,coalesce(lead(begin(Valid_per)) over(partition by {{ unique_key }} order by begin(Valid_per)),({{ end_date }}(timestamp)))
+                 )
+                ,Value_txt
+                from
+                (
+                    sel * from hist_prep_1
+                    union
+                    sel * from  {{ target }} t
+                    where exists
+                    (	sel 1
+                        from hist_prep_1 s
+                        where s.{{ unique_key }}=t.{{ unique_key }}
+                        and s.Valid_per OVERLAPS t.Valid_per
+                    )
+                    and not exists
+                    (	sel 1
+                        from hist_prep_1 s
+                        where s.{{ unique_key }}=t.{{ unique_key }}
+                        and
+                        (
+                        begin(s.Valid_per)=begin(t.Valid_per)
+                        or s.Valid_per contains t.Valid_per
+                        )
+                    )
+                ) a;
+            {% endcall %}
+            {% call statement('dropping existing staging tables') %}
+                drop table hist_prep_3;
+            {% endcall %}
+            {% call statement('creating staging tables') %}
+                create set table hist_prep_3 as {{ target }} with no data;
+            {% endcall %}
+            {% call statement('compact history') %}
+                ins hist_prep_3
+                with subtbl as (sel * from hist_prep_2)
+                sel {{ unique_key }}, Valid_per, Value_txt
+                FROM TABLE
+                (
+                TD_SYSFNLIB.TD_NORMALIZE_MEET
+                (
+                NEW VARIANT_TYPE(subtbl.{{ unique_key }}, Value_txt), subtbl.Valid_per
+                )
+                RETURNS ({{ unique_key }} INT, Value_txt VARCHAR(1000), Valid_per PERIOD(TIMESTAMP(6)))
+                HASH BY {{ unique_key }}
+                LOCAL ORDER BY {{ unique_key }}, Value_txt, Valid_per
+                )
+                AS DT({{ unique_key }}, Value_txt, Valid_per);
+            {% endcall %}
+            del from  {{ target }} t
+            where exists
+            (sel 1 from hist_prep_3 s where s.{{ unique_key }}=t.{{ unique_key }} and s.Valid_per overlaps t.Valid_per);
+            ins  {{ target }} sel * from hist_prep_3;
         {% else %}
             {% set error_msg= "Failed" %}
             {% do exceptions.CompilationError(error_msg) %}
