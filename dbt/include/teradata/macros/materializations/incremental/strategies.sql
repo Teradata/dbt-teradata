@@ -146,8 +146,14 @@
     {{ log("**************** valid_to: " ~ valid_to)  }}
     {{ log("**************** use_valid_to_time: " ~ use_valid_to_time)  }}
     {{ log("**************** resolve_conflicts: " ~ resolve_conflicts)  }}
+    {%- set exclude_columns = [unique_key , valid_from] -%}
+
     {%- set source_columns = adapter.get_columns_in_relation(source) -%}
     {{ log("**************** source_columns: " ~ source_columns)  }}
+
+    {%- set target_columns = adapter.get_columns_in_relation(target) -%}
+    {{ log("**************** target_columns: " ~ target_columns)  }}
+
     {% if unique_key %}
         {% if resolve_conflicts == "yes" %}
             {% if use_valid_to_time == "no" %}
