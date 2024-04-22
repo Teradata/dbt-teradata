@@ -306,6 +306,7 @@
 
 {% endmacro %}
 
+-- set query_band macro which will be called from every materialization to set the query_band as per user configuration
 {% macro set_query_band() %}
   {{ log("Setting query_band") }}
   {% set query_band = config.get('query_band') %}
