@@ -10,6 +10,7 @@
 {% set valid_to = config.get('valid_to', none) %}
 {% set use_valid_to_time = config.get('use_valid_to_time', none) %}
 {% set resolve_conflicts = config.get('resolve_conflicts', none) %}
+{% set history_column_in_target = config.get('history_column_in_target', none) %}
 -- End: Above are the configuration options for the valid_history strategy
 
 {% set target_relation = this.incorporate(type='table') %}
@@ -58,7 +59,7 @@
 
 
    {% set build_sql = teradata__get_incremental_sql(strategy, target_relation, tmp_relation, unique_key, dest_columns,incremental_predicates,
-   valid_period, valid_from, valid_to, use_valid_to_time, resolve_conflicts) %}
+   valid_period, valid_from, valid_to, use_valid_to_time, history_column_in_target, resolve_conflicts) %}
 
 
    {% do to_drop.append(tmp_relation) %}

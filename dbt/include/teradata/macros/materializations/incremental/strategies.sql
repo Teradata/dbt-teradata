@@ -136,7 +136,23 @@
 
 {% endmacro %}
 
-{% macro teradata__get_incremental_valid_history_sql(target, source, unique_key, valid_period, valid_from, valid_to, use_valid_to_time, resolve_conflicts) -%}
+{% macro drop_staging_tables_for_valid_history(table_names) %}
+    {% for table_name in table_names %}
+        {% call statement('dropping existing staging table ' ~ table_name) %}
+            drop table {{ table_name }};
+        {% endcall %}
+    {% endfor %}
+{% endmacro %}
+
+{% macro create_staging_tables_for_valid_history(table_names, target) %}
+    {% for table_name in table_names %}
+        {% call statement('creating staging table ' ~ table_name) %}
+            create set table {{ table_name }} as {{ target }} with no data;
+        {% endcall %}
+    {% endfor %}
+{% endmacro %}
+
+{% macro teradata__get_incremental_valid_history_sql(target, source, unique_key, valid_period, valid_from, valid_to, use_valid_to_time, history_column_in_target, resolve_conflicts) -%}
     {{ log("**************** in teradata__get_incremental_valid_history_sql macro")  }}
     {{ log("**************** target: " ~ target)  }}
     {{ log("**************** source: " ~ source)  }}
@@ -145,6 +161,7 @@
     {{ log("**************** valid_from: " ~ valid_from)  }}
     {{ log("**************** valid_to: " ~ valid_to)  }}
     {{ log("**************** use_valid_to_time: " ~ use_valid_to_time)  }}
+    {{ log("**************** history_column_in_target: " ~ history_column_in_target)  }}
     {{ log("**************** resolve_conflicts: " ~ resolve_conflicts)  }}
     {%- set exclude_columns = [unique_key , valid_from] -%}
 
@@ -154,90 +171,130 @@
     {%- set target_columns = adapter.get_columns_in_relation(target) -%}
     {{ log("**************** target_columns: " ~ target_columns)  }}
 
+    {% set remaining_cols = [] %}
+    {% for column in source_columns %}
+        {{ log("**************** column: " ~ column)  }}
+        {{ log("**************** column.column: " ~ column.column)  }}
+        {{ log("**************** column.data_type: " ~ column.data_type)  }}
+        {% if column.column | lower not in exclude_columns | map("lower") | list %}
+             {%- do remaining_cols.append(column) -%}
+        {% endif %}
+    {% endfor %}
+    {{ log("**************** remaining_cols: " ~ remaining_cols)  }}
+
     {% if unique_key %}
         {% if resolve_conflicts == "yes" %}
             {% if use_valid_to_time == "no" %}
                 {% set end_date= "'9999-12-31 23:59:59.9999'" %}
             {% endif %}
-             {% call statement('dropping existing staging tables') %}
-                drop table hist_prep_1;
-            {% endcall %}
-            {% call statement('creating staging tables') %}
-                create set table hist_prep_1 as {{ target }} with no data ;
-            {% endcall %}
+            {% set staging_tables = ['hist_prep_1', 'hist_prep_2', 'hist_prep_3'] %}
+            {{ drop_staging_tables_for_valid_history(staging_tables) }}
+            {{ create_staging_tables_for_valid_history(staging_tables, target) }}
             {% call statement('removing_duplicates') %}
-                insert into  hist_prep_1
+                insert into  {{ staging_tables[0] }}
                         sel distinct
                     {{ unique_key }}
                     ,PERIOD({{ valid_from }}, {{ end_date }} (timestamp))
-                    ,Value_txt
+                    ,
+                    {% for column in remaining_cols -%}
+                        {{ column.column }}
+                        {%- if not loop.last %}, {% endif %}
+                    {%- endfor %}
                     from {{ source }}
-                    qualify rank() over(partition by {{ unique_key }}, {{ valid_from }} order by Value_txt)=1;
+                    qualify rank() over(partition by {{ unique_key }}, {{ valid_from }} order by
+                    {% for column in remaining_cols -%}
+                        {{ column.column }}
+                        {%- if not loop.last %}, {% endif %}
+                    {%- endfor %}
+                    )=1;
             {% endcall %}
-            {% call statement('dropping existing staging tables') %}
-                drop table hist_prep_2;
-            {% endcall %}
-            {% call statement('creating staging tables') %}
-                create set table hist_prep_2 as {{ target }} with no data ;
-            {% endcall %}
+
             {% call statement('adjust overlapping slices') %}
-                ins hist_prep_2
+                ins {{ staging_tables[1] }}
                 sel
                 {{ unique_key }}
                 ,PERIOD(
-                    begin(Valid_per)
-                    ,coalesce(lead(begin(Valid_per)) over(partition by {{ unique_key }} order by begin(Valid_per)),({{ end_date }}(timestamp)))
+                    begin({{ history_column_in_target }})
+                    ,coalesce(lead(begin({{ history_column_in_target }})) over(partition by {{ unique_key }} order by begin({{ history_column_in_target }})),({{ end_date }}(timestamp)))
                  )
-                ,Value_txt
+                ,
+                {% for column in remaining_cols -%}
+                    {{ column.column }}
+                    {%- if not loop.last %}, {% endif %}
+                {%- endfor %}
                 from
                 (
-                    sel * from hist_prep_1
+                    sel * from {{ staging_tables[0] }}
                     union
                     sel * from  {{ target }} t
                     where exists
                     (	sel 1
-                        from hist_prep_1 s
+                        from {{ staging_tables[0] }} s
                         where s.{{ unique_key }}=t.{{ unique_key }}
-                        and s.Valid_per OVERLAPS t.Valid_per
+                        and s.{{ history_column_in_target }} OVERLAPS t.{{ history_column_in_target }}
                     )
                     and not exists
                     (	sel 1
-                        from hist_prep_1 s
+                        from {{ staging_tables[0] }} s
                         where s.{{ unique_key }}=t.{{ unique_key }}
                         and
                         (
-                        begin(s.Valid_per)=begin(t.Valid_per)
-                        or s.Valid_per contains t.Valid_per
+                        begin(s.{{ history_column_in_target }})=begin(t.{{ history_column_in_target }})
+                        or s.{{ history_column_in_target }} contains t.{{ history_column_in_target }}
                         )
                     )
                 ) a;
             {% endcall %}
-            {% call statement('dropping existing staging tables') %}
-                drop table hist_prep_3;
-            {% endcall %}
-            {% call statement('creating staging tables') %}
-                create set table hist_prep_3 as {{ target }} with no data;
-            {% endcall %}
+
             {% call statement('compact history') %}
-                ins hist_prep_3
-                with subtbl as (sel * from hist_prep_2)
-                sel {{ unique_key }}, Valid_per, Value_txt
+                ins {{ staging_tables[2] }}
+                with subtbl as (sel * from {{ staging_tables[1] }})
+                sel {{ unique_key }}, {{ history_column_in_target }}
+                ,
+                {% for column in remaining_cols -%}
+                        {{ column.column }}
+                        {%- if not loop.last %}, {% endif %}
+                {%- endfor %}
                 FROM TABLE
                 (
                 TD_SYSFNLIB.TD_NORMALIZE_MEET
                 (
-                NEW VARIANT_TYPE(subtbl.{{ unique_key }}, Value_txt), subtbl.Valid_per
+                NEW VARIANT_TYPE(subtbl.{{ unique_key }}
+                ,
+                {% for column in remaining_cols -%}
+                        {{ column.column }}
+                        {%- if not loop.last %}, {% endif %}
+                {%- endfor %}
+                ), subtbl.{{ history_column_in_target }}
                 )
-                RETURNS ({{ unique_key }} INT, Value_txt VARCHAR(1000), Valid_per PERIOD(TIMESTAMP(6)))
+                RETURNS ({{ unique_key }} INT
+                ,
+                {% for column in remaining_cols -%}
+                        {{ column.column }} {{ column.data_type }}
+                        {%- if not loop.last %}, {% endif %}
+                {%- endfor %}
+                , {{ history_column_in_target }} PERIOD(TIMESTAMP(6)))
                 HASH BY {{ unique_key }}
-                LOCAL ORDER BY {{ unique_key }}, Value_txt, Valid_per
+                LOCAL ORDER BY {{ unique_key }}
+                ,
+                {% for column in remaining_cols -%}
+                        {{ column.column }}
+                        {%- if not loop.last %}, {% endif %}
+                {%- endfor %}
+                , {{ history_column_in_target }}
                 )
-                AS DT({{ unique_key }}, Value_txt, Valid_per);
+                AS DT({{ unique_key }}
+                ,
+                {% for column in remaining_cols -%}
+                        {{ column.column }}
+                        {%- if not loop.last %}, {% endif %}
+                {%- endfor %}
+                , {{ history_column_in_target }});
             {% endcall %}
             del from  {{ target }} t
             where exists
-            (sel 1 from hist_prep_3 s where s.{{ unique_key }}=t.{{ unique_key }} and s.Valid_per overlaps t.Valid_per);
-            ins  {{ target }} sel * from hist_prep_3;
+            (sel 1 from {{ staging_tables[2] }} s where s.{{ unique_key }}=t.{{ unique_key }} and s.{{ history_column_in_target }} overlaps t.{{ history_column_in_target }});
+            ins  {{ target }} sel * from {{ staging_tables[2] }};
         {% else %}
             {% set error_msg= "Failed" %}
             {% do exceptions.CompilationError(error_msg) %}
