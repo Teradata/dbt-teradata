@@ -172,23 +172,33 @@
     {{ log("**************** target_columns: " ~ target_columns)  }}
 
     {% set remaining_cols = [] %}
+    {% set datatype_of_unique_key = [] %}
     {% for column in source_columns %}
         {{ log("**************** column: " ~ column)  }}
         {{ log("**************** column.column: " ~ column.column)  }}
         {{ log("**************** column.data_type: " ~ column.data_type)  }}
+        {% if column.column | lower == unique_key | lower %}
+            {%- do datatype_of_unique_key.append(column.data_type) -%}
+        {% endif %}
         {% if column.column | lower not in exclude_columns | map("lower") | list %}
              {%- do remaining_cols.append(column) -%}
         {% endif %}
     {% endfor %}
     {{ log("**************** remaining_cols: " ~ remaining_cols)  }}
+    {{ log("**************** datatype_of_unique_key: " ~ datatype_of_unique_key | join(',')) }}
 
     {% if unique_key %}
         {% if resolve_conflicts == "yes" %}
             {% if use_valid_to_time == "no" %}
                 {% set end_date= "'9999-12-31 23:59:59.9999'" %}
             {% endif %}
-            {% set staging_tables = ['hist_prep_1', 'hist_prep_2', 'hist_prep_3'] %}
-            {{ drop_staging_tables_for_valid_history(staging_tables) }}
+
+            {% set random_value = range(0,99999) | random %}
+            {% set staging_tables = ['hist_prep_1_' ~ random_value, 'hist_prep_2_' ~ random_value, 'hist_prep_3_' ~ random_value] %}
+
+            {{ log("**************** random_value: " ~ random_value)  }}
+            {{ log("**************** staging_tables: " ~ staging_tables) }}
+
             {{ create_staging_tables_for_valid_history(staging_tables, target) }}
             {% call statement('removing_duplicates') %}
                 insert into  {{ staging_tables[0] }}
@@ -267,7 +277,7 @@
                 {%- endfor %}
                 ), subtbl.{{ history_column_in_target }}
                 )
-                RETURNS ({{ unique_key }} INT
+                RETURNS ({{ unique_key }} {{ datatype_of_unique_key | join(',') }}
                 ,
                 {% for column in remaining_cols -%}
                         {{ column.column }} {{ column.data_type }}
