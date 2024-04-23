@@ -8,8 +8,8 @@
 {% set valid_period = config.get('valid_period', none) %}
 {% set valid_from = config.get('valid_from', none) %}
 {% set valid_to = config.get('valid_to', none) %}
-{% set use_valid_to_time = config.get('use_valid_to_time', none) %}
-{% set resolve_conflicts = config.get('resolve_conflicts', none) %}
+{% set use_valid_to_time = config.get('use_valid_to_time', default='no') %}
+{% set resolve_conflicts = config.get('resolve_conflicts', default='yes') %}
 {% set history_column_in_target = config.get('history_column_in_target', none) %}
 -- End: Above are the configuration options for the valid_history strategy
 
