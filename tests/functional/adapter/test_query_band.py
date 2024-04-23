@@ -83,6 +83,9 @@ class Test_query_band:
     def test_query_band(self, project):
         results = run_dbt(["run"])
         assert len(results) == 3
+
+        run_dbt(["seed"])
+        run_dbt(["snapshot"])
         # _, out = run_dbt_and_capture(["run-operation", "fetch_query_band"], expect_pass=False)
         # assert "view_query_band" in out
 
@@ -99,9 +102,6 @@ class Test_query_band:
         result3 = project.run_sql(f"sel queryband from dbc.dbqlogtbl where queryband like '%incremental_query_band%'",
                                   fetch="one")
         assert "incremental_query_band" in result3[0]
-
-        run_dbt(["seed"])
-        run_dbt(["snapshot"])
 
         result4 = project.run_sql(f"sel queryband from dbc.dbqlogtbl where queryband like '%snapshot_query_band%'",
                                   fetch="one")
