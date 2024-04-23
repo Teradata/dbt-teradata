@@ -139,7 +139,7 @@
 {% macro drop_staging_tables_for_valid_history(table_names) %}
     {% for table_name in table_names %}
         {% call statement('dropping existing staging table ' ~ table_name) %}
-            drop table {{ table_name }};
+            DROP table /*+ IF EXISTS */ {{ table_name }};
         {% endcall %}
     {% endfor %}
 {% endmacro %}
@@ -199,6 +199,7 @@
             {{ log("**************** random_value: " ~ random_value)  }}
             {{ log("**************** staging_tables: " ~ staging_tables) }}
 
+            {{ drop_staging_tables_for_valid_history(staging_tables) }}
             {{ create_staging_tables_for_valid_history(staging_tables, target) }}
             {% call statement('removing_duplicates') %}
                 insert into  {{ staging_tables[0] }}
@@ -301,10 +302,13 @@
                 {%- endfor %}
                 , {{ history_column_in_target }});
             {% endcall %}
-            del from  {{ target }} t
-            where exists
-            (sel 1 from {{ staging_tables[2] }} s where s.{{ unique_key }}=t.{{ unique_key }} and s.{{ history_column_in_target }} overlaps t.{{ history_column_in_target }});
-            ins  {{ target }} sel * from {{ staging_tables[2] }};
+            {% call statement('applying changes') %}
+                del from  {{ target }} t
+                where exists
+                (sel 1 from {{ staging_tables[2] }} s where s.{{ unique_key }}=t.{{ unique_key }} and s.{{ history_column_in_target }} overlaps t.{{ history_column_in_target }});
+                ins  {{ target }} sel * from {{ staging_tables[2] }};
+            {% endcall %}
+            {{ drop_staging_tables_for_valid_history(staging_tables) }}
         {% else %}
             {% set error_msg= "Failed" %}
             {% do exceptions.CompilationError(error_msg) %}
