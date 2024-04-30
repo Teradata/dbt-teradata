@@ -106,3 +106,7 @@ class Test_query_band:
         result4 = project.run_sql(f"sel queryband from dbc.dbqlogtbl where queryband like '%snapshot_query_band%'",
                                   fetch="one")
         assert "snapshot_query_band" in result4[0]
+
+        result5 = project.run_sql(f"sel queryband from dbc.dbqlogtbl where queryband like "
+                                  f"'%org=teradata-internal-telem;appname=dbt%'", fetch="one")
+        assert "org=teradata-internal-telem;appname=dbt;" in result5[0]
