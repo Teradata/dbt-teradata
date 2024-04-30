@@ -313,6 +313,9 @@
   {% if query_band %}
     {% set query_band = query_band |replace("{model}",model.name) %}
     {% do run_query("set query_band = '{}' update for session;".format(query_band)) %}
-    {{ print("\n\t Query Band updated to ['{}']".format(query_band)) }}
+    {% set result = run_query("sel GetQueryBand() as qb;") %}
+    {% set out = result.columns['qb'].values() %}
+    {{ log("Query Band updated to ['{}']\n".format(out)) }}
+    {{ print("\n\t Query Band updated to ['{}']\n".format(out)) }}
   {% endif %}
 {% endmacro %}

@@ -612,7 +612,7 @@ Both ANSI and TERA modes are now supported in dbt-teradata. TERA mode's support 
 ###### IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode and may not support some use cases. We strongly advise validating all records or transformations utilizing this mode to preempt any potential anomalies or errors
 
 ## Query Band
-Query Band in dbt-teradata can be set on two levels:
+Query Band in dbt-teradata can be set on three levels:
 1. Profiles Level: In profiles.yml file, user can provide query_band as below example
     ```yaml 
     query_band: 'application=dbt;'
@@ -631,6 +631,17 @@ Query Band in dbt-teradata can be set on two levels:
 User can set query_band at any level or on all levels.
 With profiles level query_band, dbt-teradata will set the query_band for first time for the session and subsequently for model and project level query band will be updated with respective configuration.
 If a user set some key-value pair with value as '{model}' than internally this '{model}' will be replaced with model name, and it can be useful for telemetry tracking of sql/ dbql logging. 
+Let model that user is running be stg_orders
+```yaml
+     models:
+     Project_name:
+        +query_band: "app=dbt;model={model};"
+   ```
+{model} will be replaced with 'stg_orders' in runtime.
+
+If no query_band is set by user, default query_band will come in play that is :
+```org=teradata-internal-telem;appname=dbt;```
+
 
 ## Credits
 
