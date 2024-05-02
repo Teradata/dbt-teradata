@@ -17,7 +17,7 @@ from dbt.adapters.capability import CapabilityDict, CapabilitySupport, Support, 
 from dbt.adapters.base.meta import available
 from dbt.adapters.base import BaseRelation
 from dbt_common.clients.agate_helper import DEFAULT_TYPE_TESTER, table_from_rows
-from dbt.contracts.graph.manifest import Manifest
+from dbt.adapters.contracts.relation import RelationType, RelationConfig
 from dbt.adapters.events.logging import AdapterLogger
 logger = AdapterLogger("teradata")
 from dbt.common.utils import executor
@@ -34,8 +34,8 @@ def _expect_row_value(key: str, row: agate.Row):
 
     return row[key]
 
-def _catalog_filter_schemas(manifest: Manifest) -> Callable[[agate.Row], bool]:
-    schemas = frozenset((None, s.lower()) for d, s in manifest.get_used_schemas())
+def _catalog_filter_schemas(relation_config: Iterable[RelationConfig]) -> Callable[[agate.Row], bool]:
+    schemas = frozenset((None, s.lower()) for d, s in relation_config.get_used_schemas())
 
     def test(row: agate.Row) -> bool:
         table_database = _expect_row_value('table_database', row)
@@ -176,7 +176,7 @@ class TeradataAdapter(SQLAdapter):
         self,
         information_schema: InformationSchema,
         schemas: Set[str],
-        manifest: Manifest,
+        relation_config: Iterable[RelationConfig],
     ) -> agate.Table:
         if len(schemas) != 1:
             raise dbt_common.exceptions.CompilationError(
@@ -184,16 +184,16 @@ class TeradataAdapter(SQLAdapter):
                 f'{schemas}'
             )
 
-        return super()._get_one_catalog(information_schema, schemas, manifest)
+        return super()._get_one_catalog(information_schema, schemas, relation_config)
 
     @classmethod
-    def _catalog_filter_table(cls, table: agate.Table, manifest: Manifest) -> agate.Table:
+    def _catalog_filter_table(cls, table: agate.Table, relation_config: Iterable[RelationConfig]) -> agate.Table:
         table = table_from_rows(
             table.rows,
             table.column_names,
             text_only_columns=['table_schema', 'table_name'],
         )
-        return table.where(_catalog_filter_schemas(manifest))
+        return table.where(_catalog_filter_schemas(relation_config))
 
     def check_schema_exists(self, database, schema):
         results = self.execute_macro(

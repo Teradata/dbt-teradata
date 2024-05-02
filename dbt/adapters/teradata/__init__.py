@@ -5,7 +5,7 @@ from dbt.adapters.teradata.column import TeradataColumn
 from dbt.adapters.teradata.impl import TeradataAdapter
 
 from dbt.adapters.base import AdapterPlugin
-from dbt.include import teradata
+from dbt.adapters import teradata
 
 
 Plugin = AdapterPlugin(
