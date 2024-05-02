@@ -5,10 +5,9 @@ from dbt.adapters.teradata.column import TeradataColumn
 from dbt.adapters.teradata.impl import TeradataAdapter
 
 from dbt.adapters.base import AdapterPlugin
-from dbt.adapters import teradata
-
+from dbt.include.teradata import PACKAGE_PATH
 
 Plugin = AdapterPlugin(
     adapter=TeradataAdapter,
     credentials=TeradataCredentials,
-    include_path=teradata.PACKAGE_PATH)
+    include_path=PACKAGE_PATH)

@@ -20,7 +20,7 @@ from dbt_common.clients.agate_helper import DEFAULT_TYPE_TESTER, table_from_rows
 from dbt.adapters.contracts.relation import RelationType, RelationConfig
 from dbt.adapters.events.logging import AdapterLogger
 logger = AdapterLogger("teradata")
-from dbt.common.utils import executor
+from dbt_common.utils import executor
 
 LIST_SCHEMAS_MACRO_NAME = 'list_schemas'
 LIST_RELATIONS_MACRO_NAME = 'list_relations_without_caching'
