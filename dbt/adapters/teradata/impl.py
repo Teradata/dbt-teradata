@@ -1,6 +1,6 @@
 from concurrent.futures import Future
 from dataclasses import dataclass, asdict
-from typing import Optional, List, Dict, Any, Union, Iterable, Callable, Set
+from typing import Optional, List, Dict, Any, Union, Iterable, Callable, Set, FrozenSet, Tuple
 import agate
 
 import dbt
@@ -34,8 +34,8 @@ def _expect_row_value(key: str, row: agate.Row):
 
     return row[key]
 
-def _catalog_filter_schemas(relation_config: Iterable[RelationConfig]) -> Callable[[agate.Row], bool]:
-    schemas = frozenset((None, s.lower()) for d, s in relation_config.get_used_schemas())
+def _catalog_filter_schemas(used_schemas: FrozenSet[Tuple[str, str]]) -> Callable[[agate.Row], bool]:
+    schemas = frozenset((None, s.lower()) for d, s in used_schemas)
 
     def test(row: agate.Row) -> bool:
         table_database = _expect_row_value('table_database', row)
@@ -187,13 +187,13 @@ class TeradataAdapter(SQLAdapter):
         return super()._get_one_catalog(information_schema, schemas, relation_config)
 
     @classmethod
-    def _catalog_filter_table(cls, table: agate.Table, relation_config: Iterable[RelationConfig]) -> agate.Table:
+    def _catalog_filter_table(cls, table: agate.Table, used_schemas: FrozenSet[Tuple[str, str]]) -> agate.Table:
         table = table_from_rows(
             table.rows,
             table.column_names,
             text_only_columns=['table_schema', 'table_name'],
         )
-        return table.where(_catalog_filter_schemas(relation_config))
+        return table.where(_catalog_filter_schemas(used_schemas))
 
     def check_schema_exists(self, database, schema):
         results = self.execute_macro(
