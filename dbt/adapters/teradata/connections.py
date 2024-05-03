@@ -278,42 +278,7 @@ class TeradataConnectionManager(SQLConnectionManager):
 
                 # checking if query_band connection parameter exists. If it does -> executing the set query_band sql
                 if credentials.query_band:
-                    try:
-                        cur = connection.handle.cursor()
-                        query_band_text = credentials.query_band
-
-                        if query_band_text[-1] != ';':
-                            query_band_text += ';'
-
-                        """checking if appname= key exist in query_band and if dbt exist as value of 
-                        that key otherwise appending DBT in the end """
-                        if 'appname=' in query_band_text or 'appname =' in query_band_text:
-                            pair = query_band_text.split(';')
-                            for i in range(len(pair)):
-                                if 'appname' in pair[i]:
-                                    val = pair[i].split('=')[1]
-                                    patterns = "^" + re.escape('dbt') + "$"
-                                    if not re.match(patterns, val):
-                                        pair[i] += '+dbt'
-                            query_band_text = ';'.join(pair)
-                        else:
-                            query_band_text = query_band_text + 'appname=dbt;'
-
-                        if 'org=' not in query_band_text and 'org =' not in query_band_text:
-                            query_band_text += 'org=teradata-internal-telem;'
-
-                        query_band_str = "set query_band = '{}' for session;".format(query_band_text)
-                        cur.execute(query_band_str)
-                        cur.execute("sel GetQueryBand();")
-                        rows = cur.fetchone()
-                        logger.debug("Query Band set to {}".format(rows))
-                        logger.info("Query Band set to {}".format(rows))
-                    except teradatasql.Error as ex:
-                        logger.debug(ex)
-                        logger.info("Please verify query_band parameter in profiles.yml file")
-                        raise dbt.exceptions.DbtRuntimeError(str(ex))
-
-                    return connection.handle
+                    return cls.apply_query_band(connection.handle, credentials.query_band)
 
                 return connection.handle
 
@@ -334,43 +299,7 @@ class TeradataConnectionManager(SQLConnectionManager):
 
             # checking if query_band connection parameter exists. If it does -> executing the set query_band sql
             if credentials.query_band:
-                try:
-                    cursor = connection.handle.cursor()
-
-                    query_band_txt = credentials.query_band
-
-                    if query_band_txt[-1] != ';':
-                        query_band_txt += ';'
-
-                    """checking if appname= key exist in query_band and if dbt exist as value of 
-                    that key otherwise appending DBT in the end """
-                    if 'appname=' in query_band_txt or 'appname =' in query_band_txt:
-                        pairs = query_band_txt.split(';')
-                        for i in range(len(pairs)):
-                            if 'appname' in pairs[i]:
-                                value = pairs[i].split('=')[1]
-                                pattern = "^" + re.escape('dbt') + "$"
-                                if not re.match(pattern, value):
-                                    pairs[i] += '+dbt'
-                        query_band_txt = ';'.join(pairs)
-                    else:
-                        query_band_txt = query_band_txt + 'appname=dbt;'
-
-                    if 'org=' not in query_band_txt and 'org =' not in query_band_txt:
-                        query_band_txt += 'org=teradata-internal-telem;'
-
-                    query_band_string = "set query_band = '{}' for session;".format(query_band_txt)
-                    cursor.execute(query_band_string)
-                    cursor.execute("sel GetQueryBand();")
-                    row = cursor.fetchone()
-                    logger.debug("Query Band set to {}".format(row))
-                    logger.info("Query Band set to {}".format(row))
-                except teradatasql.Error as e:
-                    logger.debug(e)
-                    logger.info("Please verify query_band parameter in profiles.yml file")
-                    raise dbt.exceptions.DbtRuntimeError(str(e))
-
-                return connection
+                return cls.apply_query_band(connection.handle, credentials.query_band)
 
         except teradatasql.Error as e:
             logger.debug("Got an error when attempting to open a teradata "
@@ -466,3 +395,44 @@ class TeradataConnectionManager(SQLConnectionManager):
     @classmethod
     def data_type_code_to_name(cls, type_code) -> str:
         return str(type_code)
+
+    @classmethod
+    def apply_query_band(cls, handle, query_band_text):
+        try:
+            cur = handle.cursor()
+
+            if query_band_text[-1] != ';':
+                query_band_text += ';'
+
+            """checking if appname= key exist in query_band and if dbt exist as value of 
+            that key otherwise appending +dbt in the end """
+            if 'appname=' in query_band_text or 'appname =' in query_band_text:
+                pair = query_band_text.split(';')
+                for i in range(len(pair)):
+                    if 'appname' in pair[i]:
+                        val = pair[i].split('=')[1]
+                        patterns = "^" + re.escape('dbt') + "$"
+                        if not re.match(patterns, val):
+                            pair[i] += '+dbt'
+                query_band_text = ';'.join(pair)
+            else:
+                query_band_text = query_band_text + 'appname=dbt;'
+
+            """ checking if 'org=' or 'org =' exist, if it doesn't appending 'org=teradata-internal-telem; in query_band 
+                string.  If it exists, user might have set some value of their own, so doing nothing in that case"""
+
+            if 'org=' not in query_band_text and 'org =' not in query_band_text:
+                query_band_text += 'org=teradata-internal-telem;'
+
+            query_band_str = "set query_band = '{}' for session;".format(query_band_text)
+            cur.execute(query_band_str)
+            cur.execute("sel GetQueryBand();")
+            rows = cur.fetchone()
+            logger.debug("Query Band set to {}".format(rows))           # To log in dbt.log
+            logger.info("Query Band set to {}".format(rows))            # To log in terminal
+        except teradatasql.Error as ex:
+            logger.debug(ex)
+            logger.info("Please verify query_band parameter in profiles.yml file")
+            raise dbt.exceptions.DbtRuntimeError(str(ex))
+
+        return handle                                                     # returning the connection handle
