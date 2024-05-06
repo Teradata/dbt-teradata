@@ -305,3 +305,17 @@
   {% do run_query(sql) %}
 
 {% endmacro %}
+
+-- set query_band macro which will be called from every materialization to set the query_band as per user configuration
+{% macro set_query_band() %}
+  {{ log("Setting query_band") }}
+  {% set query_band = config.get('query_band') %}
+  {% if query_band %}
+    {% set query_band = query_band |replace("{model}",model.name) %}
+    {% do run_query("set query_band = '{}' update for session;".format(query_band)) %}
+    {% set result = run_query("sel GetQueryBand() as qb;") %}
+    {% set out = result.columns['qb'].values() %}
+    {{ log("Query Band updated to ['{}']\n".format(out)) }}
+    {{ print("\n\t Query Band updated to ['{}']\n".format(out)) }}
+  {% endif %}
+{% endmacro %}

@@ -56,6 +56,9 @@
   {%- set identifier = model['alias'] -%}
   {%- set full_refresh_mode = (should_full_refresh()) -%}
 
+  -- calling set_query_band() macro to set the query_band as per the user configuration in yml file
+  {% do set_query_band() %}
+
   {%- set old_relation = adapter.get_relation(database=database, schema=schema, identifier=identifier) -%}
 
   {%- set exists_as_table = (old_relation is not none and old_relation.is_table) -%}

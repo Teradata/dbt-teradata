@@ -6,7 +6,7 @@ import agate
 import dbt
 import dbt.exceptions
 
-from dbt.adapters.base.impl import catch_as_completed, ConstraintSupport
+from dbt.adapters.base.impl import catch_as_completed, ConstraintSupport, AdapterConfig
 from dbt.contracts.graph.nodes import ConstraintType
 from dbt.adapters.base.relation import InformationSchema
 from dbt.adapters.sql import SQLAdapter
@@ -46,6 +46,9 @@ def _catalog_filter_schemas(manifest: Manifest) -> Callable[[agate.Row], bool]:
 
     return test
 
+@dataclass
+class TeradataConfig(AdapterConfig):
+    query_band: Optional[str] = None
 
 class TeradataAdapter(SQLAdapter):
     Relation = TeradataRelation

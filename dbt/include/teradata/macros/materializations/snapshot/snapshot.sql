@@ -1,6 +1,9 @@
 {% materialization snapshot, adapter='teradata' %}
   {%- set config = model['config'] -%}
 
+  -- calling the macro set_query_band() which will set the query_band for this materialization as per the user_configuration
+  {% do set_query_band() %}
+
   {%- set target_table = model.get('alias', model.get('name')) -%}
 
   {%- set strategy_name = config.get('strategy') -%}
