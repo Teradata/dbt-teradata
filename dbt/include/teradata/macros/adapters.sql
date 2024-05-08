@@ -186,7 +186,7 @@
         ELSE 'N/A'
       END AS dtype,
       CASE
-        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+        WHEN ColumnsV.CharType in (1, 2) THEN ColumnsV.ColumnLength
       END AS char_size,
       ColumnsV.DecimalTotalDigits AS numeric_precision,
       ColumnsV.DecimalFractionalDigits AS numeric_scale,
