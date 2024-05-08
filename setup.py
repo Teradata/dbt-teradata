@@ -48,7 +48,7 @@ setup(
     install_requires=[
         "dbt-adapters>=1.1.0",
         "dbt-common>=1.0.0",
-        "teradatasql>=16.20.0.0",
+        "teradatasql>=20.00.00.10",
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
