@@ -66,17 +66,11 @@
       {% if table_option |length -%}
       , {{ table_option }}
       {%- endif -%}
-      {% if sql.strip().upper().startswith('WITH') %}
+      {{ " " }}
         AS (
-          SELECT * FROM (
-            {{ sql }}
-          ) D
-        ) with no data
-      {% else %}
-        AS (
-            {{ sql }}
-          )with no data
-      {% endif %}
+          {{ sql }}
+      )with no data
+      {{ " " }}
       {%- if with_statistics -%}
         AND STATISTICS
       {%- endif %}
@@ -86,14 +80,7 @@
     {% endcall %}
 
     insert into {{ relation }}
-      {% if sql.strip().upper().startswith('WITH') %}
-
-        SELECT * FROM (
-          {{ sql }}
-      ) D
-    {% else %}
-          {{ sql }}
-    {% endif %}
+    {{ sql }}
     ;
   {% endif %}
 {% endmacro %}
