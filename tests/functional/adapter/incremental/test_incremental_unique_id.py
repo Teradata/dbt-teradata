@@ -13,7 +13,8 @@ models__trinary_unique_key_list_sql = """
     config(
         materialized='incremental',
         incremental_strategy='merge',
-        unique_key=['state', 'county', 'city']
+        unique_key=['state', 'county', 'city'],
+        index='PRIMARY INDEX (state)'
     )
 }}
 
@@ -39,7 +40,8 @@ models__nontyped_trinary_unique_key_list_sql = """
     config(
         materialized='incremental',
         incremental_strategy='merge',
-        unique_key=['state', 'county', 'city']
+        unique_key=['state', 'county', 'city'],
+        index='PRIMARY INDEX (state)'
     )
 }}
 
@@ -64,7 +66,8 @@ models__unary_unique_key_list_sql = """
     config(
         materialized='incremental',
         incremental_strategy='merge',
-        unique_key=['state']
+        unique_key=['state'],
+        index='PRIMARY INDEX (state)'
     )
 }}
 
@@ -170,7 +173,8 @@ models__str_unique_key_sql = """
     config(
         materialized='incremental',
         incremental_strategy='merge',
-        unique_key='state'
+        unique_key='state',
+        index='PRIMARY INDEX (state)'
     )
 }}
 
@@ -192,7 +196,8 @@ models__duplicated_unary_unique_key_list_sql = """
     config(
         materialized='incremental',
         incremental_strategy='merge',
-        unique_key=['state', 'state']
+        unique_key=['state', 'state'],
+        index='PRIMARY INDEX (state)'
     )
 }}
 
