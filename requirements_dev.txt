@@ -5,7 +5,7 @@ pytest~=7.0
 tox~=3.2
 dbt-tests-adapter~=1.7.11
 pylava~=0.3.0
-teradatasql>=16.20.0.0
+teradatasql>=20.00.00.10
 dbt-core==1.7.11
 MarkupSafe==2.0.1
 pytest-dotenv
