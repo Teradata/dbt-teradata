@@ -10,7 +10,7 @@
     Expected one of:  'append','delete+insert','merge'
   {%- endset %}
   {%- if strategy not in ['append','delete+insert','merge'] %}
-    {% do exceptions.CompilationError(invalid_strategy_msg) %}
+    {% do exceptions.raise_compiler_error(invalid_strategy_msg) %}
   {%- endif %}
 
   {% do return(strategy) %}
@@ -25,6 +25,6 @@
   {% elif strategy == 'merge' %}
     {% do return(teradata__get_merge_sql(target_relation, tmp_relation, unique_key, dest_columns,incremental_predicates)) %}
   {% else %}
-    {% do exceptions.CompilationError("Invalid Strategy") %}
+    {% do exceptions.raise_compiler_error("Invalid Strategy") %}
   {% endif %}
 {% endmacro %}

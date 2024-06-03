@@ -15,7 +15,8 @@ model_sql = """
 config( 
     materialized = 'incremental', 
     incremental_strategy = 'merge',
-    unique_key = 'id' 
+    unique_key = 'id',
+    index = 'UNIQUE PRIMARY INDEX (id)'
 )
 }}
 sel * from {{ ref('seed') }}

@@ -12,7 +12,7 @@ class Test_table_modifiers_with_seed_table_kind:
     def project_config_update(self):
         return {
           "name": "project_table_modifiers_with_seed_table_kind",
-          "seeds": {"table_kind": "SET"}
+          "seeds": {"table_kind": "SET", "index": "UNIQUE PRIMARY INDEX (id)" }
         }
     
     @pytest.fixture(scope="class")
