@@ -153,15 +153,30 @@
 {% endmacro %}
 
 {% macro teradata__get_incremental_valid_history_sql(target, source, unique_key, valid_period, valid_from, valid_to, use_valid_to_time, history_column_in_target, resolve_conflicts) -%}
+--    {{ log("**************** in teradata__get_incremental_valid_history_sql macro")  }}
+--    {{ log("**************** target: " ~ target)  }}
+--    {{ log("**************** source: " ~ source)  }}
+--    {{ log("**************** unique_key: " ~ unique_key)  }}
+--    {{ log("**************** valid_period: " ~ valid_period)  }}
+--    {{ log("**************** valid_from: " ~ valid_from)  }}
+--    {{ log("**************** valid_to: " ~ valid_to)  }}
+--    {{ log("**************** use_valid_to_time: " ~ use_valid_to_time)  }}
+--    {{ log("**************** history_column_in_target: " ~ history_column_in_target)  }}
+--    {{ log("**************** resolve_conflicts: " ~ resolve_conflicts)  }}
     {%- set exclude_columns = [unique_key , valid_from] -%}
 
     {%- set source_columns = adapter.get_columns_in_relation(source) -%}
+--    {{ log("**************** source_columns: " ~ source_columns)  }}
 
     {%- set target_columns = adapter.get_columns_in_relation(target) -%}
+--    {{ log("**************** target_columns: " ~ target_columns)  }}
 
     {% set remaining_cols = [] %}
     {% set datatype_of_unique_key = [] %}
     {% for column in source_columns %}
+--        {{ log("**************** column: " ~ column)  }}
+--        {{ log("**************** column.column: " ~ column.column)  }}
+--        {{ log("**************** column.data_type: " ~ column.data_type)  }}
         {% if column.column | lower == unique_key | lower %}
             {%- do datatype_of_unique_key.append(column.data_type) -%}
         {% endif %}
@@ -169,6 +184,8 @@
              {%- do remaining_cols.append(column) -%}
         {% endif %}
     {% endfor %}
+--    {{ log("**************** remaining_cols: " ~ remaining_cols)  }}
+--    {{ log("**************** datatype_of_unique_key: " ~ datatype_of_unique_key | join(',')) }}
 
     {% if unique_key %}
         {% if resolve_conflicts == "yes" %}
@@ -177,8 +194,14 @@
             {% endif %}
 
             {% set random_value = range(0,99999) | random %}
-            {% set staging_tables = ['hist_prep_1_' ~ random_value, 'hist_prep_2_' ~ random_value, 'hist_prep_3_' ~ random_value] %}
-
+            {%- set staging_tables = [
+                target.replace_path(identifier='hist_prep_1_' ~ random_value),
+                target.replace_path(identifier='hist_prep_2_' ~ random_value),
+                target.replace_path(identifier='hist_prep_3_' ~ random_value)
+                ]
+            -%}
+--            {{ log("**************** random_value: " ~ random_value)  }}
+--            {{ log("**************** staging_tables: " ~ staging_tables) }}
 
             {{ drop_staging_tables_for_valid_history(staging_tables) }}
             {{ create_staging_tables_for_valid_history(staging_tables, target) }}
