@@ -271,7 +271,7 @@ The following incremental materialization strategies are supported:
 > These steps collectively ensure that the valid_history strategy effectively manages historical data, maintaining its integrity and accuracy while optimizing performance.
 
   ```sql
-    Example showing the sample source data and target data:  
+    An illustration demonstrating the source sample data and its corresponding target data:  
   
     -- Source data
         pk |       valid_from          | value_txt1 | value_txt2
