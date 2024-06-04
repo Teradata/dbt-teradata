@@ -90,7 +90,7 @@
     {% else %}
         {% set error_msg= "Unique key is required for merge incremental strategy, please provide unique key in configuration and try again
         or consider using Append strategy" %}
-        {% do exceptions.CompilationError(error_msg) %}
+        {% do exceptions.raise_compiler_error(error_msg) %}
     {% endif %}
 
     {{ sql_header if sql_header is not none }}

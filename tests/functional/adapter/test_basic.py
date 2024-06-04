@@ -30,12 +30,12 @@ config_materialized_incremental_delete_insert = """
 incremental_delete_insert_sql = config_materialized_incremental_delete_insert + model_incremental
 
 config_materialized_incremental_merge= """
-  {{ config(materialized="incremental",incremental_strategy="merge", unique_key='id')}}
+  {{ config(materialized="incremental",incremental_strategy="merge",unique_key='id',index="UNIQUE PRIMARY INDEX (id)") }}
 """
 incremental_merge_sql = config_materialized_incremental_merge + model_incremental
 
 config_materialized_incremental_with_multiple_unique_key_merge= """
-  {{ config(materialized="incremental",incremental_strategy="merge", unique_key=['id','some_date'])}}
+  {{ config(materialized="incremental",incremental_strategy="merge",unique_key=['id','some_date'],index="UNIQUE PRIMARY INDEX (id, some_date)") }}
 """
 incremental_merge_with_multiple_unique_key_sql = config_materialized_incremental_with_multiple_unique_key_merge + model_incremental
 

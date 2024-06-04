@@ -24,6 +24,7 @@ projects:
         seeds:
           project_table_modifiers_with_seed_table_kind:
             table_kind: "SET"
+            index: "UNIQUE PRIMARY INDEX (id)"
 
   - name: project_table_modifiers_with_seed_table_option
     paths:

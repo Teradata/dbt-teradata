@@ -27,6 +27,6 @@ valid_period, valid_from, valid_to, use_valid_to_time, history_column_in_target,
   {% elif strategy == 'valid_history' %}
     {% do return(teradata__get_incremental_valid_history_sql(target_relation, tmp_relation, unique_key, valid_period, valid_from, valid_to, use_valid_to_time, history_column_in_target, resolve_conflicts)) %}
   {% else %}
-    {% do exceptions.CompilationError("Invalid Strategy") %}
+    {% do exceptions.raise_compiler_error("Invalid Strategy") %}
   {% endif %}
 {% endmacro %}

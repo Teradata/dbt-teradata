@@ -2,6 +2,9 @@
 
 {% materialization incremental, adapter='teradata' -%}
 
+-- calling the macro set_query_band() which will set the query_band for this materialization as per the user_configuration
+{% do set_query_band() %}
+
 {% set unique_key = config.get('unique_key') %}
 
 -- Start: Below are the configuration options for the valid_history strategy
