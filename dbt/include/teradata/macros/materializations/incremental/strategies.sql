@@ -190,7 +190,7 @@
     {% if unique_key %}
         {% if resolve_conflicts == "yes" %}
             {% if use_valid_to_time == "no" %}
-                {% set end_date= "'9999-12-31 23:59:59.9999'" %}
+                {% set end_date= "'9999-12-31 23:59:59.999999+00:00'" %}
             {% endif %}
 
             {% set random_value = range(0,99999) | random %}
