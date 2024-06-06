@@ -113,3 +113,32 @@ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
     {%- endfor -%}
     {{ return(formatted_row) }}
 {%- endmacro -%}
+
+
+
+{% macro get_unit_test_sql(main_sql, expected_fixture_sql, expected_column_names) -%}
+  {{ adapter.dispatch('get_unit_test_sql', 'dbt')(main_sql, expected_fixture_sql, expected_column_names) }}
+{%- endmacro %}
+
+{% macro teradata__get_unit_test_sql(main_sql, expected_fixture_sql, expected_column_names) -%}
+-- Build actual result given inputs
+with dbt_internal_unit_test_actual as (
+  select
+    {% for expected_column_name in expected_column_names %}{{expected_column_name}}{% if not loop.last -%},{% endif %}{%- endfor -%}, {{ dbt.string_literal("actual") }} as {{ adapter.quote("actual_or_expected") }}
+  from (
+    {{ main_sql }}
+  ) _dbt_internal_unit_test_actual
+),
+-- Build expected result
+dbt_internal_unit_test_expected as (
+  select
+    {% for expected_column_name in expected_column_names %}{{expected_column_name}}{% if not loop.last -%}, {% endif %}{%- endfor -%}, {{ dbt.string_literal("expected") }} as {{ adapter.quote("actual_or_expected") }}
+  from (
+    {{ expected_fixture_sql }}
+  ) _dbt_internal_unit_test_expected
+)
+-- Union actual and expected results
+select * from dbt_internal_unit_test_expected
+union all
+select * from dbt_internal_unit_test_actual
+{%- endmacro %}
