@@ -1,4 +1,4 @@
--- overriding the below macros because the syntax used in default macros is not supported in Teradata
+-- overriding the "get_expected_sql" and "get_fixture_sql" macros because the syntax used in default macros is not supported in Teradata
 -- Default macros uses 'union all' in between multiple select statements without reference to any table or view which gives the below error
 -- [Teradata Database] [Error 3888] A SELECT for a UNION,INTERSECT or MINUS must reference a table
 -- To avoid this error we are are using a workaround [ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1 ] in between those sel statements
@@ -82,6 +82,8 @@ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
 {% endmacro %}
 
 
+-- We need to override "format_row" macro to remove the safe_cast() used in the default implementation.
+-- We had to remove safe_cast because N/A was being picked as column_type in safe_casting, which was later running into issues
 
 {%- macro format_row(row, column_name_to_data_types) -%}
     {#-- generate case-insensitive formatted row --#}
@@ -115,6 +117,10 @@ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
 {%- endmacro -%}
 
 
+
+-- Overridden "get_unit_test_sql" macro to avoid right truncation of data
+-- We are selecting "dbt_internal_unit_test_expected" first then doing union all with "dbt_internal_unit_test_actual"
+-- So that "expected do not become "expect" in final result of unit tests
 
 {% macro get_unit_test_sql(main_sql, expected_fixture_sql, expected_column_names) -%}
   {{ adapter.dispatch('get_unit_test_sql', 'dbt')(main_sql, expected_fixture_sql, expected_column_names) }}
