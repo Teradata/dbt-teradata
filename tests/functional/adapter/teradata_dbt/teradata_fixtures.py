@@ -1081,3 +1081,13 @@ INSERT INTO {schema}.seed_expected ("seed_id","first_name","email","ip_address",
 INSERT INTO {schema}.seed_expected ("seed_id","first_name","email","ip_address","birthday") VALUES (499,NULL,'ethomasdu@hhs.gov','6.241.88.250','2007-09-14 13:03:34');
 INSERT INTO {schema}.seed_expected ("seed_id","first_name","email","ip_address","birthday") VALUES (500,'Paula','pshawdv@networksolutions.com','123.27.47.249','2003-10-30 21:19:20');
 """
+
+
+valid_history_target_table_sql = """
+create table {schema}.valid_history (
+pk integer not null,
+valid_per period(timestamp) not null,
+value_txt1 varchar(1000),
+value_txt2 varchar(1000)
+);
+"""
