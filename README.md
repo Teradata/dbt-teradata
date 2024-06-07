@@ -229,6 +229,76 @@ The following incremental materialization strategies are supported:
 * `append` (default)
 * `delete+insert`
 * `merge`
+* `valid_history`
+
+    ###### 'valid_history' incremental materialization strategy (early access)
+    This strategy is designed to manage historical data efficiently within a Teradata environment, leveraging dbt features to ensure data quality and optimal resource usage.
+    In temporal databases, valid time is crucial for applications like historical reporting, ML training datasets, and forensic analysis.
+  ```yaml
+    {{
+        config(
+            materialized='incremental',
+            unique_key='id',
+            on_schema_change='fail',
+            incremental_strategy='valid_history',
+            valid_from='valid_from_column',
+            history_column_in_target='history_period_column'
+    )
+    }}
+    ```
+  `valid_history` incremental strategy requires the following parameters:
+  * `valid_from` - Column in the source table of **timestamp** datatype indicating when each record became valid.
+  * `history_column_in_target` - Column in the target table of **period** datatype that tracks history.
+
+  
+
+>   The valid_history strategy in dbt-teradata involves several critical steps to ensure the integrity and accuracy of historical data management:
+>   * Remove duplicates and conflicting values from the source data:
+>     * This step ensures that the data is clean and ready for further processing by eliminating any redundant or conflicting records.
+>     * The process of removing duplicates and conflicting values from the source data involves using a ranking mechanism to ensure that only the highest-priority records are retained. This is accomplished using the SQL RANK() function.
+>   * Identify and adjust overlapping time slices:
+>     * Overlapping time periods in the data are detected and corrected to maintain a consistent and non-overlapping timeline.
+>   * Manage records needing to be overwritten or split based on the source and target data:
+>     * This involves handling scenarios where records in the source data overlap with or need to replace records in the target data, ensuring that the historical timeline remains accurate.
+>   * Utilize the TD_NORMALIZE_MEET function to compact history:
+>     * This function helps to normalize and compact the history by merging adjacent time periods, improving the efficiency and performance of the database.
+>   * Delete existing overlapping records from the target table:
+>     * Before inserting new or updated records, any existing records in the target table that overlap with the new data are removed to prevent conflicts.
+>   * Insert the processed data into the target table:
+>     * Finally, the cleaned and adjusted data is inserted into the target table, ensuring that the historical data is up-to-date and accurately reflects the intended timeline.
+>     
+>     
+> These steps collectively ensure that the valid_history strategy effectively manages historical data, maintaining its integrity and accuracy while optimizing performance.
+
+  ```sql
+    An illustration demonstrating the source sample data and its corresponding target data:  
+  
+    -- Source data
+        pk |       valid_from          | value_txt1 | value_txt2
+        ======================================================================
+        1  | 2024-03-01 00:00:00.0000  | A          | x1
+        1  | 2024-03-12 00:00:00.0000  | B          | x1
+        1  | 2024-03-12 00:00:00.0000  | B          | x2
+        1  | 2024-03-25 00:00:00.0000  | A          | x2
+        2  | 2024-03-01 00:00:00.0000  | A          | x1
+        2  | 2024-03-12 00:00:00.0000  | C          | x1
+        2  | 2024-03-12 00:00:00.0000  | D          | x1
+        2  | 2024-03-13 00:00:00.0000  | C          | x1
+        2  | 2024-03-14 00:00:00.0000  | C          | x1
+    
+    -- Target data
+        pk | valid_period                                                       | value_txt1 | value_txt2
+        ===================================================================================================
+        1  | PERIOD(TIMESTAMP)[2024-03-01 00:00:00.0, 2024-03-12 00:00:00.0]    | A          | x1
+        1  | PERIOD(TIMESTAMP)[2024-03-12 00:00:00.0, 2024-03-25 00:00:00.0]    | B          | x1
+        1  | PERIOD(TIMESTAMP)[2024-03-25 00:00:00.0, 9999-12-31 23:59:59.9999] | A          | x2
+        2  | PERIOD(TIMESTAMP)[2024-03-01 00:00:00.0, 2024-03-12 00:00:00.0]    | A          | x1
+        2  | PERIOD(TIMESTAMP)[2024-03-12 00:00:00.0, 9999-12-31 23:59:59.9999] | C          | x1
+  ```
+  
+
+>   **Important Note**: The target table must already exist before running the model. Ensure that the target table is created and properly structured with the necessary columns, including a column that tracks the history with period datatype, before running a dbt model.
+
 
 To learn more about dbt incremental strategies please check [the dbt incremental strategy documentation](https://docs.getdbt.com/docs/build/incremental-models#about-incremental_strategy).
 
