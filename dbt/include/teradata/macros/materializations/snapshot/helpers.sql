@@ -125,3 +125,8 @@
     ) sbq
 
 {% endmacro %}
+
+{% macro teradata__post_snapshot(staging_relation) %}
+    {{ adapter.dispatch('drop_relation', 'dbt')(staging_relation) }}
+{% endmacro %}
+
