@@ -1,6 +1,6 @@
 
 {% macro teradata__snapshot_hash_arguments(args) -%}
-    GLOBAL_FUNCTIONS.hash_md5({%- for arg in args -%}
+    HASHROW({%- for arg in args -%}
         coalesce(cast({{ arg }} as varchar(50)), '')
         {% if not loop.last %} || '|' || {% endif %}
     {%- endfor -%})
@@ -79,6 +79,11 @@
     {%- endset %}
 
     {% set scd_id_expr = snapshot_hash_arguments([primary_key, updated_at]) %}
+    {% set snapshot_hash_udf = config.get('snapshot_hash_udf') %}
+    {% if snapshot_hash_udf is not none %}
+        {% set scd_id_expr = scd_id_expr |replace("HASHROW",snapshot_hash_udf) %}
+    {% endif %}
+
 
     {% do return({
         "unique_key": primary_key,
