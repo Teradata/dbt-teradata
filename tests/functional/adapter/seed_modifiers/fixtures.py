@@ -9,5 +9,6 @@ sample_model_yml="""
     config-version: 2
     seed:
         - name: sample_seed
-        table_kind: SET
+          table_kind: SET
+          index: "UNIQUE PRIMARY INDEX (id)"
 """

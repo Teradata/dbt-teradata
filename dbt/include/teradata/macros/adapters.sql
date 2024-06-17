@@ -65,19 +65,11 @@
       {{ relation.include(database=False) }}
       {% if table_option |length -%}
       , {{ table_option }}
-      {%- endif -%}
-      {% if sql.strip().upper().startswith('WITH') %}
-        AS (
-          SELECT * FROM (
-            {{ sql }}
-          ) D
-        ) with no data
-      {% else %}
+      {% endif -%}
         AS (
             {{ sql }}
-          )with no data
-      {% endif %}
-      {%- if with_statistics -%}
+        ) WITH NO DATA
+      {% if with_statistics -%}
         AND STATISTICS
       {%- endif %}
       {% if index |length -%}
@@ -85,15 +77,8 @@
       {%- endif -%};
     {% endcall %}
 
-    insert into {{ relation }}
-      {% if sql.strip().upper().startswith('WITH') %}
-
-        SELECT * FROM (
+    INSERT INTO {{ relation }}
           {{ sql }}
-      ) D
-    {% else %}
-          {{ sql }}
-    {% endif %}
     ;
   {% endif %}
 {% endmacro %}
@@ -304,4 +289,18 @@
 
   {% do run_query(sql) %}
 
+{% endmacro %}
+
+-- set query_band macro which will be called from every materialization to set the query_band as per user configuration
+{% macro set_query_band() %}
+  {{ log("Setting query_band") }}
+  {% set query_band = config.get('query_band') %}
+  {% if query_band %}
+    {% set query_band = query_band |replace("{model}",model.name) %}
+    {% do run_query("set query_band = '{}' update for session;".format(query_band)) %}
+    {% set result = run_query("sel GetQueryBand() as qb;") %}
+    {% set out = result.columns['qb'].values() %}
+    {{ log("Query Band updated to ['{}']\n".format(out)) }}
+    {{ print("\n\t Query Band updated to ['{}']\n".format(out)) }}
+  {% endif %}
 {% endmacro %}
