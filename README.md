@@ -491,8 +491,9 @@ Seeds, in addition to the above materialization modifiers, have the following op
 Snapshots uses the HASHROW function of the Teradata database to generate a unique hash value for the 'dbt_scd_id' column. If you want to use your own hash UDF, there is a configuration option in the snapshot model called 'snapshot_hash_udf', which defaults to HASHROW. You can provide a value like <database_name.hash_udf_name>. If only hash_udf_name is provided, it uses the same schema as the model runs.
 
 for e.g. :
-  snapshots/snapshot_example.yml
-  ```yaml
+  snapshots/snapshot_example.sql
+  ```sql
+  {% snapshot snapshot_example %}
   {{
     config(
       target_schema='snapshots',
@@ -501,6 +502,8 @@ for e.g. :
       check_cols=["c2"],
       snapshot_hash_udf='GLOBAL_FUNCTIONS.hash_md5'
     )
+  select * from {{ ref('order_payments') }}
+  {% endsnapshot %}
   }}
   ```
 
