@@ -79,6 +79,11 @@
     {%- endset %}
 
     {% set scd_id_expr = snapshot_hash_arguments([primary_key, updated_at]) %}
+    {% set snapshot_hash_udf = config.get('snapshot_hash_udf') %}
+    {% if snapshot_hash_udf is not none %}
+        {% set scd_id_expr = scd_id_expr |replace("HASHROW",snapshot_hash_udf) %}
+    {% endif %}
+
 
     {% do return({
         "unique_key": primary_key,
