@@ -9,6 +9,12 @@ The dbt Teradata adapter lets you use [dbt](https://getdbt.com) with Teradata Va
 ```
 pip install dbt-teradata
 ```
+> **Starting from dbt-teradata 1.8.0 and above, dbt-core will not be installed as a dependency. Therefore, you need to explicitly install dbt-core. Ensure you install dbt-core 1.8.0 or above. You can do this with the following command:**
+> ```
+> pip install dbt-core>=1.8.0
+> ```
+> Please go through this discussion for more information:
+> https://github.com/dbt-labs/dbt-core/discussions/9171
 
 If you are new to dbt on Teradata see [dbt with Teradata Vantage tutorial](https://quickstarts.teradata.com/dbt.html).
 
@@ -40,18 +46,19 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 ## Python compatibility
 
 | Plugin version | Python 3.6  | Python 3.7  | Python 3.8  | Python 3.9  | Python 3.10 | Python 3.11  |
-| -------------- | ----------- | ----------- | ----------- | ----------- | ----------- | ------------ |
-| 0.19.0.x           | ✅          | ✅          | ✅          | ❌          | ❌          | ❌
-| 0.20.0.x           | ✅          | ✅          | ✅          | ✅          | ❌          | ❌
-| 0.21.1.x           | ✅          | ✅          | ✅          | ✅          | ❌          | ❌
-| 1.0.0.x           | ❌           | ✅          | ✅          | ✅          | ❌          | ❌
-|1.1.x.x            | ❌           | ✅          | ✅          | ✅          | ✅          | ❌
-|1.2.x.x            | ❌           | ✅          | ✅          | ✅          | ✅          | ❌
-|1.3.x.x            | ❌           | ✅          | ✅          | ✅          | ✅          | ❌
-|1.4.x.x            | ❌           | ✅          | ✅          | ✅          | ✅          | ✅
-|1.5.x              | ❌           | ✅          | ✅          | ✅          | ✅          | ✅
-|1.6.x              | ❌           | ❌          | ✅          | ✅          | ✅          | ✅
-|1.7.x              | ❌           | ❌          | ✅          | ✅          | ✅          | ✅
+|----------------| ----------- | ----------- | ----------- | ----------- | ----------- | ------------ |
+| 0.19.0.x       | ✅          | ✅          | ✅          | ❌          | ❌          | ❌
+| 0.20.0.x       | ✅          | ✅          | ✅          | ✅          | ❌          | ❌
+| 0.21.1.x       | ✅          | ✅          | ✅          | ✅          | ❌          | ❌
+| 1.0.0.x        | ❌           | ✅          | ✅          | ✅          | ❌          | ❌
+| 1.1.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌
+| 1.2.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌
+| 1.3.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌
+| 1.4.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ✅
+| 1.5.x          | ❌           | ✅          | ✅          | ✅          | ✅          | ✅
+| 1.6.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅
+| 1.7.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅
+| 1.8.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅
 
 
 ##  dbt dependent packages version compatibility
@@ -60,6 +67,7 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 | 1.2.x        | 1.2.x    | 0.1.0             | 0.9.x or below |
 | 1.6.7        | 1.6.7    | 1.1.1             | 1.1.1          |
 | 1.7.x        | 1.7.x    | 1.1.1             | 1.1.1          |
+| 1.8.x        | 1.8.x    | 1.1.1             | 1.1.1          |
 
 ## Optional profile configurations
 
@@ -557,6 +565,26 @@ Seeds, in addition to the above materialization modifiers, have the following op
       <project-name>:
         +use_fastload: true
     ```
+#### Snapshots
+Snapshots uses the HASHROW function of the Teradata database to generate a unique hash value for the 'dbt_scd_id' column. If you want to use your own hash UDF, there is a configuration option in the snapshot model called 'snapshot_hash_udf', which defaults to HASHROW. You can provide a value like <database_name.hash_udf_name>. If only hash_udf_name is provided, it uses the same schema as the model runs.
+
+for e.g. :
+  snapshots/snapshot_example.sql
+  ```sql
+  {% snapshot snapshot_example %}
+  {{
+    config(
+      target_schema='snapshots',
+      unique_key='id',
+      strategy='check',
+      check_cols=["c2"],
+      snapshot_hash_udf='GLOBAL_FUNCTIONS.hash_md5'
+    )
+  }}
+  select * from {{ ref('order_payments') }}
+  {% endsnapshot %}
+  ```
+
 
 #### Grants
 
