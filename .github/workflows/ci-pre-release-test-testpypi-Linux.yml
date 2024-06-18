@@ -1,8 +1,10 @@
 name: CI Pre Release Test TestPyPi LINUX
 on:
   workflow_dispatch:
-    releaseVersion:
-    description: 'dbt-teradata version from TestPyPi'
+    inputs:
+      releaseVersion:
+        description: 'dbt-teradata version from TestPyPi'
+        required: true
   workflow_run:
     workflows: ["CD Release TESTPYPI"]
     types:
