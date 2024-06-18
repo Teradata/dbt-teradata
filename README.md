@@ -580,9 +580,9 @@ for e.g. :
       check_cols=["c2"],
       snapshot_hash_udf='GLOBAL_FUNCTIONS.hash_md5'
     )
+  }}
   select * from {{ ref('order_payments') }}
   {% endsnapshot %}
-  }}
   ```
 
 
