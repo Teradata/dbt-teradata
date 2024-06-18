@@ -1,13 +1,13 @@
 from concurrent.futures import Future
 from dataclasses import dataclass, asdict
-from typing import Optional, List, Dict, Any, Union, Iterable, Callable, Set
+from typing import Optional, List, Dict, Any, Union, Iterable, Callable, Set, FrozenSet, Tuple
 import agate
 
 import dbt
-import dbt.exceptions
+import dbt_common.exceptions
 
 from dbt.adapters.base.impl import catch_as_completed, ConstraintSupport, AdapterConfig
-from dbt.contracts.graph.nodes import ConstraintType
+from dbt_common.contracts.constraints import ConstraintType
 from dbt.adapters.base.relation import InformationSchema
 from dbt.adapters.sql import SQLAdapter
 from dbt.adapters.teradata import TeradataConnectionManager
@@ -16,11 +16,11 @@ from dbt.adapters.teradata import TeradataColumn
 from dbt.adapters.capability import CapabilityDict, CapabilitySupport, Support, Capability
 from dbt.adapters.base.meta import available
 from dbt.adapters.base import BaseRelation
-from dbt.clients.agate_helper import DEFAULT_TYPE_TESTER, table_from_rows
-from dbt.contracts.graph.manifest import Manifest
-from dbt.events import AdapterLogger
+from dbt_common.clients.agate_helper import DEFAULT_TYPE_TESTER, table_from_rows
+from dbt.adapters.contracts.relation import RelationType, RelationConfig
+from dbt.adapters.events.logging import AdapterLogger
 logger = AdapterLogger("teradata")
-from dbt.utils import executor
+from dbt_common.utils import executor
 
 LIST_SCHEMAS_MACRO_NAME = 'list_schemas'
 LIST_RELATIONS_MACRO_NAME = 'list_relations_without_caching'
@@ -28,14 +28,14 @@ GET_CATALOG_MACRO_NAME = 'get_catalog'
 
 def _expect_row_value(key: str, row: agate.Row):
     if key not in row.keys():
-        raise dbt.exceptions.InternalException(
+        raise dbt_common.exceptions.InternalException(
             f'Got a row without \'{key}\' column, columns: {row.keys()}'
         )
 
     return row[key]
 
-def _catalog_filter_schemas(manifest: Manifest) -> Callable[[agate.Row], bool]:
-    schemas = frozenset((None, s.lower()) for d, s in manifest.get_used_schemas())
+def _catalog_filter_schemas(used_schemas: FrozenSet[Tuple[str, str]]) -> Callable[[agate.Row], bool]:
+    schemas = frozenset((None, s.lower()) for d, s in used_schemas)
 
     def test(row: agate.Row) -> bool:
         table_database = _expect_row_value('table_database', row)
@@ -81,7 +81,7 @@ class TeradataAdapter(SQLAdapter):
             database = database.strip('"')
         expected = self.config.credentials.schema
         if database.lower() != expected.lower():
-            raise dbt.exceptions.NotImplementedException(
+            raise dbt_common.exceptions.NotImplementedException(
                 'Cross-db references not allowed in {} ({} vs {})'
                 .format(self.type(), database, expected)
             )
@@ -128,7 +128,7 @@ class TeradataAdapter(SQLAdapter):
                 LIST_RELATIONS_MACRO_NAME,
                 kwargs=kwargs
             )
-        except dbt.exceptions.DbtRuntimeError as e:
+        except dbt_common.exceptions.DbtRuntimeError as e:
             errmsg = getattr(e, 'msg', '')
             if f"Teradata database '{schema_relation}' not found" in errmsg:
                 return []
@@ -140,7 +140,7 @@ class TeradataAdapter(SQLAdapter):
         relations = []
         for row in results:
             if len(row) != 4:
-                raise dbt.exceptions.DbtRuntimeError(
+                raise dbt_common.exceptions.DbtRuntimeError(
                     f'Invalid value from "teradata__list_relations_without_caching({kwargs})", '
                     f'got {len(row)} values, expected 4'
                 )
@@ -179,24 +179,24 @@ class TeradataAdapter(SQLAdapter):
         self,
         information_schema: InformationSchema,
         schemas: Set[str],
-        manifest: Manifest,
+        relation_config: Iterable[RelationConfig],
     ) -> agate.Table:
         if len(schemas) != 1:
-            raise dbt.exceptions.CompilationError(
+            raise dbt_common.exceptions.CompilationError(
                 f'Expected only one schema in _get_one_catalog() for Teradata adapter, found '
                 f'{schemas}'
             )
 
-        return super()._get_one_catalog(information_schema, schemas, manifest)
+        return super()._get_one_catalog(information_schema, schemas, relation_config)
 
     @classmethod
-    def _catalog_filter_table(cls, table: agate.Table, manifest: Manifest) -> agate.Table:
+    def _catalog_filter_table(cls, table: agate.Table, used_schemas: FrozenSet[Tuple[str, str]]) -> agate.Table:
         table = table_from_rows(
             table.rows,
             table.column_names,
             text_only_columns=['table_schema', 'table_name'],
         )
-        return table.where(_catalog_filter_schemas(manifest))
+        return table.where(_catalog_filter_schemas(used_schemas))
 
     def check_schema_exists(self, database, schema):
         results = self.execute_macro(
@@ -237,7 +237,7 @@ class TeradataAdapter(SQLAdapter):
         elif location == 'prepend':
             return f"concat('{value}', cast(trim({add_to}) as varchar(63800))"
         else:
-            raise dbt.exceptions.DbtRuntimeError(
+            raise dbt_common.exceptions.DbtRuntimeError(
                 f'Got an unexpected location value of "{location}"'
             )
 

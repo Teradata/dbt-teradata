@@ -46,7 +46,8 @@ setup(
         ],
     },
     install_requires=[
-        "dbt-core==1.7.16",
+        "dbt-adapters>=1.2.1",
+        "dbt-common>=1.3.0",
         "teradatasql>=20.00.00.10",
     ],
     classifiers=[
