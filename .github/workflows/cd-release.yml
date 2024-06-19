@@ -66,6 +66,9 @@ jobs:
         run: |
           git checkout main
           sed -i "48s/.*/RUN python -m pip install dbt-teradata==$RELEASE_VERSION/g" docker/Dockerfile
+          if [[ "$RELEASE_VERSION" == "1.8"* ]] || [[ "$RELEASE_VERSION" > "1.8" ]]; then
+            echo "RUN python -m pip install dbt-core>=1.8.0" >> docker/Dockerfile
+          fi
           git add docker/Dockerfile
           git commit -m "syncing version in Docker file"
           git push
