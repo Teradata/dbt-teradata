@@ -42,7 +42,7 @@ jobs:
           chmod 777 .github/workflows/scripts/createTestEnvironments.sh
           ./.github/workflows/scripts/createTestEnvironments.sh
         env:
-          CSAE_TOKEN: ${{ secrets.CSAE_TOKEN }}
+          CSAE_TOKEN: ${{ secrets.CSAE_TOKEN_DEVTOOLS }}
           CSAE_ENV_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
           CSAE_ENV_NAME: ${{ steps.define-environment-name.outputs.env-name}}
     
@@ -122,5 +122,5 @@ jobs:
           chmod 777 .github/workflows/scripts/deleteTestEnvironments.sh
           ./.github/workflows/scripts/deleteTestEnvironments.sh
         env:
-          CSAE_TOKEN: '${{ secrets.CSAE_TOKEN_VARUN }}'
+          CSAE_TOKEN: '${{ secrets.CSAE_TOKEN_DEVTOOLS }}'
           CSAE_ENV_NAME: '${{ needs.trigger.outputs.env-name}}'
