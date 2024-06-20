@@ -46,8 +46,10 @@ setup(
         ],
     },
     install_requires=[
-        "dbt-adapters>=1.2.1",
-        "dbt-common>=1.3.0",
+        "dbt-adapters>=1.2.1,<2.0",
+        "dbt-common>=1.3.0,<2.0",
+        # add dbt-core to ensure backwards compatibility of installation, this is not a functional dependency
+        "dbt-core>=1.8.0",
         "teradatasql>=20.00.00.10",
     ],
     classifiers=[
