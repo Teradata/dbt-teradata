@@ -10,7 +10,7 @@
     Expected one of:  'append','delete+insert','merge', 'valid_history'
   {%- endset %}
   {%- if strategy not in ['append','delete+insert','merge', 'valid_history'] %}
-    {% do exceptions.CompilationError(invalid_strategy_msg) %}
+    {% do exceptions.raise_compiler_error(invalid_strategy_msg) %}
   {%- endif %}
   {% do return(strategy) %}
 {%- endmacro %}
