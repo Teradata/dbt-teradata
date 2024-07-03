@@ -4,6 +4,10 @@ on:
     inputs:
       releaseVersion:
         description: 'Semantic version of the release'
+        required:
+      target_branch:
+        description: "The branch to release from"
+        type: string
         required: true
 
 env:
@@ -13,6 +17,10 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          ref: ${{ inputs.target_branch }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
         
