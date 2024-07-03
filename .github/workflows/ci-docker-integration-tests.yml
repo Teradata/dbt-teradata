@@ -1,6 +1,11 @@
 name: CI Docker Integration Tests
 on:
   workflow_dispatch:
+    inputs:
+      target_branch:
+        description: "The branch to test from"
+        type: string
+        required: true
   workflow_run:
     workflows: ["CD Release"]
     types:
@@ -13,6 +18,9 @@ jobs:
     name: Docker Integration Tests
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          ref: ${{ inputs.target_branch }}
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
