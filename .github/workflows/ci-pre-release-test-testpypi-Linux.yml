@@ -13,6 +13,9 @@ on:
 jobs:
   trigger:
     if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+    strategy:
+      matrix:
+        python: [ '3.8', '3.9', '3.10', '3.11', '3.12' ]
     runs-on: ubuntu-latest
     name: CI Pre Release Test TestPyPi
     steps:
@@ -20,7 +23,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version:  ${{ matrix.python }}
 
       - name: Define CSAE env name
         id: define-environment-name
@@ -28,7 +31,7 @@ jobs:
           PYTHON_VERSION=$(echo -n "$PYTHON_VERSION" | tr -d '.') # remove dots from version
           echo "env-name=dbt-ci-$PYTHON_VERSION-$(date +%s%N)" >> $GITHUB_OUTPUT
         env:
-          PYTHON_VERSION: 3.9
+          PYTHON_VERSION:  ${{ matrix.python }}
 
       - name: Create CSAE environments
         id: create-csae-environments
