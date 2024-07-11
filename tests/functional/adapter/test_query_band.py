@@ -1,4 +1,4 @@
-import pytest
+import pytest, time
 from dbt.tests.util import run_dbt, run_dbt_and_capture
 
 view_query_band_sql = """
@@ -90,7 +90,7 @@ class Test_query_band:
         # assert "view_query_band" in out
 
         project.run_sql(f"flush query logging with all")
-
+        time.sleep(10)
         result1 = project.run_sql(f"sel queryband from dbc.dbqlogtbl where queryband like '%view_query_band%'",
                                   fetch="one")
         assert "view_query_band" in result1[0]
