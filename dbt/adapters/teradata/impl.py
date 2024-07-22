@@ -162,15 +162,19 @@ class TeradataAdapter(SQLAdapter):
 
         return super().get_relation(database, schema, identifier)
 
-    def get_catalog(self, manifest):
-        schema_map = self._get_catalog_schemas(manifest)
+    def get_catalog(
+            self,
+            relation_configs: Iterable[RelationConfig],
+            used_schemas: FrozenSet[Tuple[str, str]],
+        ) -> Tuple[agate.Table, List[Exception]]:
+        schema_map = self._get_catalog_schemas(relation_configs)
         with executor(self.config) as tpe:
             futures: List[Future[agate.Table]] = []
             for info, schemas in schema_map.items():
                 for schema in schemas:
                     futures.append(tpe.submit_connected(
                         self, schema,
-                        self._get_one_catalog, info, [schema], manifest
+                        self._get_one_catalog, info, [schema], used_schemas
                     ))
             catalogs, exceptions = catch_as_completed(futures)
         return catalogs, exceptions
