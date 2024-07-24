@@ -81,7 +81,7 @@ class TeradataAdapter(SQLAdapter):
             database = database.strip('"')
         expected = self.config.credentials.schema
         if database.lower() != expected.lower():
-            raise dbt_common.exceptions.NotImplementedException(
+            raise dbt_common.exceptions.NotImplementedError(
                 'Cross-db references not allowed in {} ({} vs {})'
                 .format(self.type(), database, expected)
             )
