@@ -3,6 +3,7 @@ from contextlib import contextmanager
 import teradatasql
 import time
 import dbt_common.exceptions
+import dbt.adapters.exceptions
 from dbt.adapters.contracts.connection import AdapterResponse
 from dbt.adapters.contracts.connection import Connection
 from dbt.adapters.contracts.connection import Credentials
@@ -305,7 +306,7 @@ class TeradataConnectionManager(SQLConnectionManager):
             connection.handle = None
             connection.state = 'fail'
 
-            raise dbt_common.exceptions.FailedToConnectError(str(e))
+            raise dbt.adapters.exceptions.FailedToConnectError(str(e))
 
         return connection
 

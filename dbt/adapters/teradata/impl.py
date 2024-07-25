@@ -28,7 +28,7 @@ GET_CATALOG_MACRO_NAME = 'get_catalog'
 
 def _expect_row_value(key: str, row: agate.Row):
     if key not in row.keys():
-        raise dbt_common.exceptions.InternalException(
+        raise dbt_common.exceptions.DbtInternalError(
             f'Got a row without \'{key}\' column, columns: {row.keys()}'
         )
 
