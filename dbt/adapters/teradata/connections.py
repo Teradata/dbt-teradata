@@ -86,10 +86,6 @@ class TeradataCredentials(Credentials):
                 f"On Teradata, database must be omitted or have the same value as"
                 f" schema."
             )
-
-        if self.database is None:
-            self.database = self.schema
-
         if self.tmode == "TERA":
             note_for_tera = '''
 ----------------------------------------------------------------------------------
@@ -429,7 +425,6 @@ class TeradataConnectionManager(SQLConnectionManager):
             cur.execute("sel GetQueryBand();")
             rows = cur.fetchone()
             logger.debug("Query Band set to {}".format(rows))           # To log in dbt.log
-            logger.info("Query Band set to {}".format(rows))            # To log in terminal
         except teradatasql.Error as ex:
             logger.debug(ex)
             logger.info("Please verify query_band parameter in profiles.yml file")

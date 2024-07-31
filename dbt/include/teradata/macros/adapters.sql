@@ -225,6 +225,11 @@
   {{ return(load_result('list_relations_without_caching').table) }}
 {% endmacro %}
 
+{% macro teradata__generate_database_name(custom_database_name=none, node=none) -%}
+  {%- set schema_name = node.schema -%}
+  {{ schema_name }}
+{%- endmacro %}
+
 {% macro teradata__create_schema(relation) -%}
   {%- call statement('create_schema') -%}
     CREATE DATABASE {{ relation.without_identifier().include(database=False) }}
