@@ -38,7 +38,7 @@ class BaseShowLimit:
         # ensure limit was injected in compiled_code when limit specified in command args
         limit = results.args.get("limit")
         if limit > 0:
-            assert f"top {limit}" in results.results[0].node.compiled_code    #used top keyword in place of limit keyword
+            assert f"sample {limit}" in results.results[0].node.compiled_code    #used sample keyword in place of limit keyword
 
 
 class BaseShowSqlHeader:
