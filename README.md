@@ -75,6 +75,9 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 
 The logon mechanism for Teradata jobs that dbt executes can be configured with the `logmech` configuration in your Teradata profile. The `logmech` field can be set to: `TD2`, `LDAP`, `BROWSER`, `KRB5`, `TDNEGO`. For more information on authentication options, go to [Teradata Vantage authentication documentation](https://docs.teradata.com/r/8Mw0Cvnkhv1mk1LEFcFLpw/0Ev5SyB6_7ZVHywTP7rHkQ).
 
+> For the initial BROWSER authentication, the browser opens as expected, asking for the credentials. However, for every subsequent connection, a new browser tab opens, displaying the message 'TERADATA BROWSER AUTHENTICATION COMPLETED,' despite using an existing BROWSER session silently. This is the default behavior of the teradatasql driver, and there is no way to avoid this at the present time.
+
+
 ```yaml
 my-teradata-db-profile:
   target: dev
@@ -708,9 +711,6 @@ To find more on model contracts please follow dbt documentations https://docs.ge
 ### Transaction mode
 Both ANSI and TERA modes are now supported in dbt-teradata. TERA mode's support is introduced with dbt-teradata 1.7.1, it is an initial implementation.
 ###### IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode and may not support some use cases. We strongly advise validating all records or transformations utilizing this mode to preempt any potential anomalies or errors
-
-### BROWSER based authentication
-For the initial BROWSER authentication, the browser opens as expected, asking for the credentials. However, for every subsequent connection, a new browser tab opens, displaying the message 'TERADATA BROWSER AUTHENTICATION COMPLETED,' despite using an existing BROWSER session silently. This is the default behavior of the teradatasql driver, and there is no way to avoid this at the present time.
 
 ## Query Band
 Query Band in dbt-teradata can be set on three levels:
