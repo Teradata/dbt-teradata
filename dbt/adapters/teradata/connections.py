@@ -70,11 +70,17 @@ class TeradataCredentials(Credentials):
     }
 
     def __post_init__(self):
-        if self.username is None:
-            raise dbt_common.exceptions.DbtRuntimeError("Must specify `user` in profile")
-        elif self.password is None:
-            raise dbt_common.exceptions.DbtRuntimeError("Must specify `password` in profile")
-        elif self.schema is None:
+        if self.logmech is not None and self.logmech.lower() == "browser":
+            # When logmech is "browser", username and password should not be provided.
+            if self.username is not None or self.password is not None:
+                raise dbt_common.exceptions.DbtRuntimeError(
+                    "Username and password should not be specified when logmech is 'browser'")
+        else:
+            if self.username is None:
+                raise dbt_common.exceptions.DbtRuntimeError("Must specify `user` in profile")
+            elif self.password is None:
+                raise dbt_common.exceptions.DbtRuntimeError("Must specify `password` in profile")
+        if self.schema is None:
             raise dbt_common.exceptions.DbtRuntimeError("Must specify `schema` in profile")
         # teradata classifies database and schema as the same thing
         if (
