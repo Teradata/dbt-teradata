@@ -1,3 +1,19 @@
+{% macro teradata__create_columns(relation, columns) %}
+  {% for column in columns %}
+    {% call statement() %}
+      alter table {{ relation.render() }} add "{{ column.name }}" {{ column.data_type }};
+    {% endcall %}
+  {% endfor %}
+{% endmacro %}
+
+{% macro teradata__post_snapshot(staging_relation) %}
+    {{ adapter.dispatch('drop_relation', 'dbt')(staging_relation) }}
+{% endmacro %}
+
+{% macro teradata__get_true_sql() %}
+    {{ return('1 = 1') }}
+{% endmacro %}
+
 {% macro teradata__snapshot_staging_table(strategy, source_sql, target_relation) -%}
 
     with snapshot_query as (
@@ -125,8 +141,3 @@
     ) sbq
 
 {% endmacro %}
-
-{% macro teradata__post_snapshot(staging_relation) %}
-    {{ adapter.dispatch('drop_relation', 'dbt')(staging_relation) }}
-{% endmacro %}
-
