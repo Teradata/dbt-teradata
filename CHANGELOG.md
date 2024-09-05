@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.8.1a
 
 ### Features
 * dbt-teradata is now fully compatible with Python 3.12.
