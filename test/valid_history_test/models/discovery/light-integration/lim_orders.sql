@@ -32,8 +32,7 @@
 {{
   config(
     materialized='incremental',
-    incremental_strategy='merge',
-    unique_key='order_id',
+    incremental_strategy='delete+insert',
     pre_hook=surrogate_keys_hook
   )
 }}
