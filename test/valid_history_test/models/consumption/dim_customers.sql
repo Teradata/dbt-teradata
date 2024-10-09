@@ -18,7 +18,7 @@ customer_orders as (
         customer_key,
         min(order_date) as first_order,
         max(order_date) as most_recent_order,
-        count(id) as number_of_orders
+        count(order_id) as number_of_orders
     from {{ ref('lim_orders') }}
     group by 1
 

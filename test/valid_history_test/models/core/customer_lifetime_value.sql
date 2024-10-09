@@ -30,7 +30,7 @@ select
 {%- endif %}
 
 from {{ ref('lim_payments') }} payments
-left join  {{ ref('lim_orders') }} orders on payments.order_id = orders.id
+left join  {{ ref('lim_orders') }} orders on payments.order_id = orders.order_id
 
 {% if is_incremental() %}
 group by customer_key

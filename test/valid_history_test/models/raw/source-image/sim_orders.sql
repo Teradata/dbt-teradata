@@ -28,7 +28,7 @@ Possible further customization:
 
 {{
   config(
-    unique_key=['id'],
+    unique_key=['order_id'],
     materialized='incremental',
     incremental_strategy='delete+insert'
   )

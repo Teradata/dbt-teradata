@@ -13,7 +13,10 @@ we mock the record update time with the read current time
 -#}
 locking row for access
 select
-    source.*
+    id as order_id,
+    user_id,
+    order_date,
+    status
     {%- if  var('last_update_ts') -%}
     ,
     current_timestamp {{var('last_update_ts')}}
