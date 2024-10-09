@@ -205,7 +205,7 @@ jobs:
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
           ./run.sh
 
-      - name: Setup environment with TERA for performance and catalog tests
+      - name: Setup environment with TERA for performance, catalog and valid history tests
         run: |
           rm ~/.dbt/profiles.yml
           cat << EOF > ~/.dbt/profiles.yml
@@ -255,7 +255,7 @@ jobs:
                 logmech: TD2
                 schema: dbt_valid_history
                 tmode: TERA
-                threads: 1
+                threads: 4
                 timeout_seconds: 300
                 priority: interactive
                 retries: 1
@@ -278,6 +278,11 @@ jobs:
           # cd $GITHUB_WORKSPACE/test/catalog/with_qvci
           # ./run.sh
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
+          ./run.sh
+
+      - name: Run valid history tests
+        run: |
+          cd $GITHUB_WORKSPACE/test/valid_history_test
           ./run.sh
 
       - name: Run nopi tests
