@@ -207,7 +207,7 @@ jobs:
 
       - name: Setup environment with TERA for performance, catalog and valid history tests
         run: |
-          rm ~/.dbt/profiles.yml
+          # rm ~/.dbt/profiles.yml
           cat << EOF > ~/.dbt/profiles.yml
           teradata:
             outputs:
