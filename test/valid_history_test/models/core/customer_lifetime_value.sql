@@ -9,8 +9,8 @@ If this is a full load, we build the entire timeline from the orers history.
     materialized='incremental',
     unique_key='customer_key',
     incremental_strategy='valid_history',
-    valid_period='valid_period'
-
+    valid_period='valid_period',
+    use_valid_to_time='yes'
   )
 }}
 
