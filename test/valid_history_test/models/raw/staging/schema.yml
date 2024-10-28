@@ -1,0 +1,54 @@
+version: 2
+
+sources:
+  - name: cloud_storage
+    schema: "demo_user" #This is the database in which our foreign objects reside
+    tables:
+      - name: raw_market_customers   
+        description: "Market data from external provider"
+        columns:
+          - name: Location
+            description: "Location of the source file"
+          - name: id
+            description: "Anonymized customer id"
+          - name: spend
+            description: "Estimated customer monthly dining out spend" 
+          - name: ptLocWkt
+            description: "Customer residential area (geocoded)"     
+        external:
+          location: "/GS/storage.googleapis.com/clearscape_analytics_demo_data/DEMO_Market/Customer/"
+          file_format: "parquet"                  
+      - name: raw_market_competitors   
+        description: "Market data about competitors"
+        external:
+          location: "/GS/storage.googleapis.com/clearscape_analytics_demo_data/DEMO_Market/Competitor/"
+          file_format: "parquet"    
+models:
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: status
+        tests:
+          - accepted_values:
+              values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+  - name: stg_payments
+    columns:
+      - name: payment_id
+        tests:
+          - unique
+          - not_null
+      - name: payment_method
+        tests:
+          - accepted_values:
+              values: ['credit_card', 'coupon', 'bank_transfer', 'gift_card']
