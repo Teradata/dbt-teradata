@@ -15,6 +15,22 @@
   {% do return(strategy) %}
 {%- endmacro %}
 
+{% macro get_insert_sql(target_relation, ins_col_list, sql) %}
+{#-
+-- Description: Genereate full insert-select SQL statement
+-- Parameters:
+--     target (relation): Schema and name of target table
+--     ins_col_list: List of insert columns of target table, it should match the model's select sql
+--     sql (string): The select SQL as defined in the current model
+-#}
+INSERT INTO {{ target_relation }} (
+  {% for col_name in ins_col_list %}
+    {% if loop.first %} {% else %},{% endif %}{{ adapter.quote(col_name) }}
+  {%- endfor %}
+    )
+    {{ sql }}
+
+{% endmacro %}
 
 {% macro teradata__get_incremental_sql(strategy, target_relation, tmp_relation, unique_key, dest_columns,incremental_predicates,
 valid_period, valid_from, valid_to, use_valid_to_time, history_column_in_target, resolve_conflicts) %}

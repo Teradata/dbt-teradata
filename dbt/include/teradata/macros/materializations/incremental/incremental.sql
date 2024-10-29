@@ -7,6 +7,9 @@
 
 {% set unique_key = config.get('unique_key') %}
 
+{% set use_temp_table = config.get('use_temp_table', default='yes') %}
+{% set ins_col_list = config.get('insert_cols') %}
+
 -- Start: Below are the configuration options for the valid_history strategy
 {% set valid_period = config.get('valid_period', none) %}
 {% set valid_from = config.get('valid_from', none) %}
@@ -18,7 +21,6 @@
 
 {% set target_relation = this.incorporate(type='table') %}
 {% set existing_relation = load_relation(this) %}
-{% set tmp_relation = make_temp_relation(this) %}
 
 -- {#-- Validate early so we don't run SQL if the strategy is invalid --#}
 {% set strategy = teradata__validate_get_incremental_strategy(config) %}
@@ -27,8 +29,16 @@
 
 {% set on_schema_change = incremental_validate_on_schema_change(config.get('on_schema_change'), default='ignore') %}
 
-{%- set preexisting_tmp_relation = load_cached_relation(tmp_relation) -%}
-{{ drop_relation_if_exists(preexisting_tmp_relation) }}
+{% if use_temp_table == "no" and ins_col_list is none %}
+    {% set error_msg= "Error: 'ins_col_list' must be provided when 'use_temp_table' is set to 'no'." %}
+    {% do exceptions.raise_compiler_error(error_msg) %}
+{% endif %}
+
+{% if use_temp_table == "yes" %}
+    {% set tmp_relation = make_temp_relation(this) %}
+    {%- set preexisting_tmp_relation = load_cached_relation(tmp_relation) -%}
+    {{ drop_relation_if_exists(preexisting_tmp_relation) }}
+{% endif %}
 
 {{ run_hooks(pre_hooks, inside_transaction=False) }}
 
@@ -47,6 +57,8 @@
    {% do adapter.rename_relation(target_relation, backup_relation) %}
    {% set build_sql = create_table_as(False, target_relation, sql) %}
    {% do to_drop.append(backup_relation) %}
+{% elif use_temp_table == "no" and strategy == 'append' %}
+   {% set build_sql = get_insert_sql(target_relation, ins_col_list, sql) %}
 {% else %}
    {% set tmp_relation = make_temp_relation(target_relation) %}
    {% do run_query(create_table_as(True, tmp_relation, sql)) %}
