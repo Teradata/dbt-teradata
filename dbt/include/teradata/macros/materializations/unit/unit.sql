@@ -1,5 +1,8 @@
 {%- materialization unit, adapter='teradata' -%}
 
+  -- calling the macro set_query_band() which will set the query_band for this materialization as per the user_configuration
+  {% do set_query_band() %}
+
   {% set relations = [] %}
 
   {% set expected_rows = config.get('expected_rows') %}
