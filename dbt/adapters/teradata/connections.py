@@ -432,7 +432,6 @@ class TeradataConnectionManager(SQLConnectionManager):
             cur.execute("sel GetQueryBand();")
             rows = cur.fetchone()
             logger.debug("Query Band set to {}".format(rows))           # To log in dbt.log
-            logger.info("Query Band set to {}".format(rows))            # To log in terminal
         except teradatasql.Error as ex:
             logger.debug(ex)
             logger.info("Please verify query_band parameter in profiles.yml file")
