@@ -119,6 +119,31 @@ class TestHash(BaseUtils):
     
     pass
 
+
+class TestCustomHash(BaseUtils):
+    @pytest.fixture(scope="class")
+    def project_config_update(self):
+        return{
+            "name": "test_hash",
+            "vars": {
+                        "md5_udf": "HASH_TEST.hash_md5"
+                    }
+                }
+
+    @pytest.fixture(scope="class")
+    def seeds(self):
+        return {"data_hash.csv": seeds__data_hash_csv}
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {
+            "test_hash.yml": models__test_hash_yml,
+            "test_hash.sql": self.interpolate_macro_namespace(models__test_hash_sql, "hash"),
+        }
+
+    pass
+
+
 class TestReplace(BaseUtils):
     @pytest.fixture(scope="class")
     def seeds(self):
