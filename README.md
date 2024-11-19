@@ -45,20 +45,21 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 
 ## Python compatibility
 
-| Plugin version | Python 3.6  | Python 3.7  | Python 3.8  | Python 3.9  | Python 3.10 | Python 3.11 | Python 3.12 |
-|----------------| ----------- | ----------- | ----------- | ----------- | ----------- |-------------|-------------|
-| 0.19.0.x       | ✅          | ✅          | ✅          | ❌          | ❌          | ❌           | ❌ 
-| 0.20.0.x       | ✅          | ✅          | ✅          | ✅          | ❌          | ❌           | ❌ 
-| 0.21.1.x       | ✅          | ✅          | ✅          | ✅          | ❌          | ❌           | ❌ 
-| 1.0.0.x        | ❌           | ✅          | ✅          | ✅          | ❌          | ❌          | ❌   
-| 1.1.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌          | ❌ 
-| 1.2.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌          | ❌  
-| 1.3.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌          | ❌
-| 1.4.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.5.x          | ❌           | ✅          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.6.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.7.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.8.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅          | ✅ 
+| Plugin version | Python 3.6  | Python 3.7  | Python 3.8 | Python 3.9  | Python 3.10 | Python 3.11 | Python 3.12 |
+|----------------| ----------- | ----------- | --------- | ----------- | ----------- |-------------|-------------|
+| 0.19.0.x       | ✅          | ✅          | ✅         | ❌          | ❌          | ❌           | ❌ 
+| 0.20.0.x       | ✅          | ✅          | ✅         | ✅          | ❌          | ❌           | ❌ 
+| 0.21.1.x       | ✅          | ✅          | ✅         | ✅          | ❌          | ❌           | ❌ 
+| 1.0.0.x        | ❌           | ✅          | ✅         | ✅          | ❌          | ❌          | ❌   
+| 1.1.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌ 
+| 1.2.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌  
+| 1.3.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌
+| 1.4.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ✅          | ❌ 
+| 1.5.x          | ❌           | ✅          | ✅         | ✅          | ✅          | ✅          | ❌ 
+| 1.6.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ❌ 
+| 1.7.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ❌ 
+| 1.8.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ✅ 
+| 1.8.2          | ❌           | ❌          | ❌         | ✅          | ✅          | ✅          | ✅
 
 
 ##  dbt dependent packages version compatibility
@@ -694,6 +695,13 @@ If not specified the code defaults to using `GLOBAL_FUNCTIONS.hash_md5`. See bel
     ```sql
     GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
     ```
+   
+Instruction on how to add md5_udf variable in dbt_project.yml for custom hash function:
+```yaml
+vars:
+  md5_udf: Custom_database_name.hash_method_function
+```
+
 #### <a name="last_day"></a>last_day
 
 `last_day` in `teradata_utils`, unlike the corresponding macro in `dbt_utils`, doesn't support `quarter` datepart.
@@ -762,6 +770,12 @@ Let model that user is running be stg_orders
 
 If no query_band is set by user, default query_band will come in play that is :
 ```org=teradata-internal-telem;appname=dbt;```
+
+## Unit Testing
+Unit testing is supported in dbt-teradata. User can write unit tests in dbt and run them using dbt test command. For more information on unit testing in dbt, please refer to [dbt documentation](https://docs.getdbt.com/docs/build/unit-tests).<br>
+Unit tests for views require qvci to be enabled in the database. Please refer to the [General](#general) section for more information on enabling qvci.<br>
+Unit tests support for views will be limited if qvci is not enabled. User might see the below database error in case of testing views without qvci enabled:<br>
+```[Teradata Database] [Error 3706] Syntax error: Data Type "N" does not match a Defined Type name.```
 
 
 ## Credits
