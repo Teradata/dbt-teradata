@@ -7,8 +7,7 @@
 * Remove support and testing for Python 3.8, which is now EOL
 
 ### Fixes
-* adapter does not resolve dates correctly in unit testing 
-  * (https://teradata-pe.atlassian.net/browse/IDE-24644)
+* Adapter does not resolve dates correctly in unit testing
 * Snapshots fail on structure changes
   * (https://github.com/Teradata/dbt-teradata/issues/192)
 
