@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.8.2a
 
 ### Features
 * Addition of md5_udf variable for custom hash macro configuration
