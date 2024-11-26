@@ -46,7 +46,7 @@ setup(
         ],
     },
     install_requires=[
-        "dbt-adapters>=1.2.1",
+        "dbt-adapters>=1.7.2",
         "dbt-common>=1.3.0",
         "teradatasql>=20.00.00.10",
     ],
