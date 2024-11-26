@@ -45,20 +45,21 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 
 ## Python compatibility
 
-| Plugin version | Python 3.6  | Python 3.7  | Python 3.8  | Python 3.9  | Python 3.10 | Python 3.11 | Python 3.12 |
-|----------------| ----------- | ----------- | ----------- | ----------- | ----------- |-------------|-------------|
-| 0.19.0.x       | ✅          | ✅          | ✅          | ❌          | ❌          | ❌           | ❌ 
-| 0.20.0.x       | ✅          | ✅          | ✅          | ✅          | ❌          | ❌           | ❌ 
-| 0.21.1.x       | ✅          | ✅          | ✅          | ✅          | ❌          | ❌           | ❌ 
-| 1.0.0.x        | ❌           | ✅          | ✅          | ✅          | ❌          | ❌          | ❌   
-| 1.1.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌          | ❌ 
-| 1.2.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌          | ❌  
-| 1.3.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌          | ❌
-| 1.4.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.5.x          | ❌           | ✅          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.6.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.7.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.8.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅          | ✅ 
+| Plugin version | Python 3.6  | Python 3.7  | Python 3.8 | Python 3.9  | Python 3.10 | Python 3.11 | Python 3.12 |
+|----------------| ----------- | ----------- | --------- | ----------- | ----------- |-------------|-------------|
+| 0.19.0.x       | ✅          | ✅          | ✅         | ❌          | ❌          | ❌           | ❌ 
+| 0.20.0.x       | ✅          | ✅          | ✅         | ✅          | ❌          | ❌           | ❌ 
+| 0.21.1.x       | ✅          | ✅          | ✅         | ✅          | ❌          | ❌           | ❌ 
+| 1.0.0.x        | ❌           | ✅          | ✅         | ✅          | ❌          | ❌          | ❌   
+| 1.1.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌ 
+| 1.2.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌  
+| 1.3.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌
+| 1.4.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ✅          | ❌ 
+| 1.5.x          | ❌           | ✅          | ✅         | ✅          | ✅          | ✅          | ❌ 
+| 1.6.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ❌ 
+| 1.7.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ❌ 
+| 1.8.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ✅ 
+| 1.8.2          | ❌           | ❌          | ❌         | ✅          | ✅          | ✅          | ✅
 
 
 ##  dbt dependent packages version compatibility
@@ -75,8 +76,12 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 
 The logon mechanism for Teradata jobs that dbt executes can be configured with the `logmech` configuration in your Teradata profile. The `logmech` field can be set to: `TD2`, `LDAP`, `BROWSER`, `KRB5`, `TDNEGO`. For more information on authentication options, go to [Teradata Vantage authentication documentation](https://docs.teradata.com/r/8Mw0Cvnkhv1mk1LEFcFLpw/0Ev5SyB6_7ZVHywTP7rHkQ).
 
-> For the initial BROWSER authentication, the browser opens as expected, asking for the credentials. However, for every subsequent connection, a new browser tab opens, displaying the message 'TERADATA BROWSER AUTHENTICATION COMPLETED,' despite using an existing BROWSER session silently. This is the default behavior of the teradatasql driver, and there is no way to avoid this at the present time.
-
+> When running a dbt job with logmech set to "browser", the initial authentication opens a browser window where you must enter your username and password.<br>
+After authentication, this window remains open, requiring you to manually switch back to the dbt console.<br>
+For every subsequent connection, a new browser tab briefly opens, displaying the message "TERADATA BROWSER AUTHENTICATION COMPLETED," and silently reuses the existing session.<br>
+However, the focus stays on the browser window, so you’ll need to manually switch back to the dbt console each time.<br>
+This behavior is the default functionality of the teradatasql driver and cannot be avoided at this time.<br>
+To prevent session expiration and the need to re-enter credentials, ensure the authentication browser window stays open until the job is complete.
 
 ```yaml
 my-teradata-db-profile:
@@ -694,6 +699,13 @@ If not specified the code defaults to using `GLOBAL_FUNCTIONS.hash_md5`. See bel
     ```sql
     GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
     ```
+   
+Instruction on how to add md5_udf variable in dbt_project.yml for custom hash function:
+```yaml
+vars:
+  md5_udf: Custom_database_name.hash_method_function
+```
+
 #### <a name="last_day"></a>last_day
 
 `last_day` in `teradata_utils`, unlike the corresponding macro in `dbt_utils`, doesn't support `quarter` datepart.
@@ -762,6 +774,18 @@ Let model that user is running be stg_orders
 
 If no query_band is set by user, default query_band will come in play that is :
 ```org=teradata-internal-telem;appname=dbt;```
+
+## Unit Testing
+* Unit testing is supported in dbt-teradata, allowing users to write and execute unit tests using the dbt test command.
+  * For detailed guidance, refer to the dbt documentation.
+
+* QVCI must be enabled in the database to run unit tests for views.
+  * Additional details on enabling QVCI can be found in the General section.
+  * Without QVCI enabled, unit test support for views will be limited.
+  * Users might encounter the following database error when testing views without QVCI enabled:
+    ```
+    * [Teradata Database] [Error 3706] Syntax error: Data Type "N" does not match a Defined Type name.
+    ```
 
 
 ## Credits
