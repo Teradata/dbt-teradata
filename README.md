@@ -76,8 +76,12 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 
 The logon mechanism for Teradata jobs that dbt executes can be configured with the `logmech` configuration in your Teradata profile. The `logmech` field can be set to: `TD2`, `LDAP`, `BROWSER`, `KRB5`, `TDNEGO`. For more information on authentication options, go to [Teradata Vantage authentication documentation](https://docs.teradata.com/r/8Mw0Cvnkhv1mk1LEFcFLpw/0Ev5SyB6_7ZVHywTP7rHkQ).
 
-> For the initial BROWSER authentication, the browser opens as expected, asking for the credentials. However, for every subsequent connection, a new browser tab opens, displaying the message 'TERADATA BROWSER AUTHENTICATION COMPLETED,' despite using an existing BROWSER session silently. This is the default behavior of the teradatasql driver, and there is no way to avoid this at the present time.
-
+> When running a dbt job with logmech set to "browser", the initial authentication opens a browser window where you must enter your username and password.<br>
+After authentication, this window remains open, requiring you to manually switch back to the dbt console.<br>
+For every subsequent connection, a new browser tab briefly opens, displaying the message "TERADATA BROWSER AUTHENTICATION COMPLETED," and silently reuses the existing session.<br>
+However, the focus stays on the browser window, so you’ll need to manually switch back to the dbt console each time.<br>
+This behavior is the default functionality of the teradatasql driver and cannot be avoided at this time.<br>
+To prevent session expiration and the need to re-enter credentials, ensure the authentication browser window stays open until the job is complete.
 
 ```yaml
 my-teradata-db-profile:
@@ -772,10 +776,16 @@ If no query_band is set by user, default query_band will come in play that is :
 ```org=teradata-internal-telem;appname=dbt;```
 
 ## Unit Testing
-Unit testing is supported in dbt-teradata. User can write unit tests in dbt and run them using dbt test command. For more information on unit testing in dbt, please refer to [dbt documentation](https://docs.getdbt.com/docs/build/unit-tests).<br>
-Unit tests for views require qvci to be enabled in the database. Please refer to the [General](#general) section for more information on enabling qvci.<br>
-Unit tests support for views will be limited if qvci is not enabled. User might see the below database error in case of testing views without qvci enabled:<br>
-```[Teradata Database] [Error 3706] Syntax error: Data Type "N" does not match a Defined Type name.```
+* Unit testing is supported in dbt-teradata, allowing users to write and execute unit tests using the dbt test command.
+  * For detailed guidance, refer to the dbt documentation.
+
+* QVCI must be enabled in the database to run unit tests for views.
+  * Additional details on enabling QVCI can be found in the General section.
+  * Without QVCI enabled, unit test support for views will be limited.
+  * Users might encounter the following database error when testing views without QVCI enabled:
+    ```
+    * [Teradata Database] [Error 3706] Syntax error: Data Type "N" does not match a Defined Type name.
+    ```
 
 
 ## Credits
