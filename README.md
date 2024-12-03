@@ -69,6 +69,7 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 | 1.6.7        | 1.6.7    | 1.1.1             | 1.1.1          |
 | 1.7.x        | 1.7.x    | 1.1.1             | 1.1.1          |
 | 1.8.x        | 1.8.x    | 1.2.0             | 1.2.0          |
+| 1.8.x        | 1.8.x    | 1.3.0             | 1.3.0          |
 
 ## Optional profile configurations
 
@@ -332,7 +333,6 @@ The following incremental materialization strategies are supported:
   ```
   
 
->   **Important Note**: The target table must already exist before running the model. Ensure that the target table is created and properly structured with the necessary columns, including a column that tracks the history with period datatype, before running a dbt model.
 
 
 To learn more about dbt incremental strategies please check [the dbt incremental strategy documentation](https://docs.getdbt.com/docs/build/incremental-models#about-incremental_strategy).
