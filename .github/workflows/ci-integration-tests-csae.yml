@@ -126,7 +126,7 @@ jobs:
           export DBT_TEST_USER_1=test_grants_user1
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
-          pytest -v -k "not TestCurrentTimestamp and not TestProcedureANSIInTERA and not TestProcedureTERAInTERA and not Test_query_band" tests/functional
+          pytest --cov=dbt -v -k "not TestCurrentTimestamp and not TestProcedureANSIInTERA and not TestProcedureTERAInTERA and not Test_query_band" tests/functional
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
@@ -141,7 +141,7 @@ jobs:
           export DBT_TEST_USER_1=test_grants_user1
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
-          pytest -v -k "not TestCurrentTimestamp and not TestProcedureTERAInANSI and not TestProcedureANSIInANSI" tests/functional
+          pytest --cov=dbt -v -k "not TestCurrentTimestamp and not TestProcedureTERAInANSI and not TestProcedureANSIInANSI" tests/functional
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
@@ -297,11 +297,15 @@ jobs:
           sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME'/g" tests/conftest.py
           sed -i "s/username=demo.*/username='$DBT_TERADATA_USERNAME'/g" tests/conftest.py
           sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD'/g" tests/conftest.py
-          pytest tests/functional/adapter/test_nopi.py
+          pytest --cov=dbt tests/functional/adapter/test_nopi.py
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
+          
+      - name: Print Code Coverage Report
+        run: |
+          coverage report -m
 
       - name: Delete CSAE environment
         if: always()
