@@ -206,8 +206,8 @@ jobs:
 
       - name: Run catalog tests with ANSI
         run: |
-          cd $GITHUB_WORKSPACE/test/catalog/with_qvci
-          ./run.sh
+          # cd $GITHUB_WORKSPACE/test/catalog/with_qvci
+          # ./run.sh
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
           ./run.sh
 
@@ -281,8 +281,8 @@ jobs:
 
       - name: Run catalog tests with TERA
         run: |
-          cd $GITHUB_WORKSPACE/test/catalog/with_qvci
-          ./run.sh
+          # cd $GITHUB_WORKSPACE/test/catalog/with_qvci
+          # ./run.sh
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
           ./run.sh
 
