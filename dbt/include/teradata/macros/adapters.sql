@@ -118,7 +118,6 @@
 {% endmacro %}
 
 {% macro teradata__get_columns_in_relation(relation) -%}
-
     {% call statement('check_table_or_view', fetch_result=True) %}
         SELECT TableKind FROM DBC.TablesV WHERE DatabaseName = '{{ relation.schema }}' AND TableName = '{{ relation.identifier }}'
     {% endcall %}
@@ -221,14 +220,14 @@
       ColumnsV.ColumnID
     {% endcall %}
 
+    {% set table = load_result('get_columns_in_relation').table %}
+
     {%- if table_kind == 'V ' -%}
         {% call statement('drop_table_from_view', fetch_result=False) %}
             DROP table /*+ IF EXISTS */ "{{ relation.schema }}"."{{ temp_relation_for_view }}";
         {% endcall %}
         load_result('drop_table_from_view')
     {% endif %}
-
-    {% set table = load_result('get_columns_in_relation').table %}
 
     {{ return(sql_convert_columns_in_relation(table)) }}
 {% endmacro %}
