@@ -197,11 +197,15 @@
       NULL AS table_database,
       ColumnsV.DatabaseName AS table_schema,
       ColumnsV.TableName AS table_name,
+      {%- if table_kind == 'V ' -%}
+        'view' AS table_type,
+      {%- else -%}
       CASE WHEN TablesV.TableKind = 'T' THEN 'table'
         WHEN TablesV.TableKind = 'O' THEN 'table'
         WHEN TablesV.TableKind = 'V' THEN 'view'
         ELSE TablesV.TableKind
       END AS table_type,
+      {%- endif -%}
       ColumnsV.ColumnID AS column_index
     FROM
       {{ information_schema_name(relation.schema) }}.ColumnsV
