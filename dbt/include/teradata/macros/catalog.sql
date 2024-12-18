@@ -174,7 +174,7 @@
       SELECT
           columns_transformed.table_database,
           columns_transformed.table_schema,
-          {% if view_tmp_tables_mapping is not none %}
+          {% if view_tmp_tables_mapping is not none and view_tmp_tables_mapping|length > 0 %}
             CASE
             {% for relation, temp_table in view_tmp_tables_mapping.items() %}
                 WHEN columns_transformed.table_name = '{{ temp_table }}' THEN '{{ relation.identifier }}'
@@ -184,7 +184,7 @@
           {% else %}
             columns_transformed.table_name,
           {% endif %}
-          {% if view_tmp_tables_mapping is not none %}
+          {% if view_tmp_tables_mapping is not none and view_tmp_tables_mapping|length > 0 %}
             CASE
             {% for relation, temp_table in view_tmp_tables_mapping.items() %}
                 WHEN columns_transformed.table_name = '{{ temp_table }}' THEN 'view'
@@ -239,7 +239,7 @@
             {% if relation.schema and relation.identifier %}
                 (
                     upper("table_schema") = upper('{{ relation.schema }}')
-                    {% if view_tmp_tables_mapping is not none %}
+                    {% if view_tmp_tables_mapping is not none and view_tmp_tables_mapping|length > 0 %}
                         {% set temp_table = view_tmp_tables_mapping[relation] %}
                         {% if not temp_table %}
                             and upper("table_name") = upper('{{ relation.identifier }}')
