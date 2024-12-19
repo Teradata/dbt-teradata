@@ -19,10 +19,11 @@
     {%- for relation in view_relations -%}
         {% set temp_relation_for_view = relation.identifier ~ '_viw_tbl' %}
         {% set view_tmp_tables_mapping = view_tmp_tables_mapping.update({relation: temp_relation_for_view}) %}
-        {% call statement('drop_existing_table', fetch_result=False) %}
-            DROP table /*+ IF EXISTS */ "{{ relation.schema }}"."{{ temp_relation_for_view }}";
-        {% endcall %}
-        load_result('drop_existing_table')
+    {%- endfor %}
+
+    {{ teradata__drop_tmp_tables_of_views(view_tmp_tables_mapping) }}
+
+    {%- for relation, temp_relation_for_view in view_tmp_tables_mapping.items() %}
         {% call statement('creating_table_from_view', fetch_result=False) %}
             CREATE TABLE "{{ relation.schema }}"."{{ temp_relation_for_view }}" AS (SELECT * FROM "{{ relation.schema }}"."{{ relation.identifier }}") WITH NO DATA;
         {% endcall %}
@@ -97,7 +98,7 @@
     FROM {{ information_schema_name(schema) }}.tablesV
 {%- endmacro %}
 
---get_catalog_columns_sql() copied straight from pre-existing get_catalog() everything you would normally fetch from DBC.ColumnsJQV and DBC.ColumnsV
+--get_catalog_columns_sql() copied straight from pre-existing get_catalog() everything you would normally fetch from DBC.ColumnsV
 {% macro teradata__get_catalog_columns_sql(information_schema) -%}
     SELECT
         NULL AS table_database,
