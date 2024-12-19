@@ -1,7 +1,0 @@
-version: 2
-sources:
-  - name: alias_source_schema
-    schema: dbt_catalog_test
-    tables:
-      - name: alias_source_table
-        identifier: test_table

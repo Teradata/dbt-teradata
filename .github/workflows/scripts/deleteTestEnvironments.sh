@@ -35,13 +35,7 @@ deleteRegularEnv() {
     -H "Authorization: Bearer $CSAE_TOKEN"
 }
 
-deleteEnvWithQVCI() {
-  curl -s -L --request DELETE "https://api.clearscape.teradata.com/environments/$CSAE_ENV_NAME-qvci" \
-    -H "Authorization: Bearer $CSAE_TOKEN"
-}
-
 background deleteRegularEnv
-background deleteEnvWithQVCI
 
 reap
 
@@ -82,12 +76,6 @@ deleteRegularEnv() {
     -H "Authorization: Bearer $CSAE_TOKEN"
 }
 
-deleteEnvWithQVCI() {
-  curl -s -L --request DELETE "https://api.clearscape.teradata.com/environments/$CSAE_ENV_NAME-qvci" \
-    -H "Authorization: Bearer $CSAE_TOKEN"
-}
-
 background deleteRegularEnv
-background deleteEnvWithQVCI
 
 reap
