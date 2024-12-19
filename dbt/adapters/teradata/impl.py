@@ -346,5 +346,5 @@ class TeradataAdapter(SQLAdapter):
         """The set of standard builtin strategies which this adapter supports out-of-the-box.
         Not used to validate custom strategies defined by end users.
         """
-        return ["delete+insert","append","merge"]
+        return ["delete+insert","append","merge", "valid_history", "microbatch"]
     
