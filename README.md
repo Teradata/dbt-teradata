@@ -754,15 +754,6 @@ If no query_band is set by user, default query_band will come in play that is :
 * Unit testing is supported in dbt-teradata, allowing users to write and execute unit tests using the dbt test command.
   * For detailed guidance, refer to the dbt documentation.
 
-* QVCI must be enabled in the database to run unit tests for views.
-  * Additional details on enabling QVCI can be found in the General section.
-  * Without QVCI enabled, unit test support for views will be limited.
-  * Users might encounter the following database error when testing views without QVCI enabled:
-    ```
-    * [Teradata Database] [Error 3706] Syntax error: Data Type "N" does not match a Defined Type name.
-    ```
-
-
 ## Credits
 
 The adapter was originally created by [Doug Beatty](https://github.com/dbeatty10). Teradata took over the adapter in January 2022. We are grateful to Doug for founding the project and accelerating the integration of dbt + Teradata.

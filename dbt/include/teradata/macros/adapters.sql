@@ -123,12 +123,9 @@
     {% endcall %}
 
     {% set table_kind = load_result('check_table_or_view').table.columns['TableKind'].values()[0] %}
-    {{ log("Table Kind : " ~ table_kind) }}
 
     {%- if table_kind == 'V ' -%}
-        {{ log("Table Kind is V") }}
         {% set temp_relation_for_view = relation.identifier ~ '_viw_tbl' %}
-        {{ log("Table temp_relation_for_view : " ~ temp_relation_for_view) }}
         {% call statement('drop_existing_table', fetch_result=False) %}
             DROP table /*+ IF EXISTS */ "{{ relation.schema }}"."{{ temp_relation_for_view }}";
         {% endcall %}
@@ -138,7 +135,6 @@
         {% endcall %}
         load_result('creating_table_from_view')
     {% endif %}
-    {{ log("Table Kind is not V") }}
     {% call statement('get_columns_in_relation', fetch_result=True) %}
     SELECT
       ColumnsV.ColumnName AS "column",
