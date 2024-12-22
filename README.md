@@ -41,7 +41,7 @@ my-teradata-db-profile:
       tmode: ANSI
 ```
 
-At a minimum, you need to specify `host`, `user`, `password`, `schema` (database), `tmode`.
+At a minimum, you need to specify `host`, `user`, `password`, `schema` (database).
 
 ## Python compatibility
 
