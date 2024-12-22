@@ -5,8 +5,8 @@
             {% call statement('check_table_or_view', fetch_result=True) %}
                 SELECT TableKind FROM DBC.TablesV WHERE DatabaseName = '{{ relation.schema }}' AND TableName = '{{ relation.identifier }}'
             {% endcall %}
-            {% set table_kind = load_result('check_table_or_view').table.columns['TableKind'].values()[0] %}
-            {%- if table_kind == 'V ' -%}
+            {% set table_kind = load_result('check_table_or_view').table.columns['TableKind'].values()[0] | trim  %}
+            {%- if table_kind == 'V' -%}
                 {% do view_relations.append(relation) %}
             {%- endif -%}
         {% endif %}
@@ -17,7 +17,7 @@
 {% macro teradata__create_tmp_tables_of_views(view_relations) -%}
     {% set view_tmp_tables_mapping = {} %}
     {%- for relation in view_relations -%}
-        {% set temp_relation_for_view = relation.identifier ~ '_viw_tbl' %}
+        {% set temp_relation_for_view = relation.identifier ~ '_tmp_viw_tbl' %}
         {% set view_tmp_tables_mapping = view_tmp_tables_mapping.update({relation: temp_relation_for_view}) %}
     {%- endfor %}
 
@@ -90,7 +90,7 @@
         DatabaseName AS table_schema,
         TableName AS table_name,
         CASE WHEN TableKind = 'T' THEN 'table'
-            WHEN TableKind = 'O' THEN 'view'
+            WHEN TableKind = 'O' THEN 'table'
             WHEN TableKind = 'V' THEN 'view'
             ELSE TableKind
         END AS table_type,

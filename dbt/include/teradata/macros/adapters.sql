@@ -122,10 +122,10 @@
         SELECT TableKind FROM DBC.TablesV WHERE DatabaseName = '{{ relation.schema }}' AND TableName = '{{ relation.identifier }}'
     {% endcall %}
 
-    {% set table_kind = load_result('check_table_or_view').table.columns['TableKind'].values()[0] %}
+    {% set table_kind = load_result('check_table_or_view').table.columns['TableKind'].values()[0] | trim %}
 
-    {%- if table_kind == 'V ' -%}
-        {% set temp_relation_for_view = relation.identifier ~ '_viw_tbl' %}
+    {%- if table_kind == 'V' -%}
+        {% set temp_relation_for_view = relation.identifier ~ '_tmp_viw_tbl' %}
         {% call statement('drop_existing_table', fetch_result=False) %}
             DROP table /*+ IF EXISTS */ "{{ relation.schema }}"."{{ temp_relation_for_view }}";
         {% endcall %}
@@ -193,12 +193,11 @@
       NULL AS table_database,
       ColumnsV.DatabaseName AS table_schema,
       ColumnsV.TableName AS table_name,
-      {%- if table_kind == 'V ' -%}
+      {%- if table_kind == 'V' -%}
         'view' AS table_type,
       {%- else -%}
       CASE WHEN TablesV.TableKind = 'T' THEN 'table'
         WHEN TablesV.TableKind = 'O' THEN 'table'
-        WHEN TablesV.TableKind = 'V' THEN 'view'
         ELSE TablesV.TableKind
       END AS table_type,
       {%- endif -%}
@@ -211,7 +210,7 @@
     WHERE
       TablesV.TableKind IN ('T', 'V', 'O')
       AND ColumnsV.DatabaseName = '{{ relation.schema }}' (NOT CASESPECIFIC)
-    {%- if table_kind == 'V ' -%}
+    {%- if table_kind == 'V' -%}
       AND ColumnsV.TableName = '{{ temp_relation_for_view }}' (NOT CASESPECIFIC)
     {%- else -%}
       AND ColumnsV.TableName = '{{ relation.identifier }}' (NOT CASESPECIFIC)
@@ -222,7 +221,7 @@
 
     {% set table = load_result('get_columns_in_relation').table %}
 
-    {%- if table_kind == 'V ' -%}
+    {%- if table_kind == 'V' -%}
         {% call statement('drop_table_from_view', fetch_result=False) %}
             DROP table /*+ IF EXISTS */ "{{ relation.schema }}"."{{ temp_relation_for_view }}";
         {% endcall %}
