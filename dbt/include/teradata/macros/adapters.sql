@@ -118,8 +118,23 @@
 {% endmacro %}
 
 {% macro teradata__get_columns_in_relation(relation) -%}
-    {% set use_qvci = var("use_qvci", "false") | as_bool %}
-     {{ log("use_qvci set to : " ~ use_qvci) }}
+    {% call statement('check_table_or_view', fetch_result=True) %}
+        SELECT TableKind FROM DBC.TablesV WHERE DatabaseName = '{{ relation.schema }}' AND TableName = '{{ relation.identifier }}'
+    {% endcall %}
+
+    {% set table_kind = load_result('check_table_or_view').table.columns['TableKind'].values()[0] | trim %}
+
+    {%- if table_kind == 'V' -%}
+        {% set temp_relation_for_view = relation.identifier ~ '_tmp_viw_tbl' %}
+        {% call statement('drop_existing_table', fetch_result=False) %}
+            DROP table /*+ IF EXISTS */ "{{ relation.schema }}"."{{ temp_relation_for_view }}";
+        {% endcall %}
+        load_result('drop_existing_table')
+        {% call statement('creating_table_from_view', fetch_result=False) %}
+            CREATE TABLE "{{ relation.schema }}"."{{ temp_relation_for_view }}" AS (SELECT * FROM "{{ relation.schema }}"."{{ relation.identifier }}") WITH NO DATA;
+        {% endcall %}
+        load_result('creating_table_from_view')
+    {% endif %}
     {% call statement('get_columns_in_relation', fetch_result=True) %}
     SELECT
       ColumnsV.ColumnName AS "column",
@@ -178,30 +193,40 @@
       NULL AS table_database,
       ColumnsV.DatabaseName AS table_schema,
       ColumnsV.TableName AS table_name,
+      {%- if table_kind == 'V' -%}
+        'view' AS table_type,
+      {%- else -%}
       CASE WHEN TablesV.TableKind = 'T' THEN 'table'
         WHEN TablesV.TableKind = 'O' THEN 'table'
-        WHEN TablesV.TableKind = 'V' THEN 'view'
         ELSE TablesV.TableKind
       END AS table_type,
+      {%- endif -%}
       ColumnsV.ColumnID AS column_index
     FROM
-    {% if use_qvci == True -%}
-      {{ information_schema_name(relation.schema) }}.ColumnsJQV AS ColumnsV
-    {% else %}
       {{ information_schema_name(relation.schema) }}.ColumnsV
-    {%- endif %}
     LEFT OUTER JOIN {{ information_schema_name(relation.schema) }}.TablesV
       ON ColumnsV.DatabaseName = TablesV.DatabaseName
       AND ColumnsV.TableName = TablesV.TableName
     WHERE
       TablesV.TableKind IN ('T', 'V', 'O')
       AND ColumnsV.DatabaseName = '{{ relation.schema }}' (NOT CASESPECIFIC)
+    {%- if table_kind == 'V' -%}
+      AND ColumnsV.TableName = '{{ temp_relation_for_view }}' (NOT CASESPECIFIC)
+    {%- else -%}
       AND ColumnsV.TableName = '{{ relation.identifier }}' (NOT CASESPECIFIC)
+    {%- endif -%}
     ORDER BY
       ColumnsV.ColumnID
     {% endcall %}
 
     {% set table = load_result('get_columns_in_relation').table %}
+
+    {%- if table_kind == 'V' -%}
+        {% call statement('drop_table_from_view', fetch_result=False) %}
+            DROP table /*+ IF EXISTS */ "{{ relation.schema }}"."{{ temp_relation_for_view }}";
+        {% endcall %}
+        load_result('drop_table_from_view')
+    {% endif %}
 
     {{ return(sql_convert_columns_in_relation(table)) }}
 {% endmacro %}

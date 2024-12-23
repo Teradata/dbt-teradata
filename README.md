@@ -41,7 +41,7 @@ my-teradata-db-profile:
       tmode: ANSI
 ```
 
-At a minimum, you need to specify `host`, `user`, `password`, `schema` (database), `tmode`.
+At a minimum, you need to specify `host`, `user`, `password`, `schema` (database).
 
 ## Python compatibility
 
@@ -342,31 +342,6 @@ To learn more about dbt incremental strategies please check [the dbt incremental
 All dbt commands are supported.
 
 ### Custom configurations
-
-#### General
-
-* *Enable view column types in docs* -  Teradata Vantage has a dbscontrol configuration flag called `DisableQVCI` (QVCI - Queryable View Column Index). This flag instructs the database to build `DBC.ColumnsJQV` with view column type definitions. 
-
-    > :information_source: Existing customers, please see [KB0022230](https://support.teradata.com/knowledge?id=kb_article_view&sys_kb_id=d066248b1b0000187361c8415b4bcb48) for more information about enabling QVCI.
-
-  To enable this functionality you need to:
-  1. Enable QVCI mode in Vantage. Use `dbscontrol` utility and then restart Teradata. Run these commands as a privileged user on a Teradata node:
-      ```bash
-      # option 551 is DisableQVCI. Setting it to false enables QVCI.
-      dbscontrol << EOF
-      M internal 551=false
-      W
-      EOF
-
-      # restart Teradata
-      tpareset -y Enable QVCI
-      ```
-  2. Instruct `dbt` to use `QVCI` mode. Include the following variable in your `dbt_project.yml`:
-      ```yaml
-      vars:
-        use_qvci: true
-      ```
-      For example configuration, see `test/catalog/with_qvci/dbt_project.yml`.
 
 #### Models
 
@@ -778,15 +753,6 @@ If no query_band is set by user, default query_band will come in play that is :
 ## Unit Testing
 * Unit testing is supported in dbt-teradata, allowing users to write and execute unit tests using the dbt test command.
   * For detailed guidance, refer to the dbt documentation.
-
-* QVCI must be enabled in the database to run unit tests for views.
-  * Additional details on enabling QVCI can be found in the General section.
-  * Without QVCI enabled, unit test support for views will be limited.
-  * Users might encounter the following database error when testing views without QVCI enabled:
-    ```
-    * [Teradata Database] [Error 3706] Syntax error: Data Type "N" does not match a Defined Type name.
-    ```
-
 
 ## Credits
 
