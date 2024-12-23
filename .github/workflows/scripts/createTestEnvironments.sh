@@ -44,6 +44,21 @@ createRegularEnv() {
   echo "teradata-server-name=$TERADATA_SERVER_NAME" >> $GITHUB_OUTPUT
 }
 
+createEnvWithQVCI() {
+  local RESULT=$(curl -s -L 'https://api.clearscape.teradata.com/environments' \
+  -H "Authorization: Bearer $CSAE_TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data-raw "{
+      \"name\": \"$CSAE_ENV_NAME-qvci\",
+      \"region\": \"us-central\",
+      \"password\": \"$CSAE_ENV_PASSWORD\",
+      \"startupScript\": \"#!/bin/bash\n\nfunction withRetry {\n  local RETRIES=\$1; shift 1\n  local SLEEP=\$1; shift 1\n  for i in \$(seq 1 \$RETRIES)\n  do\n    echo \\\"Attempt \$i: Running command \$@\\\"\n    \$@ && s=0 && break || s=\$? && sleep \$SLEEP\n  done\n  return \$s\n}\n\nfunction ensureVantageIsUp {\n  pdestate -a\n  pdestate -a | grep \\\"DBS state is [45]\\\"\n}\n\ndbscontrol << EOF\nm i 551=false\nW\nEOF\ntpareset -y changing dbscontrol\nwithRetry 40 2 ensureVantageIsUp\"
+  }")
+  local TERADATA_SERVER_NAME=$(echo $RESULT | jq -r '.dnsName')
+  echo "teradata-server-name-qvci=$TERADATA_SERVER_NAME" >> $GITHUB_OUTPUT
+}
+
 background createRegularEnv
+background createEnvWithQVCI
 
 reap

@@ -44,6 +44,8 @@
 
 --Decompose the existing get_catalog() macro in order to minimize redundancy with body of get_catalog_relations(). This introduces some additional macros
 {% macro teradata__get_catalog(information_schema, schemas) -%}
+    {% set use_qvci = var("use_qvci", "false") | as_bool %}
+    {{ log("use_qvci set to : " ~ use_qvci) }}
 
     {%- call statement('catalog', fetch_result=True) -%}
           with tables as (
@@ -61,17 +63,30 @@
 
 --A new macro, get_catalog_relations() which accepts a list of relations, rather than a list of schemas.
 {% macro teradata__get_catalog_relations(information_schema, relations) -%}
-    {% set view_relations = teradata__get_views_from_relations(relations) %}
-    {% set view_tmp_tables_mapping = teradata__create_tmp_tables_of_views(view_relations) %}
+    {% set use_qvci = var("use_qvci", "false") | as_bool %}
+    {{ log("use_qvci set to : " ~ use_qvci) }}
+    {% set view_tmp_tables_mapping = {} %}
+    {% if use_qvci != True -%}
+        {% set view_relations = teradata__get_views_from_relations(relations) %}
+        {% set view_tmp_tables_mapping = teradata__create_tmp_tables_of_views(view_relations) %}
+    {%- endif %}
 
     {%- call statement('catalog', fetch_result=True) -%}
           with tables as (
               {{ teradata__get_catalog_tables_sql(information_schema) }}
-              {{ teradata__get_catalog_relations_where_clause_sql(relations, view_tmp_tables_mapping) }}
+              {% if use_qvci != True -%}
+                {{ teradata__get_catalog_relations_where_clause_sql(relations, view_tmp_tables_mapping) }}
+                {% else %}
+                    {{ teradata__get_catalog_relations_where_clause_sql(relations, none) }}
+                {% endif %}
           ),
           columns as (
               {{ teradata__get_catalog_columns_sql(information_schema) }}
-              {{ teradata__get_catalog_relations_where_clause_sql(relations, view_tmp_tables_mapping) }}
+                {% if use_qvci != True -%}
+                    {{ teradata__get_catalog_relations_where_clause_sql(relations, view_tmp_tables_mapping) }}
+                {% else %}
+                    {{ teradata__get_catalog_relations_where_clause_sql(relations, none) }}
+                {% endif %}
           )
           {{ teradata__get_catalog_results_sql(view_tmp_tables_mapping) }}
     {%- endcall -%}
@@ -100,6 +115,7 @@
 
 --get_catalog_columns_sql() copied straight from pre-existing get_catalog() everything you would normally fetch from DBC.ColumnsV
 {% macro teradata__get_catalog_columns_sql(information_schema) -%}
+    {% set use_qvci = var("use_qvci", "false") | as_bool %}
     SELECT
         NULL AS table_database,
         DatabaseName AS table_schema,
@@ -109,7 +125,11 @@
         ColumnID AS column_index,
         ColumnType AS column_type,
         CommentString AS column_comment
-        FROM {{ information_schema_name(schema) }}.ColumnsV
+        {% if use_qvci == True -%}
+            FROM {{ information_schema_name(schema) }}.ColumnsJQV
+        {% else -%}
+            FROM {{ information_schema_name(schema) }}.ColumnsV
+        {% endif -%}
 {%- endmacro %}
 
 {% macro teradata__get_catalog_results_sql(view_tmp_tables_mapping) -%}
