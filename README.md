@@ -60,6 +60,7 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 | 1.7.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ❌ 
 | 1.8.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ✅ 
 | 1.8.2          | ❌           | ❌          | ❌         | ✅          | ✅          | ✅          | ✅
+| 1.8.3          | ❌           | ❌          | ❌         | ✅          | ✅          | ✅          | ✅
 
 
 ##  dbt dependent packages version compatibility
