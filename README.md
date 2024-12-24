@@ -754,6 +754,8 @@ If no query_band is set by user, default query_band will come in play that is :
 * Unit testing is supported in dbt-teradata, allowing users to write and execute unit tests using the dbt test command.
   * For detailed guidance, refer to the dbt documentation.
 
+  > In Teradata, reusing the same alias across multiple common table expressions (CTEs) or subqueries within a single model is not permitted, as it results in parsing errors; therefore, it is essential to assign unique aliases to each CTE or subquery to ensure proper query execution.
+
 ## Credits
 
 The adapter was originally created by [Doug Beatty](https://github.com/dbeatty10). Teradata took over the adapter in January 2022. We are grateful to Doug for founding the project and accelerating the integration of dbt + Teradata.
