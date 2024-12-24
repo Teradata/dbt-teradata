@@ -32,6 +32,16 @@ unit_tests:
 
 class TestTestingTypesTeradata(BaseUnitTestingTypes):
 
+    @pytest.fixture(scope="class")
+    def project_config_update(self):
+        return {
+            "name": "test_testing_types",
+            "models": {
+                "test_testing_types": {
+                    "materialized": "table"
+                }
+            }
+        }
     @pytest.fixture
     def data_types(self):
         # sql_value, yaml_value
@@ -51,12 +61,30 @@ class TestTestingTypesTeradata(BaseUnitTestingTypes):
 
 
 class TestUnitTestCaseInsensitivityTeradata(BaseUnitTestCaseInsensivity):
-    pass
+    @pytest.fixture(scope="class")
+    def project_config_update(self):
+        return {
+            "name": "test_case_insensitivity",
+            "models":{
+                "test_case_insensitivity":{
+                    "materialized": "table"
+                }
+            }
+        }
 
 
 
 class TestUnitTestInvalidInput(BaseUnitTestInvalidInput):
-    pass
+    @pytest.fixture(scope="class")
+    def project_config_update(self):
+        return {
+            "name": "test_unit_test_invalid_input",
+            "models": {
+                "test_unit_test_invalid_input": {
+                    "materialized": "table"
+                }
+            }
+        }
 
 class TestSafeCast():
 

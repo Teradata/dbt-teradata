@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-dbt -d seed --target dbt_catalog_test --full-refresh
-dbt -d run --target dbt_catalog_test
-dbt -d docs generate --target dbt_catalog_test
+dbt -d seed --target dbt_catalog_test_qvci --full-refresh
+dbt -d run --target dbt_catalog_test_qvci
+dbt -d docs generate --target dbt_catalog_test_qvci
 
 
 assertJsonElementEquals() {
@@ -33,14 +33,14 @@ assertJsonElementEquals CHARACTER '.nodes["model.teradata.table_from_source"].co
 assertJsonElementEquals CHARACTER '.nodes["model.teradata.table_from_source"].columns.superpower.type'
 assertJsonElementEquals INTEGER '.nodes["model.teradata.table_from_source"].columns.magic_index.type'
 
-assertJsonElementEquals 'N/A' '.nodes["model.teradata.view_from_source"].columns.animal.type'
-assertJsonElementEquals 'N/A' '.nodes["model.teradata.view_from_source"].columns.superpower.type'
-assertJsonElementEquals 'N/A' '.nodes["model.teradata.view_from_source"].columns.magic_index.type'
+assertJsonElementEquals CHARACTER '.nodes["model.teradata.view_from_source"].columns.animal.type'
+assertJsonElementEquals CHARACTER '.nodes["model.teradata.view_from_source"].columns.superpower.type'
+assertJsonElementEquals INTEGER '.nodes["model.teradata.view_from_source"].columns.magic_index.type'
 
-assertJsonElementEquals 'N/A' '.nodes["model.teradata.view_from_test_data_types"].columns.id.type'
-assertJsonElementEquals 'N/A' '.nodes["model.teradata.view_from_test_data_types"].columns.timestamp_column.type'
-assertJsonElementEquals 'N/A' '.nodes["model.teradata.view_from_test_data_types"].columns.date_column.type'
-assertJsonElementEquals 'N/A' '.nodes["model.teradata.view_from_test_data_types"].columns.float_column.type'
-assertJsonElementEquals 'N/A' '.nodes["model.teradata.view_from_test_data_types"].columns.integer_column.type'
-assertJsonElementEquals 'N/A' '.nodes["model.teradata.view_from_test_data_types"].columns.boolean_column.type'
+assertJsonElementEquals INTEGER '.nodes["model.teradata.view_from_test_data_types"].columns.id.type'
+assertJsonElementEquals TIMESTAMP '.nodes["model.teradata.view_from_test_data_types"].columns.timestamp_column.type'
+assertJsonElementEquals DATE '.nodes["model.teradata.view_from_test_data_types"].columns.date_column.type'
+assertJsonElementEquals 'DOUBLE PRECISION' '.nodes["model.teradata.view_from_test_data_types"].columns.float_column.type'
+assertJsonElementEquals INTEGER '.nodes["model.teradata.view_from_test_data_types"].columns.integer_column.type'
+assertJsonElementEquals BYTEINT '.nodes["model.teradata.view_from_test_data_types"].columns.boolean_column.type'
 
