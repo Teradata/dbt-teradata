@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.8.3a
 
 ### Features
 * Removed dependency on QVCI for retrieving column information of views.
