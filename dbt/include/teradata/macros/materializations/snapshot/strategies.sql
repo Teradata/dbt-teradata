@@ -49,11 +49,13 @@
 {%- endmacro %}
 
 {#-- This macro is copied varbatim from dbt-core. The only delta is that != operator is replaced with <> #}
-{% macro snapshot_check_strategy(node, snapshotted_rel, current_rel, config, target_exists) %}
-    {% set check_cols_config = config['check_cols'] %}
-    {% set primary_key = config['unique_key'] %}
-    {% set invalidate_hard_deletes = config.get('invalidate_hard_deletes', false) %}
-    {% set updated_at = config.get('updated_at', snapshot_get_time()) %}
+{% macro snapshot_check_strategy(node, snapshotted_rel, current_rel, model_config, target_exists) %}
+    {# The model_config parameter is no longer used, but is passed in anyway for compatibility. #}
+    {% set check_cols_config = config.get('check_cols') %}
+    {% set primary_key = config.get('unique_key') %}
+    {% set hard_deletes = adapter.get_hard_deletes_behavior(config) %}
+    {% set invalidate_hard_deletes = hard_deletes == 'invalidate' %}
+    {% set updated_at = config.get('updated_at') or snapshot_get_time() %}
 
     {% set column_added = false %}
 
@@ -78,7 +80,8 @@
     )
     {%- endset %}
 
-    {% set scd_id_expr = snapshot_hash_arguments([primary_key, updated_at]) %}
+    {% set scd_args = api.Relation.scd_args(primary_key, updated_at) %}
+    {% set scd_id_expr = snapshot_hash_arguments(scd_args) %}
     {% set snapshot_hash_udf = config.get('snapshot_hash_udf') %}
     {% if snapshot_hash_udf is not none %}
         {% set scd_id_expr = scd_id_expr |replace("HASHROW",snapshot_hash_udf) %}
@@ -90,6 +93,7 @@
         "updated_at": updated_at,
         "row_changed": row_changed_expr,
         "scd_id": scd_id_expr,
-        "invalidate_hard_deletes": invalidate_hard_deletes
+        "invalidate_hard_deletes": invalidate_hard_deletes,
+        "hard_deletes": hard_deletes
     }) %}
 {% endmacro %}

@@ -1,11 +1,17 @@
 
 {% macro teradata__snapshot_merge_sql_update(target, source, insert_cols) -%}
+    {%- set columns = config.get("snapshot_table_column_names") or get_snapshot_table_column_names() -%}
     UPDATE {{ target }}
-    FROM (SELECT dbt_scd_id, dbt_change_type, dbt_valid_to FROM {{ source }}) AS DBT_INTERNAL_SOURCE
-    SET dbt_valid_to = DBT_INTERNAL_SOURCE.dbt_valid_to
-    WHERE DBT_INTERNAL_SOURCE.dbt_scd_id = {{ target }}.dbt_scd_id
+    FROM (SELECT {{ columns.dbt_scd_id }}, dbt_change_type, {{ columns.dbt_valid_to }} FROM {{ source }}) AS DBT_INTERNAL_SOURCE
+    SET {{ columns.dbt_valid_to }} = DBT_INTERNAL_SOURCE.{{ columns.dbt_valid_to }}
+    WHERE DBT_INTERNAL_SOURCE.{{ columns.dbt_scd_id }} = {{ target }}.{{ columns.dbt_scd_id }}
       AND DBT_INTERNAL_SOURCE.dbt_change_type = 'update'
-      AND {{ target }}.dbt_valid_to IS NULL
+      {% if config.get("dbt_valid_to_current") %}
+       AND ({{ target }}.{{ columns.dbt_valid_to }} = {{ config.get('dbt_valid_to_current') }} or
+            {{ target }}.{{ columns.dbt_valid_to }} is null)
+     {% else %}
+       AND {{ target }}.{{ columns.dbt_valid_to }} is null
+     {% endif %}
 {% endmacro %}
 
 {% macro teradata__snapshot_merge_sql_insert(target, source, insert_cols) -%}
@@ -20,10 +26,17 @@
 {% endmacro %}
 
 {% macro teradata__snapshot_merge_sql_delete(target, source, insert_cols) -%}
+    {%- set columns = config.get("snapshot_table_column_names") or get_snapshot_table_column_names() -%}
     UPDATE {{ target }}
-    FROM (SELECT dbt_scd_id, dbt_change_type, dbt_valid_to FROM {{ source }}) AS DBT_INTERNAL_SOURCE
-    SET dbt_valid_to = DBT_INTERNAL_SOURCE.dbt_valid_to
-    WHERE DBT_INTERNAL_SOURCE.dbt_scd_id = {{ target }}.dbt_scd_id
+    FROM (SELECT {{ columns.dbt_scd_id }}, dbt_change_type, {{ columns.dbt_valid_to }} FROM {{ source }}) AS DBT_INTERNAL_SOURCE
+    SET {{ columns.dbt_valid_to }} = DBT_INTERNAL_SOURCE.{{ columns.dbt_valid_to }}
+    WHERE DBT_INTERNAL_SOURCE.{{ columns.dbt_scd_id }} = {{ target }}.{{ columns.dbt_scd_id }}
       AND DBT_INTERNAL_SOURCE.dbt_change_type = 'delete'
-      AND {{ target }}.dbt_valid_to IS NULL
+      {% if config.get("dbt_valid_to_current") %}
+       AND ({{ target }}.{{ columns.dbt_valid_to }} = {{ config.get('dbt_valid_to_current') }} or
+            {{ target }}.{{ columns.dbt_valid_to }} is null)
+     {% else %}
+       AND {{ target }}.{{ columns.dbt_valid_to }} is null
+     {% endif %}
+      
 {% endmacro %}
