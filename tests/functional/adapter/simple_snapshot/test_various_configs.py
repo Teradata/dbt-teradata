@@ -11,7 +11,7 @@ from dbt.tests.util import (
     update_config_file,
 )
 
-from fixtures import (snapshot_actual_sql, snapshots_yml, ref_snapshot_sql,
+from tests.functional.adapter.simple_snapshot.fixtures import (snapshot_actual_sql, snapshots_yml, ref_snapshot_sql,
                       create_seed_sql, create_snapshot_expected_sql,
                       invalidate_sql, seed_insert_sql,
                       populate_snapshot_expected_sql, update_sql,
