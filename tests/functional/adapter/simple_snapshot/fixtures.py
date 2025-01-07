@@ -115,10 +115,10 @@ insert into {schema}.snapshot_expected (
     gender,
     ip_address,
     updated_at,
-    test_valid_from,
-    test_valid_to,
+    test_scd_id,
     test_updated_at,
-    test_scd_id
+    test_valid_from,
+    test_valid_to
 )
 
 select
@@ -130,10 +130,10 @@ select
     ip_address,
     updated_at,
     -- fields added by snapshotting
-    updated_at as test_valid_from,
-    cast(null as timestamp) as test_valid_to,
+    HASHROW(coalesce(cast(id || '-' || first_name as varchar(50)), '') || '|' || coalesce(cast(updated_at as varchar(50)), '')) as test_scd_id,
     updated_at as test_updated_at,
-    HASHROW(coalesce(cast(id || '-' || first_name as varchar(50)), '') || '|' || coalesce(cast(updated_at as varchar(50)), '')) as test_scd_id
+    updated_at as test_valid_from,
+    cast(null as timestamp) as test_valid_to
 from {schema}.seed;
 """
 
@@ -163,10 +163,10 @@ insert into {schema}.snapshot_expected (
     gender,
     ip_address,
     updated_at,
-    test_valid_from,
-    test_valid_to,
+    test_scd_id,
     test_updated_at,
-    test_scd_id
+    test_valid_from,
+    test_valid_to
 )
 
 select
@@ -178,10 +178,10 @@ select
     ip_address,
     updated_at,
     -- fields added by snapshotting
-    updated_at as test_valid_from,
-    cast(null as timestamp) as test_valid_to,
+    HASHROW(coalesce(cast(id || '-' || first_name as varchar(50)), '') || '|' || coalesce(cast(updated_at as varchar(50)), '')) as test_scd_id,
     updated_at as test_updated_at,
-    HASHROW(coalesce(cast(id || '-' || first_name as varchar(50)), '') || '|' || coalesce(cast(updated_at as varchar(50)), '')) as test_scd_id
+    updated_at as test_valid_from,
+    cast(null as timestamp) as test_valid_to
 from {schema}.seed
 where id >= 10 and id <= 20;
 """
