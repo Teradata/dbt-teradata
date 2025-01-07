@@ -1,6 +1,6 @@
 import pytest
 
-from dbt.tests.util import check_relations_equal, run_dbt
+from dbt.tests.util import check_relations_equal, run_dbt, relation_from_name
 
 _seed_new_record_mode = """
 create table {schema}.seed (
@@ -237,6 +237,20 @@ class SnapshotNewRecordMode:
         results = run_dbt(["snapshot"])
         assert len(results) == 1
 
+        relation_actual = relation_from_name(project.adapter, "snapshot_actual")
+        relation_expected = relation_from_name(project.adapter, "snapshot_expected")
+
+        result = project.run_sql(f"select id, first_name, last_name, email, gender, ip_address, updated_at, dbt_valid_from, dbt_valid_to, dbt_scd_id, dbt_updated_at, dbt_is_deleted from {relation_actual} \
+                                 minus \
+                                 select id, first_name, last_name, email, gender, ip_address, updated_at, dbt_valid_from, dbt_valid_to, dbt_scd_id, dbt_updated_at, dbt_is_deleted from {relation_expected}", fetch="one")
+        
+        # if two expected and actual snapshot tables are equal then the result varible would be None, as there would no difference between the two relations
+        assert result == None
+
+        result2 = project.run_sql(f"select id, first_name, last_name, email, gender, ip_address, updated_at, dbt_valid_from, dbt_valid_to, dbt_scd_id, dbt_updated_at, dbt_is_deleted from {relation_expected} \
+                                 minus \
+                                 select id, first_name, last_name, email, gender, ip_address, updated_at, dbt_valid_from, dbt_valid_to, dbt_scd_id, dbt_updated_at, dbt_is_deleted from {relation_actual}", fetch="one")
+        assert result2 == None    
         # check_relations_equal(project.adapter, ["snapshot_actual", "snapshot_expected"])
 
         project.run_sql(_delete_sql)
