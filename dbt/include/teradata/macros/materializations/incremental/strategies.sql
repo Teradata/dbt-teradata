@@ -360,11 +360,11 @@
             {% endcall %}
             {{ drop_staging_tables_for_valid_history(staging_tables) }}
         {% else %}
-            {% set error_msg= "Failed" %}
-            {% do exceptions.CompilationError(error_msg) %}
+            {% set error_msg= "The setting resolve_conflicts should be set to yes" %}
+            {% do exceptions.raise_compiler_error(error_msg) %}
         {% endif %}
     {% else %}
         {% set error_msg= "Unique key is required for valid_history incremental strategy, please provide unique key in configuration and try again" %}
-        {% do exceptions.CompilationError(error_msg) %}
+        {% do exceptions.raise_compiler_error(error_msg) %}
     {% endif %}
 {% endmacro %}
