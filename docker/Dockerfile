@@ -45,5 +45,5 @@ ENTRYPOINT ["dbt"]
 # dbt-core
 ##
 FROM base as dbt-core
-RUN python -m pip install dbt-teradata==1.8.3
+RUN python -m pip install dbt-teradata==1.9.0
 RUN python -m pip install dbt-core>=1.8.0
