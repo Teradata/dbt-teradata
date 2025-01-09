@@ -1,4 +1,4 @@
-## dbt-teradata 1.8.3a
+## dbt-teradata 1.0.0a
 
 ### Features
 
