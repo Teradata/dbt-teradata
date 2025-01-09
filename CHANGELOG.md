@@ -8,6 +8,7 @@
     * Enable unique_key as a list
 
 ### Fixes
+Fixes the exception handling on the valid_history incremental strategy
 
 ### Docs
 
