@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.9.0a
 
 ### Features
 * Addition of new Snapshot features with dbt-teradata v1.9 ([#207](https://github.com/Teradata/dbt-teradata/pull/207)):
