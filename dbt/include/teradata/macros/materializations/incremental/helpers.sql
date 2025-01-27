@@ -25,7 +25,7 @@ valid_period, use_valid_to_time, resolve_conflicts) %}
   {% elif strategy == 'merge' %}
     {% do return(teradata__get_merge_sql(target_relation, tmp_relation, unique_key, dest_columns,incremental_predicates)) %}
   {% elif strategy == 'microbatch' %}
-    {% do return(teradata__get_incremental_microbatch_sql(target_relation, tmp_relation, unique_key, dest_columns,incremental_predicates)) %}
+    {% do return(teradata__get_incremental_microbatch_sql(target_relation, tmp_relation, unique_key, dest_columns, incremental_predicates)) %}
   {% elif strategy == 'valid_history' %}
     {% do return(teradata__get_incremental_valid_history_sql(target_relation, tmp_relation, unique_key, valid_period, use_valid_to_time, resolve_conflicts)) %}
   {% else %}
