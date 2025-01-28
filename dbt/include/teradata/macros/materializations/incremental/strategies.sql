@@ -159,11 +159,7 @@
     {%- set dest_cols_csv = get_quoted_csv(dest_columns | map(attribute="name")) -%}
     insert into {{ target_relation }} ({{ dest_cols_csv }})
         select {{ dest_cols_csv }}
-        from {{ tmp_relation }} DBT_INTERNAL_TARGET where (
-            {% for predicate in incremental_predicates %}
-                {%- if not loop.first %}and {% endif -%} {{ predicate }}
-            {% endfor %}
-        )
+        from {{ tmp_relation }}
     ;
 {% endmacro %}
 
