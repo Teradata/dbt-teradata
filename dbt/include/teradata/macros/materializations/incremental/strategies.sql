@@ -136,7 +136,7 @@
 
 {% endmacro %}
 
-{% macro teradata__get_incremental_microbatch_sql(target_relation, tmp_relation, unique_key, dest_columns,incremental_predicates=None) %}
+{% macro teradata__get_incremental_microbatch_sql(target_relation, tmp_relation, dest_columns,incremental_predicates=None) %}
 
     {%- set incremental_predicates = [] if incremental_predicates is none else incremental_predicates -%}
 
