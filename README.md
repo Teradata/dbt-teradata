@@ -9,9 +9,9 @@ The dbt Teradata adapter lets you use [dbt](https://getdbt.com) with Teradata Va
 ```
 pip install dbt-teradata
 ```
-> **Starting from dbt-teradata 1.8.0 and above, dbt-core will not be installed as a dependency. Therefore, you need to explicitly install dbt-core. Ensure you install dbt-core 1.8.0 or above. You can do this with the following command:**
+> **Starting from dbt-teradata 1.8.0 and above, dbt-core will not be installed as a dependency. Therefore, you need to explicitly install dbt-core. Ensure you install dbt-core 1.9.0 or above. You can do this with the following command:**
 > ```
-> pip install dbt-core>=1.8.0
+> pip install dbt-core>=1.9.0
 > ```
 > Please go through this discussion for more information:
 > https://github.com/dbt-labs/dbt-core/discussions/9171
@@ -72,7 +72,7 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 | 1.7.x        | 1.7.x    | 1.1.1             | 1.1.1          |
 | 1.8.x        | 1.8.x    | 1.2.0             | 1.2.0          |
 | 1.8.x        | 1.8.x    | 1.3.0             | 1.3.0          |
-| 1.9.x        | 1.8.x    | 1.3.0             | 1.3.0          |
+| 1.9.x        | 1.9.x    | 1.3.0             | 1.3.0          |
 
 ## Optional profile configurations
 
