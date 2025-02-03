@@ -136,6 +136,33 @@
 
 {% endmacro %}
 
+{% macro teradata__get_incremental_microbatch_sql(target_relation, tmp_relation, dest_columns,incremental_predicates=None) %}
+
+    {%- set incremental_predicates = [] if incremental_predicates is none else incremental_predicates -%}
+
+    {#-- Add additional incremental_predicates to filter for batch --#}
+    {% if model.config.get("__dbt_internal_microbatch_event_time_start") -%}
+        {% do incremental_predicates.append("DBT_INTERNAL_TARGET." ~ model.config.event_time ~ " >= TIMESTAMP '" ~ model.config.__dbt_internal_microbatch_event_time_start ~ "'") %}
+    {% endif %}
+    {% if model.config.__dbt_internal_microbatch_event_time_end -%}
+        {% do incremental_predicates.append("DBT_INTERNAL_TARGET." ~ model.config.event_time ~ " < TIMESTAMP '" ~ model.config.__dbt_internal_microbatch_event_time_end ~ "'") %}
+    {% endif %}
+    
+
+    delete from {{ target_relation }} DBT_INTERNAL_TARGET
+    where (
+    {% for predicate in incremental_predicates %}
+        {%- if not loop.first %}and {% endif -%} {{ predicate }}
+    {% endfor %}
+    );
+
+    {%- set dest_cols_csv = get_quoted_csv(dest_columns | map(attribute="name")) -%}
+    insert into {{ target_relation }} ({{ dest_cols_csv }})
+        select {{ dest_cols_csv }}
+        from {{ tmp_relation }}
+    ;
+{% endmacro %}
+
 {% macro drop_staging_tables_for_valid_history(table_names) %}
     {% for table_name in table_names %}
         {% call statement('dropping existing staging table ' ~ table_name) %}

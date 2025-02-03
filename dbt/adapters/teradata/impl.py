@@ -67,7 +67,8 @@ class TeradataAdapter(SQLAdapter):
     _capabilities: CapabilityDict = CapabilityDict(
     {
         Capability.SchemaMetadataByRelations: CapabilitySupport(support=Support.Full),
-        Capability.TableLastModifiedMetadata: CapabilitySupport(support=Support.Full)
+        Capability.TableLastModifiedMetadata: CapabilitySupport(support=Support.Full),
+        Capability.MicrobatchConcurrency: CapabilitySupport(support=Support.Full)
     }
     )
 
@@ -346,5 +347,5 @@ class TeradataAdapter(SQLAdapter):
         """The set of standard builtin strategies which this adapter supports out-of-the-box.
         Not used to validate custom strategies defined by end users.
         """
-        return ["delete+insert","append","merge"]
+        return ["delete+insert","append","merge", "valid_history", "microbatch"]
     
