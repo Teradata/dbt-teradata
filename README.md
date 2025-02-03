@@ -261,6 +261,7 @@ Refer to [connection parameters](https://github.com/Teradata/python-driver#conne
 * `table`
 * `ephemeral`
 * `incremental`
+* `microbatch`
 
 #### Incremental Materialization
 The following incremental materialization strategies are supported:
