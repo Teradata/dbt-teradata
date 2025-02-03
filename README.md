@@ -261,7 +261,6 @@ Refer to [connection parameters](https://github.com/Teradata/python-driver#conne
 * `table`
 * `ephemeral`
 * `incremental`
-* `microbatch`
 
 #### Incremental Materialization
 The following incremental materialization strategies are supported:
@@ -269,6 +268,9 @@ The following incremental materialization strategies are supported:
 * `delete+insert`
 * `merge`
 * `valid_history`
+* `microbatch (Beta)`
+    ###### IMPORTANT NOTE: Microbatch strategy is in Beta version from dbt's side itself. There are ongoing enhancements and bug fixes from dbt. We strongly advise validating all records or transformations utilizing this strategy to preempt any potential anomalies or errors.
+
 
     ###### 'valid_history' incremental materialization strategy (early access)
     This strategy is designed to manage historical data efficiently within a Teradata environment, leveraging dbt features to ensure data quality and optimal resource usage.
