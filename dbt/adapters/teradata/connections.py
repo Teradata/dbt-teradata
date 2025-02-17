@@ -67,8 +67,8 @@ class TeradataCredentials(Credentials):
     https_proxy: Optional[str] = None
     https_proxy_user: Optional[str] = None
     https_proxy_password: Optional[str] = None
-    sslcrl: Optional[str] = None
-    sslocsp: Optional[str] = None
+    sslcrl: Optional[bool] = None
+    sslocsp: Optional[bool] = None
     proxy_bypass_hosts: Optional[str] = None
     oidc_sslmode: Optional[str] = None
 
