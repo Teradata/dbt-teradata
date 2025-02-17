@@ -61,6 +61,15 @@ class TeradataCredentials(Credentials):
     https_port: Optional[int] = None
     connect_timeout: Optional[int] = None
     request_timeout: Optional[int] = None
+    http_proxy: Optional[str] = None
+    http_proxy_user: Optional[str] = None
+    http_proxy_password: Optional[str] = None
+    https_proxy: Optional[str] = None
+    https_proxy_user: Optional[str] = None
+    sslcrl: Optional[str] = None
+    sslocsp: Optional[str] = None
+    proxy_bypass_hosts: Optional[str] = None
+    oidc_sslmode: Optional[str] = None
 
     _ALIASES = {
         "UID": "username",
@@ -155,7 +164,17 @@ to preempt any potential anomalies or errors
             "https_port",
             "connect_timeout",
             "request_timeout",
-            "query_band"
+            "query_band",
+            "http_proxy",
+            "http_proxy_user",
+            "http_proxy_password",
+            "https_proxy",
+            "https_proxy_user",
+            "https_proxy_password",
+            "sslcrl",
+            "sslocsp",
+            "proxy_bypass_hosts",
+            "oidc_sslmode"
         )
 
     @classmethod
@@ -270,6 +289,26 @@ class TeradataConnectionManager(SQLConnectionManager):
            kwargs["connect_timeout"]=credentials.connect_timeout
         if credentials.request_timeout:
            kwargs["request_timeout"]=credentials.request_timeout
+        if credentials.http_proxy:
+            kwargs["http_proxy"]=credentials.http_proxy
+        if credentials.http_proxy_user:
+            kwargs["http_proxy_user"]=credentials.http_proxy_user
+        if credentials.http_proxy_password:
+            kwargs["http_proxy_password"]=credentials.http_proxy_password
+        if credentials.https_proxy:
+            kwargs["https_proxy"]=credentials.https_proxy
+        if credentials.https_proxy_user:
+            kwargs["https_proxy_user"]=credentials.https_proxy_user
+        if credentials.https_proxy_password:
+            kwargs["https_proxy_password"]=credentials.https_proxy_password
+        if credentials.sslcrl:
+            kwargs["sslcrl"]=credentials.sslcrl
+        if credentials.sslocsp:
+            kwargs["sslocsp"]=credentials.sslocsp
+        if credentials.proxy_bypass_hosts:
+            kwargs["proxy_bypass_hosts"]=credentials.proxy_bypass_hosts
+        if credentials.oidc_sslmode:
+            kwargs["oidc_sslmode"]=credentials.oidc_sslmode
 
         # Save the transaction mode
         cls.TMODE = credentials.tmode
