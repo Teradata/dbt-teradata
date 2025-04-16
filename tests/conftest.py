@@ -50,7 +50,7 @@ def dbt_profile_target():
 
     return {
         'type': 'teradata',
-        'threads': 1,
+        'threads': 4,
         'host': hostname, #{{os.getenv('HOST'), 'localhost'}},
         'user': username, #{{os.getenv('USER'), 'dbc'}},
         'password': password, #{{os.getenv('PASSWORD'), 'dbc'}},
