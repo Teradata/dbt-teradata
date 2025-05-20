@@ -235,6 +235,7 @@
                 ELSE columns_transformed.table_name
             END AS table_name,
           {% else %}
+            columns_transformed.table_schema,
             columns_transformed.table_name,
           {% endif %}
           {% if view_tmp_tables_mapping is not none and view_tmp_tables_mapping|length > 0 %}
