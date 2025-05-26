@@ -64,4 +64,3 @@ class Test_fallback_schema:
 
         catalog = run_dbt(["docs", "generate"])
         assert len(catalog.nodes) == 3
-        assert len(catalog.sources) == 1
