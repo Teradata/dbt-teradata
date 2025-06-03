@@ -1,0 +1,8 @@
+packages:
+  - local: ../../../dbt/include/teradata/dbt_external_tables/
+  - package: dbt-labs/dbt_utils
+    version: [">0.9.0", "<2.0.0"]
+  - package: Teradata/teradata_utils
+    version: [">0.9.0", "<2.0.0"]
+  - package: dbt-labs/dbt_external_tables
+    version: [">=0.9.0", "<1.0.0"]
