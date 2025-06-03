@@ -1,3 +1,10 @@
+{% macro teradata_get_current_timestamp() %}
+    {%- call statement('current_timestamp', fetch_result=True) -%}
+        select cast(current_timestamp(0) as timestamp(0));
+    {% endcall %}
+    {{ return(load_result('current_timestamp').table.columns['Current TimeStamp(0)'].values()[0] | trim) }}
+{% endmacro %}
+
 {% macro teradata__get_views_from_relations(relations) -%}
     {% set view_relations = [] %}
     {%- for relation in relations -%}
@@ -15,30 +22,42 @@
 {%- endmacro %}
 
 {% macro teradata__create_tmp_tables_of_views(view_relations) -%}
+
+    {% set fallback_schema = var("fallback_schema", null) %}
+    {{ log("fallback_schema set to : " ~ fallback_schema) }}
+
     {% set view_tmp_tables_mapping = {} %}
     {%- for relation in view_relations -%}
-        {% set temp_relation_for_view = relation.identifier ~ '_tmp_viw_tbl' %}
+        {% set timestamp = teradata_get_current_timestamp() %}
+        {% set rand = range(1, 100000) | random %}
+        {% set uuid = timestamp.replace(":", "").replace("-", "").replace(" ","").replace("+","").replace(".","") ~ rand %}
+        {% set temp_relation_for_view = relation.identifier ~ '_tmp_viw_tbl_' ~ uuid %}
         {% set view_tmp_tables_mapping = view_tmp_tables_mapping.update({relation: temp_relation_for_view}) %}
     {%- endfor %}
 
-    {{ teradata__drop_tmp_tables_of_views(view_tmp_tables_mapping) }}
 
     {%- for relation, temp_relation_for_view in view_tmp_tables_mapping.items() %}
+        {% if fallback_schema==null %}
+          {% set schema_name = relation.schema %}
+        {% else %}
+          {% set schema_name = fallback_schema %}
+        {% endif %}
+
+        {{ teradata__drop_tmp_tables_of_views(schema_name, temp_relation_for_view) }}
+
         {% call statement('creating_table_from_view', fetch_result=False) %}
-            CREATE TABLE "{{ relation.schema }}"."{{ temp_relation_for_view }}" AS (SELECT * FROM "{{ relation.schema }}"."{{ relation.identifier }}") WITH NO DATA;
+            CREATE TABLE "{{ schema_name }}"."{{ temp_relation_for_view }}" AS (SELECT * FROM "{{ relation.schema }}"."{{ relation.identifier }}") WITH NO DATA;
         {% endcall %}
         load_result('creating_table_from_view')
     {%- endfor %}
     {{ return(view_tmp_tables_mapping) }}
 {%- endmacro %}
 
-{% macro teradata__drop_tmp_tables_of_views(view_tmp_tables_mapping) -%}
-    {% for relation, temp_table in view_tmp_tables_mapping.items() %}
-        {% call statement('drop_existing_table', fetch_result=False) %}
-            DROP table /*+ IF EXISTS */ "{{ relation.schema }}"."{{ temp_table }}";
-        {% endcall %}
-        load_result('drop_existing_table')
-    {% endfor %}
+{% macro teradata__drop_tmp_tables_of_views(schema_name, temp_relation_for_view) -%}
+    {% call statement('drop_existing_table', fetch_result=False) %}
+        DROP table /*+ IF EXISTS */ "{{ schema_name }}"."{{ temp_relation_for_view }}";
+    {% endcall %}
+    load_result('drop_existing_table')
 {%- endmacro %}
 
 
@@ -93,7 +112,15 @@
 
     {% set catalog_table = load_result('catalog').table %}
 
-    {{ teradata__drop_tmp_tables_of_views(view_tmp_tables_mapping) }}
+    {% set fallback_schema = var("fallback_schema", null) %}
+     {%- for relation, temp_relation_for_view in view_tmp_tables_mapping.items() %}
+        {% if fallback_schema==null %}
+          {% set schema_name = relation.schema %}
+        {% else %}
+          {% set schema_name = fallback_schema %}
+        {% endif %}
+        {{ teradata__drop_tmp_tables_of_views(schema_name, temp_relation_for_view) }}
+     {%- endfor %}
 
     {{ return(catalog_table) }}
 {%- endmacro %}
@@ -194,8 +221,13 @@
     joined AS (
       SELECT
           columns_transformed.table_database,
-          columns_transformed.table_schema,
           {% if view_tmp_tables_mapping is not none and view_tmp_tables_mapping|length > 0 %}
+            CASE
+              {% for relation, temp_table in view_tmp_tables_mapping.items() %}
+                WHEN columns_transformed.table_schema = upper('{{ var("fallback_schema", null) }}') THEN '{{ relation.schema }}'
+              {% endfor %}
+              ELSE columns_transformed.table_schema
+            END as table_schema,
             CASE
             {% for relation, temp_table in view_tmp_tables_mapping.items() %}
                 WHEN columns_transformed.table_name = '{{ temp_table }}' THEN '{{ relation.identifier }}'
@@ -203,6 +235,7 @@
                 ELSE columns_transformed.table_name
             END AS table_name,
           {% else %}
+            columns_transformed.table_schema,
             columns_transformed.table_name,
           {% endif %}
           {% if view_tmp_tables_mapping is not none and view_tmp_tables_mapping|length > 0 %}
@@ -259,15 +292,23 @@
         {%- for relation in relations -%}
             {% if relation.schema and relation.identifier %}
                 (
-                    upper("table_schema") = upper('{{ relation.schema }}')
                     {% if view_tmp_tables_mapping is not none and view_tmp_tables_mapping|length > 0 %}
+
                         {% set temp_table = view_tmp_tables_mapping[relation] %}
                         {% if not temp_table %}
+                            upper("table_schema") = upper('{{ relation.schema }}')
                             and upper("table_name") = upper('{{ relation.identifier }}')
                         {% else %}
-                            and upper("table_name") = upper('{{ temp_table }}')
+                            {% if var("fallback_schema", null) != null %}
+                                upper("table_schema") = upper('{{ var("fallback_schema", null) }}')
+                                and upper("table_name") = upper('{{ temp_table }}')
+                            {% else %}
+                                upper("table_schema") = upper('{{ relation.schema }}')
+                                and upper("table_name") = upper('{{ temp_table }}')
+                            {% endif %}
                         {% endif %}
                     {% else %}
+                        upper("table_schema") = upper('{{ relation.schema }}')
                         and upper("table_name") = upper('{{ relation.identifier }}')
                     {% endif %}
                 )

@@ -771,6 +771,14 @@ If no query_band is set by user, default query_band will come in play that is :
 
   > In Teradata, reusing the same alias across multiple common table expressions (CTEs) or subqueries within a single model is not permitted, as it results in parsing errors; therefore, it is essential to assign unique aliases to each CTE or subquery to ensure proper query execution.
 
+## Fallback Schema
+dbt-teradata internally created temporary tables to fetch the metadata of views for manifest and catalog creation. 
+In case if user does not have permission to create tables on the schema they are working on, they can define a fallback_schema(to which they have proper create/drop privileges) in dbt_project.yml as variable.
+```yaml
+     vars:
+        fallback_schema: <schema-name>
+   ```
+
 ## Credits
 
 The adapter was originally created by [Doug Beatty](https://github.com/dbeatty10). Teradata took over the adapter in January 2022. We are grateful to Doug for founding the project and accelerating the integration of dbt + Teradata.
