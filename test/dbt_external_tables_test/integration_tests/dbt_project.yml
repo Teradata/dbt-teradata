@@ -1,7 +1,7 @@
 name: 'dbt_external_tables_integration_tests'
 version: '1.0'
 
-profile: 'integration_tests'
+profile: 'teradata'
 
 config-version: 2
 

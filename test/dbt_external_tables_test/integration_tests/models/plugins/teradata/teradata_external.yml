@@ -88,15 +88,15 @@ sources:
             MAP = TD_MAP1
             -- ,EXTERNAL SECURITY  MyAuthObj
 
-      # - name: people_json_partitioned
-        # external:
-        #   location: '/gs/storage.googleapis.com/dbt-external-tables-testing/json'
-        #   using: |
-        #     STOREDAS('TEXTFILE')
-        #     -- PATHPATTERN  ('$var1/$section/$var3')
-        #   tbl_properties: |
-        #     MAP = TD_MAP1
-        #     -- ,EXTERNAL SECURITY  MyAuthObj
-        #   partitions:
-        #     - name: section
-        #       data_type: CHAR(1)
+      - name: people_json_partitioned
+        external:
+          location: '/s3/s3.amazonaws.com/dbt-external-tables-testing/json/'
+          using: |
+            STOREDAS('TEXTFILE')
+            -- PATHPATTERN  ('$var1/$section/$var3')
+          tbl_properties: |
+            MAP = TD_MAP1
+            -- ,EXTERNAL SECURITY  MyAuthObj
+          partitions:
+            - name: section
+              data_type: CHAR(1)
