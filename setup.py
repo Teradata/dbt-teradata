@@ -41,8 +41,6 @@ setup(
             'macros/*.sql',
             'macros/materializations/**/*.sql',
             'macros/utils/*.sql',
-            'macros/dbt_external_tables/helpers/*.sql',
-            'macros/dbt_external_tables/*.sql',
             'dbt_project.yml',
             'sample_profiles.yml',
         ],
