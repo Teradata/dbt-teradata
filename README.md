@@ -780,6 +780,12 @@ packages:
   - package: dbt-labs/dbt_external_tables
     version: [">=0.9.0", "<1.0.0"]
 ```
+* User need to add dispatch config for the project to pick the overridden macros from dbt-teradata package
+```yaml
+dispatch:
+  - macro_namespace: dbt_external_tables
+    search_order: ['dbt', 'dbt_external_tables']
+```
 * To define `STOREDAS` and `ROWFORMAT` for in dbt-external tables, one of the below options can be used:
     * user can use the standard dbt-external-tables config `file_format` and `row_format` respectively
     * Or user can just add it in `USING` config as mentioned in the Teradata's [documentation](https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Definition-Language-Syntax-and-Examples/Table-Statements/CREATE-FOREIGN-TABLE/CREATE-FOREIGN-TABLE-Syntax-Elements/USING-Clause)

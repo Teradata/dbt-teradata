@@ -18,7 +18,7 @@ clean-targets:
 
 dispatch:
   - macro_namespace: dbt_external_tables
-    search_order: ['teradata_external_tables', 'dbt_external_tables', 'dbt_external_tables_integration_tests']
+    search_order: ['dbt', 'dbt_external_tables', 'dbt_external_tables_integration_tests']
   - macro_namespace: dbt_utils
     search_order: ['teradata_utils', 'dbt_utils']
 
