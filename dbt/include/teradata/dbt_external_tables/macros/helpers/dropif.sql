@@ -11,7 +11,7 @@
     {% set ddl = '' %}
     {% if drop_relation %}
         {% set ddl %}
-          DROP TABLE {{ old_relation.include(database=False) }}
+          DROP FOREIGN TABLE {{ old_relation.include(database=False) }}
         {% endset %}
     {% endif %}
 

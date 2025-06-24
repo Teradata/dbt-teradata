@@ -18,9 +18,10 @@
         {%- endif %}
     USING (
         LOCATION('{{ external.location }}')
+        {% if external.file_format -%} STOREDAS ('{{ external.file_format }}') {%- endif %}
+        {% if external.row_format -%} ROWFORMAT ('{{ external.row_format }}') {%- endif %}
         {{ external.using }}
     )
-    NO PRIMARY INDEX
     {% if partitions -%}
     PARTITION BY (
         {%- for partition in partitions -%}

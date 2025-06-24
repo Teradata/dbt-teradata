@@ -9,8 +9,8 @@ sources:
       - name: people_csv_unpartitioned
         external: &csv-people
           location: "/s3/s3.amazonaws.com/dbt-external-tables-testing/csv/"
+          file_format: "TEXTFILE"
           using: |
-            STOREDAS('TEXTFILE')
             -- PATHPATTERN  ('$var1/$section/$var3')
           tbl_properties: |
             MAP = TD_MAP1
@@ -81,8 +81,8 @@ sources:
       - name: people_json_unpartitioned
         external:
           location: "/s3/s3.amazonaws.com/dbt-external-tables-testing/json/"
+          file_format: "TEXTFILE"
           using: |
-            STOREDAS('TEXTFILE')
             -- PATHPATTERN  ('$var1/$section/$var3')
           tbl_properties: |
             MAP = TD_MAP1
