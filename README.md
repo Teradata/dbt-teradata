@@ -849,6 +849,14 @@ sources:
               data_type: CHAR(1)
 ```
 
+## Fallback Schema
+dbt-teradata internally created temporary tables to fetch the metadata of views for manifest and catalog creation. 
+In case if user does not have permission to create tables on the schema they are working on, they can define a fallback_schema(to which they have proper create/drop privileges) in dbt_project.yml as variable.
+```yaml
+     vars:
+        fallback_schema: <schema-name>
+   ```
+
 ## Credits
 
 The adapter was originally created by [Doug Beatty](https://github.com/dbeatty10). Teradata took over the adapter in January 2022. We are grateful to Doug for founding the project and accelerating the integration of dbt + Teradata.
