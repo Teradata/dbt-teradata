@@ -84,14 +84,24 @@ class TeradataCredentials(Credentials):
             # When logmech is "browser", username and password should not be provided.
             if self.username is not None or self.password is not None:
                 raise dbt_common.exceptions.DbtRuntimeError(
-                    "Username and password should not be specified when logmech is 'browser'")
+                    "Couldn’t connect to Teradata Vantage SQL Engine. Neither username nor password parameters can be "
+                    "specified in the profile when the logon mechanism (logmech) is ‘BROWSER'. Correct the profile "
+                    "and retry.")
         else:
             if self.username is None:
-                raise dbt_common.exceptions.DbtRuntimeError("Must specify `user` in profile")
+                raise dbt_common.exceptions.DbtRuntimeError("Couldn’t  connect to Teradata Vantage SQL Engine. The "
+                                                            "‘user’ parameter in the profile must be specified when "
+                                                            "the logon mechanism (logmech) is ‘TD2'. Correct the "
+                                                            "profile and retry.")
             elif self.password is None:
-                raise dbt_common.exceptions.DbtRuntimeError("Must specify `password` in profile")
+                raise dbt_common.exceptions.DbtRuntimeError("Couldn’t  connect to Teradata Vantage SQL Engine. The "
+                                                            "‘password’ parameter in the profile must be specified "
+                                                            "when the logon mechanism (logmech) is ‘TD2'. Correct the "
+                                                            "profile and retry.")
         if self.schema is None:
-            raise dbt_common.exceptions.DbtRuntimeError("Must specify `schema` in profile")
+            raise dbt_common.exceptions.DbtRuntimeError("Couldn’t  connect to Teradata Vantage SQL Engine. The "
+                                                        "‘schema’ parameter in the profile must be specified . "
+                                                        "Correct the profile and retry.")
         # teradata classifies database and schema as the same thing
         if (
                 self.database is not None and
@@ -100,8 +110,9 @@ class TeradataCredentials(Credentials):
             raise dbt_common.exceptions.DbtRuntimeError(
                 f"    schema: {self.schema} \n"
                 f"    database: {self.database} \n"
-                f"On Teradata, database must be omitted or have the same value as"
-                f" schema."
+                f"Couldn’t  connect to Teradata Vantage SQL Engine. The ‘database’ parameter in the profile is "
+                f"specified and does not match the ‘schema’ parameter value. Correct the profile by removing the "
+                f"‘database’ parameter or changing it to same value as ‘schema’ parameter and then retry."
             )
         if self.tmode == "TERA":
             note_for_tera = '''
@@ -345,8 +356,8 @@ class TeradataConnectionManager(SQLConnectionManager):
                 return cls.apply_query_band(connection.handle, credentials.query_band)
 
         except teradatasql.Error as e:
-            logger.debug("Got an error when attempting to open a teradata "
-                         "connection: '{}'"
+            logger.debug("Couldn’t  connect to Teradata Vantage SQL Engine. The Teradata driver error message is: '{}'"
+                         "Correct the problem and retry."
                          .format(e))
 
             connection.handle = None
@@ -380,7 +391,8 @@ class TeradataConnectionManager(SQLConnectionManager):
             raise dbt_common.exceptions.DbtDatabaseError(str(e).strip()) from e
 
         except Exception as e:
-            logger.debug("Error running SQL: {}", sql)
+            logger.debug("Couldn’t  execute a SQL request against the Teradata Vantage SQL Engine. The SQL that "
+                         "failed is: {}".format(sql))
             logger.debug("Rolling back transaction.")
             self.rollback_if_open()
             if isinstance(e, dbt_common.exceptions.DbtRuntimeError):
@@ -474,7 +486,8 @@ class TeradataConnectionManager(SQLConnectionManager):
             logger.debug("Query Band set to {}".format(rows))           # To log in dbt.log
         except teradatasql.Error as ex:
             logger.debug(ex)
-            logger.info("Please verify query_band parameter in profiles.yml file")
+            logger.info("Couldn’t set the query_band using the specified value. Correct the query_band parameter in "
+                        "the profile and retry.")
             raise dbt.exceptions.DbtRuntimeError(str(ex))
 
         return handle                                                     # returning the connection handle
