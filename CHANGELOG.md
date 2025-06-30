@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.9.3a
 
 ### Features
 * Added support for dbt-external-tables [146](https://github.com/Teradata/dbt-teradata/issues/146)
