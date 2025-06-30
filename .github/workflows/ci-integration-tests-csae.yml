@@ -265,6 +265,18 @@ jobs:
                 timeout_seconds: 300
                 priority: interactive
                 retries: 1
+              dbt_external_tables:
+                type: teradata
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
+                logmech: TD2
+                schema: dbt_external_tables
+                tmode: TERA
+                threads: 4
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
           EOF
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
@@ -289,6 +301,12 @@ jobs:
       - name: Run valid history tests
         run: |
           cd $GITHUB_WORKSPACE/test/valid_history_test
+          chmod 777 run.sh
+          ./run.sh
+      
+      - name: Run external tables tests
+        run: |
+          cd $GITHUB_WORKSPACE/test/dbt_external_tables_test/integration_tests
           chmod 777 run.sh
           ./run.sh
 

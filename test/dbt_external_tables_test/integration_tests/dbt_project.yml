@@ -1,0 +1,33 @@
+name: 'dbt_external_tables_integration_tests'
+version: '1.0'
+
+profile: 'teradata'
+
+config-version: 2
+
+model-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+dispatch:
+  - macro_namespace: dbt_external_tables
+    search_order: ['dbt', 'dbt_external_tables', 'dbt_external_tables_integration_tests']
+  - macro_namespace: dbt_utils
+    search_order: ['teradata_utils', 'dbt_utils']
+
+seeds:
+  +quote_columns: false
+
+
+sources:
+  dbt_external_tables_integration_tests:
+    plugins:
+      teradata:
+        +enabled: "{{ target.type == 'teradata' }}"

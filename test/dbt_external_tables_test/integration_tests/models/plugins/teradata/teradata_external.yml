@@ -1,0 +1,102 @@
+version: 2
+
+sources:
+  - name: teradata_external
+    schema: "{{ target.schema }}"
+    loader: S3
+
+    tables:
+      - name: people_csv_unpartitioned
+        external: &csv-people
+          location: "/s3/s3.amazonaws.com/dbt-external-tables-testing/csv/"
+          file_format: "TEXTFILE"
+          using: |
+            -- PATHPATTERN  ('$var1/$section/$var3')
+          tbl_properties: |
+            MAP = TD_MAP1
+            -- ,EXTERNAL SECURITY  MyAuthObj
+        columns: &cols-of-the-people
+          - name: id
+            data_type: int
+          - name: first_name
+            data_type: varchar(64)
+          - name: last_name
+            data_type: varchar(64)
+          - name: email
+            data_type: varchar(64)
+        data_tests: &equal-to-the-people
+          - dbt_utils.equality:
+              compare_model: ref('people')
+              compare_columns:
+                - id
+                - first_name
+                - last_name
+                - email
+
+      - name: people_csv_partitioned
+        external:
+          <<: *csv-people
+          partitions:
+            - name: section
+              data_type: CHAR(1)
+        columns: *cols-of-the-people
+        data_tests:
+          - <<: *equal-to-the-people
+          - dbt_utils.at_least_one:
+              column_name: section
+
+
+      - name: people_pq_unpartitioned
+        external:
+          location: "/s3/s3.amazonaws.com/dbt-external-tables-testing/parquet/"
+          using: |
+            STOREDAS('PARQUET')
+            PATHPATTERN  ('$var1/$section/$var3')
+          tbl_properties: |
+            MAP = TD_MAP1
+            -- ,EXTERNAL SECURITY  MyAuthObj
+          columns:
+          - name: id
+            data_type: int
+          - name: first_name
+            data_type: varchar(64)
+          - name: last_name
+            data_type: varchar(64)
+          - name: email
+            data_type: varchar(64)  
+        data_tests: *equal-to-the-people
+
+      - name: people_pq_partitioned
+        external:
+          location: "/s3/s3.amazonaws.com/dbt-external-tables-testing/parquet/"
+          partitions:
+            - name: COLUMN
+            - name: section
+              data_type: CHAR(1)
+        data_tests:
+          - <<: *equal-to-the-people
+          - dbt_utils.at_least_one:
+              column_name: section
+
+      - name: people_json_unpartitioned
+        external:
+          location: "/s3/s3.amazonaws.com/dbt-external-tables-testing/json/"
+          file_format: "TEXTFILE"
+          using: |
+            -- PATHPATTERN  ('$var1/$section/$var3')
+          tbl_properties: |
+            MAP = TD_MAP1
+            -- ,EXTERNAL SECURITY  MyAuthObj
+
+      - name: people_json_partitioned
+        external:
+          location: '/s3/s3.amazonaws.com/dbt-external-tables-testing/json/'
+          using: |
+            STOREDAS('TEXTFILE')
+            -- PATHPATTERN  ('$var1/$section/$var3')
+          tbl_properties: |
+            MAP = TD_MAP1
+            -- ,EXTERNAL SECURITY  MyAuthObj
+          partitions:
+            - name: section
+              data_type: CHAR(1)
