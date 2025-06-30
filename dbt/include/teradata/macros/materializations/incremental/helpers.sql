@@ -7,7 +7,7 @@
 
   {% set invalid_strategy_msg -%}
     Invalid incremental strategy provided: {{ strategy }}
-    Expected one of:  'append','delete+insert','merge', 'valid_history', 'microbatch'
+    Couldn’t validate incremental strategy. The incremental strategy must be either 'append', 'delete+insert', 'merge', 'valid_history' or 'microbatch'. Correct the model and retry.
   {%- endset %}
   {%- if strategy not in ['append','delete+insert','merge', 'valid_history', 'microbatch'] %}
     {% do exceptions.raise_compiler_error(invalid_strategy_msg) %}
@@ -29,6 +29,6 @@ valid_period, use_valid_to_time, resolve_conflicts) %}
   {% elif strategy == 'valid_history' %}
     {% do return(teradata__get_incremental_valid_history_sql(target_relation, tmp_relation, unique_key, valid_period, use_valid_to_time, resolve_conflicts)) %}
   {% else %}
-    {% do exceptions.raise_compiler_error("Invalid Strategy") %}
+    {% do exceptions.raise_compiler_error("Couldn’t generate SQL for incremental strategy. The incremental strategy must be either 'append', 'delete+insert', 'merge', 'valid_history' or 'microbatch'. Correct the model retry.") %}
   {% endif %}
 {% endmacro %}
