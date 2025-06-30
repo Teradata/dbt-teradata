@@ -143,7 +143,7 @@ class TeradataAdapter(SQLAdapter):
         for row in results:
             if len(row) != 4:
                 raise dbt_common.exceptions.DbtRuntimeError(
-                    f'Invalid value from "teradata__list_relations_without_caching({kwargs})", '
+                    f"Invalid value from 'teradata__list_relations_without_caching({kwargs})', "
                     f"We expected 4 attributes but received {len(row)}. You may create a github issue with relevant "
                     f"details."
                 )
