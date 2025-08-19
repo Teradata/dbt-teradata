@@ -23,8 +23,8 @@
 
 {% macro teradata__create_tmp_tables_of_views(view_relations) -%}
 
-    {% set fallback_schema = var("fallback_schema", null) %}
-    {{ log("fallback_schema set to : " ~ fallback_schema) }}
+    {% set temporary_metadata_generation_schema = var("temporary_metadata_generation_schema", null) %}
+    {{ log("temporary_metadata_generation_schema set to : " ~ temporary_metadata_generation_schema) }}
 
     {% set view_tmp_tables_mapping = {} %}
     {%- for relation in view_relations -%}
@@ -37,10 +37,10 @@
 
 
     {%- for relation, temp_relation_for_view in view_tmp_tables_mapping.items() %}
-        {% if fallback_schema==null %}
+        {% if temporary_metadata_generation_schema==null %}
           {% set schema_name = relation.schema %}
         {% else %}
-          {% set schema_name = fallback_schema %}
+          {% set schema_name = temporary_metadata_generation_schema %}
         {% endif %}
 
         {{ teradata__drop_tmp_tables_of_views(schema_name, temp_relation_for_view) }}
@@ -112,12 +112,12 @@
 
     {% set catalog_table = load_result('catalog').table %}
 
-    {% set fallback_schema = var("fallback_schema", null) %}
+    {% set temporary_metadata_generation_schema = var("temporary_metadata_generation_schema", null) %}
      {%- for relation, temp_relation_for_view in view_tmp_tables_mapping.items() %}
-        {% if fallback_schema==null %}
+        {% if temporary_metadata_generation_schema==null %}
           {% set schema_name = relation.schema %}
         {% else %}
-          {% set schema_name = fallback_schema %}
+          {% set schema_name = temporary_metadata_generation_schema %}
         {% endif %}
         {{ teradata__drop_tmp_tables_of_views(schema_name, temp_relation_for_view) }}
      {%- endfor %}
@@ -224,7 +224,7 @@
           {% if view_tmp_tables_mapping is not none and view_tmp_tables_mapping|length > 0 %}
             CASE
               {% for relation, temp_table in view_tmp_tables_mapping.items() %}
-                WHEN columns_transformed.table_schema = upper('{{ var("fallback_schema", null) }}') THEN '{{ relation.schema }}'
+                WHEN columns_transformed.table_schema = upper('{{ var("temporary_metadata_generation_schema", null) }}') THEN '{{ relation.schema }}'
               {% endfor %}
               ELSE columns_transformed.table_schema
             END as table_schema,
@@ -299,8 +299,8 @@
                             upper("table_schema") = upper('{{ relation.schema }}')
                             and upper("table_name") = upper('{{ relation.identifier }}')
                         {% else %}
-                            {% if var("fallback_schema", null) != null %}
-                                upper("table_schema") = upper('{{ var("fallback_schema", null) }}')
+                            {% if var("temporary_metadata_generation_schema", null) != null %}
+                                upper("table_schema") = upper('{{ var("temporary_metadata_generation_schema", null) }}')
                                 and upper("table_name") = upper('{{ temp_table }}')
                             {% else %}
                                 upper("table_schema") = upper('{{ relation.schema }}')
