@@ -120,6 +120,9 @@
 {% macro teradata__get_columns_in_relation(relation) -%}
     {% set use_qvci = var("use_qvci", False) | as_bool %}
     {{ log("use_qvci set to : " ~ use_qvci) }}
+    {% set temporary_metadata_generation_schema = var("temporary_metadata_generation_schema", null) %}
+    {{ log("temporary_metadata_generation_schema set to : " ~ temporary_metadata_generation_schema) }}
+
     {% if use_qvci == False -%}
         {% call statement('check_table_or_view', fetch_result=True) %}
             SELECT TableKind FROM DBC.TablesV WHERE DatabaseName = '{{ relation.schema }}' AND TableName = '{{ relation.identifier }}'
@@ -128,13 +131,26 @@
         {% set table_kind = load_result('check_table_or_view').table.columns['TableKind'].values()[0] | trim %}
 
         {%- if table_kind == 'V' -%}
-            {% set temp_relation_for_view = relation.identifier ~ '_tmp_viw_tbl' %}
+
+            {% set timestamp = teradata_get_current_timestamp() %}
+            {% set rand = range(1, 100000) | random %}
+            {% set uuid = timestamp.replace(":", "").replace("-", "").replace(" ","").replace("+","").replace(".","") ~ rand %}
+
+            {% set temp_relation_for_view = relation.identifier ~ '_tmp_viw_tbl_' ~ uuid %}
+
+            {% if temporary_metadata_generation_schema==null %}
+              {% set schema_name = relation.schema %}
+            {% else %}
+              {% set schema_name = temporary_metadata_generation_schema %}
+            {% endif %}
+
             {% call statement('drop_existing_table', fetch_result=False) %}
-                DROP table /*+ IF EXISTS */ "{{ relation.schema }}"."{{ temp_relation_for_view }}";
+                DROP table /*+ IF EXISTS */ "{{ schema_name }}"."{{ temp_relation_for_view }}";
             {% endcall %}
             load_result('drop_existing_table')
+
             {% call statement('creating_table_from_view', fetch_result=False) %}
-                CREATE TABLE "{{ relation.schema }}"."{{ temp_relation_for_view }}" AS (SELECT * FROM "{{ relation.schema }}"."{{ relation.identifier }}") WITH NO DATA;
+                CREATE TABLE "{{ schema_name }}"."{{ temp_relation_for_view }}" AS (SELECT * FROM "{{ relation.schema }}"."{{ relation.identifier }}") WITH NO DATA;
             {% endcall %}
             load_result('creating_table_from_view')
         {% endif %}
@@ -230,15 +246,17 @@
       AND ColumnsV.TableName = TablesV.TableName
     WHERE
       TablesV.TableKind IN ('T', 'V', 'O')
-      AND ColumnsV.DatabaseName = '{{ relation.schema }}' (NOT CASESPECIFIC)
     {% if use_qvci == False -%}
         {%- if table_kind == 'V' -%}
+            AND ColumnsV.DatabaseName = '{{ schema_name }}' (NOT CASESPECIFIC)
             AND ColumnsV.TableName = '{{ temp_relation_for_view }}' (NOT CASESPECIFIC)
         {%- else -%}
+            AND ColumnsV.DatabaseName = '{{ relation.schema }}' (NOT CASESPECIFIC)
             AND ColumnsV.TableName = '{{ relation.identifier }}' (NOT CASESPECIFIC)
         {%- endif -%}
 
     {%- else -%}
+        AND ColumnsV.DatabaseName = '{{ relation.schema }}' (NOT CASESPECIFIC)
         AND ColumnsV.TableName = '{{ relation.identifier }}' (NOT CASESPECIFIC)
     {%- endif -%}
 
@@ -251,7 +269,7 @@
     {% if use_qvci == False -%}
         {%- if table_kind == 'V' -%}
             {% call statement('drop_table_from_view', fetch_result=False) %}
-                DROP table /*+ IF EXISTS */ "{{ relation.schema }}"."{{ temp_relation_for_view }}";
+                DROP table /*+ IF EXISTS */ "{{ schema_name }}"."{{ temp_relation_for_view }}";
             {% endcall %}
             load_result('drop_table_from_view')
         {% endif %}
