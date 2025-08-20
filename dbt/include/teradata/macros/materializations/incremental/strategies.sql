@@ -88,8 +88,7 @@
             {% do predicates.append(unique_key_match) %}
         {% endif %}
     {% else %}
-        {% set error_msg= "Unique key is required for merge incremental strategy, please provide unique key in configuration and try again
-        or consider using Append strategy" %}
+        {% set error_msg= "Couldn’t generate SQL for merge incremental strategy. The merge incremental strategy requires the specification of 'unique_key'. Correct the model and retry." %}
         {% do exceptions.raise_compiler_error(error_msg) %}
     {% endif %}
 
@@ -391,7 +390,7 @@
             {% do exceptions.raise_compiler_error(error_msg) %}
         {% endif %}
     {% else %}
-        {% set error_msg= "Unique key is required for valid_history incremental strategy, please provide unique key in configuration and try again" %}
+        {% set error_msg= "Couldn’t generate SQL for valid_history incremental strategy. The valid_history incremental strategy requires the specification of 'unique_key'. Correct the model and retry." %}
         {% do exceptions.raise_compiler_error(error_msg) %}
     {% endif %}
 {% endmacro %}

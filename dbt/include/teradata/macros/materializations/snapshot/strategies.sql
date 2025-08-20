@@ -30,7 +30,7 @@
         {% set query_columns = get_columns_in_query(select_check_cols_from_target) %}
 
     {% else %}
-        {% do exceptions.raise_compiler_error("Invalid value for 'check_cols': " ~ check_cols_config) %}
+        {% do exceptions.raise_compiler_error("Couldn’t validate a target snapshot table. The value specified for 'check_cols_config' is invalid. Correct the model ensuring 'check_cols_config' values map to actual column names in target snapshot table and retry.") %}
     {% endif %}
 
     {%- set existing_cols = adapter.get_columns_in_relation(target_relation) | map(attribute = 'name') | list -%}

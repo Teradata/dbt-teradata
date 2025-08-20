@@ -773,6 +773,92 @@ If no query_band is set by user, default query_band will come in play that is :
 
   > In Teradata, reusing the same alias across multiple common table expressions (CTEs) or subqueries within a single model is not permitted, as it results in parsing errors; therefore, it is essential to assign unique aliases to each CTE or subquery to ensure proper query execution.
 
+## dbt-external-tables
+* [dbt-external-tables](https://github.com/dbt-labs/dbt-external-tables) are supported with dbt-teradata from dbt-teradata v1.9.3 onwards.
+* Under the hood, dbt-teradata uses the concept of foreign tables to create tables from external sources. More information can be found [here](https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Definition-Language-Syntax-and-Examples/Table-Statements/CREATE-FOREIGN-TABLE)
+* User need to add the dbt-external-tables packages as dependency and can be resolved with `dbt deps` command
+```yaml
+packages:
+  - package: dbt-labs/dbt_external_tables
+    version: [">=0.9.0", "<1.0.0"]
+```
+* User need to add dispatch config for the project to pick the overridden macros from dbt-teradata package
+```yaml
+dispatch:
+  - macro_namespace: dbt_external_tables
+    search_order: ['dbt', 'dbt_external_tables']
+```
+* To define `STOREDAS` and `ROWFORMAT` for in dbt-external tables, one of the below options can be used:
+    * user can use the standard dbt-external-tables config `file_format` and `row_format` respectively
+    * Or user can just add it in `USING` config as mentioned in the Teradata's [documentation](https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Definition-Language-Syntax-and-Examples/Table-Statements/CREATE-FOREIGN-TABLE/CREATE-FOREIGN-TABLE-Syntax-Elements/USING-Clause)
+
+* For external source, which requires authentication, user needs to create authentication object and pass it in `tbl_properties` as `EXTERNAL SECURITY` object.
+  For more information on Authentication object please follow this [link](https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Definition-Language-Syntax-and-Examples/Authorization-Statements-for-External-Routines/CREATE-AUTHORIZATION-and-REPLACE-AUTHORIZATION)
+
+* Sample external sources are provided below as references
+```yaml
+version: 2
+sources:
+  - name: teradata_external
+    schema: "{{ target.schema }}"
+    loader: S3
+
+    tables:
+      - name: people_csv_partitioned
+        external: 
+          location: "/s3/s3.amazonaws.com/dbt-external-tables-testing/csv/"
+          file_format: "TEXTFILE"
+          row_format: '{"field_delimiter":",","record_delimiter":"\n","character_set":"LATIN"}'
+          using: |
+            PATHPATTERN  ('$var1/$section/$var3')
+          tbl_properties: |
+            MAP = TD_MAP1
+            ,EXTERNAL SECURITY  MyAuthObj
+          partitions:
+            - name: section
+              data_type: CHAR(1)
+        columns:
+          - name: id
+            data_type: int
+          - name: first_name
+            data_type: varchar(64)
+          - name: last_name
+            data_type: varchar(64)
+          - name: email
+            data_type: varchar(64)
+```
+
+```yaml
+version: 2
+sources:
+  - name: teradata_external
+    schema: "{{ target.schema }}"
+    loader: S3
+
+    tables:
+      - name: people_json_partitioned
+        external:
+          location: '/s3/s3.amazonaws.com/dbt-external-tables-testing/json/'
+          using: |
+            STOREDAS('TEXTFILE')
+            ROWFORMAT('{"record_delimiter":"\n", "character_set":"cs_value"}')
+            PATHPATTERN  ('$var1/$section/$var3')
+          tbl_properties: |
+            MAP = TD_MAP1
+            ,EXTERNAL SECURITY  MyAuthObj
+          partitions:
+            - name: section
+              data_type: CHAR(1)
+```
+
+## Fallback Schema
+dbt-teradata internally created temporary tables to fetch the metadata of views for manifest and catalog creation. 
+In case if user does not have permission to create tables on the schema they are working on, they can define a fallback_schema(to which they have proper create/drop privileges) in dbt_project.yml as variable.
+```yaml
+     vars:
+        fallback_schema: <schema-name>
+   ```
+
 ## Credits
 
 The adapter was originally created by [Doug Beatty](https://github.com/dbeatty10). Teradata took over the adapter in January 2022. We are grateful to Doug for founding the project and accelerating the integration of dbt + Teradata.
