@@ -1,6 +1,9 @@
 
 {% macro teradata__snapshot_hash_arguments(args) -%}
-    HASHROW({%- for arg in args -%}
+
+    {% set hashing_function = config.get('snapshot_hash_udf', 'HASHROW') %}
+    
+    {{ hashing_function }}({%- for arg in args -%}
         coalesce(cast({{ arg }} as varchar(50)), '')
         {% if not loop.last %} || '|' || {% endif %}
     {%- endfor -%})
@@ -82,11 +85,6 @@
 
     {% set scd_args = api.Relation.scd_args(primary_key, updated_at) %}
     {% set scd_id_expr = snapshot_hash_arguments(scd_args) %}
-    {% set snapshot_hash_udf = config.get('snapshot_hash_udf') %}
-    {% if snapshot_hash_udf is not none %}
-        {% set scd_id_expr = scd_id_expr |replace("HASHROW",snapshot_hash_udf) %}
-    {% endif %}
-
 
     {% do return({
         "unique_key": primary_key,
