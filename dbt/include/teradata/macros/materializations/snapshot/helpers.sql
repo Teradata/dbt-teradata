@@ -119,8 +119,8 @@
         select
             'delete' as dbt_change_type,
             source_data.*,
-            {{ snapshot_get_time() }} as {{ columns.dbt_valid_from }},
             {{ snapshot_get_time() }} as {{ columns.dbt_updated_at }},
+            {{ snapshot_get_time() }} as {{ columns.dbt_valid_from }},
             {{ snapshot_get_time() }} as {{ columns.dbt_valid_to }},
             snapshotted_data.{{ columns.dbt_scd_id }}
             {%- if strategy.hard_deletes == 'new_record' -%}
@@ -151,8 +151,8 @@
             {%- else -%}
             snapshotted_data.dbt_unique_key as dbt_unique_key,
             {% endif -%}
-            {{ snapshot_get_time() }} as {{ columns.dbt_valid_from }},
             {{ snapshot_get_time() }} as {{ columns.dbt_updated_at }},
+            {{ snapshot_get_time() }} as {{ columns.dbt_valid_from }},
             snapshotted_data.{{ columns.dbt_valid_to }} as {{ columns.dbt_valid_to }},
             snapshotted_data.{{ columns.dbt_scd_id }},
             'True' as {{ columns.dbt_is_deleted }}
