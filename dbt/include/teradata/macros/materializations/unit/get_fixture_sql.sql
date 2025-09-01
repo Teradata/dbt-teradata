@@ -129,5 +129,6 @@ select * from dbt_internal_unit_test_actual
 {%- macro teradata__validate_fixture_rows(rows, row_number) -%}
 
   {# This is an abstract method for adapter overrides as needed #}
+  {# Placed it as a placeholder for future if require any Teradata specific modifications, but for now no changes required #}
 
 {%- endmacro -%}
