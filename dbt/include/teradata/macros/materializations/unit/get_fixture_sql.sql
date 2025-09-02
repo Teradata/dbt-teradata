@@ -62,8 +62,6 @@ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
     {%- do default_row.update({column_name: (safe_cast("null", column_type) | trim )}) -%}
 {%- endfor -%}
 
-{{ validate_fixture_rows(rows, row_number) }}
-
 {%- for row in rows -%}
 {%-   set formatted_row = format_row(row, column_name_to_data_types) -%}
 {%-   set default_row_copy = default_row.copy() -%}
@@ -118,17 +116,3 @@ select * from dbt_internal_unit_test_expected
 union all
 select * from dbt_internal_unit_test_actual
 {%- endmacro %}
-
-
-
-{%- macro validate_fixture_rows(rows, row_number) -%}
-  {{ return(adapter.dispatch('validate_fixture_rows', 'dbt')(rows, row_number)) }}
-{%- endmacro -%}
-
-
-{%- macro teradata__validate_fixture_rows(rows, row_number) -%}
-
-  {# This is an abstract method for adapter overrides as needed #}
-  {# Placed it as a placeholder for future if require any Teradata specific modifications, but for now no changes required #}
-
-{%- endmacro -%}

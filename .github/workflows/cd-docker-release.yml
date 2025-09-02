@@ -4,7 +4,7 @@ on:
     inputs:
       releaseVersion:
         description: 'Semantic version of the release'
-        required:
+        required: true
       target_branch:
         description: "The branch to release from"
         type: string
