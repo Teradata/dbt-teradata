@@ -13,21 +13,18 @@ FROM --platform=$build_for python:3.10 as base
 
 # special case args
 # System setup
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update \
-  && apt-get dist-upgrade -y \
   && apt-get install -y --no-install-recommends \
-    git \
-    ssh-client \
-    software-properties-common \
-    make \
-    build-essential \
-    ca-certificates \
-    libpq-dev \
-  && apt-get clean \
-  && rm -rf \
-    /var/lib/apt/lists/* \
-    /tmp/* \
-    /var/tmp/*
+     git \
+     ssh-client \
+     software-properties-common \
+     make \
+     build-essential \
+     ca-certificates \
+     libpq-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 # Env vars
 ENV PYTHONIOENCODING=utf-8
