@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.10.0a
 
 ### Features
 * Upgraded dbt-teradata adapter to support dbt-core v1.10 (Python 3.13, new flags, and deprecated function replacements).
