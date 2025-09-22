@@ -4,7 +4,7 @@
     {% set hashing_function = config.get('snapshot_hash_udf', 'HASHROW') %}
     
     {{ hashing_function }}({%- for arg in args -%}
-        coalesce(cast({{ arg }} as varchar(50)), '')
+        coalesce(cast({{ arg }} as varchar(500)), '')
         {% if not loop.last %} || '|' || {% endif %}
     {%- endfor -%})
 {%- endmacro %}
