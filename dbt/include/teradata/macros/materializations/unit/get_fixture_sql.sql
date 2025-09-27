@@ -3,11 +3,11 @@
 -- [Teradata Database] [Error 3888] A SELECT for a UNION,INTERSECT or MINUS must reference a table
 -- To avoid this error we are are using a workaround [ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1 ] in between those sel statements
 
-{% macro get_expected_sql(rows, column_name_to_data_types, column_name_to_quoted) -%}
-  {{ adapter.dispatch('get_expected_sql', 'dbt')(rows, column_name_to_data_types, column_name_to_quoted) }}
+{% macro get_expected_sql(rows, column_name_to_data_types) -%}
+  {{ adapter.dispatch('get_expected_sql', 'dbt')(rows, column_name_to_data_types) }}
 {%- endmacro %}
 
-{% macro teradata__get_expected_sql(rows, column_name_to_data_types, column_name_to_quoted) %}
+{% macro teradata__get_expected_sql(rows, column_name_to_data_types) %}
 
 {%- if (rows | length) == 0 -%}
     select * from dbt_internal_unit_test_actual
@@ -17,7 +17,7 @@
 {%- for row in rows -%}
 {%- set formatted_row = format_row(row, column_name_to_data_types) -%}
 select
-{%- for column_name, column_value in formatted_row.items() %} {{ column_value }} as {{ column_name_to_quoted[column_name] }}{% if not loop.last -%}, {% else %} {{ ' ' }} {%- endif %}
+{%- for column_name, column_value in formatted_row.items() %} {{ column_value }} as {{ column_name }}{% if not loop.last -%}, {% else %} {{ ' ' }} {%- endif %}
 {%- endfor %}
 {%- if not loop.last %}
 from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
@@ -45,12 +45,11 @@ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
 {%-   set columns_in_relation = adapter.get_columns_in_relation(this_or_defer_relation) -%}
 
 {%-   set column_name_to_data_types = {} -%}
-{%-   set column_name_to_quoted = {} -%}
+
 {%-   for column in columns_in_relation -%}
 
 {#-- This needs to be a case-insensitive comparison --#}
 {%-     do column_name_to_data_types.update({column.name|lower: column.data_type}) -%}
-{%-     do column_name_to_quoted.update({column.name|lower: column.quoted}) -%}
 {%-   endfor -%}
 {%- endif -%}
 
@@ -67,7 +66,7 @@ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
 {%-   set default_row_copy = default_row.copy() -%}
 {%-   do default_row_copy.update(formatted_row) -%}
 select
-{%-   for column_name, column_value in default_row_copy.items() %} {{ column_value }} as {{ column_name_to_quoted[column_name] }}{% if not loop.last -%}, {% else %} {{ ' ' }} {%- endif %}
+{%-   for column_name, column_value in default_row_copy.items() %} {{ column_value }} as {{ column_name }}{% if not loop.last -%}, {% else %} {{ ' ' }} {%- endif %}
 {%-   endfor %}
 {%-   if not loop.last %}
 from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
@@ -78,7 +77,7 @@ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
 
 {%- if (rows | length) == 0 -%}
     select
-    {%- for column_name, column_value in default_row.items() %} {{ column_value }} as {{ column_name_to_quoted[column_name] }}{% if not loop.last -%},{%- endif %}
+    {%- for column_name, column_value in default_row.items() %} {{ column_value }} as {{ column_name }}{% if not loop.last -%},{%- endif %}
     {%- endfor %}
     sample 0
 {%- endif -%}
