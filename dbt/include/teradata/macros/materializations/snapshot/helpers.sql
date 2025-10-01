@@ -25,10 +25,10 @@
 
     snapshotted_data as (
 
-        select snapshot.*,
+        select td_dbt_snapshot.*,
             {{ unique_key_fields(strategy.unique_key) }}
 
-        from {{ target_relation }} as snapshot
+        from {{ target_relation }} as td_dbt_snapshot
         where
         {% if config.get('dbt_valid_to_current') %}
             {# Check for either dbt_valid_to_current OR null, in order to correctly update records with nulls #}
