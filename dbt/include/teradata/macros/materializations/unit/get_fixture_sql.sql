@@ -3,11 +3,11 @@
 -- [Teradata Database] [Error 3888] A SELECT for a UNION,INTERSECT or MINUS must reference a table
 -- To avoid this error we are are using a workaround [ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1 ] in between those sel statements
 
-{% macro get_expected_sql(rows, column_name_to_data_types) -%}
-  {{ adapter.dispatch('get_expected_sql', 'dbt')(rows, column_name_to_data_types) }}
+{% macro get_expected_sql(rows, column_name_to_data_types, column_name_to_quoted) -%}
+  {{ adapter.dispatch('get_expected_sql', 'dbt')(rows, column_name_to_data_types, column_name_to_quoted) }}
 {%- endmacro %}
 
-{% macro teradata__get_expected_sql(rows, column_name_to_data_types) %}
+{% macro teradata__get_expected_sql(rows, column_name_to_data_types, column_name_to_quoted) %}
 
 {%- if (rows | length) == 0 -%}
     select * from dbt_internal_unit_test_actual
@@ -17,7 +17,7 @@
 {%- for row in rows -%}
 {%- set formatted_row = format_row(row, column_name_to_data_types) -%}
 select
-{%- for column_name, column_value in formatted_row.items() %} {{ column_value }} as {{ column_name }}{% if not loop.last -%}, {% else %} {{ ' ' }} {%- endif %}
+{%- for column_name, column_value in formatted_row.items() %} {{ column_value }} as {{ column_name_to_quoted[column_name] }}{% if not loop.last -%}, {% else %} {{ ' ' }} {%- endif %}
 {%- endfor %}
 {%- if not loop.last %}
 from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
@@ -45,14 +45,17 @@ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
 {%-   set columns_in_relation = adapter.get_columns_in_relation(this_or_defer_relation) -%}
 
 {%-   set column_name_to_data_types = {} -%}
+{%-   set column_name_to_quoted = {} -%}
 {%-   for column in columns_in_relation -%}
+
 {#-- This needs to be a case-insensitive comparison --#}
 {%-     do column_name_to_data_types.update({column.name|lower: column.data_type}) -%}
+{%-     do column_name_to_quoted.update({column.name|lower: column.quoted}) -%}
 {%-   endfor -%}
 {%- endif -%}
 
 {%- if not column_name_to_data_types -%}
-    {{ exceptions.raise_compiler_error("Not able to get columns for unit test '" ~ model.name ~ "' from relation " ~ this) }}
+    {{ exceptions.raise_compiler_error("Not able to get columns for unit test '" ~ model.name ~ "' from relation " ~ this ~ " because the relation doesn't exist") }}
 {%- endif -%}
 
 {%- for column_name, column_type in column_name_to_data_types.items() -%}
@@ -64,7 +67,7 @@ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
 {%-   set default_row_copy = default_row.copy() -%}
 {%-   do default_row_copy.update(formatted_row) -%}
 select
-{%-   for column_name, column_value in default_row_copy.items() %} {{ column_value }} as {{ column_name }}{% if not loop.last -%}, {% else %} {{ ' ' }} {%- endif %}
+{%-   for column_name, column_value in default_row_copy.items() %} {{ column_value }} as {{ column_name_to_quoted[column_name] }}{% if not loop.last -%}, {% else %} {{ ' ' }} {%- endif %}
 {%-   endfor %}
 {%-   if not loop.last %}
 from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
@@ -75,46 +78,11 @@ from SYS_CALENDAR.CALENDAR where day_of_calendar = 1
 
 {%- if (rows | length) == 0 -%}
     select
-    {%- for column_name, column_value in default_row.items() %} {{ column_value }} as {{ column_name }}{% if not loop.last -%},{%- endif %}
+    {%- for column_name, column_value in default_row.items() %} {{ column_value }} as {{ column_name_to_quoted[column_name] }}{% if not loop.last -%},{%- endif %}
     {%- endfor %}
     sample 0
 {%- endif -%}
 {% endmacro %}
-
-
--- We need to override "format_row" macro to remove the safe_cast() used in the default implementation.
--- We had to remove safe_cast because N/A was being picked as column_type in safe_casting, which was later running into issues
-
-{%- macro format_row(row, column_name_to_data_types) -%}
-    {#-- generate case-insensitive formatted row --#}
-    {% set formatted_row = {} %}
-    {%- for column_name, column_value in row.items() -%}
-        {% set column_name = column_name|lower %}
-
-        {%- if column_name not in column_name_to_data_types %}
-            {#-- if user-provided row contains column name that relation does not contain, raise an error --#}
-            {% set fixture_name = "expected output" if model.resource_type == 'unit_test' else ("'" ~ model.name ~ "'") %}
-            {{ exceptions.raise_compiler_error(
-                "Invalid column name: '" ~ column_name ~ "' in unit test fixture for " ~ fixture_name ~ "."
-                "\nAccepted columns for " ~ fixture_name ~ " are: " ~ (column_name_to_data_types.keys()|list)
-            ) }}
-        {%- endif -%}
-
-        {%- set column_type = column_name_to_data_types[column_name] %}
-
-        {#-- sanitize column_value: wrap yaml strings in quotes, apply cast --#}
-        {%- set column_value_clean = column_value -%}
-        {%- if column_value is string -%}
-            {%- set column_value_clean = dbt.string_literal(dbt.escape_single_quotes(column_value)) -%}
-        {%- elif column_value is none -%}
-            {%- set column_value_clean = 'null' -%}
-        {%- endif -%}
-
-        {%- set row_update = {column_name: column_value_clean} -%}
-        {%- do formatted_row.update(row_update) -%}
-    {%- endfor -%}
-    {{ return(formatted_row) }}
-{%- endmacro -%}
 
 
 

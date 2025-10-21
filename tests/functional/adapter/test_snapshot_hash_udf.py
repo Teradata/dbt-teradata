@@ -13,6 +13,18 @@ snapshot_hash_udf = """
 {% endsnapshot %}
 """.strip()
 
+snapshot_hash_udf_timestamp = """
+{% snapshot snapshot_hash_udf_timestamp %}
+    {{ config(
+         unique_key='id', strategy='timestamp',
+        target_database=database, target_schema=schema,
+        updated_at='some_date',
+        snapshot_hash_udf='GLOBAL_FUNCTIONS.hash_md5'
+    ) }}
+    select * from {{ ref(var('seed_name', 'base')) }}
+{% endsnapshot %}
+""".strip()
+
 snapshot_hash_udf_default = """
 {% snapshot snapshot_hash_udf_default %}
     {{ config(
@@ -85,3 +97,82 @@ class Test_snapshot_hash_udf_default:
         run_dbt(["--log-path", "log_output","snapshot"])
         log_output = read_file("log_output", "dbt.log").replace("\n", " ").replace("\\n", " ")
         assert "HASHROW" in log_output
+
+class Test_snapshot_hash_udf_timestamp:
+
+    @pytest.fixture(scope="class")
+    def project_config_update(self):
+        return {
+            "name": "test_snapshot_hash_udf_timestamp"
+        }
+
+    @pytest.fixture(scope="class")
+    def seeds(self):
+        return {
+            "base.csv": seeds_base_csv
+        }
+
+    @pytest.fixture(scope="class")
+    def snapshots(self):
+        return {
+            "snapshot_hash_udf_timestamp.sql": snapshot_hash_udf_timestamp
+        }
+
+    def test_snapshot_hash_udf_timestamp(self, project):
+        (pathlib.Path(project.project_root) / "log_output").mkdir(parents=True, exist_ok=True)
+        run_dbt(["seed"])
+        run_dbt(["--log-path", "log_output","snapshot"])
+        log_output = read_file("log_output", "dbt.log").replace("\n", " ").replace("\\n", " ")
+        assert "GLOBAL_FUNCTIONS.hash_md5" in log_output
+
+
+# Snapshot using long string as unique_key to test varchar truncation fix
+snapshot_varchar_truncation_sql = """
+{% snapshot snapshot_varchar_truncation %}
+    {{ config(
+        unique_key='long_description',
+        strategy='check',
+        check_cols=['name'],
+        target_database=database,
+        target_schema=schema,
+        snapshot_hash_udf='GLOBAL_FUNCTIONS.hash_md5'
+    ) }}
+    select * from {{ ref(var('seed_name', 'long_string_data')) }}
+{% endsnapshot %}
+""".strip()
+
+# Test data with long strings that exceed varchar(50) limit
+seeds_long_string_data_csv = """
+id,name,long_description
+1,John Smith,"This is an extremely long description that definitely exceeds the fifty character limit that was causing varchar truncation errors in snapshot hash functions before the fix was applied"
+2,Jane Doe,"Another extraordinarily long description that goes well beyond the fifty character limitation that was imposed by the previous snapshot hash implementation and should now work properly"
+3,Bob Johnson,"Yet another lengthy description that would have caused issues when the snapshot tried to hash this content using the old varchar fifty character limitation but should now work fine"
+""".lstrip()
+
+
+class Test_snapshot_hash_udf_varchar_truncation:
+
+    @pytest.fixture(scope="class")
+    def project_config_update(self):
+        return {
+            "name": "test_snapshot_hash_udf_varchar_truncation"
+        }
+
+    @pytest.fixture(scope="class")
+    def seeds(self):
+        return {
+            "long_string_data.csv": seeds_long_string_data_csv
+        }
+
+    @pytest.fixture(scope="class")
+    def snapshots(self):
+        return {
+            "snapshot_varchar_truncation.sql": snapshot_varchar_truncation_sql
+        }
+
+    def test_snapshot_hash_udf_varchar_truncation(self, project):
+        (pathlib.Path(project.project_root) / "log_output").mkdir(parents=True, exist_ok=True)
+        run_dbt(["seed"])
+        run_dbt(["--log-path", "log_output","snapshot"])
+        log_output = read_file("log_output", "dbt.log").replace("\n", " ").replace("\\n", " ")
+        assert "GLOBAL_FUNCTIONS.hash_md5" in log_output

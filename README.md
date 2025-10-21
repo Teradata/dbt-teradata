@@ -9,9 +9,9 @@ The dbt Teradata adapter lets you use [dbt](https://getdbt.com) with Teradata Va
 ```
 pip install dbt-teradata
 ```
-> **Starting from dbt-teradata 1.8.0 and above, dbt-core will not be installed as a dependency. Therefore, you need to explicitly install dbt-core. Ensure you install dbt-core 1.8.0 or above. You can do this with the following command:**
+> **Starting from dbt-teradata 1.8.0 and above, dbt-core will not be installed as a dependency. Therefore, you need to explicitly install dbt-core. Ensure you install dbt-core 1.10.0 or above. You can do this with the following command:**
 > ```
-> pip install dbt-core>=1.8.0
+> pip install dbt-core>=1.10.0
 > ```
 > Please go through this discussion for more information:
 > https://github.com/dbt-labs/dbt-core/discussions/9171
@@ -41,24 +41,28 @@ my-teradata-db-profile:
       tmode: ANSI
 ```
 
-At a minimum, you need to specify `host`, `user`, `password`, `schema` (database), `tmode`.
+At a minimum, you need to specify `host`, `user`, `password`, `schema` (database).
 
 ## Python compatibility
 
-| Plugin version | Python 3.6  | Python 3.7  | Python 3.8  | Python 3.9  | Python 3.10 | Python 3.11 | Python 3.12 |
-|----------------| ----------- | ----------- | ----------- | ----------- | ----------- |-------------|-------------|
-| 0.19.0.x       | ✅          | ✅          | ✅          | ❌          | ❌          | ❌           | ❌ 
-| 0.20.0.x       | ✅          | ✅          | ✅          | ✅          | ❌          | ❌           | ❌ 
-| 0.21.1.x       | ✅          | ✅          | ✅          | ✅          | ❌          | ❌           | ❌ 
-| 1.0.0.x        | ❌           | ✅          | ✅          | ✅          | ❌          | ❌          | ❌   
-| 1.1.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌          | ❌ 
-| 1.2.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌          | ❌  
-| 1.3.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ❌          | ❌
-| 1.4.x.x        | ❌           | ✅          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.5.x          | ❌           | ✅          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.6.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.7.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅          | ❌ 
-| 1.8.x          | ❌           | ❌          | ✅          | ✅          | ✅          | ✅          | ✅ 
+| Plugin version | Python 3.6  | Python 3.7  | Python 3.8 | Python 3.9  | Python 3.10 | Python 3.11 | Python 3.12 | Python 3.13 |
+|----------------| ----------- | ----------- | --------- | ----------- | ----------- |-------------|-------------|-------------|
+| 0.19.0.x       | ✅          | ✅          | ✅         | ❌          | ❌          | ❌           | ❌         | ❌
+| 0.20.0.x       | ✅          | ✅          | ✅         | ✅          | ❌          | ❌           | ❌         | ❌
+| 0.21.1.x       | ✅          | ✅          | ✅         | ✅          | ❌          | ❌           | ❌         | ❌
+| 1.0.0.x        | ❌           | ✅          | ✅         | ✅          | ❌          | ❌          | ❌         | ❌
+| 1.1.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌         | ❌
+| 1.2.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌         | ❌
+| 1.3.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌         | ❌
+| 1.4.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ✅          | ❌         | ❌
+| 1.5.x          | ❌           | ✅          | ✅         | ✅          | ✅          | ✅          | ❌         | ❌
+| 1.6.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ❌         | ❌
+| 1.7.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ❌         | ❌
+| 1.8.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ✅         | ❌
+| 1.8.2          | ❌           | ❌          | ❌         | ✅          | ✅          | ✅          | ✅         | ❌
+| 1.8.3          | ❌           | ❌          | ❌         | ✅          | ✅          | ✅          | ✅         | ❌
+| 1.9.x          | ❌           | ❌          | ❌         | ✅          | ✅          | ✅          | ✅         | ❌
+| 1.10.x         | ❌           | ❌          | ❌         | ✅          | ✅          | ✅          | ✅         | ✅
 
 
 ##  dbt dependent packages version compatibility
@@ -68,6 +72,9 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 | 1.6.7        | 1.6.7    | 1.1.1             | 1.1.1          |
 | 1.7.x        | 1.7.x    | 1.1.1             | 1.1.1          |
 | 1.8.x        | 1.8.x    | 1.2.0             | 1.2.0          |
+| 1.8.x        | 1.8.x    | 1.3.0             | 1.3.0          |
+| 1.9.x        | 1.9.x    | 1.3.0             | 1.3.0          |
+| 1.10.x       | 1.10.x   | 1.3.0             | 1.3.0          |
 
 ## Optional profile configurations
 
@@ -75,8 +82,12 @@ At a minimum, you need to specify `host`, `user`, `password`, `schema` (database
 
 The logon mechanism for Teradata jobs that dbt executes can be configured with the `logmech` configuration in your Teradata profile. The `logmech` field can be set to: `TD2`, `LDAP`, `BROWSER`, `KRB5`, `TDNEGO`. For more information on authentication options, go to [Teradata Vantage authentication documentation](https://docs.teradata.com/r/8Mw0Cvnkhv1mk1LEFcFLpw/0Ev5SyB6_7ZVHywTP7rHkQ).
 
-> For the initial BROWSER authentication, the browser opens as expected, asking for the credentials. However, for every subsequent connection, a new browser tab opens, displaying the message 'TERADATA BROWSER AUTHENTICATION COMPLETED,' despite using an existing BROWSER session silently. This is the default behavior of the teradatasql driver, and there is no way to avoid this at the present time.
-
+> When running a dbt job with logmech set to "browser", the initial authentication opens a browser window where you must enter your username and password.<br>
+After authentication, this window remains open, requiring you to manually switch back to the dbt console.<br>
+For every subsequent connection, a new browser tab briefly opens, displaying the message "TERADATA BROWSER AUTHENTICATION COMPLETED," and silently reuses the existing session.<br>
+However, the focus stays on the browser window, so you’ll need to manually switch back to the dbt console each time.<br>
+This behavior is the default functionality of the teradatasql driver and cannot be avoided at this time.<br>
+To prevent session expiration and the need to re-enter credentials, ensure the authentication browser window stays open until the job is complete.
 
 ```yaml
 my-teradata-db-profile:
@@ -220,6 +231,12 @@ Parameter               | Default     | Type           | Description
 `field_sep`             | `","`       | string         | Specifies a single character string used to separate fields in a CSV file. Equivalent to the Teradata JDBC Driver `FIELD_SEP` connection parameter.
 `host`                  |             | string         | Specifies the database hostname.
 `https_port`            | `"443"`     | quoted integer | Specifies the database port number for HTTPS/TLS connections. Equivalent to the Teradata JDBC Driver `HTTPS_PORT` connection parameter.
+`http_proxy`            |             | string | Specifies the proxy server URL for HTTP connections to TLS certificate verification CRL and OCSP endpoints. The URL must begin with http:// and must include a colon : and port number.
+`http_proxy_user`       |             | string | Specifies the proxy server username for the proxy server identified by the http_proxy parameter. This parameter may only be specified in conjunction with the http_proxy parameter. When this parameter is omitted, no proxy server username is provided to the proxy server identified by the http_proxy parameter.
+`http_proxy_password`   |             | string | Specifies the proxy server password for the proxy server identified by the http_proxy parameter. This parameter may only be specified in conjunction with the http_proxy parameter. When this parameter is omitted, no proxy server password is provided to the proxy server identified by the http_proxy parameter.
+`https_proxy`           |             | string | Specifies the proxy server URL for HTTPS/TLS connections to the database and to Identity Provider endpoints. The URL must begin with http:// and must include a colon : and port number. The driver connects to the proxy server using a non-TLS HTTP connection, then uses the HTTP CONNECT method to establish an HTTPS/TLS connection to the destination. Equivalent to the Teradata JDBC Driver HTTPS_PROXY connection parameter.
+`https_proxy_user`      |             | string | Specifies the proxy server username for the proxy server identified by the https_proxy parameter. This parameter may only be specified in conjunction with the https_proxy parameter. When this parameter is omitted, no proxy server username is provided to the proxy server identified by the https_proxy parameter. Equivalent to the Teradata JDBC Driver HTTPS_PROXY_USER connection parameter.
+`https_proxy_password`  |             | string | Specifies the proxy server password for the proxy server identified by the https_proxy parameter. This parameter may only be specified in conjunction with the https_proxy parameter. When this parameter is omitted, no proxy server password is provided to the proxy server identified by the https_proxy parameter. Equivalent to the Teradata JDBC Driver HTTPS_PROXY_PASSWORD connection parameter.
 `lob_support`           | `"true"`    | quoted boolean | Controls LOB support. Equivalent to the Teradata JDBC Driver `LOB_SUPPORT` connection parameter.
 `log`                   | `"0"`       | quoted integer | Controls debug logging. Somewhat equivalent to the Teradata JDBC Driver `LOG` connection parameter. This parameter's behavior is subject to change in the future. This parameter's value is currently defined as an integer in which the 1-bit governs function and method tracing, the 2-bit governs debug logging, the 4-bit governs transmit and receive message hex dumps, and the 8-bit governs timing. Compose the value by adding together 1, 2, 4, and/or 8.
 `logdata`               |             | string         | Specifies extra data for the chosen logon authentication method. Equivalent to the Teradata JDBC Driver `LOGDATA` connection parameter.
@@ -227,6 +244,7 @@ Parameter               | Default     | Type           | Description
 `logmech`               | `"TD2"`     | string         | Specifies the logon authentication method. Equivalent to the Teradata JDBC Driver `LOGMECH` connection parameter. Possible values are `TD2` (the default), `JWT`, `LDAP`, `BROWSER`, `KRB5` for Kerberos, or `TDNEGO`.
 `max_message_body`      | `"2097000"` | quoted integer | Specifies the maximum Response Message size in bytes. Equivalent to the Teradata JDBC Driver `MAX_MESSAGE_BODY` connection parameter.
 `partition`             | `"DBC/SQL"` | string         | Specifies the database partition. Equivalent to the Teradata JDBC Driver `PARTITION` connection parameter.
+`proxy_bypass_hosts`    |             | string         | Specifies a matching pattern for hostnames and addresses to bypass the proxy server identified by the http_proxy and/or https_proxy parameter. This parameter may only be specified in conjunction with the http_proxy and/or https_proxy parameter. Separate multiple hostnames and addresses with a vertical bar | character. Specify an asterisk * as a wildcard character. When this parameter is omitted, the default pattern localhost|127.*|[::1] bypasses the proxy server identified by the http_proxy and/or https_proxy parameter for common variations of the loopback address. Equivalent to the Teradata JDBC Driver PROXY_BYPASS_HOSTS connection parameter.
 `request_timeout`       |   `"0"`     | quoted integer | Specifies the timeout for executing each SQL request. Zero means no timeout.
 `retries`               |   `0`       | integer        | Allows an adapter to automatically try again when the attempt to open a new connection on the database has a transient, infrequent error. This option can be set using the retries configuration. Default value is 0. The default wait period between connection attempts is one second. retry_timeout (seconds) option allows us to adjust this waiting period.
 `runstartup`            |  "false"    | quoted boolean | Controls whether the user's STARTUP SQL request is executed after logon. For more information, refer to User STARTUP SQL Request. Equivalent to the Teradata JDBC Driver RUNSTARTUP connection parameter. If retries is set to 3, the adapter will try to establish a new connection three times if an error occurs.
@@ -235,9 +253,11 @@ Parameter               | Default     | Type           | Description
 `sp_spl`                | `"true"`    | quoted boolean | Controls whether stored procedure source code is saved in the database when a SQL stored procedure is created. Equivalent to the Teradata JDBC Driver SP_SPL connection parameter.
 `sslca`                 |             | string         | Specifies the file name of a PEM file that contains Certificate Authority (CA) certificates for use with `sslmode` values `VERIFY-CA` or `VERIFY-FULL`. Equivalent to the Teradata JDBC Driver `SSLCA` connection parameter.
 `sslcrc`                | `"ALLOW"`   | string         | Equivalent to the Teradata JDBC Driver SSLCRC connection parameter. Values are case-insensitive.<br/>&bull; ALLOW provides "soft fail" behavior such that communication failures are ignored during certificate revocation checking. <br/>&bull; REQUIRE mandates that certificate revocation checking must succeed.
+`sslcrl`                | `"true"`    | quoted boolean | Controls the use of Certificate Revocation List (CRL) for TLS certificate revocation checking for HTTPS/TLS connections. Online Certificate Status Protocol (OCSP) is preferred over CRL, so CRL is used when OSCP is unavailable. Equivalent to the Teradata JDBC Driver SSLCRL connection parameter.
 `sslcapath`             |             | string         | Specifies a directory of PEM files that contain Certificate Authority (CA) certificates for use with `sslmode` values `VERIFY-CA` or `VERIFY-FULL`. Only files with an extension of `.pem` are used. Other files in the specified directory are not used. Equivalent to the Teradata JDBC Driver `SSLCAPATH` connection parameter.
 `sslcipher`             |             | string         | Specifies the TLS cipher for HTTPS/TLS connections. Equivalent to the Teradata JDBC Driver `SSLCIPHER` connection parameter.
 `sslmode`               | `"PREFER"`  | string         | Specifies the mode for connections to the database. Equivalent to the Teradata JDBC Driver `SSLMODE` connection parameter.<br/>&bull; `DISABLE` disables HTTPS/TLS connections and uses only non-TLS connections.<br/>&bull; `ALLOW` uses non-TLS connections unless the database requires HTTPS/TLS connections.<br/>&bull; `PREFER` uses HTTPS/TLS connections unless the database does not offer HTTPS/TLS connections.<br/>&bull; `REQUIRE` uses only HTTPS/TLS connections.<br/>&bull; `VERIFY-CA` uses only HTTPS/TLS connections and verifies that the server certificate is valid and trusted.<br/>&bull; `VERIFY-FULL` uses only HTTPS/TLS connections, verifies that the server certificate is valid and trusted, and verifies that the server certificate matches the database hostname.
+`sslocsp`               |  `"true"`   | quoted boolean | Controls the use of Online Certificate Status Protocol (OCSP) for TLS certificate revocation checking for HTTPS/TLS connections. Equivalent to the Teradata JDBC Driver SSLOCSP connection parameter.
 `sslprotocol`           | `"TLSv1.2"` | string         | Specifies the TLS protocol for HTTPS/TLS connections. Equivalent to the Teradata JDBC Driver `SSLPROTOCOL` connection parameter.
 `teradata_values`       | `"true"`    | quoted boolean | Controls whether `str` or a more specific Python data type is used for certain result set column value types.
 `query_band`            | `"org=teradata-internal-telem;appname=dbt;"`    | string | Specifies the Query Band string to be set for each SQL request.
@@ -259,6 +279,9 @@ The following incremental materialization strategies are supported:
 * `delete+insert`
 * `merge`
 * `valid_history`
+* `microbatch (Beta)`
+    ###### IMPORTANT NOTE: Microbatch strategy is in Beta version from dbt's side itself. There are ongoing enhancements and bug fixes from dbt. We strongly advise validating all records or transformations utilizing this strategy to preempt any potential anomalies or errors.
+
 
     ###### 'valid_history' incremental materialization strategy (early access)
     This strategy is designed to manage historical data efficiently within a Teradata environment, leveraging dbt features to ensure data quality and optimal resource usage.
@@ -270,27 +293,28 @@ The following incremental materialization strategies are supported:
             unique_key='id',
             on_schema_change='fail',
             incremental_strategy='valid_history',
-            valid_from='valid_from_column',
-            history_column_in_target='history_period_column'
+            valid_period='valid_period_col',
+            use_valid_to_time='no',
     )
     }}
     ```
   `valid_history` incremental strategy requires the following parameters:
-  * `valid_from` - Column in the source table of **timestamp** datatype indicating when each record became valid.
-  * `history_column_in_target` - Column in the target table of **period** datatype that tracks history.
+  * `unique_key`: The primary key of the model (excluding the valid time components), specified as a column name or list of column names.
+  * `valid_period`: Name of the model column indicating the period for which the record is considered to be valid. The datatype must be `PERIOD(DATE)` or `PERIOD(TIMESTAMP)`. 
+  * `use_valid_to_time`: Wether the end bound value of the valid period in the input is considered by the strategy when building the valid timeline. Use 'no' if you consider your record to be valid until changed (and supply any value greater to the begin bound for the end bound of the period - a typical convention is `9999-12-31` of ``9999-12-31 23:59:59.999999`). Use 'yes' if you know until when the record is valid (typically this is a correction in the history timeline).
 
   
 
 >   The valid_history strategy in dbt-teradata involves several critical steps to ensure the integrity and accuracy of historical data management:
 >   * Remove duplicates and conflicting values from the source data:
 >     * This step ensures that the data is clean and ready for further processing by eliminating any redundant or conflicting records.
->     * The process of removing duplicates and conflicting values from the source data involves using a ranking mechanism to ensure that only the highest-priority records are retained. This is accomplished using the SQL RANK() function.
+>     * The process of removing primary key duplicates (ie. two or more records with the same value for the `unique_key` and BEGIN() bond of the `valid_period` fields) in the dataset produced by the model. If such duplicates exist, the row with the lowest value is retained for all non-primary-key fields (in the order specified in the model) is retained. Full-row duplicates are always de-duplicated.
 >   * Identify and adjust overlapping time slices:
->     * Overlapping time periods in the data are detected and corrected to maintain a consistent and non-overlapping timeline.
->   * Manage records needing to be overwritten or split based on the source and target data:
+>     * Overlapping or adjacent time periods in the data are corrected to maintain a consistent and non-overlapping timeline. To achieve this, the macro adjusts the valid period end bound of a record to align with the begin bound of the next record (if they overlap or are adjacent) within the same `unique_key` group. If `use_valid_to_time = 'yes'`, the valid period end bound provided in the source data is used. Otherwise, a default end date is applied for missing bounds, and adjustments are made accordingly.
+>   * Manage records needing to be adjusted, deleted or split based on the source and target data:
 >     * This involves handling scenarios where records in the source data overlap with or need to replace records in the target data, ensuring that the historical timeline remains accurate.
->   * Utilize the TD_NORMALIZE_MEET function to compact history:
->     * This function helps to normalize and compact the history by merging adjacent time periods, improving the efficiency and performance of the database.
+>   * Compact history:
+>     * Normalize and compact the history by merging records of adjacent time periods withe same value, optimizing database storage and performance. We use the function TD_NORMALIZE_MEET for this purpose.
 >   * Delete existing overlapping records from the target table:
 >     * Before inserting new or updated records, any existing records in the target table that overlap with the new data are removed to prevent conflicts.
 >   * Insert the processed data into the target table:
@@ -326,7 +350,6 @@ The following incremental materialization strategies are supported:
   ```
   
 
->   **Important Note**: The target table must already exist before running the model. Ensure that the target table is created and properly structured with the necessary columns, including a column that tracks the history with period datatype, before running a dbt model.
 
 
 To learn more about dbt incremental strategies please check [the dbt incremental strategy documentation](https://docs.getdbt.com/docs/build/incremental-models#about-incremental_strategy).
@@ -336,31 +359,6 @@ To learn more about dbt incremental strategies please check [the dbt incremental
 All dbt commands are supported.
 
 ### Custom configurations
-
-#### General
-
-* *Enable view column types in docs* -  Teradata Vantage has a dbscontrol configuration flag called `DisableQVCI` (QVCI - Queryable View Column Index). This flag instructs the database to build `DBC.ColumnsJQV` with view column type definitions. 
-
-    > :information_source: Existing customers, please see [KB0022230](https://support.teradata.com/knowledge?id=kb_article_view&sys_kb_id=d066248b1b0000187361c8415b4bcb48) for more information about enabling QVCI.
-
-  To enable this functionality you need to:
-  1. Enable QVCI mode in Vantage. Use `dbscontrol` utility and then restart Teradata. Run these commands as a privileged user on a Teradata node:
-      ```bash
-      # option 551 is DisableQVCI. Setting it to false enables QVCI.
-      dbscontrol << EOF
-      M internal 551=false
-      W
-      EOF
-
-      # restart Teradata
-      tpareset -y Enable QVCI
-      ```
-  2. Instruct `dbt` to use `QVCI` mode. Include the following variable in your `dbt_project.yml`:
-      ```yaml
-      vars:
-        use_qvci: true
-      ```
-      For example configuration, see `test/catalog/with_qvci/dbt_project.yml`.
 
 #### Models
 
@@ -674,7 +672,8 @@ Date truncate:
 
 #### <a name="hash"></a>hash
 
-`Hash` macro needs an `md5` function implementation. Teradata doesn't support `md5` natively. You need to install a User Defined Function (UDF):
+`Hash` macro needs an `md5` function implementation. Teradata doesn't support `md5` natively. You need to install a User Defined Function (UDF) and optionally specify `md5_udf` [variable](https://docs.getdbt.com/docs/build/project-variables).
+If not specified the code defaults to using `GLOBAL_FUNCTIONS.hash_md5`. See below instructions on how to install the custom UDF:
 1. Download the md5 UDF implementation from Teradata (registration required): https://downloads.teradata.com/download/extensibility/md5-message-digest-udf.
 1. Unzip the package and go to `src` directory.
 1. Start up `bteq` and connect to your database.
@@ -692,6 +691,13 @@ Date truncate:
     ```sql
     GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
     ```
+   
+Instruction on how to add md5_udf variable in dbt_project.yml for custom hash function:
+```yaml
+vars:
+  md5_udf: Custom_database_name.hash_method_function
+```
+
 #### <a name="last_day"></a>last_day
 
 `last_day` in `teradata_utils`, unlike the corresponding macro in `dbt_utils`, doesn't support `quarter` datepart.
@@ -761,6 +767,97 @@ Let model that user is running be stg_orders
 If no query_band is set by user, default query_band will come in play that is :
 ```org=teradata-internal-telem;appname=dbt;```
 
+## Unit Testing
+* Unit testing is supported in dbt-teradata, allowing users to write and execute unit tests using the dbt test command.
+  * For detailed guidance, refer to the dbt documentation.
+
+  > In Teradata, reusing the same alias across multiple common table expressions (CTEs) or subqueries within a single model is not permitted, as it results in parsing errors; therefore, it is essential to assign unique aliases to each CTE or subquery to ensure proper query execution.
+
+## dbt-external-tables
+* [dbt-external-tables](https://github.com/dbt-labs/dbt-external-tables) are supported with dbt-teradata from dbt-teradata v1.9.3 onwards.
+* Under the hood, dbt-teradata uses the concept of foreign tables to create tables from external sources. More information can be found [here](https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Definition-Language-Syntax-and-Examples/Table-Statements/CREATE-FOREIGN-TABLE)
+* User need to add the dbt-external-tables packages as dependency and can be resolved with `dbt deps` command
+```yaml
+packages:
+  - package: dbt-labs/dbt_external_tables
+    version: [">=0.9.0", "<1.0.0"]
+```
+* User need to add dispatch config for the project to pick the overridden macros from dbt-teradata package
+```yaml
+dispatch:
+  - macro_namespace: dbt_external_tables
+    search_order: ['dbt', 'dbt_external_tables']
+```
+* To define `STOREDAS` and `ROWFORMAT` for in dbt-external tables, one of the below options can be used:
+    * user can use the standard dbt-external-tables config `file_format` and `row_format` respectively
+    * Or user can just add it in `USING` config as mentioned in the Teradata's [documentation](https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Definition-Language-Syntax-and-Examples/Table-Statements/CREATE-FOREIGN-TABLE/CREATE-FOREIGN-TABLE-Syntax-Elements/USING-Clause)
+
+* For external source, which requires authentication, user needs to create authentication object and pass it in `tbl_properties` as `EXTERNAL SECURITY` object.
+  For more information on Authentication object please follow this [link](https://docs.teradata.com/r/Enterprise_IntelliFlex_VMware/SQL-Data-Definition-Language-Syntax-and-Examples/Authorization-Statements-for-External-Routines/CREATE-AUTHORIZATION-and-REPLACE-AUTHORIZATION)
+
+* Sample external sources are provided below as references
+```yaml
+version: 2
+sources:
+  - name: teradata_external
+    schema: "{{ target.schema }}"
+    loader: S3
+
+    tables:
+      - name: people_csv_partitioned
+        external: 
+          location: "/s3/s3.amazonaws.com/dbt-external-tables-testing/csv/"
+          file_format: "TEXTFILE"
+          row_format: '{"field_delimiter":",","record_delimiter":"\n","character_set":"LATIN"}'
+          using: |
+            PATHPATTERN  ('$var1/$section/$var3')
+          tbl_properties: |
+            MAP = TD_MAP1
+            ,EXTERNAL SECURITY  MyAuthObj
+          partitions:
+            - name: section
+              data_type: CHAR(1)
+        columns:
+          - name: id
+            data_type: int
+          - name: first_name
+            data_type: varchar(64)
+          - name: last_name
+            data_type: varchar(64)
+          - name: email
+            data_type: varchar(64)
+```
+
+```yaml
+version: 2
+sources:
+  - name: teradata_external
+    schema: "{{ target.schema }}"
+    loader: S3
+
+    tables:
+      - name: people_json_partitioned
+        external:
+          location: '/s3/s3.amazonaws.com/dbt-external-tables-testing/json/'
+          using: |
+            STOREDAS('TEXTFILE')
+            ROWFORMAT('{"record_delimiter":"\n", "character_set":"cs_value"}')
+            PATHPATTERN  ('$var1/$section/$var3')
+          tbl_properties: |
+            MAP = TD_MAP1
+            ,EXTERNAL SECURITY  MyAuthObj
+          partitions:
+            - name: section
+              data_type: CHAR(1)
+```
+
+## temporary_metadata_generation_schema (earlier fallback_schema)
+dbt-teradata internally created temporary tables to fetch the metadata of views for manifest and catalog creation. 
+In case if user does not have permission to create tables on the schema they are working on, they can define a temporary_metadata_generation_schema(to which they have proper create and drop privileges) in dbt_project.yml as variable.
+```yaml
+     vars:
+        temporary_metadata_generation_schema: <schema-name>
+   ```
 
 ## Credits
 
@@ -769,3 +866,4 @@ The adapter was originally created by [Doug Beatty](https://github.com/dbeatty10
 ## License
 
 The adapter is published using Apache-2.0 License. Please see [the license](LICENSE) for terms and conditions, such as creating derivative work and the support model. 
+

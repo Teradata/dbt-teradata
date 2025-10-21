@@ -72,7 +72,7 @@ jobs:
         shell: bash
         run: |
           git checkout $BRANCH_NAME
-          sed -i "48s/.*/RUN python -m pip install dbt-teradata==$RELEASE_VERSION/g" docker/Dockerfile
+          sed -i "s/dbt-teradata==[0-9.]\+/dbt-teradata==$RELEASE_VERSION/g" docker/Dockerfile
           if [[ "$RELEASE_VERSION" == "1.8"* ]] || [[ "$RELEASE_VERSION" > "1.8" ]]; then
               if ! grep -q "RUN python -m pip install dbt-core>=1.8.0" docker/Dockerfile; then
                 echo "RUN python -m pip install dbt-core>=1.8.0" >> docker/Dockerfile

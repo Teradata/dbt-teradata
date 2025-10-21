@@ -75,7 +75,7 @@
   -- build model
   {% set create_table_sql = "" %}
   {% if exists_as_view %}
-    {{ exceptions.raise_compiler_error("Cannot seed to '{}', it is a view".format(old_relation)) }}
+    {{ exceptions.raise_compiler_error("Couldn’t load seed data. The target relation '{}' already exists as a view. The target relation is not allowed to be an existing view. Correct the model and retry.".format(old_relation)) }}
   {% elif exists_as_table %}
     {% set create_table_sql = reset_csv_table(model, full_refresh_mode, old_relation, agate_table) %}
   {% else %}

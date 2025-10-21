@@ -67,7 +67,8 @@ class TeradataAdapter(SQLAdapter):
     _capabilities: CapabilityDict = CapabilityDict(
     {
         Capability.SchemaMetadataByRelations: CapabilitySupport(support=Support.Full),
-        Capability.TableLastModifiedMetadata: CapabilitySupport(support=Support.Full)
+        Capability.TableLastModifiedMetadata: CapabilitySupport(support=Support.Full),
+        Capability.MicrobatchConcurrency: CapabilitySupport(support=Support.Full)
     }
     )
 
@@ -133,16 +134,18 @@ class TeradataAdapter(SQLAdapter):
             if f"Teradata database '{schema_relation}' not found" in errmsg:
                 return []
             else:
-                description = "Error while retrieving information about"
-                logger.debug(f"{description} {schema_relation}: {e.msg}")
+                logger.debug(f"Couldn’t retrieve relations from database {schema_relation}. An unexpected error was "
+                             f"encountered. The Teradata error message is: {e.msg}. You may create a github issue "
+                             f"with relevant details.")
                 return []
 
         relations = []
         for row in results:
             if len(row) != 4:
                 raise dbt_common.exceptions.DbtRuntimeError(
-                    f'Invalid value from "teradata__list_relations_without_caching({kwargs})", '
-                    f'got {len(row)} values, expected 4'
+                    f"Invalid value from 'teradata__list_relations_without_caching({kwargs})', "
+                    f"We expected 4 attributes but received {len(row)}. You may create a github issue with relevant "
+                    f"details."
                 )
             _, name, _schema, relation_type = row
             relation: BaseRelation = self.Relation.create(
@@ -187,8 +190,8 @@ class TeradataAdapter(SQLAdapter):
     ) -> agate.Table:
         if len(schemas) != 1:
             raise dbt_common.exceptions.CompilationError(
-                f'Expected only one schema in _get_one_catalog() for Teradata adapter, found '
-                f'{schemas}'
+                f'Couldn’t retrieve catalog. We expected 1 input schema in _get_one_catalog() but received {schemas}. '
+                f'You may create a github issue with relevant details.'
             )
 
         return super()._get_one_catalog(information_schema, schemas, relation_config)
@@ -242,7 +245,8 @@ class TeradataAdapter(SQLAdapter):
             return f"concat('{value}', cast(trim({add_to}) as varchar(63800))"
         else:
             raise dbt_common.exceptions.DbtRuntimeError(
-                f'Got an unexpected location value of "{location}"'
+                f'Couldn’t modify SQL string. The location parameter was neither "append" nor "prepend". Correct the '
+                f'model and retry.'
             )
 
     def get_rows_different_sql(
@@ -346,5 +350,5 @@ class TeradataAdapter(SQLAdapter):
         """The set of standard builtin strategies which this adapter supports out-of-the-box.
         Not used to validate custom strategies defined by end users.
         """
-        return ["delete+insert","append","merge"]
+        return ["delete+insert","append","merge", "valid_history", "microbatch"]
     

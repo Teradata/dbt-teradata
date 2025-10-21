@@ -10,7 +10,7 @@ jobs:
   test:
     strategy:
       matrix:
-        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python: ['3.9', '3.10', '3.11', '3.12', '3.13']
     runs-on: ubuntu-latest
     name: Functional test
     steps:
@@ -73,6 +73,12 @@ jobs:
 
           .SET EXITONDELAY ON MAXREQTIME 20
           .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
+          CREATE DATABASE HASH_TEST AS PERMANENT = 60e6, SPOOL = 120e6;
+          GRANT CREATE FUNCTION ON HASH_TEST TO $DBT_TERADATA_USERNAME;
+          DATABASE HASH_TEST;
+          .run file = hash_md5.btq
+          GRANT EXECUTE FUNCTION ON HASH_TEST TO PUBLIC WITH GRANT OPTION;
+          
           GRANT CREATE FUNCTION ON GLOBAL_FUNCTIONS TO $DBT_TERADATA_USERNAME;
           DATABASE GLOBAL_FUNCTIONS;
           .run file = hash_md5.btq
@@ -120,7 +126,7 @@ jobs:
           export DBT_TEST_USER_1=test_grants_user1
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
-          pytest -v -k "not TestCurrentTimestamp and not TestProcedureANSIInTERA and not TestProcedureTERAInTERA and not Test_query_band" tests/functional
+          pytest --cov=dbt -v -k "not TestCurrentTimestamp and not TestProcedureANSIInTERA and not TestProcedureTERAInTERA and not Test_query_band" tests/functional
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
@@ -135,7 +141,7 @@ jobs:
           export DBT_TEST_USER_1=test_grants_user1
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
-          pytest -v -k "not TestCurrentTimestamp and not TestProcedureTERAInANSI and not TestProcedureANSIInANSI" tests/functional
+          pytest --cov=dbt -v -k "not TestCurrentTimestamp and not TestProcedureTERAInANSI and not TestProcedureANSIInANSI" tests/functional --cov-append
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
@@ -205,7 +211,7 @@ jobs:
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
           ./run.sh
 
-      - name: Setup environment with TERA for performance and catalog tests
+      - name: Setup environment with TERA for performance, catalog and valid history tests
         run: |
           rm ~/.dbt/profiles.yml
           cat << EOF > ~/.dbt/profiles.yml
@@ -247,6 +253,30 @@ jobs:
                 timeout_seconds: 300
                 priority: interactive
                 retries: 1
+              dbt_test_valid_history:
+                type: teradata
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
+                logmech: TD2
+                schema: dbt_valid_history
+                tmode: TERA
+                threads: 4
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
+              dbt_external_tables:
+                type: teradata
+                host: $DBT_TERADATA_SERVER_NAME
+                user: $DBT_TERADATA_USERNAME
+                password: $DBT_TERADATA_PASSWORD
+                logmech: TD2
+                schema: dbt_external_tables
+                tmode: TERA
+                threads: 4
+                timeout_seconds: 300
+                priority: interactive
+                retries: 1
           EOF
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
@@ -268,16 +298,32 @@ jobs:
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
           ./run.sh
 
+      - name: Run valid history tests
+        run: |
+          cd $GITHUB_WORKSPACE/test/valid_history_test
+          chmod 777 run.sh
+          ./run.sh
+      
+      - name: Run external tables tests
+        run: |
+          cd $GITHUB_WORKSPACE/test/dbt_external_tables_test/integration_tests
+          chmod 777 run.sh
+          ./run.sh
+
       - name: Run nopi tests
         run: |
           sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME'/g" tests/conftest.py
           sed -i "s/username=demo.*/username='$DBT_TERADATA_USERNAME'/g" tests/conftest.py
           sed -i "s/password=dbt.*/password='$DBT_TERADATA_PASSWORD'/g" tests/conftest.py
-          pytest tests/functional/adapter/test_nopi.py
+          pytest --cov=dbt tests/functional/adapter/test_nopi.py --cov-append
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
+          
+      - name: Print Code Coverage Report
+        run: |
+          coverage report -m
 
       - name: Delete CSAE environment
         if: always()

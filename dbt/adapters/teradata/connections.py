@@ -61,6 +61,16 @@ class TeradataCredentials(Credentials):
     https_port: Optional[int] = None
     connect_timeout: Optional[int] = None
     request_timeout: Optional[int] = None
+    http_proxy: Optional[str] = None
+    http_proxy_user: Optional[str] = None
+    http_proxy_password: Optional[str] = None
+    https_proxy: Optional[str] = None
+    https_proxy_user: Optional[str] = None
+    https_proxy_password: Optional[str] = None
+    sslcrl: Optional[bool] = None
+    sslocsp: Optional[bool] = None
+    proxy_bypass_hosts: Optional[str] = None
+    oidc_sslmode: Optional[str] = None
 
     _ALIASES = {
         "UID": "username",
@@ -74,14 +84,24 @@ class TeradataCredentials(Credentials):
             # When logmech is "browser", username and password should not be provided.
             if self.username is not None or self.password is not None:
                 raise dbt_common.exceptions.DbtRuntimeError(
-                    "Username and password should not be specified when logmech is 'browser'")
+                    "Couldn’t connect to Teradata Vantage SQL Engine. Neither username nor password parameters can be "
+                    "specified in the profile when the logon mechanism (logmech) is ‘BROWSER'. Correct the profile "
+                    "and retry.")
         else:
             if self.username is None:
-                raise dbt_common.exceptions.DbtRuntimeError("Must specify `user` in profile")
+                raise dbt_common.exceptions.DbtRuntimeError("Couldn’t  connect to Teradata Vantage SQL Engine. The "
+                                                            "‘user’ parameter in the profile must be specified when "
+                                                            "the logon mechanism (logmech) is ‘TD2'. Correct the "
+                                                            "profile and retry.")
             elif self.password is None:
-                raise dbt_common.exceptions.DbtRuntimeError("Must specify `password` in profile")
+                raise dbt_common.exceptions.DbtRuntimeError("Couldn’t  connect to Teradata Vantage SQL Engine. The "
+                                                            "‘password’ parameter in the profile must be specified "
+                                                            "when the logon mechanism (logmech) is ‘TD2'. Correct the "
+                                                            "profile and retry.")
         if self.schema is None:
-            raise dbt_common.exceptions.DbtRuntimeError("Must specify `schema` in profile")
+            raise dbt_common.exceptions.DbtRuntimeError("Couldn’t  connect to Teradata Vantage SQL Engine. The "
+                                                        "‘schema’ parameter in the profile must be specified . "
+                                                        "Correct the profile and retry.")
         # teradata classifies database and schema as the same thing
         if (
                 self.database is not None and
@@ -90,8 +110,9 @@ class TeradataCredentials(Credentials):
             raise dbt_common.exceptions.DbtRuntimeError(
                 f"    schema: {self.schema} \n"
                 f"    database: {self.database} \n"
-                f"On Teradata, database must be omitted or have the same value as"
-                f" schema."
+                f"Couldn’t  connect to Teradata Vantage SQL Engine. The ‘database’ parameter in the profile is "
+                f"specified and does not match the ‘schema’ parameter value. Correct the profile by removing the "
+                f"‘database’ parameter or changing it to same value as ‘schema’ parameter and then retry."
             )
         if self.tmode == "TERA":
             note_for_tera = '''
@@ -155,7 +176,17 @@ to preempt any potential anomalies or errors
             "https_port",
             "connect_timeout",
             "request_timeout",
-            "query_band"
+            "query_band",
+            "http_proxy",
+            "http_proxy_user",
+            "http_proxy_password",
+            "https_proxy",
+            "https_proxy_user",
+            "https_proxy_password",
+            "sslcrl",
+            "sslocsp",
+            "proxy_bypass_hosts",
+            "oidc_sslmode"
         )
 
     @classmethod
@@ -270,6 +301,26 @@ class TeradataConnectionManager(SQLConnectionManager):
            kwargs["connect_timeout"]=credentials.connect_timeout
         if credentials.request_timeout:
            kwargs["request_timeout"]=credentials.request_timeout
+        if credentials.http_proxy:
+            kwargs["http_proxy"]=credentials.http_proxy
+        if credentials.http_proxy_user:
+            kwargs["http_proxy_user"]=credentials.http_proxy_user
+        if credentials.http_proxy_password:
+            kwargs["http_proxy_password"]=credentials.http_proxy_password
+        if credentials.https_proxy:
+            kwargs["https_proxy"]=credentials.https_proxy
+        if credentials.https_proxy_user:
+            kwargs["https_proxy_user"]=credentials.https_proxy_user
+        if credentials.https_proxy_password:
+            kwargs["https_proxy_password"]=credentials.https_proxy_password
+        if credentials.sslcrl:
+            kwargs["sslcrl"]=credentials.sslcrl
+        if credentials.sslocsp:
+            kwargs["sslocsp"]=credentials.sslocsp
+        if credentials.proxy_bypass_hosts:
+            kwargs["proxy_bypass_hosts"]=credentials.proxy_bypass_hosts
+        if credentials.oidc_sslmode:
+            kwargs["oidc_sslmode"]=credentials.oidc_sslmode
 
         # Save the transaction mode
         cls.TMODE = credentials.tmode
@@ -305,8 +356,8 @@ class TeradataConnectionManager(SQLConnectionManager):
                 return cls.apply_query_band(connection.handle, credentials.query_band)
 
         except teradatasql.Error as e:
-            logger.debug("Got an error when attempting to open a teradata "
-                         "connection: '{}'"
+            logger.debug("Couldn’t  connect to Teradata Vantage SQL Engine. The Teradata driver error message is: '{}'"
+                         "Correct the problem and retry."
                          .format(e))
 
             connection.handle = None
@@ -340,7 +391,8 @@ class TeradataConnectionManager(SQLConnectionManager):
             raise dbt_common.exceptions.DbtDatabaseError(str(e).strip()) from e
 
         except Exception as e:
-            logger.debug("Error running SQL: {}", sql)
+            logger.debug("Couldn’t  execute a SQL request against the Teradata Vantage SQL Engine. The SQL that "
+                         "failed is: {}".format(sql))
             logger.debug("Rolling back transaction.")
             self.rollback_if_open()
             if isinstance(e, dbt_common.exceptions.DbtRuntimeError):
@@ -432,10 +484,10 @@ class TeradataConnectionManager(SQLConnectionManager):
             cur.execute("sel GetQueryBand();")
             rows = cur.fetchone()
             logger.debug("Query Band set to {}".format(rows))           # To log in dbt.log
-            logger.info("Query Band set to {}".format(rows))            # To log in terminal
         except teradatasql.Error as ex:
             logger.debug(ex)
-            logger.info("Please verify query_band parameter in profiles.yml file")
+            logger.info("Couldn’t set the query_band using the specified value. Correct the query_band parameter in "
+                        "the profile and retry.")
             raise dbt.exceptions.DbtRuntimeError(str(ex))
 
         return handle                                                     # returning the connection handle
