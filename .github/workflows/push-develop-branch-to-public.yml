@@ -1,0 +1,209 @@
+name: push private branch to public
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Branch to sync (default: branch that triggered the workflow)'
+        required: false
+        default: ''
+
+concurrency:
+  group: push-branch-to-public-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  PUBLIC_OWNER: "Teradata"
+  PUBLIC_REPO: "dbt-teradata"  
+  RUN_ID: ${{ github.run_id }}
+  GIT_USER: ${{ vars.PULL_GITHUB_ACCOUNT }}
+  GIT_EMAIL: ${{ vars.PULL_GITHUB_ACCOUNT_EMAIL }}
+  TARGET_BRANCH: ${{ vars.PUSH_BRANCH_NAME }}
+  SSH_PRIVATE_KEY: ${{ secrets.PUBLIC_REPO_SSH_KEY }}
+
+jobs:
+  rebase-and-push:
+    runs-on: [arc-ubuntu]
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up SSH key
+        run: |        
+          if [ -z "${SSH_PRIVATE_KEY}" ]; then
+            echo "Missing SSH key SSH_PRIVATE_KEY. Create it in this repo's Secrets."
+            exit 1
+          fi
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - name: Configure git identity
+        run: |
+          git config user.name "${GIT_USER}"
+          git config user.email "${GIT_EMAIL}"
+
+      - name: Fetch origin/master for rebase target
+        run: |
+          git fetch origin master:refs/remotes/origin/master
+          echo "origin/master -> $(git rev-parse refs/remotes/origin/master)"
+
+      - name: Ensure we're on target branch
+        run: |
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          if [ "$CURRENT_BRANCH" != "${TARGET_BRANCH}" ]; then
+            git checkout "${TARGET_BRANCH}"
+          fi
+          echo "On branch: $(git rev-parse --abbrev-ref HEAD) at $(git rev-parse HEAD)"
+
+      - name: Rebase target branch onto origin/master (stop on conflict)
+        id: rebase
+        run: |
+          set -euo pipefail
+          echo "Rebasing ${TARGET_BRANCH} onto origin/master..."
+          if git rebase origin/master; then
+            echo "REBASE_RESULT=success" >> $GITHUB_OUTPUT
+            echo "rebase_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          else
+            echo "Rebase failed due to conflicts; aborting rebase and stopping workflow."
+            git rebase --abort || true
+            echo "REBASE_RESULT=conflict" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Add public remote and fetch
+        if: steps.rebase.outputs.REBASE_RESULT == 'success'
+        id: add_remote
+        run: |
+          git remote add public git@github.com:Teradata/dbt-teradata.git || true
+          git fetch public --no-tags --prune
+
+      - name: Resolve SHAs and branch existence on public
+        if: steps.rebase.outputs.REBASE_RESULT == 'success'
+        id: chk_public
+        run: |
+          TARGET="${TARGET_BRANCH}"
+          PRIVATE_SHA=$(git rev-parse --verify HEAD)
+          echo "private_sha=${PRIVATE_SHA}" >> $GITHUB_OUTPUT
+
+          if git ls-remote --exit-code --heads public "refs/heads/${TARGET}" >/dev/null 2>&1; then
+            echo "public_exists=true" >> $GITHUB_OUTPUT
+            git fetch public "refs/heads/${TARGET}:refs/remotes/public/${TARGET}" || true
+            PUB_SHA=$(git rev-parse --verify refs/remotes/public/${TARGET})
+            echo "public_sha=${PUB_SHA}" >> $GITHUB_OUTPUT
+          else
+            echo "public_exists=false" >> $GITHUB_OUTPUT
+            echo "public_sha=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Decide push action and execute (fast-forward or create sync branch + PR)
+        if: steps.rebase.outputs.REBASE_RESULT == 'success'
+        id: push_action
+        run: |
+          set -euo pipefail
+          TARGET="${TARGET_BRANCH}"
+          PRIVATE_SHA="${{ steps.chk_public.outputs.private_sha }}"
+          PUBLIC_EXISTS="${{ steps.chk_public.outputs.public_exists }}"
+          PUBLIC_SHA="${{ steps.chk_public.outputs.public_sha }}"
+          RUN_ID="${RUN_ID}"
+
+          echo "Target branch: ${TARGET}"
+          echo "Private SHA: ${PRIVATE_SHA}"
+          echo "Public exists: ${PUBLIC_EXISTS}"
+          echo "Public SHA: ${PUBLIC_SHA}"
+
+          if [ "${PUBLIC_EXISTS}" = "false" ]; then
+            echo "Public branch does not exist -> creating ${TARGET} on public"
+            git push public HEAD:refs/heads/"${TARGET}"
+            echo "mode=created" >> $GITHUB_OUTPUT
+            echo "pushed_ref=${TARGET}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [ "${PUBLIC_SHA}" = "${PRIVATE_SHA}" ]; then
+            echo "Public branch already equals private HEAD -> noop"
+            echo "mode=noop" >> $GITHUB_OUTPUT
+            echo "pushed_ref=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if git merge-base --is-ancestor "${PUBLIC_SHA}" "${PRIVATE_SHA}"; then
+            echo "Fast-forward possible -> pushing directly to public/${TARGET}"
+            git push public HEAD:refs/heads/"${TARGET}"
+            echo "mode=fast-forward" >> $GITHUB_OUTPUT
+            echo "pushed_ref=${TARGET}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          SYNC_BRANCH="sync/${TARGET}-${RUN_ID}"
+          echo "Divergence detected -> pushing to ${SYNC_BRANCH} on public and will open PR"
+          git push public HEAD:refs/heads/"${SYNC_BRANCH}"
+          echo "mode=sync-pr" >> $GITHUB_OUTPUT
+          echo "pushed_ref=${SYNC_BRANCH}" >> $GITHUB_OUTPUT
+          exit 0
+
+      - name: Create PR on public when divergence pushed
+        if: steps.push_action.outputs.mode == 'sync-pr'
+        id: create_pr
+        uses: actions/github-script@v8
+        with:
+          github-token: ${PUBLIC_REPO_PAT}
+          script: |
+            const owner = process.env.PUBLIC_OWNER;
+            const repo = process.env.PUBLIC_REPO;
+            const runId = process.env.GITHUB_RUN_ID;
+            const head = `${{ steps.push_action.outputs.pushed_ref }}`;
+            const base = process.env.TARGET_BRANCH;
+            const title = `Automated sync: ${head} → ${base} (from private)`;
+            const body = `This PR was opened automatically by CI to reconcile a divergence between private and public branch.\n\n` +
+                         `**Sync branch:** \`${head}\`\n` +
+                         `**Target branch:** \`${base}\`\n\n` +
+                         `Private commit SHA: ${{ steps.chk_public.outputs.private_sha }}\n\n` +
+                         `CI run: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${runId}\n\n` +
+                         `Please review and merge the PR (no force-push was attempted).`;
+            const pr = await github.rest.pulls.create({ owner, repo, title, head, base, body });
+            core.setOutput('pr_number', pr.data.number);
+            core.setOutput('pr_url', pr.data.html_url);
+            console.log(`Created PR: ${pr.data.html_url}`);
+
+      - name: (Optional) Attempt auto-merge PR with rebase when safe
+        if: steps.create_pr.outputs.pr_number
+        id: merge_pr
+        uses: actions/github-script@v8
+        with:
+          github-token: ${PUBLIC_REPO_PAT}
+          script: |
+            const owner = process.env.PUBLIC_OWNER;
+            const repo = process.env.PUBLIC_REPO;
+            const pr_number = parseInt('${{ steps.create_pr.outputs.pr_number }}', 10);
+            try {
+              await github.rest.pulls.merge({
+                owner, repo, pull_number: pr_number, merge_method: 'rebase'
+              });
+              core.info('PR merged with rebase.');
+              core.setOutput('merged','true');
+            } catch (err) {
+              core.warning('Automatic rebase-merge failed or requires manual intervention: ' + err.message);
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr_number,
+                body: 'Automatic rebase-and-merge failed or requires manual intervention. Please review and merge manually.'
+              });
+              await github.rest.issues.addLabels({ owner, repo, issue_number: pr_number, labels: ['sync','needs-manual-merge']});
+              core.setOutput('merged','false');
+            }
+
+      - name: Final summary
+        run: |
+          echo "Rebase result: ${{ steps.rebase.outputs.REBASE_RESULT }}"
+          echo "Push mode: ${{ steps.push_action.outputs.mode }}"
+          echo "Pushed ref: ${{ steps.push_action.outputs.pushed_ref }}"
+          if [ "${{ steps.push_action.outputs.mode }}" = "sync-pr" ]; then
+            echo "PR URL: ${{ steps.create_pr.outputs.pr_url || 'see logs' }}"
+            echo "PR merged: ${{ steps.merge_pr.outputs.merged || 'unknown' }}"
+          fi
