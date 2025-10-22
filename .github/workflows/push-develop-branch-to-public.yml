@@ -49,10 +49,10 @@ jobs:
           git config user.name "${GIT_USER}"
           git config user.email "${GIT_EMAIL}"
 
-      - name: Fetch origin/master for rebase target
+      - name: Fetch origin/main for rebase target
         run: |
-          git fetch origin master:refs/remotes/origin/master
-          echo "origin/master -> $(git rev-parse refs/remotes/origin/master)"
+          git fetch origin main:refs/remotes/origin/main
+          echo "origin/main -> $(git rev-parse refs/remotes/origin/main)"
 
       - name: Ensure we're on target branch
         run: |
@@ -62,12 +62,12 @@ jobs:
           fi
           echo "On branch: $(git rev-parse --abbrev-ref HEAD) at $(git rev-parse HEAD)"
 
-      - name: Rebase target branch onto origin/master (stop on conflict)
+      - name: Rebase target branch onto origin/main (stop on conflict)
         id: rebase
         run: |
           set -euo pipefail
-          echo "Rebasing ${TARGET_BRANCH} onto origin/master..."
-          if git rebase origin/master; then
+          echo "Rebasing ${TARGET_BRANCH} onto origin/main..."
+          if git rebase origin/main; then
             echo "REBASE_RESULT=success" >> $GITHUB_OUTPUT
             echo "rebase_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
           else
