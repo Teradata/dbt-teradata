@@ -16,7 +16,7 @@ env:
   # Private repository to push to (private). Will use secrets.tk for auth.
   PRIVATE_PUSH_URL: https://x-access-token:${{ secrets.TERADATA_PE_VS255034_TOKEN  }}@github.com/Teradata-PE/devtools-dbt-teradata.git
   # Branch name to sync (set via repo variable or change here)
-  BRANCH: master
+  BRANCH: main
   RUN_ID: ${{ github.run_id }}
   GIT_USER: ${{ vars.PULL_GITHUB_ACCOUNT }}
   GIT_EMAIL: ${{ vars.PULL_GITHUB_ACCOUNT_EMAIL }}
