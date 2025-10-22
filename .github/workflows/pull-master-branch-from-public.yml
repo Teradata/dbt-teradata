@@ -1,0 +1,139 @@
+name: pull private master from public master
+
+on:
+  workflow_dispatch:
+  schedule:
+     - cron: '30 18 * * *'
+
+concurrency:
+  group: sync-public-to-private-master
+  cancel-in-progress: true
+
+
+env:
+  # Public repository to read from (public)
+  PUBLIC_REPO_GIT: "https://github.com/Teradata/dbt-teradata.git"
+  # Private repository to push to (private). Will use secrets.tk for auth.
+  PRIVATE_PUSH_URL: https://x-access-token:${{ secrets.TERADATA_PE_VS255034_TOKEN  }}@github.com/Teradata-PE/devtools-dbt-teradata.git
+  # Branch name to sync (set via repo variable or change here)
+  BRANCH: master
+  RUN_ID: ${{ github.run_id }}
+  GIT_USER: ${{ vars.PULL_GITHUB_ACCOUNT }}
+  GIT_EMAIL: ${{ vars.PULL_GITHUB_ACCOUNT_EMAIL }}
+
+jobs:
+  sync:
+    runs-on: [arc-ubuntu]
+    steps:
+      - name: Prepare workspace
+        run: |
+          rm -rf public-repo || true
+          mkdir -p public-repo
+          echo "PRIVATE_PUSH_URL - ${PRIVATE_PUSH_URL}"
+
+      - name: Clone public repo branch
+        run: |
+          echo "Cloning public ${PUBLIC_REPO_GIT} branch ${BRANCH}"
+          git clone --branch "${BRANCH}" --single-branch "${PUBLIC_REPO_GIT}" public-repo
+          cd public-repo
+          PUBLIC_SHA=$(git rev-parse HEAD)
+          echo "public_sha=${PUBLIC_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Configure git author
+        run: |
+          cd public-repo
+          git config user.name "${GIT_USER}"
+          git config user.email "${GIT_EMAIL}"
+
+      - name: Add private remote and check remote branch
+        id: fetch_private
+        run: |
+          cd public-repo
+          git remote add private "${PRIVATE_PUSH_URL}"
+          # See if target branch exists on private and fetch it to a local ref
+          PRIVATE_REF=$(git ls-remote --heads private "refs/heads/${BRANCH}" | awk '{print $1}' || true)
+          if [ -n "${PRIVATE_REF}" ]; then
+            echo "private_exists=true" >> $GITHUB_OUTPUT
+            git fetch private "${BRANCH}:${BRANCH}_private"
+            PRIVATE_SHA=$(git rev-parse --verify "${BRANCH}_private")
+            echo "private_sha=${PRIVATE_SHA}" >> $GITHUB_OUTPUT
+          else
+            echo "private_exists=false" >> $GITHUB_OUTPUT
+            echo "private_sha=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Decide & push (fast-forward or force-with-lease)
+        id: push_result
+        run: |
+          set -eo pipefail
+          cd public-repo
+          PUBLIC_SHA=$(git rev-parse HEAD)
+          PRIVATE_EXISTS="${{ steps.fetch_private.outputs.private_exists }}"
+          PRIVATE_SHA="${{ steps.fetch_private.outputs.private_sha }}"
+          echo "PUBLIC_SHA=$PUBLIC_SHA"
+          echo "PRIVATE_EXISTS=$PRIVATE_EXISTS"
+          echo "PRIVATE_SHA=$PRIVATE_SHA"
+
+          # If private doesn't exist -> create it (direct push)
+          if [ "$PRIVATE_EXISTS" = "false" ]; then
+            echo "Creating private/${BRANCH} because it doesn't exist"
+            git push private HEAD:refs/heads/"${BRANCH}"
+            echo "mode=created" >> $GITHUB_OUTPUT
+            echo "pushed_ref=${BRANCH}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # If already equal -> noop
+          if [ "$PRIVATE_SHA" = "$PUBLIC_SHA" ]; then
+            echo "private/${BRANCH} already equals public/${BRANCH} (noop)"
+            echo "mode=noop" >> $GITHUB_OUTPUT
+            echo "pushed_ref=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # If private is ancestor of public -> fast-forward
+          if git merge-base --is-ancestor "${PRIVATE_SHA}" "${PUBLIC_SHA}"; then
+            echo "fast-forward possible -> pushing update"
+            git push private HEAD:refs/heads/"${BRANCH}"
+            echo "mode=fast-forward" >> $GITHUB_OUTPUT
+            echo "pushed_ref=${BRANCH}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Divergence: create backup branch on private, then try force-with-lease
+          BACKUP_REF="backup/${BRANCH}-before-sync-${RUN_ID}"
+          echo "Divergence detected. Creating backup branch '${BACKUP_REF}' on private (points to ${PRIVATE_SHA})"
+          git push private "${PRIVATE_SHA}:refs/heads/${BACKUP_REF}"
+
+          echo "Attempting git push --force-with-lease to update private/${BRANCH} -> public/${BRANCH}"
+          if git push --force-with-lease private HEAD:refs/heads/"${BRANCH}"; then
+            echo "force-with-lease succeeded"
+            echo "mode=forced" >> $GITHUB_OUTPUT
+            echo "pushed_ref=${BRANCH}" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "force-with-lease failed (probably blocked by branch protection or remote changed). Leaving backup branch for manual recovery."
+            # Create a GitHub issue to alert maintainers (uses GITHUB_TOKEN)
+            OWNER="${{ github.repository_owner }}"
+            REPO="${{ github.event.repository.name || github.repository }}" || true
+            # Build issue body
+            ISSUE_TITLE="SYNC FAILED: could not force-update private/${BRANCH} to match public/${BRANCH}"
+            ISSUE_BODY="Automatic sync run (${RUN_ID}) attempted to set private/${BRANCH} to public/${BRANCH} (${PUBLIC_SHA}) but --force-with-lease failed.\n\nBackup branch created: **${BACKUP_REF}** (points to previous private SHA: ${PRIVATE_SHA}).\n\nPlease inspect and merge/reconcile manually. \n\nIf you want full automation, allow the bot account to push to the protected branch or relax 'restrict who can push' for the bot.\n\nWorkflow logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n"
+            # Create issue
+            curl -s -S -X POST -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              "${{ github.api_url }}/repos/${{ github.repository }}/issues" \
+              -d "$(jq -n --arg t "$ISSUE_TITLE" --arg b "$ISSUE_BODY" '{title:$t, body:$b, labels:["sync","automation"]}')"
+            echo "mode=fallback-issue" >> $GITHUB_OUTPUT
+            echo "pushed_ref=${BACKUP_REF}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+      - name: Cleanup
+        run: |
+          cd ..
+          rm -rf public-repo || true
+
+      - name: Summary
+        run: |
+          echo "Sync result: mode=${{ steps.push_result.outputs.mode }}, pushed_ref=${{ steps.push_result.outputs.pushed_ref }}"
