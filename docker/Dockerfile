@@ -9,7 +9,7 @@ ARG build_for=linux/amd64
 ##
 # base image (abstract)
 ##
-FROM --platform=$build_for python:3.10-slim as base
+FROM --platform=$build_for python:3.13-slim as base
 
 # System setup
 ENV DEBIAN_FRONTEND=noninteractive
@@ -28,8 +28,8 @@ RUN apt-get update \
 ENV PYTHONIOENCODING=utf-8
 ENV LANG=C.UTF-8
 
-# Upgrade python tooling
-RUN python -m pip install --upgrade pip setuptools wheel --no-cache-dir
+# Upgrade Python tooling
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Set docker basics
 WORKDIR /usr/app/dbt/
@@ -42,5 +42,4 @@ ENTRYPOINT ["dbt"]
 FROM base as dbt-core
 
 # Install dbt-teradata and dbt-core
-RUN python -m pip install --no-cache-dir dbt-teradata==1.10.1 \
-    && python -m pip install --no-cache-dir "dbt-core>=1.10.0"
+RUN python -m pip install --no-cache-dir dbt-core dbt-teradata==1.10.1
