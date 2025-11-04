@@ -12,7 +12,7 @@ on:
   
 jobs:
   cdReleaseTestpypi:
-    runs-on: ubuntu-latest
+    runs-on: [arc-ubuntu]
     name: Release
     steps:
       - uses: actions/checkout@v2
