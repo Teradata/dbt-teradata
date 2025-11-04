@@ -47,7 +47,7 @@ jobs:
           CSAE_ENV_NAME: ${{ steps.define-environment-name.outputs.env-name}}
     
   Testing-Pre-Release:
-    runs-on: macos-latest
+    runs-on: [arc-ubuntu]
     needs: trigger
     steps:
       - name: Setup Python
@@ -110,7 +110,7 @@ jobs:
           
   Delete_instance:
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: [arc-ubuntu]
     needs: [trigger, Testing-Pre-Release]
     steps:
       - name: Check out repository code
