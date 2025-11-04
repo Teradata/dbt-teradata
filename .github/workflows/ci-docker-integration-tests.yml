@@ -14,7 +14,7 @@ on:
 jobs:
   trigger:
     if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: [arc-ubuntu]
     name: Docker Integration Tests
     steps:
       - uses: actions/checkout@v2
