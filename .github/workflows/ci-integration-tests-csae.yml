@@ -44,16 +44,12 @@ jobs:
       - name: Install TTU
         shell: bash
         run: |
-          aws s3 cp "$AWS_S3_PATH_OF_TTU_BUNDLE"/"$TTU_BUNDLE_FILE_NAME" .
-          tar -xzf "$TTU_BUNDLE_FILE_NAME"
+          curl -H "Authorization: Bearer $ARTIFACTORY_TOKEN" -O "https://artifacts.td.teradata.com/artifactory/tdproduct-generic-qa-primary/tdttu/teradata.linux/TeradataToolsAndUtilitiesBase/20.00.28.00/aarch64/TeradataToolsAndUtilitiesBase__linux_aarch64.20.00.28.00-1.tar.gz"
+          tar -xzf TeradataToolsAndUtilitiesBase__linux_aarch64.20.00.28.00-1.tar.gz
           cd TeradataToolsAndUtilitiesBase
           sudo ./setup.sh a
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-          AWS_S3_PATH_OF_TTU_BUNDLE: ${{ secrets.AWS_S3_PATH_OF_TTU_BUNDLE }}
-          TTU_BUNDLE_FILE_NAME: ${{ secrets.TTU_BUNDLE_FILE_NAME }}
+          ARTIFACTORY_TOKEN: ${{secrets.ARTIFACTORY_TOKEN}}
 
       - name: Install requirements
         run: |
