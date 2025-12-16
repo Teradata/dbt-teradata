@@ -47,7 +47,7 @@ jobs:
           CSAE_ENV_NAME: ${{ steps.define-environment-name.outputs.env-name}}
     
   Testing-Pre-Release:
-    runs-on: [arc-ubuntu]
+    runs-on: [self-hosted, Windows]
     needs: trigger
     steps:
       - name: Setup Python
