@@ -49,12 +49,7 @@ jobs:
   Testing-Pre-Release:
     runs-on: [self-hosted, Windows]
     needs: trigger
-    steps:
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.12
-          
+    steps:    
       - name: Install dbt-teradata
         shell: pwsh
         run: |
