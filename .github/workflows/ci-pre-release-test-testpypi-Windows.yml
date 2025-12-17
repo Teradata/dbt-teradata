@@ -51,7 +51,7 @@ jobs:
     needs: trigger
     steps:    
       - name: Install dbt-teradata
-        shell: pwsh
+        shell: powershell
         run: |
           "C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe" -m pip install --upgrade pip
           pip install --index-url https://test.pypi.org/simple/ dbt-teradata==$env:RELEASE_VERSION --extra-index-url https://pypi.org/simple
@@ -61,12 +61,12 @@ jobs:
         env:
           RELEASE_VERSION: ${{ github.event.inputs.releaseVersion }}
       - name: Clone JaffleShop DBT Project
-        shell: pwsh
+        shell: powershell
         run: |
           git clone https://github.com/Teradata/jaffle_shop-dev.git jaffle_shop
           
       - name: Setup profiles.yml
-        shell: pwsh
+        shell: powershell
         run: |
           $TERADATA_SERVER_NAME = $env:DBT_TERADATA_SERVER_NAME
           $TERADATA_USERNAME = $env:DBT_TERADATA_USERNAME
@@ -96,7 +96,7 @@ jobs:
           DBT_TERADATA_PASSWORD: ${{ secrets.CSAE_ENV_PASSWORD }}
 
       - name: Running jaffle_shop project
-        shell: pwsh
+        shell: powershell
         run: |
           cd jaffle_shop
           ls
