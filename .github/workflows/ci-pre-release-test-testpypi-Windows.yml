@@ -25,7 +25,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: '3.10'
 
       - name: Define CSAE env name
         id: define-environment-name
@@ -33,7 +33,7 @@ jobs:
           PYTHON_VERSION=$(echo -n "$PYTHON_VERSION" | tr -d '.') # remove dots from version
           echo "env-name=dbt-ci-$PYTHON_VERSION-$(date +%s%N)" >> $GITHUB_OUTPUT
         env:
-          PYTHON_VERSION: 3.9
+          PYTHON_VERSION: '3.10'
 
       - name: Create CSAE environments
         id: create-csae-environments
@@ -53,7 +53,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: '3.10'
           
       - name: Install dbt-teradata
         shell: pwsh
