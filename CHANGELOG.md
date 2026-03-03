@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.10.2a
 
 ### Features
 * Python 3.9 deprecation
