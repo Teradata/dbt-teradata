@@ -433,9 +433,16 @@ class TeradataConnectionManager(SQLConnectionManager):
         except Exception as ex:
             ignored = False
             query = sql.strip()
-            if ("DROP view /*+ IF EXISTS */" in query) or ("DROP table /*+ IF EXISTS */" in query):
-                for error_number in [3807, 3854, 3853]:
-                    if f"[Error {error_number}]" in str (ex):
+            query_upper = query.upper()
+            if ("DROP VIEW /*+ IF EXISTS */" in query_upper) or ("DROP TABLE /*+ IF EXISTS */" in query_upper):
+                # 3807 = object does not exist (standard Teradata)
+                # 3854 = table does not exist (standard Teradata)
+                # 3853 = view does not exist (standard Teradata)
+                # 7825 = OTF table not found in external catalog (e.g. Glue/Unity)
+                #         raised by ICEBERG_EXPORT UDF when dropping a nonexistent
+                #         DATALAKE table; safe to ignore under IF EXISTS semantics
+                for error_number in [3807, 3854, 3853, 7825]:
+                    if f"[Error {error_number}]" in str(ex):
                         ignored = True
                         return None, None
             if ("DELETE DATABASE /*+ IF EXISTS */" in query) or ("DROP DATABASE /*+ IF EXISTS */" in query):

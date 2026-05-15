@@ -9,9 +9,31 @@
 {% endmacro %}
 
 {% macro teradata__drop_relation(relation) -%}
-    {% call statement('drop_relation', auto_begin=False) -%}
-        DROP {{ relation.type }} /*+ IF EXISTS */ {{ relation }};
-    {%- endcall %}
+    {%- set catalog_name = config.get('catalog_name', none) -%}
+    {% if catalog_name is not none %}
+        {#- OTF table: use 3-part naming and require PURGE ALL or NO PURGE clause
+            (per Teradata DFES spec section 3.3.8, the purge clause is mandatory). -#}
+        {% set catalog_integration = adapter.get_catalog_integration(catalog_name) %}
+        {% if catalog_integration.catalog_type == 'datalake' %}
+            {% set datalake_name = catalog_integration.datalake_name %}
+            {% set otf_database = catalog_integration.otf_database %}
+            {% set otf_relation = datalake_name ~ '."' ~ otf_database ~ '"."' ~ relation.identifier ~ '"' %}
+            {% set purge_mode = config.get('purge_mode', 'PURGE ALL') %}
+            {% if purge_mode not in ('PURGE ALL', 'NO PURGE') %}
+                {{ exceptions.raise_compiler_error(
+                    "Invalid purge_mode '" ~ purge_mode ~ "'. Must be 'PURGE ALL' or 'NO PURGE'."
+                ) }}
+            {% endif %}
+            {% call statement('drop_relation', auto_begin=False) -%}
+                DROP TABLE /*+ IF EXISTS */ {{ otf_relation }} {{ purge_mode }};
+            {%- endcall %}
+        {% endif %}
+    {% else %}
+        {#- Standard Teradata table/view drop -#}
+        {% call statement('drop_relation', auto_begin=False) -%}
+            DROP {{ relation.type }} /*+ IF EXISTS */ {{ relation }};
+        {%- endcall %}
+    {% endif %}
 {% endmacro %}
 
 {% macro teradata__truncate_relation(relation) -%}
@@ -21,6 +43,11 @@
 {% endmacro %}
 
 {% macro teradata__create_table_as(temporary, relation, sql) -%}
+  {%- set catalog_name = config.get('catalog_name', none) -%}
+
+  {% if catalog_name is not none %}
+    {{ teradata__create_otf_table_as(relation, sql, catalog_name) }}
+  {% else %}
   {%- set sql_header = config.get('sql_header', none) -%}
   {%- set table_kind = config.get('table_kind', default='') -%}
   {%- set table_option = config.get('table_option', default='') -%}
@@ -80,6 +107,7 @@
     INSERT INTO {{ relation }}
           {{ sql }}
     ;
+  {% endif %}
   {% endif %}
 {% endmacro %}
 
