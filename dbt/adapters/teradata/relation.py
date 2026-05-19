@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Optional, Type, TypeVar
+from typing import Any, Type, TypeVar
 
 from dbt.adapters.base.relation import BaseRelation, Policy
 from dbt.adapters.contracts.relation import HasQuoting, RelationConfig
@@ -46,26 +46,28 @@ class TeradataRelation(BaseRelation):
             )
 
         if catalog_name:
-            # Look up the catalog integration to get DATALAKE 3-part naming info
+            # Lazy import to avoid a circular dependency: dbt.adapters.factory
+            # imports adapter classes during registration, which would re-enter
+            # this module if imported at module load time.
             from dbt.adapters.factory import get_adapter
             adapter = get_adapter(quoting)
             catalog_integration = adapter.get_catalog_integration(catalog_name)
 
             if catalog_integration.catalog_type == "datalake":
-                datalake_name = catalog_integration.datalake_name
-                otf_database = catalog_integration.otf_database
-                identifier = relation_config.identifier
-
-                # Remove keys we override to avoid "multiple values" error
-                kwargs.pop("quote_policy", None)
-                kwargs.pop("include_policy", None)
+                # Build a clean kwargs dict — quote_policy/include_policy are
+                # set explicitly below, so any caller-supplied versions must
+                # be discarded to avoid "multiple values for keyword argument".
+                forwarded_kwargs = {
+                    k: v for k, v in kwargs.items()
+                    if k not in ("quote_policy", "include_policy")
+                }
 
                 # Build an OTF relation with 3-part DATALAKE naming:
                 #   <datalake_name>."<otf_database>"."<table>"
                 return cls.create(
-                    database=datalake_name,
-                    schema=otf_database,
-                    identifier=identifier,
+                    database=catalog_integration.datalake_name,
+                    schema=catalog_integration.otf_database,
+                    identifier=relation_config.identifier,
                     quote_policy={
                         "database": False,   # DATALAKE name is unquoted
                         "schema": True,      # otf_database is quoted
@@ -77,14 +79,18 @@ class TeradataRelation(BaseRelation):
                         "identifier": True,
                     },
                     is_otf=True,
-                    **kwargs,
+                    **forwarded_kwargs,
                 )
 
         # Standard Teradata relation (non-OTF)
         relation = super().create_from(quoting, relation_config, **kwargs)
 
-        # If database and schema are both set and differ, this is a 3-part name
-        # (e.g., an OTF source: datalake."otf_db"."table")
+        # In Teradata, normal objects use 2-part naming (database.object, where
+        # dbt's `database` and `schema` collapse to the same Teradata database).
+        # Only OTF objects use 3-part naming (catalog.schema.object). Therefore,
+        # if a relation arrives with both `database` and `schema` set to
+        # *different* values, it can only be an OTF reference (typically
+        # declared in sources.yml without a `catalog_name` model config).
         if relation.database and relation.schema and relation.database != relation.schema:
             return relation.replace(
                 include_policy=Policy(database=True, schema=True, identifier=True),
@@ -95,11 +101,17 @@ class TeradataRelation(BaseRelation):
 
     def render(self):
         if self.is_otf:
-            # OTF relations use 3-part naming: datalake."otf_db"."table"
-            # Allow both database and schema to be included
-            return ".".join(
-                part for _, part in self._render_iterator() if part is not None
-            )
+            # OTF relations use 3-part naming: <datalake>."<otf_db>"."<table>".
+            # The DATALAKE name (`database`) is unquoted; the OTF database and
+            # table name are quoted. Constructed explicitly rather than via
+            # BaseRelation._render_iterator() to avoid depending on a private API.
+            if self.database is None or self.schema is None or self.identifier is None:
+                raise DbtRuntimeError(
+                    f"OTF relation is missing required part(s): "
+                    f"database={self.database!r}, schema={self.schema!r}, "
+                    f"identifier={self.identifier!r}"
+                )
+            return f'{self.database}."{self.schema}"."{self.identifier}"'
         if self.include_policy.database and self.include_policy.schema:
             raise DbtRuntimeError(
                 f"Got a teradata relation with schema and database set to "

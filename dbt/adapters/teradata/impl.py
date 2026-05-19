@@ -13,9 +13,7 @@ from dbt.adapters.sql import SQLAdapter
 from dbt.adapters.teradata import TeradataConnectionManager
 from dbt.adapters.teradata import TeradataRelation
 from dbt.adapters.teradata import TeradataColumn
-from dbt.adapters.teradata.catalogs import (
-    TeradataDatalakeCatalogIntegration,
-)
+from dbt.adapters.teradata.catalogs import TeradataDatalakeCatalogIntegration
 from dbt.adapters.capability import CapabilityDict, CapabilitySupport, Support, Capability
 from dbt.adapters.base.meta import available
 from dbt.adapters.base import BaseRelation

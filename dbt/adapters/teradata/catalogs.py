@@ -20,9 +20,9 @@ Model-level config options (set via {{ config(...) }} in .sql files):
     partitioned_by  -- Iceberg partition expression, e.g. 'YEAR(dt), country'
     sorted_by       -- Iceberg sort order, e.g. 'id ASC'
     tblproperties   -- Iceberg table properties, e.g. "'gc.enabled'='true'"
-    purge_mode      -- DROP behavior: 'PURGE ALL' (default) or 'NO PURGE'
-                       PURGE ALL  = remove catalog entry + delete data files
-                       NO PURGE   = remove catalog entry, keep data files on object store
+    purge_mode      -- DROP behavior: 'NO PURGE' (default) or 'PURGE ALL'
+                       NO PURGE   = remove catalog entry only, keep data files (safe default)
+                       PURGE ALL  = remove catalog entry AND delete data files on object store
 """
 
 from dataclasses import dataclass
@@ -62,9 +62,9 @@ class TeradataCatalogRelation(CatalogRelation):
     partitioned_by: Optional[str] = None
     sorted_by: Optional[str] = None
     tblproperties: Optional[str] = None
-    # Controls DROP TABLE behavior for OTF tables (per Teradata DFES spec):
-    #   'PURGE ALL' -- removes catalog entry AND deletes data files (default)
-    #   'NO PURGE'  -- removes catalog entry only, data files remain on object store
+    # Controls DROP TABLE behavior for OTF tables:
+    #   'NO PURGE'  -- removes catalog entry only, data files remain (default; safe)
+    #   'PURGE ALL' -- removes catalog entry AND deletes data files on object store
     purge_mode: Optional[str] = None
 
 

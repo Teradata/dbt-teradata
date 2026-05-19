@@ -11,22 +11,15 @@
 {% macro teradata__drop_relation(relation) -%}
     {%- set catalog_name = config.get('catalog_name', none) -%}
     {% if catalog_name is not none %}
-        {#- OTF table: use 3-part naming and require PURGE ALL or NO PURGE clause
-            (per Teradata DFES spec section 3.3.8, the purge clause is mandatory). -#}
+        {#- OTF table: use 3-part naming. The purge clause is mandatory for OTF
+            DROP TABLE; the shared validator normalises and rejects bad values. -#}
         {% set catalog_integration = adapter.get_catalog_integration(catalog_name) %}
         {% if catalog_integration.catalog_type == 'datalake' %}
-            {% set datalake_name = catalog_integration.datalake_name %}
-            {% set otf_database = catalog_integration.otf_database %}
-            {% set otf_relation = datalake_name ~ '."' ~ otf_database ~ '"."' ~ relation.identifier ~ '"' %}
-            {% set purge_mode = config.get('purge_mode', 'PURGE ALL') %}
-            {% if purge_mode not in ('PURGE ALL', 'NO PURGE') %}
-                {{ exceptions.raise_compiler_error(
-                    "Invalid purge_mode '" ~ purge_mode ~ "'. Must be 'PURGE ALL' or 'NO PURGE'."
-                ) }}
-            {% endif %}
-            {% call statement('drop_relation', auto_begin=False) -%}
-                DROP TABLE /*+ IF EXISTS */ {{ otf_relation }} {{ purge_mode }};
-            {%- endcall %}
+            {{ teradata__drop_otf_table(catalog_integration, relation.identifier, config.get('purge_mode')) }}
+        {% else %}
+            {{ exceptions.raise_compiler_error(
+                "Unsupported catalog_type '" ~ catalog_integration.catalog_type ~ "' for drop_relation."
+            ) }}
         {% endif %}
     {% else %}
         {#- Standard Teradata table/view drop -#}
@@ -46,6 +39,27 @@
   {%- set catalog_name = config.get('catalog_name', none) -%}
 
   {% if catalog_name is not none %}
+    {#- Guard against config combinations that are not supported on the OTF path.
+        Teradata-native options (table_kind, table_option, with_statistics, index)
+        do not apply to Iceberg/Delta tables and would be silently ignored if
+        permitted. Contract enforcement is not yet implemented for OTF. -#}
+    {%- set unsupported = [] -%}
+    {%- if config.get('table_kind') -%}{%- do unsupported.append('table_kind') -%}{%- endif -%}
+    {%- if config.get('table_option') -%}{%- do unsupported.append('table_option') -%}{%- endif -%}
+    {%- if config.get('with_statistics') -%}{%- do unsupported.append('with_statistics') -%}{%- endif -%}
+    {%- if config.get('index') -%}{%- do unsupported.append('index') -%}{%- endif -%}
+    {%- if unsupported | length > 0 -%}
+      {{ exceptions.raise_compiler_error(
+          "The following config option(s) are not supported with catalog_name (OTF): "
+          ~ unsupported | join(', ')
+      ) }}
+    {%- endif -%}
+    {%- set contract_config = config.get('contract') -%}
+    {%- if contract_config is not none and contract_config.enforced -%}
+      {{ exceptions.raise_compiler_error(
+          "Model contracts (contract.enforced=true) are not yet supported with catalog_name (OTF)."
+      ) }}
+    {%- endif -%}
     {{ teradata__create_otf_table_as(relation, sql, catalog_name) }}
   {% else %}
   {%- set sql_header = config.get('sql_header', none) -%}
