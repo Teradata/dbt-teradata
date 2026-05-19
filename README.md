@@ -851,6 +851,121 @@ sources:
               data_type: CHAR(1)
 ```
 
+## Open Table Format (OTF) support
+
+dbt-teradata can create and read Iceberg / Delta Lake tables via Teradata's native Open Table Format support. OTF tables live in an external object store (S3, Azure, GCS) and are registered with an external catalog (AWS Glue, Unity Catalog, etc.); Teradata accesses them through a pre-created `DATALAKE` object that encapsulates the catalog type, authentication, and object-store path.
+
+### Pre-requisites
+
+The following must exist on the Teradata side **before** running dbt:
+
+* A `DATALAKE` object created in Teradata (e.g. via `CREATE DATALAKE my_lake ...`). dbt does not create DATALAKEs.
+* A database inside that DATALAKE (the "OTF database") that will hold the OTF tables. dbt does not create this either.
+* The dbt user must have permission to `CREATE TABLE` / `DROP TABLE` within the OTF database, and `SELECT` permission to read OTF tables defined elsewhere.
+
+Refer to the Teradata documentation for `CREATE DATALAKE` syntax and the specific permissions required for your catalog backend.
+
+### Configuration
+
+Register the catalog integration in a `catalogs.yml` file at your dbt project root:
+
+```yaml
+catalogs:
+  - name: my_otf_catalog
+    active_write_integration: td_datalake
+    write_integrations:
+      - name: td_datalake
+        catalog_type: datalake
+        adapter_properties:
+          datalake_name: my_lake        # the pre-created DATALAKE object
+          otf_database: my_otf_db       # the pre-created OTF database within it
+```
+
+`catalog_type` must be `datalake`. `datalake_name` and `otf_database` are both required and validated at integration registration time.
+
+Reference the catalog from a model via `catalog_name`:
+
+```sql
+-- models/sales_iceberg.sql
+{{ config(
+    materialized='table',
+    catalog_name='my_otf_catalog',
+    partitioned_by='YEAR(order_date), country',
+    sorted_by='customer_id ASC',
+    tblproperties="'write.format.default'='parquet', 'gc.enabled'='true'",
+    purge_mode='NO PURGE'
+) }}
+select
+    order_id,
+    customer_id,
+    country,
+    order_date,
+    amount
+from {{ ref('stg_orders') }}
+```
+
+### Naming conventions: 2-part vs 3-part
+
+Teradata's native objects use **2-part** naming (`database.object`); in dbt-teradata, the `database` field is unused and the `schema` field carries the Teradata database name. OTF tables are the **only** Teradata objects that use **3-part** naming (`<datalake>."<otf_database>"."<table>"`).
+
+For OTF tables, dbt-teradata maps:
+
+| dbt field    | Teradata concept                  |
+| ------------ | --------------------------------- |
+| `database`   | DATALAKE name (unquoted)          |
+| `schema`     | OTF database name (quoted)        |
+| `identifier` | OTF table name (quoted)           |
+
+When you set `catalog_name` on a model, dbt-teradata pulls `database` and `schema` from the registered catalog integration automatically. For an OTF table defined as a **source** (where there is no `catalog_name` model config), declare the `database` and `schema` explicitly in `sources.yml` — the adapter detects the 3-part shape (database ≠ schema) and renders it correctly:
+
+```yaml
+version: 2
+sources:
+  - name: customer_otf
+    database: my_lake          # DATALAKE name
+    schema: my_otf_db          # OTF database name
+    tables:
+      - name: customer_iceberg
+```
+
+A `ref()` from another model then compiles to `my_lake."my_otf_db"."customer_iceberg"`.
+
+### Supported model config options
+
+| Option           | Type    | Description                                                                                                |
+| ---------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
+| `catalog_name`   | string  | Name of the catalog integration from `catalogs.yml`. Required to mark a model as OTF.                      |
+| `partitioned_by` | string  | Iceberg/Delta partition expression, e.g. `'YEAR(dt), country'`.                                            |
+| `sorted_by`      | string  | Sort order, e.g. `'id ASC'`.                                                                               |
+| `tblproperties`  | string  | Iceberg/Delta table properties, e.g. `"'gc.enabled'='true'"`.                                              |
+| `purge_mode`     | string  | DROP behavior. `'NO PURGE'` (default; removes catalog entry only) or `'PURGE ALL'` (also deletes data files on the object store). Case-insensitive. |
+
+`grants`, `persist_docs`, and standard dbt cache management work on OTF models the same way they do on native tables.
+
+### Limitations and trade-offs
+
+* **Non-atomic re-materialization.** OTF tables use 3-part naming that cannot be renamed via standard DDL, so the adapter cannot use the build-tmp-then-rename pattern that protects native tables on a failed CREATE. An OTF model is dropped before it is re-created — if the CREATE fails, the table is gone. Plan for `--full-refresh` workflows accordingly.
+* **Model contracts are not supported on the OTF path.** Setting `contract.enforced: true` together with `catalog_name` raises a compile-time error.
+* **Teradata-native table options are not supported.** Setting any of `table_kind`, `table_option`, `with_statistics`, or `index` together with `catalog_name` raises a compile-time error — these options describe native Teradata table storage and do not apply to Iceberg/Delta tables.
+* **Only `catalog_type: datalake` is supported.** Other catalog types are rejected with a compile-time error.
+
+### Error 7825 suppression
+
+Teradata raises error 7825 ("OTF table not found in external catalog") when `DROP TABLE` is issued against an OTF table that no longer exists in the external catalog (e.g. Glue). dbt-teradata treats 7825 the same way it treats native errors 3807/3853/3854 — suppressed under `IF EXISTS` semantics — so re-running a dbt project after an OTF table has been deleted externally does not fail.
+
+### Testing OTF locally
+
+Functional tests for the OTF feature live in `tests/functional/adapter/test_otf_integration.py` and are gated on the following environment variables:
+
+```bash
+export DBT_TERADATA_DATALAKE='my_lake'        # pre-created DATALAKE name
+export DBT_TERADATA_OTF_DATABASE='my_otf_db'  # pre-created OTF database name
+```
+
+Combined with the standard `DBT_TERADATA_SERVER_NAME` / `DBT_TERADATA_USERNAME` / `DBT_TERADATA_PASSWORD` connection variables, `pytest tests/functional/adapter/test_otf_integration.py` will exercise: basic create, idempotency, cross-model `ref()`, source-based 3-part naming, grants application, `purge_mode: 'NO PURGE'`, and compile-time guardrails. Without the OTF env vars set, all OTF integration tests are skipped.
+
+Pure unit tests (no Teradata required) live in `tests/unit/test_otf_catalogs.py` and run via `pytest tests/unit/`.
+
 ## temporary_metadata_generation_schema (earlier fallback_schema)
 dbt-teradata internally created temporary tables to fetch the metadata of views for manifest and catalog creation. 
 In case if user does not have permission to create tables on the schema they are working on, they can define a temporary_metadata_generation_schema(to which they have proper create and drop privileges) in dbt_project.yml as variable.
