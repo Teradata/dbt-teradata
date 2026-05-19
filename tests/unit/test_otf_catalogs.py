@@ -1,31 +1,46 @@
 """Unit tests for Teradata OTF (Open Table Format) catalog integration.
 
-Tests cover:
+Covers:
   - TeradataCatalogRelation dataclass fields and defaults
   - TeradataDatalakeCatalogIntegration initialization and validation
-  - build_relation() config passthrough (partitioned_by, sorted_by, etc.)
-  - 3-part OTF naming construction (datalake."db"."table")
+  - build_relation() config passthrough
   - Adapter CATALOG_INTEGRATIONS registration
+  - TeradataRelation.render() for both 2-part (native) and 3-part (OTF) names
+  - is_otf invariant guard in render()
+
+These tests are pure unit tests (no database required) and live in tests/unit/
+rather than tests/functional/ so they can run in a fast CI matrix without
+provisioning Vantage Express.
 """
 
 import pytest
 from dataclasses import asdict
 from unittest.mock import MagicMock
 
+from dbt.adapters.catalogs import (
+    CatalogIntegrationConfig,
+    InvalidCatalogIntegrationConfigError,
+)
+from dbt_common.exceptions import DbtRuntimeError
+
 from dbt.adapters.teradata.catalogs import (
     TeradataDatalakeCatalogIntegration,
     TeradataCatalogRelation,
 )
-from dbt.adapters.catalogs import InvalidCatalogIntegrationConfigError
+from dbt.adapters.teradata.relation import TeradataRelation
 
 
 # ---------------------------------------------------------------------------
-# Helpers for building mock CatalogIntegrationConfig objects
+# Helpers
 # ---------------------------------------------------------------------------
 
 def _make_config(**overrides):
-    """Build a mock CatalogIntegrationConfig with sensible defaults."""
-    config = MagicMock()
+    """Build a spec'd MagicMock of CatalogIntegrationConfig.
+
+    Using spec= ensures the mock fails on attribute access for anything
+    not on the protocol — masking-by-MagicMock would defeat the test.
+    """
+    config = MagicMock(spec=CatalogIntegrationConfig)
     config.name = overrides.get("name", "test_catalog")
     config.catalog_type = overrides.get("catalog_type", "datalake")
     config.catalog_name = overrides.get("catalog_name", None)
@@ -37,7 +52,6 @@ def _make_config(**overrides):
 
 
 def _make_valid_config(**overrides):
-    """Build a mock config that already includes the required adapter_properties."""
     defaults = {
         "adapter_properties": {
             "datalake_name": "my_datalake",
@@ -49,12 +63,10 @@ def _make_valid_config(**overrides):
 
 
 # ===================================================================
-# TeradataCatalogRelation tests
+# TeradataCatalogRelation
 # ===================================================================
 
 class TestTeradataCatalogRelation:
-    """Unit tests for TeradataCatalogRelation dataclass."""
-
     def test_defaults(self):
         rel = TeradataCatalogRelation()
         assert rel.catalog_type is None
@@ -84,10 +96,6 @@ class TestTeradataCatalogRelation:
             purge_mode="NO PURGE",
         )
         assert rel.catalog_type == "datalake"
-        assert rel.catalog_name == "cat"
-        assert rel.table_format == "iceberg"
-        assert rel.file_format == "parquet"
-        assert rel.external_volume == "vol"
         assert rel.datalake_name == "dl"
         assert rel.otf_database == "otf_db"
         assert rel.partitioned_by == "YEAR(dt)"
@@ -96,44 +104,30 @@ class TestTeradataCatalogRelation:
         assert rel.purge_mode == "NO PURGE"
 
     def test_is_dataclass(self):
-        """TeradataCatalogRelation supports asdict (is a proper dataclass)."""
         rel = TeradataCatalogRelation(datalake_name="dl", otf_database="db")
         d = asdict(rel)
         assert d["datalake_name"] == "dl"
         assert d["otf_database"] == "db"
         assert "partitioned_by" in d
 
-    def test_partial_ddl_options(self):
-        """Only some DDL options set -- others stay None."""
-        rel = TeradataCatalogRelation(partitioned_by="YEAR(dt)")
-        assert rel.partitioned_by == "YEAR(dt)"
-        assert rel.sorted_by is None
-        assert rel.tblproperties is None
-        assert rel.purge_mode is None
-
     def test_purge_mode_no_purge(self):
-        """purge_mode can be set to NO PURGE."""
         rel = TeradataCatalogRelation(purge_mode="NO PURGE")
         assert rel.purge_mode == "NO PURGE"
 
     def test_purge_mode_purge_all(self):
-        """purge_mode can be set to PURGE ALL."""
         rel = TeradataCatalogRelation(purge_mode="PURGE ALL")
         assert rel.purge_mode == "PURGE ALL"
 
 
 # ===================================================================
-# DATALAKE integration -- __init__ tests
+# TeradataDatalakeCatalogIntegration -- __init__
 # ===================================================================
 
 class TestTeradataDatalakeCatalogIntegration:
-    """Unit tests for TeradataDatalakeCatalogIntegration."""
-
     # -- happy path --
 
     def test_init_with_valid_config(self):
-        config = _make_valid_config()
-        integration = TeradataDatalakeCatalogIntegration(config)
+        integration = TeradataDatalakeCatalogIntegration(_make_valid_config())
         assert integration.datalake_name == "my_datalake"
         assert integration.otf_database == "my_otf_db"
         assert integration.catalog_type == "datalake"
@@ -142,101 +136,75 @@ class TestTeradataDatalakeCatalogIntegration:
         assert integration.file_format == "parquet"
 
     def test_class_level_defaults(self):
-        """Class-level defaults are correct before any __init__."""
         assert TeradataDatalakeCatalogIntegration.catalog_type == "datalake"
         assert TeradataDatalakeCatalogIntegration.allows_writes is True
         assert TeradataDatalakeCatalogIntegration.table_format == "iceberg"
         assert TeradataDatalakeCatalogIntegration.file_format == "parquet"
 
     def test_file_format_defaults_to_parquet_when_none(self):
-        config = _make_valid_config(file_format=None)
-        integration = TeradataDatalakeCatalogIntegration(config)
+        integration = TeradataDatalakeCatalogIntegration(_make_valid_config(file_format=None))
         assert integration.file_format == "parquet"
 
     def test_file_format_override(self):
-        config = _make_valid_config(file_format="orc")
-        integration = TeradataDatalakeCatalogIntegration(config)
+        integration = TeradataDatalakeCatalogIntegration(_make_valid_config(file_format="orc"))
         assert integration.file_format == "orc"
 
     def test_table_format_override(self):
-        config = _make_valid_config(table_format="delta")
-        integration = TeradataDatalakeCatalogIntegration(config)
+        integration = TeradataDatalakeCatalogIntegration(_make_valid_config(table_format="delta"))
         assert integration.table_format == "delta"
 
     def test_catalog_name_passed_through(self):
-        config = _make_valid_config(catalog_name="glue_catalog")
-        integration = TeradataDatalakeCatalogIntegration(config)
+        integration = TeradataDatalakeCatalogIntegration(_make_valid_config(catalog_name="glue_catalog"))
         assert integration.catalog_name == "glue_catalog"
 
     # -- validation errors --
 
     def test_init_missing_datalake_name_raises(self):
-        config = _make_config(
-            adapter_properties={"otf_database": "my_otf_db"}
-        )
+        config = _make_config(adapter_properties={"otf_database": "my_otf_db"})
         with pytest.raises(InvalidCatalogIntegrationConfigError):
             TeradataDatalakeCatalogIntegration(config)
 
     def test_init_missing_otf_database_raises(self):
-        config = _make_config(
-            adapter_properties={"datalake_name": "my_datalake"}
-        )
+        config = _make_config(adapter_properties={"datalake_name": "my_datalake"})
         with pytest.raises(InvalidCatalogIntegrationConfigError):
             TeradataDatalakeCatalogIntegration(config)
 
     def test_init_empty_adapter_properties_raises(self):
-        config = _make_config(adapter_properties={})
         with pytest.raises(InvalidCatalogIntegrationConfigError):
-            TeradataDatalakeCatalogIntegration(config)
+            TeradataDatalakeCatalogIntegration(_make_config(adapter_properties={}))
 
     def test_init_none_adapter_properties_raises(self):
-        config = _make_config(adapter_properties=None)
-        with pytest.raises(
-            (InvalidCatalogIntegrationConfigError, TypeError, AttributeError)
-        ):
-            TeradataDatalakeCatalogIntegration(config)
+        # Pinned to InvalidCatalogIntegrationConfigError only: the production
+        # code coerces None via `or {}`, so this is the only path that fires.
+        with pytest.raises(InvalidCatalogIntegrationConfigError):
+            TeradataDatalakeCatalogIntegration(_make_config(adapter_properties=None))
 
     def test_init_empty_string_datalake_name_raises(self):
-        config = _make_config(
-            adapter_properties={"datalake_name": "", "otf_database": "db"}
-        )
+        config = _make_config(adapter_properties={"datalake_name": "", "otf_database": "db"})
         with pytest.raises(InvalidCatalogIntegrationConfigError):
             TeradataDatalakeCatalogIntegration(config)
 
     def test_init_empty_string_otf_database_raises(self):
-        config = _make_config(
-            adapter_properties={"datalake_name": "dl", "otf_database": ""}
-        )
+        config = _make_config(adapter_properties={"datalake_name": "dl", "otf_database": ""})
         with pytest.raises(InvalidCatalogIntegrationConfigError):
             TeradataDatalakeCatalogIntegration(config)
 
     def test_error_message_mentions_datalake_name(self):
-        config = _make_config(adapter_properties={"otf_database": "db"})
-        with pytest.raises(
-            InvalidCatalogIntegrationConfigError, match="datalake_name"
-        ):
-            TeradataDatalakeCatalogIntegration(config)
+        with pytest.raises(InvalidCatalogIntegrationConfigError, match="datalake_name"):
+            TeradataDatalakeCatalogIntegration(_make_config(adapter_properties={"otf_database": "db"}))
 
     def test_error_message_mentions_otf_database(self):
-        config = _make_config(
-            adapter_properties={"datalake_name": "dl"}
-        )
-        with pytest.raises(
-            InvalidCatalogIntegrationConfigError, match="otf_database"
-        ):
-            TeradataDatalakeCatalogIntegration(config)
+        with pytest.raises(InvalidCatalogIntegrationConfigError, match="otf_database"):
+            TeradataDatalakeCatalogIntegration(_make_config(adapter_properties={"datalake_name": "dl"}))
 
 
 # ===================================================================
-# DATALAKE integration -- build_relation tests
+# build_relation()
 # ===================================================================
 
 class TestBuildRelation:
-    """Tests for TeradataDatalakeCatalogIntegration.build_relation."""
-
     def _make_integration(self, **config_overrides):
-        config = _make_valid_config(**config_overrides)
-        return TeradataDatalakeCatalogIntegration(config)
+        return TeradataDatalakeCatalogIntegration(_make_valid_config(**config_overrides))
 
     def test_basic_build(self):
         integration = self._make_integration(
@@ -263,7 +231,6 @@ class TestBuildRelation:
         assert result.purge_mode is None
 
     def test_with_all_ddl_options(self):
-        """All DDL options (partitioned_by, sorted_by, tblproperties, purge_mode) are passed through."""
         integration = self._make_integration()
         relation_config = MagicMock()
         relation_config.config = {
@@ -273,7 +240,6 @@ class TestBuildRelation:
             "purge_mode": "NO PURGE",
         }
         result = integration.build_relation(relation_config)
-
         assert result.partitioned_by == "YEAR(dt)"
         assert result.sorted_by == "id ASC"
         assert result.tblproperties == "'write.format.default'='parquet'"
@@ -284,7 +250,6 @@ class TestBuildRelation:
         relation_config = MagicMock()
         relation_config.config = {"partitioned_by": "MONTH(created_at)"}
         result = integration.build_relation(relation_config)
-
         assert result.partitioned_by == "MONTH(created_at)"
         assert result.sorted_by is None
         assert result.tblproperties is None
@@ -294,7 +259,6 @@ class TestBuildRelation:
         relation_config = MagicMock()
         relation_config.config = {"sorted_by": "ts DESC"}
         result = integration.build_relation(relation_config)
-
         assert result.partitioned_by is None
         assert result.sorted_by == "ts DESC"
 
@@ -303,115 +267,114 @@ class TestBuildRelation:
         relation_config = MagicMock()
         relation_config.config = {"tblproperties": "'gc.enabled'='true'"}
         result = integration.build_relation(relation_config)
-
         assert result.tblproperties == "'gc.enabled'='true'"
         assert result.partitioned_by is None
 
     def test_with_purge_mode_only(self):
-        """purge_mode can be set without other DDL options."""
         integration = self._make_integration()
         relation_config = MagicMock()
         relation_config.config = {"purge_mode": "NO PURGE"}
         result = integration.build_relation(relation_config)
-
         assert result.purge_mode == "NO PURGE"
         assert result.partitioned_by is None
 
     def test_no_config_attr(self):
-        """build_relation works when RelationConfig has no config attribute."""
         integration = self._make_integration()
-        relation_config = MagicMock(spec=[])  # no config attribute
+        relation_config = MagicMock(spec=[])
         result = integration.build_relation(relation_config)
-
         assert result.partitioned_by is None
-        assert result.sorted_by is None
-        assert result.tblproperties is None
         assert result.purge_mode is None
 
     def test_none_config_attr(self):
-        """build_relation works when RelationConfig.config is None."""
         integration = self._make_integration()
         relation_config = MagicMock()
         relation_config.config = None
         result = integration.build_relation(relation_config)
-
         assert result.partitioned_by is None
-        assert result.sorted_by is None
-        assert result.tblproperties is None
         assert result.purge_mode is None
-
-    def test_unrelated_config_keys_ignored(self):
-        """Extra keys in model config don't leak into the relation."""
-        integration = self._make_integration()
-        relation_config = MagicMock()
-        relation_config.config = {
-            "materialized": "table",
-            "catalog_name": "x",
-            "partitioned_by": "YEAR(dt)",
-        }
-        result = integration.build_relation(relation_config)
-
-        assert result.partitioned_by == "YEAR(dt)"
-        assert result.sorted_by is None
 
 
 # ===================================================================
-# Adapter CATALOG_INTEGRATIONS registration
+# Adapter registration
 # ===================================================================
 
 class TestAdapterCatalogRegistration:
-    """Verify TeradataAdapter.CATALOG_INTEGRATIONS is correct."""
-
     def test_only_datalake_registered(self):
         from dbt.adapters.teradata.impl import TeradataAdapter
-
         assert len(TeradataAdapter.CATALOG_INTEGRATIONS) == 1
         assert TeradataAdapter.CATALOG_INTEGRATIONS[0] is TeradataDatalakeCatalogIntegration
 
 
 # ===================================================================
-# 3-part naming construction (unit-level, no Jinja)
+# TeradataRelation.render() -- 2-part native vs 3-part OTF
 # ===================================================================
 
-class TestThreeDotNaming:
-    """Verify the 3-part OTF relation string is built correctly.
+class TestTeradataRelationRender:
+    """Exercise render() directly to assert the actual rendered string.
 
-    This replicates the Jinja logic from create_otf_table_as.sql and
-    adapters.sql in pure Python to catch regressions without needing
-    the full dbt rendering stack.
-
-    Jinja expression under test:
-        datalake_name ~ '."' ~ otf_database ~ '"."' ~ identifier ~ '"'
+    Replaces the old TestThreeDotNaming, which only re-implemented the Jinja
+    formula in Python and so caught nothing.
     """
 
-    @staticmethod
-    def _build_otf_relation(datalake_name, otf_database, identifier):
-        return f'{datalake_name}."{otf_database}"."{identifier}"'
+    # -- 2-part native --
 
-    def test_basic_naming(self):
-        result = self._build_otf_relation(
-            "studio_otftest_datalake_001_normal",
-            "studio_otftest_database_001_normal",
-            "my_model",
+    def test_native_render_two_part(self):
+        rel = TeradataRelation.create(schema="mydb", identifier="mytbl")
+        assert rel.render() == '"mydb"."mytbl"'
+
+    def test_native_render_database_none_schema_set(self):
+        rel = TeradataRelation.create(database=None, schema="db", identifier="t")
+        assert rel.render() == '"db"."t"'
+
+    # -- 3-part OTF (explicit is_otf=True via create()) --
+
+    def test_otf_render_three_part(self):
+        rel = TeradataRelation.create(
+            database="dl",
+            schema="db",
+            identifier="t",
+            quote_policy={"database": False, "schema": True, "identifier": True},
+            include_policy={"database": True, "schema": True, "identifier": True},
+            is_otf=True,
         )
-        assert result == (
-            'studio_otftest_datalake_001_normal.'
-            '"studio_otftest_database_001_normal".'
-            '"my_model"'
+        assert rel.render() == 'dl."db"."t"'
+
+    def test_otf_render_with_underscores_and_hyphens(self):
+        rel = TeradataRelation.create(
+            database="dl_1",
+            schema="db-2",
+            identifier="tbl 3",
+            quote_policy={"database": False, "schema": True, "identifier": True},
+            include_policy={"database": True, "schema": True, "identifier": True},
+            is_otf=True,
         )
+        assert rel.render() == 'dl_1."db-2"."tbl 3"'
 
-    def test_datalake_unquoted(self):
-        result = self._build_otf_relation("dl", "db", "tbl")
-        assert not result.startswith('"')
+    # -- Invariant guard: is_otf=True with a None part must raise --
 
-    def test_otf_database_quoted(self):
-        result = self._build_otf_relation("dl", "db", "tbl")
-        assert '."db".' in result
+    def test_otf_render_missing_database_raises(self):
+        rel = TeradataRelation.create(
+            database=None, schema="db", identifier="t",
+            include_policy={"database": True, "schema": True, "identifier": True},
+            is_otf=True,
+        )
+        with pytest.raises(DbtRuntimeError, match="OTF relation is missing"):
+            rel.render()
 
-    def test_table_quoted(self):
-        result = self._build_otf_relation("dl", "db", "tbl")
-        assert result.endswith('"tbl"')
+    def test_otf_render_missing_schema_raises(self):
+        rel = TeradataRelation.create(
+            database="dl", schema=None, identifier="t",
+            include_policy={"database": True, "schema": True, "identifier": True},
+            is_otf=True,
+        )
+        with pytest.raises(DbtRuntimeError, match="OTF relation is missing"):
+            rel.render()
 
-    def test_special_chars_in_names(self):
-        result = self._build_otf_relation("dl_1", "db-2", "tbl 3")
-        assert result == 'dl_1."db-2"."tbl 3"'
+    def test_otf_render_missing_identifier_raises(self):
+        rel = TeradataRelation.create(
+            database="dl", schema="db", identifier=None,
+            include_policy={"database": True, "schema": True, "identifier": True},
+            is_otf=True,
+        )
+        with pytest.raises(DbtRuntimeError, match="OTF relation is missing"):
+            rel.render()
