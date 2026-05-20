@@ -370,11 +370,11 @@ class TestTeradataRelationRender:
         with pytest.raises(DbtRuntimeError, match="OTF relation is missing"):
             rel.render()
 
-    def test_otf_render_missing_identifier_raises(self):
+    def test_otf_render_missing_identifier_returns_two_part(self):
         rel = TeradataRelation.create(
             database="dl", schema="db", identifier=None,
             include_policy={"database": True, "schema": True, "identifier": True},
             is_otf=True,
         )
-        with pytest.raises(DbtRuntimeError, match="OTF relation is missing"):
-            rel.render()
+        # Schema-only OTF relation (e.g. cache warming) returns 2-part form
+        assert rel.render() == 'dl."db"'

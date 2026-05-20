@@ -105,12 +105,17 @@ class TeradataRelation(BaseRelation):
             # The DATALAKE name (`database`) is unquoted; the OTF database and
             # table name are quoted. Constructed explicitly rather than via
             # BaseRelation._render_iterator() to avoid depending on a private API.
-            if self.database is None or self.schema is None or self.identifier is None:
+            if self.database is None or self.schema is None:
                 raise DbtRuntimeError(
                     f"OTF relation is missing required part(s): "
                     f"database={self.database!r}, schema={self.schema!r}, "
                     f"identifier={self.identifier!r}"
                 )
+            if self.identifier is None:
+                # Schema-only OTF relation (e.g. cache warming via
+                # .without_identifier()). Return a 2-part form that is
+                # safe to hash but never used in actual SQL.
+                return f'{self.database}."{self.schema}"'
             return f'{self.database}."{self.schema}"."{self.identifier}"'
         if self.include_policy.database and self.include_policy.schema:
             raise DbtRuntimeError(
