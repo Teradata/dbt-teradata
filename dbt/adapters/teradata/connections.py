@@ -87,7 +87,7 @@ class TeradataCredentials(Credentials):
                     "Couldn’t connect to Teradata Vantage SQL Engine. Neither username nor password parameters can be "
                     "specified in the profile when the logon mechanism (logmech) is ‘BROWSER'. Correct the profile "
                     "and retry.")
-        else:
+        elif self.logmech is None or self.logmech.lower() == "td2":
             if self.username is None:
                 raise dbt_common.exceptions.DbtRuntimeError("Couldn’t  connect to Teradata Vantage SQL Engine. The "
                                                             "‘user’ parameter in the profile must be specified when "

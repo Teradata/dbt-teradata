@@ -13,5 +13,4 @@ dbt-common>=1.13,<2.0
 MarkupSafe==2.0.1
 pytest-dotenv
 pytest-cov
-setuptools
 -e .
