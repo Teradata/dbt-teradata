@@ -10,7 +10,20 @@
              so we cannot use the build-tmp-then-rename pattern from the default
              table materialization. Trade-off: a failed CREATE leaves the target
              dropped (non-atomic re-materialization). --#}
-        {%- set grant_config = config.get('grants') -%}
+        {#- Guard against config combinations that are not supported on the OTF path.
+            Teradata-native options do not apply to Iceberg/Delta tables. -#}
+        {%- set unsupported = [] -%}
+        {%- if config.get('table_kind') -%}{%- do unsupported.append('table_kind') -%}{%- endif -%}
+        {%- if config.get('table_option') -%}{%- do unsupported.append('table_option') -%}{%- endif -%}
+        {%- if config.get('with_statistics') -%}{%- do unsupported.append('with_statistics') -%}{%- endif -%}
+        {%- if config.get('index') -%}{%- do unsupported.append('index') -%}{%- endif -%}
+        {%- if unsupported | length > 0 -%}
+          {{ exceptions.raise_compiler_error(
+              "The following config option(s) are not supported with catalog_name (OTF): "
+              ~ unsupported | join(', ')
+          ) }}
+        {%- endif -%}
+
         {%- set existing_relation = load_cached_relation(this) -%}
         {%- set target_relation = this.incorporate(type='table') -%}
 
@@ -29,8 +42,13 @@
 
         {% do persist_docs(target_relation, model) %}
 
-        {% set should_revoke_grants = should_revoke(existing_relation, full_refresh_mode=True) %}
-        {% do apply_grants(target_relation, grant_config, should_revoke=should_revoke_grants) %}
+        {#- Teradata does not support GRANT on OTF tables (3-part names are
+            invalid in GRANT syntax, and OTF objects are not in DBC.AllRights).
+            Access control for OTF tables is managed via AUTHORIZATION objects
+            and external IAM/OAuth policies. -#}
+        {%- if config.get('grants') -%}
+          {{ exceptions.warn("grants config is ignored for OTF models — Teradata does not support GRANT on DATALAKE tables.") }}
+        {%- endif -%}
 
         {% do adapter.commit() %}
         {% do adapter.cache_added(target_relation) %}

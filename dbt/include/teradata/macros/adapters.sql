@@ -344,6 +344,10 @@
 {%- endmacro %}
 
 {% macro teradata__create_schema(relation) -%}
+  {%- if relation.is_otf -%}
+    {#- OTF schemas live inside a DATALAKE and cannot be created via standard
+        Teradata DDL. They must be pre-created outside of dbt. Skip silently. -#}
+  {%- else -%}
   {%- call statement('create_schema') -%}
     CREATE DATABASE {{ relation.without_identifier().include(database=False) }}
     -- Teradata expects db sizing params on creation. This macro is probably
@@ -352,10 +356,14 @@
     AS PERMANENT = 60e6, -- 60MB
         SPOOL = 120e6; -- 120MB
   {%- endcall -%}
+  {%- endif -%}
 {% endmacro %}
 
 {% macro teradata__drop_schema(relation) -%}
-  {% if relation.schema -%}
+  {%- if relation.is_otf -%}
+    {#- OTF schemas live inside a DATALAKE and cannot be dropped via standard
+        Teradata DDL. Skip silently. -#}
+  {%- elif relation.schema -%}
     {{ adapter.verify_database(relation.schema) }}
     {%- call statement('drop_schema_delete_database') -%}
     DELETE DATABASE /*+ IF EXISTS */ {{ relation.without_identifier().include(database=False) }} ALL;

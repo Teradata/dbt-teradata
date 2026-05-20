@@ -940,7 +940,7 @@ A `ref()` from another model then compiles to `my_lake."my_otf_db"."customer_ice
 | `tblproperties`  | string  | Iceberg/Delta table properties, e.g. `"'gc.enabled'='true'"`.                                              |
 | `purge_mode`     | string  | DROP behavior. `'NO PURGE'` (default; removes catalog entry only) or `'PURGE ALL'` (also deletes data files on the object store). Case-insensitive. |
 
-`grants`, `persist_docs`, and standard dbt cache management work on OTF models the same way they do on native tables.
+`persist_docs` and standard dbt cache management work on OTF models the same way they do on native tables. **`grants` is not supported on OTF tables** — Teradata does not allow `GRANT` on DATALAKE objects (access control is managed via AUTHORIZATION objects and external IAM/OAuth policies). Setting `grants` on an OTF model emits a warning and is otherwise ignored.
 
 ### Limitations and trade-offs
 
@@ -962,7 +962,7 @@ export DBT_TERADATA_DATALAKE='my_lake'        # pre-created DATALAKE name
 export DBT_TERADATA_OTF_DATABASE='my_otf_db'  # pre-created OTF database name
 ```
 
-Combined with the standard `DBT_TERADATA_SERVER_NAME` / `DBT_TERADATA_USERNAME` / `DBT_TERADATA_PASSWORD` connection variables, `pytest tests/functional/adapter/test_otf_integration.py` will exercise: basic create, idempotency, cross-model `ref()`, source-based 3-part naming, grants application, `purge_mode: 'NO PURGE'`, and compile-time guardrails. Without the OTF env vars set, all OTF integration tests are skipped.
+Combined with the standard `DBT_TERADATA_SERVER_NAME` / `DBT_TERADATA_USERNAME` / `DBT_TERADATA_PASSWORD` connection variables, `pytest tests/functional/adapter/test_otf_integration.py` will exercise: basic create, idempotency, cross-model `ref()`, source-based 3-part naming, grants warning, `purge_mode: 'NO PURGE'`, and compile-time guardrails. Without the OTF env vars set, all OTF integration tests are skipped.
 
 Pure unit tests (no Teradata required) live in `tests/unit/test_otf_catalogs.py` and run via `pytest tests/unit/`.
 

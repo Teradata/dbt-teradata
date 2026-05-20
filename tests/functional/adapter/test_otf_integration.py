@@ -25,9 +25,11 @@ Scenarios covered (see Phase 4.4 of PR_237_REMEDIATION_PLAN.md):
 import os
 
 import pytest
-import yaml
 
-from dbt.tests.util import run_dbt, get_manifest
+from dbt.tests.adapter.catalog_integrations.test_catalog_integration import (
+    BaseCatalogIntegrationValidation,
+)
+from dbt.tests.util import run_dbt
 
 
 DATALAKE_NAME = os.getenv("DBT_TERADATA_DATALAKE")
@@ -41,39 +43,24 @@ pytestmark = pytest.mark.skipif(
 
 CATALOG_NAME = "test_catalog"
 
-
-# ---------------------------------------------------------------------------
-# Shared fixtures: write catalogs.yml at the project root
-# ---------------------------------------------------------------------------
-
-@pytest.fixture(scope="class")
-def write_catalogs_yml(project_root):
-    """Write a catalogs.yml file into the test project root.
-
-    dbt-tests-adapter does not have a built-in fixture for this (catalogs are
-    relatively new), so we hand-write it. Returns the path for assertions.
-    """
-    catalogs_path = project_root / "catalogs.yml"
-    catalogs_config = {
-        "catalogs": [
-            {
-                "name": CATALOG_NAME,
-                "active_write_integration": "td_datalake",
-                "write_integrations": [
-                    {
-                        "name": "td_datalake",
-                        "catalog_type": "datalake",
-                        "adapter_properties": {
-                            "datalake_name": DATALAKE_NAME,
-                            "otf_database": OTF_DATABASE,
-                        },
-                    }
-                ],
-            }
-        ]
-    }
-    catalogs_path.write_text(yaml.safe_dump(catalogs_config))
-    return catalogs_path
+CATALOGS_CONFIG = {
+    "catalogs": [
+        {
+            "name": CATALOG_NAME,
+            "active_write_integration": "td_datalake",
+            "write_integrations": [
+                {
+                    "name": "td_datalake",
+                    "catalog_type": "datalake",
+                    "adapter_properties": {
+                        "datalake_name": DATALAKE_NAME,
+                        "otf_database": OTF_DATABASE,
+                    },
+                }
+            ],
+        }
+    ]
+}
 
 
 # ---------------------------------------------------------------------------
@@ -85,9 +72,7 @@ basic_otf_model_sql = f"""
     materialized='table',
     catalog_name='{CATALOG_NAME}'
 ) }}}}
-select 1 as id, 'a' as name
-union all
-select 2 as id, 'b' as name
+select id, name from {{{{ target.schema }}}}.otf_src
 """
 
 otf_with_purge_mode_sql = f"""
@@ -96,16 +81,7 @@ otf_with_purge_mode_sql = f"""
     catalog_name='{CATALOG_NAME}',
     purge_mode='NO PURGE'
 ) }}}}
-select 1 as id
-"""
-
-otf_with_grants_sql = f"""
-{{{{ config(
-    materialized='table',
-    catalog_name='{CATALOG_NAME}',
-    grants={{'select': ['{os.getenv('DBT_TEST_USER_1', 'PUBLIC')}']}}
-) }}}}
-select 1 as id
+select id from {{{{ target.schema }}}}.otf_src
 """
 
 downstream_of_otf_sql = """
@@ -133,28 +109,44 @@ sources:
 # Scenarios 1 & 2: basic create + idempotency
 # ===================================================================
 
-class TestOTFBasicAndIdempotent:
+class TestOTFBasicAndIdempotent(BaseCatalogIntegrationValidation):
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
     @pytest.fixture(scope="class")
     def models(self):
         return {"basic_otf.sql": basic_otf_model_sql}
 
-    def test_basic_create_and_rerun(self, project, write_catalogs_yml):
-        # First run: creates the OTF table.
-        results = run_dbt(["run", "--select", "basic_otf"])
-        assert len(results) == 1
-        assert results[0].status == "success"
+    def test_basic_create_and_rerun(self, project):
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_src (id INTEGER, name VARCHAR(100))"
+        )
+        project.run_sql("INSERT INTO {schema}.otf_src VALUES (1, 'a')")
+        project.run_sql("INSERT INTO {schema}.otf_src VALUES (2, 'b')")
+        try:
+            # First run: creates the OTF table.
+            results = run_dbt(["run", "--select", "basic_otf"])
+            assert len(results) == 1
+            assert results[0].status == "success"
 
-        # Second run: must succeed idempotently (DROP+CREATE cycle).
-        results = run_dbt(["run", "--select", "basic_otf"])
-        assert len(results) == 1
-        assert results[0].status == "success"
+            # Second run: must succeed idempotently (DROP+CREATE cycle).
+            results = run_dbt(["run", "--select", "basic_otf"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_src")
 
 
 # ===================================================================
 # Scenario 3: cross-model ref() produces 3-part name in compiled SQL
 # ===================================================================
 
-class TestOTFRefRendersThreePartName:
+class TestOTFRefRendersThreePartName(BaseCatalogIntegrationValidation):
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
     @pytest.fixture(scope="class")
     def models(self):
         return {
@@ -162,11 +154,14 @@ class TestOTFRefRendersThreePartName:
             "downstream_of_otf.sql": downstream_of_otf_sql,
         }
 
-    def test_compiled_sql_contains_three_part_name(self, project, write_catalogs_yml):
+    def test_compiled_sql_contains_three_part_name(self, project):
         run_dbt(["compile", "--select", "downstream_of_otf"])
-        manifest = get_manifest(project.project_root)
-        node = manifest.nodes["model.test.downstream_of_otf"]
-        compiled = node.compiled_code
+        compiled_path = os.path.join(
+            str(project.project_root),
+            "target", "compiled", "test", "models", "downstream_of_otf.sql",
+        )
+        with open(compiled_path, "r", encoding="utf-8") as f:
+            compiled = f.read()
         # 3-part: <datalake>."<otf_db>"."<table>"
         expected = f'{DATALAKE_NAME}."{OTF_DATABASE}"."basic_otf"'
         assert expected in compiled, (
@@ -178,7 +173,11 @@ class TestOTFRefRendersThreePartName:
 # Scenario 4: source() with database != schema triggers OTF heuristic
 # ===================================================================
 
-class TestOTFSourceHeuristic:
+class TestOTFSourceHeuristic(BaseCatalogIntegrationValidation):
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
     @pytest.fixture(scope="class")
     def models(self):
         return {"source_referencing_otf.sql": source_referencing_otf_sql}
@@ -187,12 +186,15 @@ class TestOTFSourceHeuristic:
     def properties(self):
         return {"sources.yml": sources_yml}
 
-    def test_source_compiles_to_three_part_name(self, project, write_catalogs_yml):
+    def test_source_compiles_to_three_part_name(self, project):
         # Compile only -- we don't require the source to actually exist.
         run_dbt(["compile", "--select", "source_referencing_otf"])
-        manifest = get_manifest(project.project_root)
-        node = manifest.nodes["model.test.source_referencing_otf"]
-        compiled = node.compiled_code
+        compiled_path = os.path.join(
+            str(project.project_root),
+            "target", "compiled", "test", "models", "source_referencing_otf.sql",
+        )
+        with open(compiled_path, "r", encoding="utf-8") as f:
+            compiled = f.read()
         expected = f'{DATALAKE_NAME}."{OTF_DATABASE}"."external_otf_table"'
         assert expected in compiled, (
             f"Expected 3-part OTF source name {expected!r} in compiled SQL, "
@@ -201,47 +203,36 @@ class TestOTFSourceHeuristic:
 
 
 # ===================================================================
-# Scenario 5: grants applied to OTF tables (verifies Phase 1.3)
-# ===================================================================
-
-@pytest.mark.skipif(
-    not os.getenv("DBT_TEST_USER_1"),
-    reason="grants test requires DBT_TEST_USER_1 env var",
-)
-class TestOTFGrants:
-    @pytest.fixture(scope="class")
-    def models(self):
-        return {"otf_with_grants.sql": otf_with_grants_sql}
-
-    def test_grants_applied(self, project, write_catalogs_yml):
-        # The run should succeed with grants config -- this confirms the OTF
-        # branch in table.sql invokes apply_grants() rather than silently
-        # skipping it (the bug fixed in Phase 1.3).
-        results = run_dbt(["run", "--select", "otf_with_grants"])
-        assert len(results) == 1
-        assert results[0].status == "success"
-
-
-# ===================================================================
 # Scenario 6: purge_mode: 'NO PURGE' end-to-end
 # ===================================================================
 
-class TestOTFNoPurge:
+class TestOTFNoPurge(BaseCatalogIntegrationValidation):
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
     @pytest.fixture(scope="class")
     def models(self):
         return {"otf_no_purge.sql": otf_with_purge_mode_sql}
 
-    def test_no_purge_run_succeeds(self, project, write_catalogs_yml):
-        results = run_dbt(["run", "--select", "otf_no_purge"])
-        assert len(results) == 1
-        assert results[0].status == "success"
-        # Re-run to exercise the DROP path with NO PURGE.
-        results = run_dbt(["run", "--select", "otf_no_purge"])
-        assert results[0].status == "success"
+    def test_no_purge_run_succeeds(self, project):
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_src (id INTEGER, name VARCHAR(100))"
+        )
+        project.run_sql("INSERT INTO {schema}.otf_src VALUES (1, 'a')")
+        try:
+            results = run_dbt(["run", "--select", "otf_no_purge"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+            # Re-run to exercise the DROP path with NO PURGE.
+            results = run_dbt(["run", "--select", "otf_no_purge"])
+            assert results[0].status == "success"
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_src")
 
 
 # ===================================================================
-# Phase 2 guardrails: compile-time errors for unsupported combinations
+# Phase 2 guardrails: unsupported config combinations
 # (these do not require a real DATALAKE, but live here to keep all OTF
 # scenarios in one file; they are NOT gated on env vars)
 # ===================================================================
@@ -265,12 +256,16 @@ select 1 as id
 """
 
 
-class TestOTFCompileTimeErrors:
-    """These exercise compile-time guardrails added in Phase 2.
-
-    They still need write_catalogs_yml because catalog_name resolution happens
-    during compile -- but no actual DATALAKE has to exist.
+class TestOTFCompileTimeErrors(BaseCatalogIntegrationValidation):
+    """These exercise guardrails for unsupported config combinations on the OTF
+    path.  The checks fire inside the materialization macro, so they require
+    ``dbt run`` (not ``compile``).  A real DATALAKE does not need to exist
+    because the error is raised before any SQL is sent to the database.
     """
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
 
     @pytest.fixture(scope="class")
     def models(self):
@@ -279,14 +274,14 @@ class TestOTFCompileTimeErrors:
             "bad_purge_mode.sql": invalid_purge_mode_sql,
         }
 
-    def test_table_kind_with_catalog_name_fails(self, project, write_catalogs_yml):
+    def test_table_kind_with_catalog_name_fails(self, project):
         results = run_dbt(
-            ["compile", "--select", "bad_table_kind"], expect_pass=False
+            ["run", "--select", "bad_table_kind"], expect_pass=False
         )
         assert any("table_kind" in str(r.message or "") for r in results)
 
-    def test_invalid_purge_mode_fails(self, project, write_catalogs_yml):
+    def test_invalid_purge_mode_fails(self, project):
         results = run_dbt(
-            ["compile", "--select", "bad_purge_mode"], expect_pass=False
+            ["run", "--select", "bad_purge_mode"], expect_pass=False
         )
         assert any("purge_mode" in str(r.message or "").lower() for r in results)
