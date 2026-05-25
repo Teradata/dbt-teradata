@@ -15,7 +15,7 @@ env:
 
 jobs:
   docker:
-    runs-on: [arc-ubuntu]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:

@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         python: ['3.10', '3.11', '3.12', '3.13']
-    runs-on: [arc-ubuntu]
+    runs-on: ubuntu-latest
     name: Functional test
     steps:
       - name: Check out repository code
@@ -44,12 +44,16 @@ jobs:
       - name: Install TTU
         shell: bash
         run: |
-          curl -H "Authorization: Bearer $ARTIFACTORY_TOKEN" -O "https://artifacts.td.teradata.com/artifactory/tdproduct-generic-qa-primary/tdttu/teradata.ubuntu/TeradataToolsAndUtilitiesBase/20.00.28.00/x8664/TeradataToolsAndUtilitiesBase__ubuntu_x8664.20.00.28.00.tar.gz"
-          tar -xzf TeradataToolsAndUtilitiesBase__ubuntu_x8664.20.00.28.00.tar.gz
+          aws s3 cp "$AWS_S3_PATH_OF_TTU_BUNDLE"/"$TTU_BUNDLE_FILE_NAME" .
+          tar -xzf "$TTU_BUNDLE_FILE_NAME"
           cd TeradataToolsAndUtilitiesBase
           sudo ./setup.sh a
         env:
-          ARTIFACTORY_TOKEN: ${{secrets.ARTIFACTORY_TOKEN}}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+          AWS_S3_PATH_OF_TTU_BUNDLE: ${{ secrets.AWS_S3_PATH_OF_TTU_BUNDLE }}
+          TTU_BUNDLE_FILE_NAME: ${{ secrets.TTU_BUNDLE_FILE_NAME }}
 
       - name: Install requirements
         run: |

@@ -6,8 +6,8 @@ jobs:
   test:
     strategy:
       matrix:
-        python: ['3.8', '3.9', '3.10', '3.11']
-    runs-on: [arc-ubuntu]
+        python: ['3.10', '3.11']
+    runs-on: macos-12
     name: Functional test
     steps:
       - name: Setup Python
@@ -298,4 +298,3 @@ jobs:
         with:
           name: virtualbox-logs
           path: /Users/runner/VirtualBox*
-

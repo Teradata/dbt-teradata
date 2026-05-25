@@ -14,7 +14,7 @@ on:
 jobs:
   trigger:
     if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
-    runs-on: [arc-ubuntu]
+    runs-on: ubuntu-latest
     name: Docker Integration Tests
     steps:
       - uses: actions/checkout@v2
@@ -24,7 +24,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.12
+          python-version: '3.10'
       - name: Install Docker
         shell: bash
         run: |

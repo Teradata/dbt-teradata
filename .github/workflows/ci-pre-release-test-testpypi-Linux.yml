@@ -15,8 +15,8 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
-        python: [ '3.9', '3.10', '3.11', '3.12', '3.13' ]
-    runs-on: [arc-ubuntu]
+        python: [ '3.10', '3.11', '3.12', '3.13' ]
+    runs-on: ubuntu-latest
     name: CI Pre Release Test TestPyPi
     steps:
       - uses: actions/checkout@v2
