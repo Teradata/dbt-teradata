@@ -298,3 +298,4 @@ jobs:
         with:
           name: virtualbox-logs
           path: /Users/runner/VirtualBox*
+          retention-days: 2
