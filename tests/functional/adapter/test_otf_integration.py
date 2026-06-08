@@ -729,7 +729,8 @@ class TestOTFFileFormats(BaseCatalogIntegrationValidation):
 
     def test_orc_format_fails(self, project):
         """Writing ORC data files in Iceberg is not supported, so materializing
-        a model with write.format.default='orc' must fail (not succeed)."""
+        a model with write.format.default='orc' must fail with an ORC-specific
+        error (e.g. TD_ICEBERG_WRITE: Cannot write ORC file)."""
         project.run_sql(
             "CREATE TABLE {schema}.otf_src (id INTEGER, name VARCHAR(100))"
         )
@@ -740,6 +741,14 @@ class TestOTFFileFormats(BaseCatalogIntegrationValidation):
             )
             assert len(results) == 1
             assert results[0].status != "success"
+            # Be specific: the failure must be about the unsupported ORC write,
+            # not an unrelated error (e.g. connection/auth). The Teradata engine
+            # reports "Cannot write ORC file" from TD_ICEBERG_WRITE.
+            message = str(results[0].message or "").lower()
+            assert "orc" in message, (
+                "Expected an ORC-related failure message, got: "
+                f"{results[0].message!r}"
+            )
         finally:
             project.run_sql("DROP TABLE {schema}.otf_src")
 
