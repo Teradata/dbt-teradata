@@ -108,6 +108,10 @@ class TeradataRelation(BaseRelation):
         if self.is_otf:
             # OTF relations use 3-part naming: "<datalake>"."<otf_db>"."<table>".
             # Quote and escape all three parts explicitly without relying on private APIs.
+            # NOTE: this quoting (wrap in quote_character, double any embedded
+            # quote) is mirrored by the Jinja macro teradata__quote_otf_part in
+            # macros/materializations/otf/create_otf_table_as.sql. Keep the two in
+            # sync so OTF DDL/DML and relation rendering produce identical names.
             def _quote(part: str) -> str:
                 qc = self.quote_character or '"'
                 return qc + part.replace(qc, qc * 2) + qc

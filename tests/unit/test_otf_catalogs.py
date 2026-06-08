@@ -435,6 +435,23 @@ class TestTeradataRelationRender:
         )
         assert rel.render() == '"MY_DATALAKE"."iceberg_db"."orders"'
 
+    def test_otf_render_doubles_embedded_quote(self):
+        """Embedded double-quotes are doubled in each part.
+
+        This locks the quoting contract that the Jinja helper
+        teradata__quote_otf_part / teradata__build_otf_relation_name mirrors,
+        so DDL/DML macros and relation rendering produce identical names.
+        """
+        rel = TeradataRelation.create(
+            database='d"l',
+            schema='o"db',
+            identifier='t"bl',
+            quote_policy={"database": True, "schema": True, "identifier": True},
+            include_policy={"database": True, "schema": True, "identifier": True},
+            is_otf=True,
+        )
+        assert rel.render() == '"d""l"."o""db"."t""bl"'
+
 
 # ===================================================================
 # TeradataRelation.create_from() -- OTF detection via catalog_name

@@ -28,9 +28,27 @@
 {% endmacro %}
 
 
+{% macro teradata__quote_otf_part(part) %}
+  {#- Quote a single OTF name part, doubling any embedded quote character.
+      This is the single quoting primitive for External OTF identifiers and
+      intentionally mirrors TeradataRelation.render() in relation.py, so that
+      OTF names produced by DDL/DML macros and by relation rendering are always
+      identical (including names that contain a double-quote). -#}
+  {%- set qc = '"' -%}
+  {{ return(qc ~ (part | string | replace(qc, qc ~ qc)) ~ qc) }}
+{% endmacro %}
+
+
 {% macro teradata__build_otf_relation_name(catalog_integration, identifier) %}
-  {#- Build the 3-part OTF relation string: "<datalake>"."<otf_db>"."<identifier>" -#}
-  {{ return(adapter.quote(catalog_integration.datalake_name) ~ '.' ~ adapter.quote(catalog_integration.otf_database) ~ '.' ~ adapter.quote(identifier)) }}
+  {#- Canonical builder for the 3-part External OTF relation string:
+        "<datalake>"."<otf_database>"."<identifier>"
+      This is the single source of truth reused by the OTF create, drop, and
+      incremental macros. Quoting is delegated to teradata__quote_otf_part so it
+      stays consistent with TeradataRelation.render(). -#}
+  {%- set datalake = teradata__quote_otf_part(catalog_integration.datalake_name) -%}
+  {%- set otf_database = teradata__quote_otf_part(catalog_integration.otf_database) -%}
+  {%- set table_name = teradata__quote_otf_part(identifier) -%}
+  {{ return(datalake ~ '.' ~ otf_database ~ '.' ~ table_name) }}
 {% endmacro %}
 
 
