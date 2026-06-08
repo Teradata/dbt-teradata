@@ -291,8 +291,7 @@ select id, created_at from {{{{ target.schema }}}}.otf_src_orders
 
 class TestOTFPartitionTransforms(BaseCatalogIntegrationValidation):
     """Verify PARTITIONED BY with transform functions like YEAR, BUCKET, MONTH.
-    Covers: Native OTF scenario #30 (partition transforms) and
-    Managed OTF scenario #1c (PARTITIONED BY with transforms).
+    Exercises partition transforms on the External OTF (CREATE TABLE) path.
     """
 
     @pytest.fixture(scope="class")
@@ -357,8 +356,8 @@ from {{{{ target.schema }}}}.otf_src_orders
 
 
 class TestOTFSortedByMultiColumn(BaseCatalogIntegrationValidation):
-    """Verify SORTED BY with multiple columns and directions.
-    Covers: Managed OTF scenario #1d and Hive Catalog scenarios.
+    """Verify SORTED BY with multiple columns and directions on the External
+    OTF (CREATE TABLE) path.
     """
 
     @pytest.fixture(scope="class")
@@ -405,9 +404,12 @@ from {{{{ target.schema }}}}.otf_src_orders
 
 
 class TestOTFAllDDLOptions(BaseCatalogIntegrationValidation):
-    """Verify all DDL options combined in a single OTF model.
-    Covers: Managed OTF scenario #1e (PI+PB+SB combinations) and
-    Hive Catalog scenario #5 (PARTITIONED BY + SORTED BY).
+    """Verify combined DDL options in a single External OTF model.
+
+    Exercises PARTITIONED BY + SORTED BY + TBLPROPERTIES together on the
+    External OTF (CREATE TABLE) path. Note: this does NOT cover primary-index
+    combinations -- INDEX is not allowed for External OTF, and the model below
+    sets no index. Index/PI support is a Managed OTF concern tracked separately.
     """
 
     @pytest.fixture(scope="class")
@@ -511,8 +513,7 @@ select id, name from {{ ref('otf_source_model') }}
 class TestOTFCrossRefOTFToNative(BaseCatalogIntegrationValidation):
     """Verify a native table can select from an OTF model via ref().
     Compiled SQL should use 3-part name for the OTF source.
-    Covers: Managed OTF scenario #1j (CTAS with OTF as source) and
-    Native OTF scenario #27 (CT..AS from OTF tables).
+    Exercises CREATE TABLE ... AS with an External OTF table as source.
     """
 
     @pytest.fixture(scope="class")
@@ -707,10 +708,11 @@ select id, name from {{{{ target.schema }}}}.otf_src
 
 
 class TestOTFFileFormats(BaseCatalogIntegrationValidation):
-    """Verify different file format configurations via tblproperties.
-    Covers: Java Table Operator scenario (Read Iceberg data of Parquet/ORC/Avro),
-    Unity (Blob) scenario #1 (generating distinct data files),
-    and compression support.
+    """Verify write data-file format configuration via tblproperties.
+
+    Avro and Parquet (incl. gzip compression) are supported write formats for
+    External OTF (Iceberg). Writing ORC data files in Iceberg is NOT supported
+    by Teradata OTF, so that case is asserted as a failure rather than a success.
     """
 
     @pytest.fixture(scope="class")
@@ -725,15 +727,19 @@ class TestOTFFileFormats(BaseCatalogIntegrationValidation):
             "otf_write_parquet_gzip.sql": otf_write_parquet_gzip_sql,
         }
 
-    def test_orc_format_succeeds(self, project):
+    def test_orc_format_fails(self, project):
+        """Writing ORC data files in Iceberg is not supported, so materializing
+        a model with write.format.default='orc' must fail (not succeed)."""
         project.run_sql(
             "CREATE TABLE {schema}.otf_src (id INTEGER, name VARCHAR(100))"
         )
         project.run_sql("INSERT INTO {schema}.otf_src VALUES (1, 'orc_test')")
         try:
-            results = run_dbt(["run", "--select", "otf_write_orc"])
+            results = run_dbt(
+                ["run", "--select", "otf_write_orc"], expect_pass=False
+            )
             assert len(results) == 1
-            assert results[0].status == "success"
+            assert results[0].status != "success"
         finally:
             project.run_sql("DROP TABLE {schema}.otf_src")
 
