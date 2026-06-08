@@ -5,6 +5,13 @@
 -- calling the macro set_query_band() which will set the query_band for this materialization as per the user_configuration
 {% do set_query_band() %}
 
+{%- if config.get('catalog_name') -%}
+  {{ exceptions.raise_compiler_error(
+      "catalog_name (OTF) is not supported with the 'incremental' materialization. "
+      "Only the 'table' materialization supports OTF tables."
+  ) }}
+{%- endif -%}
+
 {% set unique_key = config.get('unique_key') %}
 
 -- Start: Below are the configuration options for the valid_history strategy
