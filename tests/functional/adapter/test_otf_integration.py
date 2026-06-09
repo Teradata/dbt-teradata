@@ -1533,4 +1533,3 @@ class TestOTFAliasWithPartition(BaseCatalogIntegrationValidation):
             assert stats[2] == 3   # 3 rows: alice + bob + charlie
         finally:
             project.run_sql("DROP TABLE {schema}.otf_alias_partitioned_src")
-
