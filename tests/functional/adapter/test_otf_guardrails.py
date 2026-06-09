@@ -413,7 +413,7 @@ class TestOTFIncrementalMicrobatchBlocked(BaseCatalogIntegrationValidation):
         # "ERROR" rather than the full text.  Asserting on error status is
         # sufficient; the guardrail message is visible in the dbt log output.
         assert len(results) == 1
-        assert results[0].status.value == "error"
+        assert results[0].status == "error"
 
 
 class TestOTFSnapshotBlocked(BaseCatalogIntegrationValidation):
