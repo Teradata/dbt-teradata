@@ -12,7 +12,6 @@ Scenarios covered:
   5. index with catalog_name is rejected
   6. Multiple unsupported options reported together
   7. OTF incremental: unsupported strategy (merge) is rejected
-<<<<<<< HEAD
   8. OTF incremental: delete+insert is rejected (not yet supported)
   9. OTF incremental: native-only options (table_kind) are rejected
   10. OTF incremental: contract.enforced is rejected
@@ -414,7 +413,7 @@ class TestOTFIncrementalMicrobatchBlocked(BaseCatalogIntegrationValidation):
         # "ERROR" rather than the full text.  Asserting on error status is
         # sufficient; the guardrail message is visible in the dbt log output.
         assert len(results) == 1
-        assert results[0].status == "error"
+        assert results[0].status.value == "error"
 
 
 class TestOTFSnapshotBlocked(BaseCatalogIntegrationValidation):

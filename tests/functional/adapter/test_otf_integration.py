@@ -74,9 +74,13 @@ _OTF_TEST_TABLES = [
 def _cleanup_otf_tables(project):
     yield
     for name in _OTF_TEST_TABLES:
-        project.run_sql(
-            f'DROP TABLE /*+ IF EXISTS */ "{DATALAKE_NAME}"."{OTF_DATABASE}"."{name}" NO PURGE;'
-        )
+        try:
+            project.run_sql(
+                f'DROP TABLE /*+ IF EXISTS */ "{DATALAKE_NAME}"."{OTF_DATABASE}"."{name}" NO PURGE;'
+            )
+        except Exception:
+            # Error 7825: OTF table does not exist — safe to ignore in cleanup
+            pass
 
 
 CATALOG_NAME = "test_catalog"
