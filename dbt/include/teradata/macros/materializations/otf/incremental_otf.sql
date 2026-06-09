@@ -22,7 +22,7 @@
 {% macro teradata__validate_get_otf_incremental_strategy(config) %}
   {#-- Validate and return the incremental strategy for OTF models.
        Only 'append' is currently supported. --#}
-  {%- set strategy = config.get("incremental_strategy") or "append" -%}
+  {%- set strategy = config.get("incremental_strategy", "append") -%}
 
   {% if strategy not in ['append'] %}
     {{ exceptions.raise_compiler_error(
