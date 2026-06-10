@@ -69,6 +69,18 @@
     ) }}
   {%- endif -%}
 
+  {#-- on_schema_change is not supported for OTF incremental models: the append
+       strategy does not reconcile target/source schemas, and the other values
+       ('fail', 'append_new_columns', 'sync_all_columns') cannot be honoured.
+       Users must run with --full-refresh to apply schema changes. --#}
+  {%- set on_schema_change = config.get('on_schema_change', none) -%}
+  {%- if on_schema_change is not none and on_schema_change != 'ignore' -%}
+    {{ exceptions.raise_compiler_error(
+        "on_schema_change='" ~ on_schema_change ~ "' is not supported for OTF incremental models. "
+        ~ "Use --full-refresh to apply schema changes to an OTF table."
+    ) }}
+  {%- endif -%}
+
   {%- set contract_config = config.get('contract') -%}
   {%- if contract_config is not none and contract_config.enforced -%}
     {{ exceptions.raise_compiler_error(
