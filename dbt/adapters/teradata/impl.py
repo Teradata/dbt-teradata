@@ -407,9 +407,13 @@ class TeradataAdapter(SQLAdapter):
 
             SELECT * FROM "<datalake>"."<otf_db>"."<identifier>" SAMPLE 0
 
-        This succeeds (returning 0 rows) when the table exists, and raises
-        Teradata Error 7825 (ICEBERG_EXPORT "Table does not exist") when it
-        does not.
+        This succeeds (returning 0 rows) when the table exists, and raises a
+        "table does not exist" error when it does not. The exact error code
+        depends on the Teradata / OTF engine version:
+          - Error 7825 = ICEBERG_EXPORT "Table does not exist" (external catalog)
+          - Error 6321 = "OTF Error: Table does not exist" (newer OTF engines,
+                         e.g. 20.0.0.61)
+        Both indicate a missing OTF table and are treated as "does not exist".
 
         Returns True if the table exists, False otherwise.
         """
@@ -427,9 +431,12 @@ class TeradataAdapter(SQLAdapter):
             )
             return True
         except dbt_common.exceptions.DbtDatabaseError as ex:
-            # Error 7825 = ICEBERG_EXPORT "Table does not exist" in external catalog.
-            # Only swallow this specific error; re-raise auth/network/syntax failures.
-            if "[Error 7825]" in str(ex):
+            # "Table does not exist" for an OTF table surfaces under different
+            # error codes across Teradata/OTF versions (7825 on older external
+            # catalog paths, 6321 on newer OTF engines). Swallow only these
+            # specific "not found" codes; re-raise auth/network/syntax failures.
+            msg = str(ex)
+            if "[Error 7825]" in msg or "[Error 6321]" in msg:
                 return False
             raise
     

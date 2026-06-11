@@ -477,6 +477,34 @@ class TestTeradataRelationCreateFromOTF:
         assert rel.is_otf is True
         assert rel.render() == '"dl"."db"."tbl"'
 
+    def test_create_from_honours_dbt_alias(self, monkeypatch):
+        """dbt `alias` config: the OTF object name must be the *alias*, not the
+        model file name.
+
+        dbt-core resolves a model's `alias` into ``node.alias`` and exposes it
+        as ``RelationConfig.identifier`` (artifacts/.../components.py). The OTF
+        path keys off ``relation_config.identifier``, so when ``alias`` differs
+        from the model file name the resolved identifier carries the alias and
+        the 3-part DATALAKE name must use it. This locks in that the existing
+        identifier plumbing satisfies dbt's `alias` feature for OTF tables.
+        """
+        from dbt.adapters import factory as adapter_factory
+
+        cat = MagicMock(catalog_type="datalake", datalake_name="dl", otf_database="db")
+        adapter = MagicMock()
+        adapter.get_catalog_integration.return_value = cat
+        monkeypatch.setattr(adapter_factory, "get_adapter", lambda _: adapter)
+
+        # Model file is `sales_total.sql` but the user set alias='sales_dashboard'.
+        # dbt-core has already collapsed that into identifier == the alias.
+        rc = MagicMock(identifier="sales_dashboard", config={"catalog_name": "test_catalog"})
+        rel = TeradataRelation.create_from(MagicMock(), rc, type="table")
+
+        assert rel.is_otf is True
+        # The alias -- not the model file name -- is the OTF table identifier.
+        assert rel.identifier == "sales_dashboard"
+        assert rel.render() == '"dl"."db"."sales_dashboard"'
+
 
 # ===================================================================
 # Build relation -- additional DDL config scenarios
@@ -712,6 +740,15 @@ class TestOtfRelationExists:
         mock_self = MagicMock()
         mock_self.connections.execute.side_effect = DbtDatabaseError(
             "[Error 7825] ICEBERG_EXPORT: Table does not exist"
+        )
+        assert self._call(mock_self) is False
+
+    def test_returns_false_for_error_6321(self):
+        """Table not found on newer OTF engines (e.g. 20.0.0.61): DbtDatabaseError
+        with [Error 6321] "OTF Error: Table does not exist" → False."""
+        mock_self = MagicMock()
+        mock_self.connections.execute.side_effect = DbtDatabaseError(
+            "[Error 6321] [SQLState HY000] OTF Error:  Table does not exist: db.tbl"
         )
         assert self._call(mock_self) is False
 

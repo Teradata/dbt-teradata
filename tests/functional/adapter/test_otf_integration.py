@@ -67,6 +67,11 @@ _OTF_TEST_TABLES = [
     "otf_inc_append",
     "otf_inc_append_partitioned",
     "otf_inc_full_refresh",
+    # dbt `alias` config: physical OTF objects carry the *alias*, not the
+    # model file name, so register the alias names for cleanup (not the file
+    # names otf_alias_model / otf_alias_inc).
+    "otf_aliased_object",
+    "otf_alias_inc_object",
 ]
 
 
@@ -983,6 +988,174 @@ class TestOTFIncrementalFullRefresh(BaseCatalogIntegrationValidation):
             ])
             assert len(results) == 1
             assert results[0].status == "success"
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_inc_src")
+
+
+# ===================================================================
+# Scenario 18: dbt `alias` config on an OTF table materialization
+#
+# These exercise dbt's own `alias` resource config (NOT Teradata's
+# CREATE ALIAS TABLE).  The expectation is that the physical OTF object is
+# named after the *alias*, not the model file name, and that ref()/this
+# resolve to the alias-named 3-part DATALAKE object.
+# ===================================================================
+
+# Model file is `otf_alias_model.sql`; the configured alias is a different name.
+otf_alias_model_sql = f"""
+{{{{ config(
+    materialized='table',
+    catalog_name='{CATALOG_NAME}',
+    alias='otf_aliased_object'
+) }}}}
+select id, name from {{{{ target.schema }}}}.otf_src
+"""
+
+# Downstream model refs by MODEL NAME (otf_alias_model); dbt must resolve that
+# ref to the ALIAS-named OTF object in the compiled 3-part name.
+downstream_of_alias_sql = """
+{{ config(materialized='view') }}
+select id, name from {{ ref('otf_alias_model') }}
+"""
+
+
+class TestOTFTableAlias(BaseCatalogIntegrationValidation):
+    """dbt `alias` on an OTF `table` model: the OTF object is created under the
+    alias, and the model-file name is NOT used as the object name.
+    """
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {
+            "otf_alias_model.sql": otf_alias_model_sql,
+            "downstream_of_alias.sql": downstream_of_alias_sql,
+        }
+
+    def test_alias_drives_otf_object_name(self, project):
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_src (id INTEGER, name VARCHAR(100))"
+        )
+        project.run_sql("INSERT INTO {schema}.otf_src VALUES (1, 'a')")
+        project.run_sql("INSERT INTO {schema}.otf_src VALUES (2, 'b')")
+        try:
+            results = run_dbt(["run", "--select", "otf_alias_model"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            # The OTF object must exist under the ALIAS name with 2 rows.
+            count = project.run_sql(
+                f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_aliased_object"',
+                fetch="one",
+            )[0]
+            assert count == 2
+
+            # The model-FILE name must NOT exist as an OTF object (Error 7825).
+            with pytest.raises(Exception):
+                project.run_sql(
+                    f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_model"',
+                    fetch="one",
+                )
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_src")
+
+    def test_ref_to_aliased_otf_model_uses_alias_name(self, project):
+        # ref('otf_alias_model') resolves by model name but must compile to the
+        # ALIAS-named 3-part OTF object.
+        run_dbt(["compile", "--select", "downstream_of_alias"])
+        compiled_path = os.path.join(
+            str(project.project_root),
+            "target", "compiled", "test", "models", "downstream_of_alias.sql",
+        )
+        with open(compiled_path, "r", encoding="utf-8") as f:
+            compiled = f.read()
+        expected = f'"{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_aliased_object"'
+        assert expected in compiled, (
+            f"Expected alias-named 3-part OTF ref {expected!r} in compiled SQL, "
+            f"got:\n{compiled}"
+        )
+        # The model-file name must not leak into the compiled relation name.
+        assert f'"{OTF_DATABASE}"."otf_alias_model"' not in compiled
+
+
+# ===================================================================
+# Scenario 19: dbt `alias` config on an OTF incremental materialization
+# ===================================================================
+
+# Model file is `otf_alias_inc.sql`; alias renames the physical OTF object.
+otf_alias_inc_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='append',
+    alias='otf_alias_inc_object'
+) }}}}
+select id, name from {{{{ target.schema }}}}.otf_inc_src
+
+{{% if is_incremental() %}}
+    where id > (select max(id) from {{{{ this }}}})
+{{% endif %}}
+"""
+
+
+class TestOTFIncrementalAlias(BaseCatalogIntegrationValidation):
+    """dbt `alias` on an OTF incremental model: create + append must both target
+    the alias-named object, and `this` (used by the is_incremental filter and the
+    existence probe) must resolve to the alias name.
+    """
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"otf_alias_inc.sql": otf_alias_inc_sql}
+
+    def test_incremental_alias_create_then_append(self, project):
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_inc_src (id INTEGER, name VARCHAR(100))"
+        )
+        project.run_sql("INSERT INTO {schema}.otf_inc_src VALUES (1, 'alice')")
+        project.run_sql("INSERT INTO {schema}.otf_inc_src VALUES (2, 'bob')")
+        try:
+            # First run: creates the alias-named OTF object.
+            results = run_dbt(["run", "--select", "otf_alias_inc"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            stats = project.run_sql(
+                f'SELECT MIN(id), MAX(id), COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_inc_object"',
+                fetch="one",
+            )
+            assert stats[0] == 1
+            assert stats[1] == 2
+            assert stats[2] == 2
+
+            # The model-file name must NOT exist as an OTF object.
+            with pytest.raises(Exception):
+                project.run_sql(
+                    f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_inc"',
+                    fetch="one",
+                )
+
+            project.run_sql("INSERT INTO {schema}.otf_inc_src VALUES (3, 'charlie')")
+
+            # Second run: append path must target the alias-named object via `this`.
+            results = run_dbt(["run", "--select", "otf_alias_inc"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            stats = project.run_sql(
+                f'SELECT MIN(id), MAX(id), COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_inc_object"',
+                fetch="one",
+            )
+            assert stats[0] == 1
+            assert stats[1] == 3
+            assert stats[2] == 3
         finally:
             project.run_sql("DROP TABLE {schema}.otf_inc_src")
 

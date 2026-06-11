@@ -439,7 +439,9 @@ class TeradataConnectionManager(SQLConnectionManager):
                 # 7825 = OTF table not found in external catalog (e.g. Glue/Unity)
                 #         raised by ICEBERG_EXPORT UDF when dropping a nonexistent
                 #         DATALAKE table; safe to ignore under IF EXISTS semantics
-                for error_number in [3807, 3854, 3853, 7825]:
+                # 6321 = "OTF Error: Table does not exist" raised by newer OTF
+                #         engines (e.g. TD 20.0.0.61) instead of 7825; same intent
+                for error_number in [3807, 3854, 3853, 7825, 6321]:
                     if f"[Error {error_number}]" in str(ex):
                         return None, None
             if ("DELETE DATABASE /*+ IF EXISTS */" in query_upper) or ("DROP DATABASE /*+ IF EXISTS */" in query_upper):
