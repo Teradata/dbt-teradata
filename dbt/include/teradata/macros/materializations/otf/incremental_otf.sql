@@ -267,17 +267,24 @@
     {%- set otf_relation_name = teradata__build_otf_relation_name(catalog_integration, target_relation.identifier) -%}
 
     {#-- Step 3a: on_schema_change reconciliation.
-         Read the OTF target's current columns via SAMPLE 0 metadata (DBC.ColumnsV
-         does not see OTF tables), diff against the staging schema, and for
-         'append_new_columns' issue one ALTER TABLE ADD per new column. Returns
-         the positional SELECT expression list aligned to the final OTF column
-         order, or none to use the default positional append. --#}
-    {%- set target_otf_columns = adapter.get_otf_columns_in_relation(
-        catalog_integration.datalake_name,
-        catalog_integration.otf_database,
-        target_relation.identifier) -%}
-    {%- set insert_exprs = teradata__otf_reconcile_schema(
-        on_schema_change, otf_relation_name, target_otf_columns, dest_columns) -%}
+         For the default 'ignore' there is nothing to reconcile, so we skip the
+         OTF column probe entirely (it is an extra SAMPLE 0 round-trip against
+         the DATALAKE). For 'fail'/'append_new_columns', read the OTF target's
+         current columns via SAMPLE 0 metadata (DBC.ColumnsV does not see OTF
+         tables), diff against the staging schema, and for 'append_new_columns'
+         issue one ALTER TABLE ADD per new column. teradata__otf_reconcile_schema
+         returns the positional SELECT expression list aligned to the final OTF
+         column order, or none to use the default positional append. --#}
+    {%- if on_schema_change == 'ignore' -%}
+      {%- set insert_exprs = none -%}
+    {%- else -%}
+      {%- set target_otf_columns = adapter.get_otf_columns_in_relation(
+          catalog_integration.datalake_name,
+          catalog_integration.otf_database,
+          target_relation.identifier) -%}
+      {%- set insert_exprs = teradata__otf_reconcile_schema(
+          on_schema_change, otf_relation_name, target_otf_columns, dest_columns) -%}
+    {%- endif -%}
 
     {% call statement('main') %}
       {%- if insert_exprs is none -%}
