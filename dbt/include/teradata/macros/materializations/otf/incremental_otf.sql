@@ -168,28 +168,28 @@
   {%- set staging_lower = [] -%}
   {%- for s in staging_columns -%}{%- do staging_lower.append(s.name | lower) -%}{%- endfor -%}
 
-  {#-- 1) ADD columns present in the source but not the OTF table. --#}
+  {#-- Compute the full diff FIRST, without running any DDL: columns to add, to
+       drop, and to retype. Type changes are validated here so an unsupported one
+       raises BEFORE any ALTER executes -- otherwise a partial ADD/DROP could be
+       left behind, and OTF has no rollback. --#}
   {%- set new_columns = [] -%}
   {%- for s in staging_columns -%}
     {%- if (s.name | lower) not in target_lower -%}{%- do new_columns.append(s) -%}{%- endif -%}
   {%- endfor -%}
-  {%- for col in new_columns -%}
-    {% call statement('otf_sync_add_' ~ loop.index, auto_begin=False) -%}
-      ALTER TABLE {{ otf_relation_name }} ADD {{ adapter.quote(col.name) }} {{ col.data_type }};
-    {%- endcall %}
+
+  {%- set removed_columns = [] -%}
+  {%- for n in target_names -%}
+    {%- if (n | lower) not in staging_lower -%}{%- do removed_columns.append(n) -%}{%- endif -%}
   {%- endfor -%}
 
-  {#-- 2) MODIFY columns present in both whose OTF/Iceberg type changed. Apply
-         only promotions OTF allows; otherwise raise a clear error. --#}
+  {%- set modify_columns = [] -%}
   {%- for s in staging_columns -%}
     {%- if (s.name | lower) in target_lower -%}
       {%- set old_type = target_type_by_name[s.name | lower] -%}
       {%- set new_type = adapter.teradata_type_to_otf_type(s.data_type) -%}
       {%- if old_type != new_type -%}
         {%- if adapter.otf_type_promotion_allowed(old_type, new_type) -%}
-          {% call statement('otf_sync_modify_' ~ loop.index, auto_begin=False) -%}
-            ALTER TABLE {{ otf_relation_name }} MODIFY {{ adapter.quote(s.name) }} {{ s.data_type }};
-          {%- endcall %}
+          {%- do modify_columns.append(s) -%}
         {%- else -%}
           {{ exceptions.raise_compiler_error(
               "on_schema_change='sync_all_columns': column '" ~ s.name ~ "' changed type from '"
@@ -201,11 +201,18 @@
     {%- endif -%}
   {%- endfor -%}
 
-  {#-- 3) DROP columns no longer in the source. Destructive: the column and its
-         data are removed, and OTF has no rollback. --#}
-  {%- set removed_columns = [] -%}
-  {%- for n in target_names -%}
-    {%- if (n | lower) not in staging_lower -%}{%- do removed_columns.append(n) -%}{%- endif -%}
+  {#-- Apply the changes, one ALTER each (OTF cannot combine alter ops / no
+       multi-statement requests; no rollback if one fails midway). DROP is
+       destructive -- the column and its data are removed. --#}
+  {%- for col in new_columns -%}
+    {% call statement('otf_sync_add_' ~ loop.index, auto_begin=False) -%}
+      ALTER TABLE {{ otf_relation_name }} ADD {{ adapter.quote(col.name) }} {{ col.data_type }};
+    {%- endcall %}
+  {%- endfor -%}
+  {%- for col in modify_columns -%}
+    {% call statement('otf_sync_modify_' ~ loop.index, auto_begin=False) -%}
+      ALTER TABLE {{ otf_relation_name }} MODIFY {{ adapter.quote(col.name) }} {{ col.data_type }};
+    {%- endcall %}
   {%- endfor -%}
   {%- for col in removed_columns -%}
     {% call statement('otf_sync_drop_' ~ loop.index, auto_begin=False) -%}
@@ -213,7 +220,7 @@
     {%- endcall %}
   {%- endfor -%}
 
-  {#-- 4) Final OTF column order = surviving target columns (original order, minus
+  {#-- Final OTF column order = surviving target columns (original order, minus
          dropped) then the newly added columns. Build a positional SELECT in that
          order; every column is present in the source (dropped ones are gone). --#}
   {%- set final_order = [] -%}
