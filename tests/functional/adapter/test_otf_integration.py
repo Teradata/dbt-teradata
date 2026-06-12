@@ -96,6 +96,8 @@ _OTF_TEST_TABLES = [
     OTF_LONG_ALIAS_NAME,
     # Scenario 23: alias + partitioned_by incremental
     "otf_alias_partitioned_object",
+    # on_schema_change Phase 1
+    "otf_osc",
 ]
 
 
@@ -1533,3 +1535,80 @@ class TestOTFAliasWithPartition(BaseCatalogIntegrationValidation):
             assert stats[2] == 3   # 3 rows: alice + bob + charlie
         finally:
             project.run_sql("DROP TABLE {schema}.otf_alias_partitioned_src")
+
+
+# ===================================================================
+# Scenario 24: on_schema_change Phase 1 for OTF incremental
+#   - append_new_columns: ALTER ADD a new source column, back-fill NULL for
+#     pre-existing rows, positional INSERT aligned to the new OTF column order
+#   - fail: raise a clear error on schema drift
+#   ('sync_all_columns' is rejected at validation — Phase 2, not tested here)
+#
+# A var toggles the extra column and the mode so the whole lifecycle runs
+# unattended in one test.
+# ===================================================================
+
+otf_osc_model_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='append',
+    on_schema_change=var('otf_osc_mode', 'append_new_columns')
+) }}}}
+select id, name
+{{% if var('otf_add_col', false) %}}, cast('x' as varchar(10)) as extra_col{{% endif %}}
+from {{{{ target.schema }}}}.otf_osc_src
+"""
+
+
+class TestOTFIncrementalOnSchemaChange(BaseCatalogIntegrationValidation):
+    """on_schema_change Phase 1 for OTF incremental models."""
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"otf_osc.sql": otf_osc_model_sql}
+
+    def test_append_new_columns_then_fail(self, project):
+        # Defensive: ensure no stale OTF table from a prior aborted run.
+        try:
+            project.run_sql(
+                f'DROP TABLE /*+ IF EXISTS */ "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_osc" NO PURGE;'
+            )
+        except Exception:
+            pass
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_osc_src (id INTEGER, name VARCHAR(50))"
+        )
+        project.run_sql("INSERT INTO {schema}.otf_osc_src VALUES (1, 'a')")
+        project.run_sql("INSERT INTO {schema}.otf_osc_src VALUES (2, 'b')")
+        try:
+            # 1) First run: create OTF table with (id, name).
+            r = run_dbt(["run", "--select", "otf_osc"])
+            assert r[0].status == "success"
+
+            # 2) append_new_columns: add extra_col -> ALTER TABLE ADD + aligned
+            #    positional INSERT. Pre-existing rows get NULL; new rows get 'x'.
+            r = run_dbt(["run", "--select", "otf_osc", "--vars", "{otf_add_col: true}"])
+            assert r[0].status == "success"
+            # Referencing extra_col proves the ALTER ran; counts prove back-fill.
+            cnt = project.run_sql(
+                f'SELECT COUNT(*), COUNT(extra_col) '
+                f'FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_osc"',
+                fetch="one",
+            )
+            assert cnt[0] == 4   # 2 from run 1 + 2 from run 2
+            assert cnt[1] == 2   # only run-2 rows carry extra_col
+
+            # 3) fail mode on drift (extra_col now missing from source) -> error.
+            r = run_dbt(
+                ["run", "--select", "otf_osc", "--vars", "{otf_osc_mode: fail}"],
+                expect_pass=False,
+            )
+            assert r[0].status == "error"
+            assert "on_schema_change='fail'" in r[0].message
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_osc_src")

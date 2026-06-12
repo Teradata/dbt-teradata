@@ -50,6 +50,92 @@
 {% endmacro %}
 
 
+{% macro teradata__otf_reconcile_schema(on_schema_change, otf_relation_name, target_columns, staging_columns) %}
+  {#-- on_schema_change reconciliation for OTF incremental models (Phase 1).
+
+       Args:
+         on_schema_change : 'ignore' | 'fail' | 'append_new_columns'
+         otf_relation_name: rendered 3-part OTF name
+         target_columns   : list of column NAME strings currently on the OTF table
+                            (from adapter.get_otf_columns_in_relation)
+         staging_columns  : list of Column objects from the staging table -- the
+                            incoming schema, carrying name + DDL type
+
+       Returns:
+         none  -> caller should use the default positional append
+         list  -> positional SELECT expressions aligned to the final OTF column
+                  order (used when columns were added under append_new_columns)
+
+       Comparison is case-insensitive. New columns are added one ALTER at a time
+       because OTF cannot combine ALTER operations and External OTF disallows
+       multi-statement requests. --#}
+
+  {%- set target_lower = [] -%}
+  {%- for t in target_columns -%}{%- do target_lower.append(t | lower) -%}{%- endfor -%}
+  {%- set staging_lower = [] -%}
+  {%- for s in staging_columns -%}{%- do staging_lower.append(s.name | lower) -%}{%- endfor -%}
+
+  {#-- new_columns: in staging but not in target; removed_columns: target not in staging --#}
+  {%- set new_columns = [] -%}
+  {%- for s in staging_columns -%}
+    {%- if (s.name | lower) not in target_lower -%}{%- do new_columns.append(s) -%}{%- endif -%}
+  {%- endfor -%}
+  {%- set removed_columns = [] -%}
+  {%- for t in target_columns -%}
+    {%- if (t | lower) not in staging_lower -%}{%- do removed_columns.append(t) -%}{%- endif -%}
+  {%- endfor -%}
+
+  {%- if on_schema_change == 'ignore' -%}
+    {{ return(none) }}
+
+  {%- elif on_schema_change == 'fail' -%}
+    {%- if (new_columns | length > 0) or (removed_columns | length > 0) -%}
+      {{ exceptions.raise_compiler_error(
+          "Schema change detected on OTF incremental model with on_schema_change='fail'. "
+          ~ "Columns added in source: [" ~ (new_columns | map(attribute='name') | join(', ')) ~ "]; "
+          ~ "columns missing from source: [" ~ (removed_columns | join(', ')) ~ "]. "
+          ~ "Reconcile the model, switch to on_schema_change='append_new_columns', "
+          ~ "or run with --full-refresh."
+      ) }}
+    {%- endif -%}
+    {{ return(none) }}
+
+  {%- elif on_schema_change == 'append_new_columns' -%}
+    {%- if (new_columns | length == 0) and (removed_columns | length == 0) -%}
+      {#-- No drift -- the default positional append is correct. --#}
+      {{ return(none) }}
+    {%- endif -%}
+
+    {#-- Add each new source column with its own ALTER. New columns land at the
+         end of the OTF table. Type is sourced from the staging column. --#}
+    {%- for col in new_columns -%}
+      {% call statement('otf_add_column_' ~ loop.index, auto_begin=False) -%}
+        ALTER TABLE {{ otf_relation_name }} ADD {{ adapter.quote(col.name) }} {{ col.data_type }};
+      {%- endcall %}
+    {%- endfor -%}
+
+    {#-- Final OTF column order = existing target columns (original order) then the
+         newly added columns. Build a positional SELECT in that exact order so the
+         column-list-less OTF INSERT aligns. A target column no longer present in
+         the source (append_new_columns keeps it) gets NULL. --#}
+    {%- set final_order = target_columns + (new_columns | map(attribute='name') | list) -%}
+    {%- set exprs = [] -%}
+    {%- for cname in final_order -%}
+      {%- set ns = namespace(match=none) -%}
+      {%- for s in staging_columns -%}
+        {%- if (s.name | lower) == (cname | lower) -%}{%- set ns.match = s -%}{%- endif -%}
+      {%- endfor -%}
+      {%- if ns.match is not none -%}
+        {%- do exprs.append(adapter.quote(ns.match.name)) -%}
+      {%- else -%}
+        {%- do exprs.append('NULL') -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {{ return(exprs) }}
+  {%- endif -%}
+{% endmacro %}
+
+
 {% macro teradata__incremental_otf(catalog_name, sql) %}
   {#-- Main entry point for OTF incremental materialization. --#}
 
@@ -69,15 +155,31 @@
     ) }}
   {%- endif -%}
 
-  {#-- on_schema_change is not supported for OTF incremental models: the append
-       strategy does not reconcile target/source schemas, and the other values
-       ('fail', 'append_new_columns', 'sync_all_columns') cannot be honoured.
-       Users must run with --full-refresh to apply schema changes. --#}
-  {%- set on_schema_change = config.get('on_schema_change', none) -%}
-  {%- if on_schema_change is not none and on_schema_change != 'ignore' -%}
+  {#-- on_schema_change handling for OTF incremental (Phase 1).
+       Supported: 'ignore' (default), 'fail', 'append_new_columns'.
+
+       'sync_all_columns' is intentionally NOT supported: it must also
+       synchronize column TYPE changes, but OTF/Iceberg only permits a narrow
+       set of safe promotions (e.g. INTEGER->BIGINT). Common changes such as
+       VARCHAR length changes fail at ALTER ... MODIFY with Error 7825, so the
+       'sync all types' contract cannot be honored reliably. It also performs
+       destructive, irreversible column DROPs (OTF has no rollback).
+       'append_new_columns' avoids both: it is ADD-only, never retypes existing
+       columns, and is non-destructive.
+       The actual reconciliation runs in the incremental (append) branch below
+       via teradata__otf_reconcile_schema(). --#}
+  {%- set on_schema_change = config.get('on_schema_change', 'ignore') or 'ignore' -%}
+  {%- set _otf_supported_osc = ['ignore', 'fail', 'append_new_columns'] -%}
+  {%- if on_schema_change == 'sync_all_columns' -%}
     {{ exceptions.raise_compiler_error(
-        "on_schema_change='" ~ on_schema_change ~ "' is not supported for OTF incremental models. "
-        ~ "Use --full-refresh to apply schema changes to an OTF table."
+        "on_schema_change='sync_all_columns' is not yet supported for OTF incremental models. "
+        ~ "Use 'append_new_columns' to add new source columns, 'fail' to error on drift, "
+        ~ "or run with --full-refresh."
+    ) }}
+  {%- elif on_schema_change not in _otf_supported_osc -%}
+    {{ exceptions.raise_compiler_error(
+        "Invalid on_schema_change='" ~ on_schema_change ~ "' for OTF incremental models. "
+        ~ "Supported values: " ~ (_otf_supported_osc | join(', ')) ~ "."
     ) }}
   {%- endif -%}
 
@@ -161,11 +263,31 @@
          The staging table is a regular Teradata table so DBC.ColumnsV has its schema. --#}
     {%- set dest_columns = adapter.get_columns_in_relation(tmp_relation) -%}
 
-    {#-- Step 3: Build the 3-part OTF relation name and execute append --#}
+    {#-- Step 3: Build the 3-part OTF relation name --#}
     {%- set otf_relation_name = teradata__build_otf_relation_name(catalog_integration, target_relation.identifier) -%}
 
+    {#-- Step 3a: on_schema_change reconciliation.
+         Read the OTF target's current columns via SAMPLE 0 metadata (DBC.ColumnsV
+         does not see OTF tables), diff against the staging schema, and for
+         'append_new_columns' issue one ALTER TABLE ADD per new column. Returns
+         the positional SELECT expression list aligned to the final OTF column
+         order, or none to use the default positional append. --#}
+    {%- set target_otf_columns = adapter.get_otf_columns_in_relation(
+        catalog_integration.datalake_name,
+        catalog_integration.otf_database,
+        target_relation.identifier) -%}
+    {%- set insert_exprs = teradata__otf_reconcile_schema(
+        on_schema_change, otf_relation_name, target_otf_columns, dest_columns) -%}
+
     {% call statement('main') %}
-      {{ teradata__get_otf_incremental_append_sql(otf_relation_name, tmp_relation, dest_columns) }}
+      {%- if insert_exprs is none -%}
+        {{ teradata__get_otf_incremental_append_sql(otf_relation_name, tmp_relation, dest_columns) }}
+      {%- else -%}
+        insert into {{ otf_relation_name }}
+            select {{ insert_exprs | join(', ') }}
+            from {{ tmp_relation }}
+        ;
+      {%- endif -%}
     {% endcall %}
 
     {#-- Step 4: Cleanup staging table --#}

@@ -938,17 +938,68 @@ A `ref()` from another model then compiles to `"my_lake"."my_otf_db"."customer_i
 
 ### Supported model config options
 
-| Option                | Type    | Description                                                                                                |
-| --------------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
-| `catalog_name`        | string  | Name of the catalog integration from `catalogs.yml`. Required to mark a model as OTF.                      |
-| `partitioned_by`      | string  | Iceberg/Delta partition expression, e.g. `'YEAR(dt), country'`.                                            |
-| `sorted_by`           | string  | Sort order, e.g. `'id ASC'`.                                                                               |
-| `tblproperties`       | string  | Iceberg/Delta table properties, e.g. `"'gc.enabled'='true'"`.                                              |
-| `purge_mode`          | string  | DROP behavior. `'NO PURGE'` (default; removes catalog entry only) or `'PURGE ALL'` (also deletes data files on the object store). Case-insensitive. |
-| `incremental_strategy`| string  | For incremental OTF models: only `'append'` is supported. |
-| `alias`               | string  | Overrides the physical OTF table name in the catalog. The OTF object is created under the alias; the model file name is not used. Works for both `table` and `incremental` OTF models. |
+| Option                 | Type    | Description                                                                                                |
+| ---------------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
+| `catalog_name`         | string  | Name of the catalog integration from `catalogs.yml`. Required to mark a model as OTF.                      |
+| `partitioned_by`       | string  | Iceberg/Delta partition expression, e.g. `'YEAR(dt), country'`.                                            |
+| `sorted_by`            | string  | Sort order, e.g. `'id ASC'`.                                                                               |
+| `tblproperties`        | string  | Iceberg/Delta table properties, e.g. `"'gc.enabled'='true'"`.                                              |
+| `purge_mode`           | string  | DROP behavior. `'NO PURGE'` (default; removes catalog entry only) or `'PURGE ALL'` (also deletes data files on the object store). Case-insensitive. |
+| `incremental_strategy` | string  | For `materialized='incremental'` only. **Only `'append'` is supported** on OTF (see [Incremental materialization](#incremental-materialization-otf)). |
+| `on_schema_change`     | string  | For `materialized='incremental'` only. `'ignore'` (default), `'fail'`, or `'append_new_columns'`. `'sync_all_columns'` is **not** supported on OTF (see below). |
+| `alias`                | string  | Overrides the physical OTF table name in the catalog. The OTF object is created under the alias; the model file name is not used. Works for both `table` and `incremental` OTF models. |
 
 `persist_docs` and standard dbt cache management work on OTF models the same way they do on native tables. **`grants` is not supported on OTF tables** — Teradata does not allow `GRANT` on DATALAKE objects (access control is managed via AUTHORIZATION objects and external IAM/OAuth policies). Setting `grants` on an OTF model emits a warning and is otherwise ignored.
+
+### Incremental materialization (OTF)
+
+OTF tables can be materialized incrementally with `materialized='incremental'` and a `catalog_name`:
+
+```sql
+-- models/orders_otf_incremental.sql
+{{ config(
+    materialized='incremental',
+    catalog_name='my_otf_catalog',
+    incremental_strategy='append',
+    partitioned_by='YEAR(order_date)',
+    on_schema_change='append_new_columns'
+) }}
+select order_id, customer_id, order_date, amount
+from {{ ref('stg_orders') }}
+{% if is_incremental() %}
+    where order_date > (select max(order_date) from {{ this }})
+{% endif %}
+```
+
+How it runs:
+
+* **First run** creates the OTF table (`CREATE TABLE ... AS ... WITH DATA`).
+* **Subsequent runs** load new rows into a regular Teradata staging table, then `INSERT ... SELECT` into the OTF table (positional insert — OTF does not accept a target column list).
+* **`--full-refresh`** drops and re-creates the table from scratch.
+* Existence is detected by probing the 3-part name with `SELECT ... SAMPLE 0` (OTF tables are not registered in `DBC.TablesV`/`DBC.ColumnsV` under the dbt schema), treating Teradata errors **7825** and **6321** ("OTF table does not exist") as "not found".
+
+> **Only `incremental_strategy='append'` is supported on OTF.** `merge`, `delete+insert`, `valid_history`, and `microbatch` raise a compile-time error. Teradata External OTF does not support `MERGE` and is copy-on-write only, so the upsert-style strategies cannot be honored. Use `append` (optionally with an `is_incremental()` filter to bound the rows appended).
+
+#### `on_schema_change` on OTF
+
+dbt's [`on_schema_change`](https://docs.getdbt.com/docs/build/incremental-models#what-if-the-columns-of-my-incremental-model-change) is supported on OTF incremental models with these values:
+
+| Value | OTF behavior |
+| ----- | ------------ |
+| `ignore` (default) | No schema reconciliation. The append assumes the source and the existing OTF table have the same columns in the same order. |
+| `fail` | Compares the incoming (source) columns with the existing OTF columns and raises a clear error if any column was added or removed. |
+| `append_new_columns` | For each column present in the source but not yet in the OTF table, issues a separate `ALTER TABLE ... ADD <col> <type>`; the new columns are added at the end of the table. Pre-existing rows get `NULL` for the new columns; rows inserted on this run carry the new values. The `INSERT` is reordered to match the resulting OTF column layout. |
+| `sync_all_columns` | **Not supported on OTF** — raises a compile-time error (see below). |
+
+**Limitations of `on_schema_change` on OTF:**
+
+* **`sync_all_columns` is not supported.** It must also synchronize column *type* changes, but OTF/Iceberg only allows a narrow set of "safe" type promotions (e.g. `INTEGER → BIGINT` works). Common changes such as `VARCHAR` length changes fail at `ALTER ... MODIFY` with Teradata error **7825**, so the "sync all types" contract cannot be honored reliably. `sync_all_columns` also performs destructive, irreversible column **drops**, and OTF has no transaction rollback. Use `append_new_columns` (additive only) instead, or `--full-refresh` to rebuild the table.
+* **`append_new_columns` is additive only.** New source columns are added; columns removed from the source are **kept** on the OTF table (and back-filled with `NULL` for subsequent rows). Existing column **types are never changed**.
+* **New columns must be appended at the end of the model's `SELECT`.** OTF inserts are positional (no target column list), and `ALTER ... ADD` always adds the new column at the end of the table. Adding a column in the *middle* of the `SELECT` list can misalign the positional insert.
+* **Each schema change is a separate `ALTER` statement.** OTF cannot combine multiple alter operations into one statement, and External OTF does not allow multi-statement requests, so `N` new columns produce `N` separate `ALTER TABLE ... ADD` statements. There is no rollback if one of them fails midway.
+* **Catalog/format support varies.** Schema evolution is verified on **Iceberg** (AWS Glue / Hive). **Unity Catalog does not support schema evolution at all** — any `ALTER` (including `append_new_columns`) will fail at the database. **Delta Lake** may require `delta.columnMapping.mode='name'` for column changes. On unsupported catalogs the `ALTER` surfaces the underlying Teradata error.
+
+To apply a schema change that `append_new_columns` cannot (a dropped column, a type change, or a reordering), run the model with `--full-refresh`.
 
 ### Limitations and trade-offs
 
@@ -956,6 +1007,8 @@ A `ref()` from another model then compiles to `"my_lake"."my_otf_db"."customer_i
 * **Model contracts are not supported on the OTF path.** Setting `contract.enforced: true` together with `catalog_name` raises a compile-time error.
 * **Teradata-native table options are not supported.** Setting any of `table_kind`, `table_option`, `with_statistics`, or `index` together with `catalog_name` raises a compile-time error — these options describe native Teradata table storage and do not apply to Iceberg/Delta tables.
 * **Only `catalog_type: datalake` is supported.** Other catalog types are rejected with a compile-time error.
+* **Incremental: only `append` is supported, and `on_schema_change` is limited.** `merge`/`delete+insert`/`valid_history`/`microbatch` and `on_schema_change='sync_all_columns'` raise compile-time errors. See [Incremental materialization (OTF)](#incremental-materialization-otf).
+* **OTF cannot be used with the `snapshot` materialization.** Setting `catalog_name` on a snapshot raises a compile-time error (snapshots require update/merge semantics OTF does not provide).
 
 ### Incremental OTF models
 
@@ -989,7 +1042,7 @@ The `alias` config works for incremental OTF models — both the initial CREATE 
 
 ### Error 7825 / 6321 suppression
 
-Teradata raises error 7825 ("OTF table not found in external catalog") when `DROP TABLE` is issued against an OTF table that no longer exists in the external catalog (e.g. Glue). Teradata 20.0.0.61 and later raises error 6321 for the same condition. dbt-teradata suppresses both errors under `IF EXISTS` semantics — so re-running a dbt project after an OTF table has been deleted externally does not fail.
+Teradata raises error **7825** ("OTF table not found in external catalog") — or **6321** ("OTF Error: Table does not exist") on newer OTF engines (e.g. 20.0.0.61) — when a `DROP TABLE` (or existence probe) targets an OTF table that no longer exists in the external catalog (e.g. Glue). dbt-teradata treats both codes the same way it treats native errors 3807/3853/3854 — suppressed under `IF EXISTS` semantics — so re-running a dbt project after an OTF table has been deleted externally does not fail, and first-run incremental existence checks correctly detect a missing table.
 
 ### Testing OTF locally
 
@@ -1000,7 +1053,7 @@ export DBT_TERADATA_DATALAKE='my_lake'        # pre-created DATALAKE name
 export DBT_TERADATA_OTF_DATABASE='my_otf_db'  # pre-created OTF database name
 ```
 
-Combined with the standard `DBT_TERADATA_SERVER_NAME` / `DBT_TERADATA_USERNAME` / `DBT_TERADATA_PASSWORD` connection variables, `pytest tests/functional/adapter/test_otf_integration.py` will exercise: basic create, idempotency, cross-model `ref()`, source-based 3-part naming, `purge_mode: 'NO PURGE'`, and more. Compile-time guardrail tests live in `tests/functional/adapter/test_otf_guardrails.py`. Without the OTF env vars set, all OTF integration tests are skipped.
+Combined with the standard `DBT_TERADATA_SERVER_NAME` / `DBT_TERADATA_USERNAME` / `DBT_TERADATA_PASSWORD` connection variables, `pytest tests/functional/adapter/test_otf_integration.py` will exercise: basic create, idempotency, cross-model `ref()`, source-based 3-part naming, `purge_mode: 'NO PURGE'`, incremental `append` (create + append + `--full-refresh`), `on_schema_change='append_new_columns'`/`fail`, dbt `alias`, and more. Compile-time guardrail tests live in `tests/functional/adapter/test_otf_guardrails.py`. Without the OTF env vars set, all OTF integration tests are skipped.
 
 Pure unit tests (no Teradata required) live in `tests/unit/test_otf_catalogs.py` and run via `pytest tests/unit/`.
 

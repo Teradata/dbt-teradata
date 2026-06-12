@@ -439,4 +439,34 @@ class TeradataAdapter(SQLAdapter):
             if "[Error 7825]" in msg or "[Error 6321]" in msg:
                 return False
             raise
-    
+
+    @available
+    def get_otf_columns_in_relation(self, datalake_name: str, otf_database: str, identifier: str):
+        """Return the column NAMES of an OTF (DATALAKE) table.
+
+        OTF tables are not registered in DBC.ColumnsV, and HELP COLUMN raises
+        Error 7825 for them, so the normal get_columns_in_relation() path cannot
+        read an OTF table's schema.  Instead, read the result-set metadata from a
+        zero-row probe:
+
+            SELECT * FROM "<datalake>"."<otf_db>"."<table>" SAMPLE 0
+
+        The agate result carries the column names even with no rows.  Column
+        *types* are not reliably recoverable this way, so only names are
+        returned; callers that need a new column's DDL type source it from the
+        (regular Teradata) staging table instead.  Used by on_schema_change
+        handling to diff the OTF target against the incoming staging schema.
+        """
+        otf_name = self.Relation.create(
+            database=datalake_name,
+            schema=otf_database,
+            identifier=identifier,
+            is_otf=True,
+        ).render()
+        _, table = self.connections.execute(
+            f"SELECT * FROM {otf_name} SAMPLE 0",
+            auto_begin=False,
+            fetch=True,
+        )
+        return list(table.column_names)
+

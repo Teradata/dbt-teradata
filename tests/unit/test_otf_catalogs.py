@@ -767,3 +767,33 @@ class TestOtfRelationExists:
         mock_self.connections.execute.side_effect = RuntimeError("connection reset")
         with pytest.raises(RuntimeError, match="connection reset"):
             self._call(mock_self)
+
+
+# ===================================================================
+# TeradataAdapter.get_otf_columns_in_relation -- OTF schema read
+# ===================================================================
+
+class TestGetOtfColumnsInRelation:
+    """get_otf_columns_in_relation reads an OTF table's column names from the
+    SAMPLE 0 result-set metadata (DBC.ColumnsV / HELP COLUMN do not work for
+    OTF). Used by on_schema_change reconciliation.
+    """
+
+    def test_returns_column_names_from_sample_zero(self):
+        mock_self = MagicMock()
+        # Use the real Relation so the 3-part name renders correctly.
+        mock_self.Relation = TeradataRelation
+        agate_table = MagicMock()
+        agate_table.column_names = ("order_id", "amount", "region")
+        mock_self.connections.execute.return_value = (MagicMock(), agate_table)
+
+        result = TeradataAdapter.get_otf_columns_in_relation(
+            mock_self, "dl", "db", "orders"
+        )
+
+        assert result == ["order_id", "amount", "region"]
+        # Probes the 3-part OTF name with SAMPLE 0 and fetches metadata.
+        sql = mock_self.connections.execute.call_args[0][0]
+        assert "SAMPLE 0" in sql
+        assert '"dl"."db"."orders"' in sql
+        assert mock_self.connections.execute.call_args.kwargs.get("fetch") is True
