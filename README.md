@@ -946,7 +946,7 @@ A `ref()` from another model then compiles to `"my_lake"."my_otf_db"."customer_i
 | `tblproperties`        | string  | Iceberg/Delta table properties, e.g. `"'gc.enabled'='true'"`.                                              |
 | `purge_mode`           | string  | DROP behavior. `'NO PURGE'` (default; removes catalog entry only) or `'PURGE ALL'` (also deletes data files on the object store). Case-insensitive. |
 | `incremental_strategy` | string  | For `materialized='incremental'` only. **Only `'append'` is supported** on OTF (see [Incremental materialization](#incremental-materialization-otf)). |
-| `on_schema_change`     | string  | For `materialized='incremental'` only. `'ignore'` (default), `'fail'`, or `'append_new_columns'`. `'sync_all_columns'` is **not** supported on OTF (see below). |
+| `on_schema_change`     | string  | For `materialized='incremental'` only. `'ignore'` (default), `'fail'`, `'append_new_columns'`, or `'sync_all_columns'` (best-effort on OTF — see below). |
 | `alias`                | string  | Overrides the physical OTF table name in the catalog. The OTF object is created under the alias; the model file name is not used. Works for both `table` and `incremental` OTF models. |
 
 `persist_docs` and standard dbt cache management work on OTF models the same way they do on native tables. **`grants` is not supported on OTF tables** — Teradata does not allow `GRANT` on DATALAKE objects (access control is managed via AUTHORIZATION objects and external IAM/OAuth policies). Setting `grants` on an OTF model emits a warning and is otherwise ignored.
@@ -989,17 +989,17 @@ dbt's [`on_schema_change`](https://docs.getdbt.com/docs/build/incremental-models
 | `ignore` (default) | No schema reconciliation. The append assumes the source and the existing OTF table have the same columns in the same order. |
 | `fail` | Compares the incoming (source) columns with the existing OTF columns and raises a clear error if any column was added or removed. |
 | `append_new_columns` | For each column present in the source but not yet in the OTF table, issues a separate `ALTER TABLE ... ADD <col> <type>`; the new columns are added at the end of the table. Pre-existing rows get `NULL` for the new columns; rows inserted on this run carry the new values. The `INSERT` is reordered to match the resulting OTF column layout. |
-| `sync_all_columns` | **Not supported on OTF** — raises a compile-time error (see below). |
+| `sync_all_columns` | **Best-effort on OTF.** Makes the OTF table match the source: **adds** new columns, **drops** columns no longer in the source (destructive), and applies **type changes** OTF/Iceberg permits (e.g. `int → bigint`, decimal precision widening). A type change OTF cannot apply in place raises a clear error directing you to `--full-refresh`. |
 
 **Limitations of `on_schema_change` on OTF:**
 
-* **`sync_all_columns` is not supported.** It must also synchronize column *type* changes, but OTF/Iceberg only allows a narrow set of "safe" type promotions (e.g. `INTEGER → BIGINT` works). Common changes such as `VARCHAR` length changes fail at `ALTER ... MODIFY` with Teradata error **7825**, so the "sync all types" contract cannot be honored reliably. `sync_all_columns` also performs destructive, irreversible column **drops**, and OTF has no transaction rollback. Use `append_new_columns` (additive only) instead, or `--full-refresh` to rebuild the table.
+* **`sync_all_columns` is best-effort, and type changes are limited.** Type comparison is done at OTF/Iceberg granularity (via `HELP TABLE`'s `OTF Type`), so `VARCHAR` length and `SMALLINT`-vs-`INTEGER` differences are **not** treated as changes (OTF doesn't preserve them). Only OTF-permitted promotions are applied in place — verified: `int → bigint` ✅ and decimal **precision** widening (same scale) ✅; scale changes, narrowing, and cross-family changes (e.g. `decimal → string`) raise a clear error → use `--full-refresh`. `sync_all_columns` also performs **destructive, irreversible column drops** (OTF has no rollback). If you only ever add columns, prefer `append_new_columns`.
 * **`append_new_columns` is additive only.** New source columns are added; columns removed from the source are **kept** on the OTF table (and back-filled with `NULL` for subsequent rows). Existing column **types are never changed**.
 * **Column *order* in the model `SELECT` is handled automatically under `append_new_columns`.** OTF inserts are positional (no target column list), but `append_new_columns` realigns the `INSERT ... SELECT` to the table's column layout *by name*, so you do **not** need to place new columns at the end of the `SELECT`, and reordering existing columns is safe. (`ALTER ... ADD` does physically append new columns to the end of the table; the realignment is what keeps the data correct.) Under `on_schema_change='ignore'`, by contrast, **no realignment happens** — the model `SELECT` must produce columns in the same order as the existing OTF table.
 * **Each schema change is a separate `ALTER` statement.** OTF cannot combine multiple alter operations into one statement, and External OTF does not allow multi-statement requests, so `N` new columns produce `N` separate `ALTER TABLE ... ADD` statements. There is no rollback if one of them fails midway.
 * **Catalog/format support varies.** Schema evolution is verified on **Iceberg** (AWS Glue / Hive). **Unity Catalog does not support schema evolution at all** — any `ALTER` (including `append_new_columns`) will fail at the database. **Delta Lake** may require `delta.columnMapping.mode='name'` for column changes. On unsupported catalogs the `ALTER` surfaces the underlying Teradata error.
 
-To apply a schema change that `append_new_columns` cannot (dropping a column, or changing a column's type), run the model with `--full-refresh`.
+To apply a schema change that neither `append_new_columns` nor `sync_all_columns` can do in place (e.g. a `VARCHAR`→numeric change, a decimal scale change, or a type narrowing), run the model with `--full-refresh`.
 
 ### Limitations and trade-offs
 
@@ -1007,7 +1007,7 @@ To apply a schema change that `append_new_columns` cannot (dropping a column, or
 * **Model contracts are not supported on the OTF path.** Setting `contract.enforced: true` together with `catalog_name` raises a compile-time error.
 * **Teradata-native table options are not supported.** Setting any of `table_kind`, `table_option`, `with_statistics`, or `index` together with `catalog_name` raises a compile-time error — these options describe native Teradata table storage and do not apply to Iceberg/Delta tables.
 * **Only `catalog_type: datalake` is supported.** Other catalog types are rejected with a compile-time error.
-* **Incremental: only `append` is supported, and `on_schema_change` is limited.** `merge`/`delete+insert`/`valid_history`/`microbatch` and `on_schema_change='sync_all_columns'` raise compile-time errors. See [Incremental materialization (OTF)](#incremental-materialization-otf).
+* **Incremental: only the `append` strategy is supported.** `merge`/`delete+insert`/`valid_history`/`microbatch` raise compile-time errors. All four `on_schema_change` values are supported, with `sync_all_columns` being best-effort (limited type changes). See [Incremental materialization (OTF)](#incremental-materialization-otf).
 * **OTF cannot be used with the `snapshot` materialization.** Setting `catalog_name` on a snapshot raises a compile-time error (snapshots require update/merge semantics OTF does not provide).
 
 ### Incremental OTF models

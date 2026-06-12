@@ -135,6 +135,105 @@
 {% endmacro %}
 
 
+{% macro teradata__otf_sync_all_columns(otf_relation_name, target_columns, staging_columns) %}
+  {#-- sync_all_columns reconciliation for OTF incremental models (best-effort).
+
+       Args:
+         otf_relation_name: rendered 3-part OTF name
+         target_columns   : list of {name, otf_type} from get_otf_column_types
+                            (names lower-cased; otf_type is the Iceberg type)
+         staging_columns  : list of Column objects -- the incoming schema
+
+       Makes the OTF table match the source: ADD new columns, DROP columns no
+       longer in the source (destructive), and MODIFY columns whose OTF/Iceberg
+       type changed *and* is a promotion OTF allows. A type change OTF cannot
+       apply in place raises a clear error (use --full-refresh).
+
+       Type comparison is at OTF/Iceberg granularity, so VARCHAR length and
+       SMALLINT-vs-INTEGER differences are not treated as changes. Each change is
+       its own ALTER (OTF cannot combine alter ops / no multi-statement requests;
+       no rollback if one fails midway).
+
+       Returns the positional SELECT expressions aligned to the final OTF column
+       order (surviving target columns in order, then newly added columns). --#}
+
+  {%- set target_names = [] -%}
+  {%- set target_type_by_name = {} -%}
+  {%- for c in target_columns -%}
+    {%- do target_names.append(c.name) -%}
+    {%- do target_type_by_name.update({c.name | lower: c.otf_type}) -%}
+  {%- endfor -%}
+  {%- set target_lower = [] -%}
+  {%- for n in target_names -%}{%- do target_lower.append(n | lower) -%}{%- endfor -%}
+  {%- set staging_lower = [] -%}
+  {%- for s in staging_columns -%}{%- do staging_lower.append(s.name | lower) -%}{%- endfor -%}
+
+  {#-- 1) ADD columns present in the source but not the OTF table. --#}
+  {%- set new_columns = [] -%}
+  {%- for s in staging_columns -%}
+    {%- if (s.name | lower) not in target_lower -%}{%- do new_columns.append(s) -%}{%- endif -%}
+  {%- endfor -%}
+  {%- for col in new_columns -%}
+    {% call statement('otf_sync_add_' ~ loop.index, auto_begin=False) -%}
+      ALTER TABLE {{ otf_relation_name }} ADD {{ adapter.quote(col.name) }} {{ col.data_type }};
+    {%- endcall %}
+  {%- endfor -%}
+
+  {#-- 2) MODIFY columns present in both whose OTF/Iceberg type changed. Apply
+         only promotions OTF allows; otherwise raise a clear error. --#}
+  {%- for s in staging_columns -%}
+    {%- if (s.name | lower) in target_lower -%}
+      {%- set old_type = target_type_by_name[s.name | lower] -%}
+      {%- set new_type = adapter.teradata_type_to_otf_type(s.data_type) -%}
+      {%- if old_type != new_type -%}
+        {%- if adapter.otf_type_promotion_allowed(old_type, new_type) -%}
+          {% call statement('otf_sync_modify_' ~ loop.index, auto_begin=False) -%}
+            ALTER TABLE {{ otf_relation_name }} MODIFY {{ adapter.quote(s.name) }} {{ s.data_type }};
+          {%- endcall %}
+        {%- else -%}
+          {{ exceptions.raise_compiler_error(
+              "on_schema_change='sync_all_columns': column '" ~ s.name ~ "' changed type from '"
+              ~ old_type ~ "' to '" ~ new_type ~ "', which OTF/Iceberg cannot apply in place. "
+              ~ "Run the model with --full-refresh to rebuild it."
+          ) }}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {#-- 3) DROP columns no longer in the source. Destructive: the column and its
+         data are removed, and OTF has no rollback. --#}
+  {%- set removed_columns = [] -%}
+  {%- for n in target_names -%}
+    {%- if (n | lower) not in staging_lower -%}{%- do removed_columns.append(n) -%}{%- endif -%}
+  {%- endfor -%}
+  {%- for col in removed_columns -%}
+    {% call statement('otf_sync_drop_' ~ loop.index, auto_begin=False) -%}
+      ALTER TABLE {{ otf_relation_name }} DROP {{ adapter.quote(col) }};
+    {%- endcall %}
+  {%- endfor -%}
+
+  {#-- 4) Final OTF column order = surviving target columns (original order, minus
+         dropped) then the newly added columns. Build a positional SELECT in that
+         order; every column is present in the source (dropped ones are gone). --#}
+  {%- set final_order = [] -%}
+  {%- for n in target_names -%}
+    {%- if (n | lower) in staging_lower -%}{%- do final_order.append(n) -%}{%- endif -%}
+  {%- endfor -%}
+  {%- for col in new_columns -%}{%- do final_order.append(col.name) -%}{%- endfor -%}
+
+  {%- set exprs = [] -%}
+  {%- for cname in final_order -%}
+    {%- set ns = namespace(match=none) -%}
+    {%- for s in staging_columns -%}
+      {%- if (s.name | lower) == (cname | lower) -%}{%- set ns.match = s -%}{%- endif -%}
+    {%- endfor -%}
+    {%- do exprs.append(adapter.quote(ns.match.name)) -%}
+  {%- endfor -%}
+  {{ return(exprs) }}
+{% endmacro %}
+
+
 {% macro teradata__incremental_otf(catalog_name, sql) %}
   {#-- Main entry point for OTF incremental materialization. --#}
 
@@ -154,28 +253,23 @@
     ) }}
   {%- endif -%}
 
-  {#-- on_schema_change handling for OTF incremental (Phase 1).
-       Supported: 'ignore' (default), 'fail', 'append_new_columns'.
+  {#-- on_schema_change handling for OTF incremental.
+       Supported: 'ignore' (default), 'fail', 'append_new_columns', 'sync_all_columns'.
 
-       'sync_all_columns' is intentionally NOT supported: it must also
-       synchronize column TYPE changes, but OTF/Iceberg only permits a narrow
-       set of safe promotions (e.g. INTEGER->BIGINT). Common changes such as
-       VARCHAR length changes fail at ALTER ... MODIFY with Error 7825, so the
-       'sync all types' contract cannot be honored reliably. It also performs
-       destructive, irreversible column DROPs (OTF has no rollback).
-       'append_new_columns' avoids both: it is ADD-only, never retypes existing
-       columns, and is non-destructive.
-       The actual reconciliation runs in the incremental (append) branch below
-       via teradata__otf_reconcile_schema(). --#}
+       'sync_all_columns' is best-effort on OTF: it ADDs new source columns,
+       DROPs columns missing from the source (destructive -- OTF has no
+       rollback), and applies column TYPE changes that OTF/Iceberg permits
+       (e.g. int->long, decimal precision widening). A type change OTF cannot
+       apply in place raises a clear error directing the user to --full-refresh.
+       Type comparison is done at OTF/Iceberg type granularity (via HELP TABLE
+       'OTF Type'), so VARCHAR length and SMALLINT-vs-INTEGER -- which OTF does
+       not preserve -- are never treated as changes.
+       Reconciliation runs in the incremental (append) branch below via
+       teradata__otf_reconcile_schema() (ignore/fail/append_new_columns) or
+       teradata__otf_sync_all_columns() (sync_all_columns). --#}
   {%- set on_schema_change = config.get('on_schema_change', 'ignore') or 'ignore' -%}
-  {%- set _otf_supported_osc = ['ignore', 'fail', 'append_new_columns'] -%}
-  {%- if on_schema_change == 'sync_all_columns' -%}
-    {{ exceptions.raise_compiler_error(
-        "on_schema_change='sync_all_columns' is not yet supported for OTF incremental models. "
-        ~ "Use 'append_new_columns' to add new source columns, 'fail' to error on drift, "
-        ~ "or run with --full-refresh."
-    ) }}
-  {%- elif on_schema_change not in _otf_supported_osc -%}
+  {%- set _otf_supported_osc = ['ignore', 'fail', 'append_new_columns', 'sync_all_columns'] -%}
+  {%- if on_schema_change not in _otf_supported_osc -%}
     {{ exceptions.raise_compiler_error(
         "Invalid on_schema_change='" ~ on_schema_change ~ "' for OTF incremental models. "
         ~ "Supported values: " ~ (_otf_supported_osc | join(', ')) ~ "."
@@ -276,7 +370,16 @@
          column order, or none to use the default positional append. --#}
     {%- if on_schema_change == 'ignore' -%}
       {%- set insert_exprs = none -%}
+    {%- elif on_schema_change == 'sync_all_columns' -%}
+      {#-- sync needs column TYPES, read from HELP TABLE (OTF Type). --#}
+      {%- set target_typed_columns = adapter.get_otf_column_types(
+          catalog_integration.datalake_name,
+          catalog_integration.otf_database,
+          target_relation.identifier) -%}
+      {%- set insert_exprs = teradata__otf_sync_all_columns(
+          otf_relation_name, target_typed_columns, dest_columns) -%}
     {%- else -%}
+      {#-- fail / append_new_columns need column NAMES only. --#}
       {%- set target_otf_columns = adapter.get_otf_columns_in_relation(
           catalog_integration.datalake_name,
           catalog_integration.otf_database,

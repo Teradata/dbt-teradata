@@ -797,3 +797,82 @@ class TestGetOtfColumnsInRelation:
         assert "SAMPLE 0" in sql
         assert '"dl"."db"."orders"' in sql
         assert mock_self.connections.execute.call_args.kwargs.get("fetch") is True
+
+
+# ===================================================================
+# sync_all_columns support: type read + mapping + promotion rules
+# ===================================================================
+
+class TestGetOtfColumnTypes:
+    """get_otf_column_types reads name + Iceberg 'OTF Type' from HELP TABLE."""
+
+    def test_parses_help_table_otf_type(self):
+        mock_self = MagicMock()
+        mock_self.Relation = TeradataRelation
+        agate_table = MagicMock()
+        # HELP TABLE rows expose 'Column Name' and 'OTF Type'; values may carry
+        # whitespace / mixed case, which the method normalises.
+        agate_table.rows = [
+            {"Column Name": "ID ", "OTF Type": "int"},
+            {"Column Name": "amt", "OTF Type": "decimal(10, 2)"},
+            {"Column Name": "nm", "OTF Type": "STRING"},
+        ]
+        mock_self.connections.execute.return_value = (MagicMock(), agate_table)
+
+        result = TeradataAdapter.get_otf_column_types(mock_self, "dl", "db", "t")
+
+        assert result == [
+            {"name": "id", "otf_type": "int"},
+            {"name": "amt", "otf_type": "decimal(10, 2)"},
+            {"name": "nm", "otf_type": "string"},
+        ]
+        sql = mock_self.connections.execute.call_args[0][0]
+        assert sql.strip().startswith("HELP TABLE")
+        assert '"dl"."db"."t"' in sql
+
+
+class TestTeradataTypeToOtfType:
+    """Teradata DDL type -> canonical OTF/Iceberg type (length-agnostic)."""
+
+    @pytest.mark.parametrize("ddl,expected", [
+        ("INTEGER", "int"),
+        ("INT", "int"),
+        ("SMALLINT", "int"),
+        ("BYTEINT", "int"),
+        ("BIGINT", "long"),
+        ("VARCHAR(50)", "string"),
+        ("CHAR(10)", "string"),
+        ("LONG VARCHAR", "string"),
+        ("DECIMAL(10,2)", "decimal(10, 2)"),
+        ("NUMERIC(18, 4)", "decimal(18, 4)"),
+        ("FLOAT", "double"),
+        ("DOUBLE PRECISION", "double"),
+        ("DATE", "date"),
+        ("TIMESTAMP(6)", "timestamp"),
+        ("TIME(0)", "time"),
+    ])
+    def test_mapping(self, ddl, expected):
+        assert TeradataAdapter.teradata_type_to_otf_type(MagicMock(), ddl) == expected
+
+    def test_varchar_lengths_collapse_to_string(self):
+        # The whole point: VARCHAR length differences must NOT look like a change.
+        a = TeradataAdapter.teradata_type_to_otf_type(MagicMock(), "VARCHAR(50)")
+        b = TeradataAdapter.teradata_type_to_otf_type(MagicMock(), "VARCHAR(4000)")
+        assert a == b == "string"
+
+
+class TestOtfTypePromotionAllowed:
+    """Only OTF/Iceberg-permitted promotions are allowed."""
+
+    @pytest.mark.parametrize("old,new,allowed", [
+        ("int", "int", True),            # no-op
+        ("int", "long", True),           # widening
+        ("long", "int", False),          # narrowing
+        ("decimal(10, 2)", "decimal(18, 2)", True),   # precision widen, same scale
+        ("decimal(10, 2)", "decimal(18, 4)", False),  # scale change
+        ("decimal(18, 2)", "decimal(10, 2)", False),  # precision narrow
+        ("string", "int", False),
+        ("int", "string", False),
+    ])
+    def test_promotions(self, old, new, allowed):
+        assert TeradataAdapter.otf_type_promotion_allowed(MagicMock(), old, new) is allowed

@@ -98,6 +98,8 @@ _OTF_TEST_TABLES = [
     "otf_alias_partitioned_object",
     # on_schema_change Phase 1
     "otf_osc",
+    # on_schema_change sync_all_columns
+    "otf_sync",
 ]
 
 
@@ -1631,3 +1633,93 @@ class TestOTFIncrementalOnSchemaChange(BaseCatalogIntegrationValidation):
             assert "on_schema_change='fail'" in r[0].message
         finally:
             project.run_sql("DROP TABLE {schema}.otf_osc_src")
+<<<<<<< HEAD
+=======
+
+
+
+# ===================================================================
+# Scenario 21: on_schema_change='sync_all_columns' for OTF incremental
+#   - adds new columns, drops removed columns, applies allowed type promotions
+#     (int -> bigint), and raises a clear error for an unsupported type change.
+#   Type comparison is at OTF/Iceberg granularity (HELP TABLE 'OTF Type').
+# ===================================================================
+
+otf_sync_model_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='append',
+    on_schema_change='sync_all_columns'
+) }}}}
+{{% if var('otf_sync_bad', false) %}}
+select id, name, cast(amount as varchar(20)) as amount from {{{{ target.schema }}}}.otf_sync_src
+{{% elif var('otf_sync_v2', false) %}}
+select cast(id as bigint) as id, amount, region from {{{{ target.schema }}}}.otf_sync_src
+{{% else %}}
+select id, name, amount from {{{{ target.schema }}}}.otf_sync_src
+{{% endif %}}
+"""
+
+
+class TestOTFIncrementalSyncAllColumns(BaseCatalogIntegrationValidation):
+    """sync_all_columns: add + drop + allowed promotion, and a clear error on an
+    unsupported type change."""
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"otf_sync.sql": otf_sync_model_sql}
+
+    def test_sync_all_columns(self, project):
+        # Defensive: clear any stale OTF table from a prior aborted run.
+        try:
+            project.run_sql(
+                f'DROP TABLE /*+ IF EXISTS */ "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_sync" NO PURGE;'
+            )
+        except Exception as exc:
+            if not _is_otf_table_not_found(exc):
+                raise
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_sync_src "
+            "(id INTEGER, name VARCHAR(50), amount DECIMAL(10,2), region VARCHAR(20))"
+        )
+        project.run_sql("INSERT INTO {schema}.otf_sync_src VALUES (1, 'a', 10.00, 'NORTH')")
+        project.run_sql("INSERT INTO {schema}.otf_sync_src VALUES (2, 'b', 20.00, 'SOUTH')")
+        try:
+            # 1) First run: create (id INT, name, amount).
+            r = run_dbt(["run", "--select", "otf_sync"])
+            assert r[0].status == "success"
+
+            # 2) sync_all_columns: add 'region', drop 'name', promote id INT->BIGINT.
+            r = run_dbt(["run", "--select", "otf_sync", "--vars", "{otf_sync_v2: true}"])
+            assert r[0].status == "success"
+
+            # 'region' now exists and is back-filled; 'name' was dropped.
+            cnt = project.run_sql(
+                f'SELECT COUNT(*), COUNT(region) '
+                f'FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_sync"',
+                fetch="one",
+            )
+            assert cnt[0] == 4   # 2 from run 1 + 2 from run 2
+            assert cnt[1] == 2   # only run-2 rows carry region (run-1 rows NULL)
+            # Dropped column must be gone.
+            with pytest.raises(Exception):
+                project.run_sql(
+                    f'SELECT name FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_sync" SAMPLE 1',
+                    fetch="one",
+                )
+
+            # 3) Unsupported type change (amount DECIMAL -> VARCHAR) -> clear error.
+            r = run_dbt(
+                ["run", "--select", "otf_sync", "--vars", "{otf_sync_bad: true}"],
+                expect_pass=False,
+            )
+            assert r[0].status == "error"
+            assert "--full-refresh" in r[0].message
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_sync_src")
+>>>>>>> 2e00e85 (add sync_all_columns (best-effort) for OTF incremental on_schema_change)

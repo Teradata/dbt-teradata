@@ -1,6 +1,7 @@
 from concurrent.futures import Future
 from dataclasses import dataclass, asdict
 from typing import Optional, List, Dict, Any, Union, Iterable, Callable, Set, FrozenSet, Tuple
+import re
 import agate
 
 import dbt
@@ -469,4 +470,97 @@ class TeradataAdapter(SQLAdapter):
             fetch=True,
         )
         return list(table.column_names)
+
+    @available
+    def get_otf_column_types(self, datalake_name: str, otf_database: str, identifier: str) -> List[Dict[str, str]]:
+        """Return the columns of an OTF table as ``[{'name', 'otf_type'}]``.
+
+        Uses ``HELP TABLE "<datalake>"."<otf_db>"."<table>"``, which (unlike
+        ``HELP COLUMN`` and ``DBC.ColumnsV``) works for OTF tables and exposes an
+        ``OTF Type`` column carrying the canonical Iceberg/Delta type --
+        ``int``, ``long``, ``string`` (no length), ``decimal(p, s)``, ``double``,
+        ``date``, ``timestamp``, etc.
+
+        Comparing on the OTF type (rather than the Teradata DDL type) is what
+        makes ``sync_all_columns`` correct: OTF does not preserve VARCHAR length
+        or SMALLINT vs INTEGER, so those never appear as spurious type changes.
+        Names and types are lower-cased and whitespace-normalised.
+        """
+        otf_name = self.Relation.create(
+            database=datalake_name,
+            schema=otf_database,
+            identifier=identifier,
+            is_otf=True,
+        ).render()
+        _, table = self.connections.execute(
+            f"HELP TABLE {otf_name}",
+            auto_begin=False,
+            fetch=True,
+        )
+
+        def _norm(value: Any) -> str:
+            return re.sub(r"\s+", " ", str(value).strip()).lower() if value is not None else ""
+
+        columns: List[Dict[str, str]] = []
+        for row in table.rows:
+            name = _norm(row["Column Name"])
+            otf_type = _norm(row["OTF Type"])
+            if name:
+                columns.append({"name": name, "otf_type": otf_type})
+        return columns
+
+    @available
+    def teradata_type_to_otf_type(self, data_type: Optional[str]) -> str:
+        """Map a Teradata column DDL type (e.g. from a staging table) to the
+        canonical OTF/Iceberg type reported by ``HELP TABLE`` ``OTF Type``.
+
+        Lets ``sync_all_columns`` compare the incoming (staging) schema against
+        the OTF target on the same vocabulary, so that differences OTF does not
+        represent (VARCHAR length, SMALLINT vs INTEGER) are not flagged as type
+        changes. Best-effort: unknown types fall back to their normalised string.
+        """
+        t = re.sub(r"\s+", " ", (data_type or "").strip()).lower()
+        m = re.match(r"^(?:decimal|numeric)\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)", t)
+        if m:
+            return f"decimal({m.group(1)}, {m.group(2)})"
+        if t.startswith(("decimal", "numeric")):
+            return "decimal(38, 0)"
+        if t.startswith(("varchar", "char", "long varchar", "clob", "character", "vargraphic", "graphic")):
+            return "string"
+        if t.startswith("bigint"):
+            return "long"
+        if t.startswith(("integer", "int", "smallint", "byteint")):
+            return "int"
+        if t.startswith(("float", "real", "double", "number")):
+            return "double"
+        if t.startswith("timestamp"):
+            return "timestamp"
+        if t.startswith("date"):
+            return "date"
+        if t.startswith("time"):
+            return "time"
+        if t.startswith(("byte", "varbyte", "blob", "binary")):
+            return "binary"
+        return t
+
+    @available
+    def otf_type_promotion_allowed(self, old_otf_type: Optional[str], new_otf_type: Optional[str]) -> bool:
+        """Whether changing a column from ``old_otf_type`` to ``new_otf_type`` is
+        a type promotion OTF/Iceberg permits via ``ALTER ... MODIFY``.
+
+        Verified against the engine: ``int -> long`` and decimal *precision*
+        widening (same scale) are allowed; scale changes, narrowing, and string
+        changes are not. Equal types are trivially allowed (no-op).
+        """
+        old = (old_otf_type or "").strip().lower()
+        new = (new_otf_type or "").strip().lower()
+        if old == new:
+            return True
+        if old == "int" and new == "long":
+            return True
+        mo = re.match(r"^decimal\(\s*(\d+)\s*,\s*(\d+)\s*\)$", old)
+        mn = re.match(r"^decimal\(\s*(\d+)\s*,\s*(\d+)\s*\)$", new)
+        if mo and mn and mo.group(2) == mn.group(2) and int(mn.group(1)) >= int(mo.group(1)):
+            return True
+        return False
 
