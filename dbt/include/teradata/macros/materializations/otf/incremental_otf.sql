@@ -101,23 +101,22 @@
     {{ return(none) }}
 
   {%- elif on_schema_change == 'append_new_columns' -%}
-    {%- if (new_columns | length == 0) and (removed_columns | length == 0) -%}
-      {#-- No drift -- the default positional append is correct. --#}
-      {{ return(none) }}
-    {%- endif -%}
-
-    {#-- Add each new source column with its own ALTER. New columns land at the
-         end of the OTF table. Type is sourced from the staging column. --#}
+    {#-- Add each new source column with its own ALTER (this loop is a no-op when
+         there are no new columns). New columns land at the end of the OTF table.
+         Type is sourced from the staging column. --#}
     {%- for col in new_columns -%}
       {% call statement('otf_add_column_' ~ loop.index, auto_begin=False) -%}
         ALTER TABLE {{ otf_relation_name }} ADD {{ adapter.quote(col.name) }} {{ col.data_type }};
       {%- endcall %}
     {%- endfor -%}
 
-    {#-- Final OTF column order = existing target columns (original order) then the
-         newly added columns. Build a positional SELECT in that exact order so the
-         column-list-less OTF INSERT aligns. A target column no longer present in
-         the source (append_new_columns keeps it) gets NULL. --#}
+    {#-- Always build a positional SELECT aligned to the final OTF column order --
+         existing target columns in their current order, then the newly added
+         columns -- even when the column set did not change. OTF inserts are
+         column-list-less/positional, so aligning by name here makes a *reorder*
+         of existing columns in the model SELECT safe (it cannot misalign data).
+         A target column no longer present in the source (append_new_columns keeps
+         such columns) is set to NULL. --#}
     {%- set final_order = target_columns + (new_columns | map(attribute='name') | list) -%}
     {%- set exprs = [] -%}
     {%- for cname in final_order -%}

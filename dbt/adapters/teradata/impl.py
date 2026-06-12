@@ -441,7 +441,7 @@ class TeradataAdapter(SQLAdapter):
             raise
 
     @available
-    def get_otf_columns_in_relation(self, datalake_name: str, otf_database: str, identifier: str):
+    def get_otf_columns_in_relation(self, datalake_name: str, otf_database: str, identifier: str) -> List[str]:
         """Return the column NAMES of an OTF (DATALAKE) table.
 
         OTF tables are not registered in DBC.ColumnsV, and HELP COLUMN raises

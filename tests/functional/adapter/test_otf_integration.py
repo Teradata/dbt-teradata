@@ -1555,9 +1555,13 @@ otf_osc_model_sql = f"""
     incremental_strategy='append',
     on_schema_change=var('otf_osc_mode', 'append_new_columns')
 ) }}}}
+{{% if var('otf_reorder', false) %}}
+select name, id from {{{{ target.schema }}}}.otf_osc_src
+{{% else %}}
 select id, name
 {{% if var('otf_add_col', false) %}}, cast('x' as varchar(10)) as extra_col{{% endif %}}
 from {{{{ target.schema }}}}.otf_osc_src
+{{% endif %}}
 """
 
 
@@ -1578,8 +1582,10 @@ class TestOTFIncrementalOnSchemaChange(BaseCatalogIntegrationValidation):
             project.run_sql(
                 f'DROP TABLE /*+ IF EXISTS */ "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_osc" NO PURGE;'
             )
-        except Exception:
-            pass
+        except Exception as exc:
+            # Only the "table not found" case is expected here; surface anything else.
+            if not _is_otf_table_not_found(exc):
+                raise
         project.run_sql(
             "CREATE TABLE {schema}.otf_osc_src (id INTEGER, name VARCHAR(50))"
         )
@@ -1602,6 +1608,19 @@ class TestOTFIncrementalOnSchemaChange(BaseCatalogIntegrationValidation):
             )
             assert cnt[0] == 4   # 2 from run 1 + 2 from run 2
             assert cnt[1] == 2   # only run-2 rows carry extra_col
+
+            # 2b) reorder-only change ('select name, id') under append_new_columns
+            #     must NOT corrupt data: OTF inserts are positional, so the adapter
+            #     realigns the SELECT to the OTF column order by name. The run must
+            #     succeed and the id<->name pairing must be preserved.
+            r = run_dbt(["run", "--select", "otf_osc", "--vars", "{otf_reorder: true}"])
+            assert r[0].status == "success"
+            mispaired = project.run_sql(
+                f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_osc" '
+                f"WHERE (id = 1 AND name <> 'a') OR (id = 2 AND name <> 'b')",
+                fetch="one",
+            )[0]
+            assert mispaired == 0
 
             # 3) fail mode on drift (extra_col now missing from source) -> error.
             r = run_dbt(
