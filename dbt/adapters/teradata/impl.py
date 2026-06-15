@@ -165,10 +165,50 @@ class TeradataAdapter(SQLAdapter):
     def get_relation(
         self, database: str, schema: str, identifier: str
     ) -> Optional[BaseRelation]:
+        # Preserve the original database before nulling it out — for OTF models,
+        # this holds the datalake name (e.g. "MyOTFLake"), which we need for the
+        # SAMPLE 0 fallback below.
+        original_database = database
         if not self.Relation.get_default_include_policy().database:
             database = None
 
-        return super().get_relation(database, schema, identifier)
+        # Standard lookup: queries DBC.TablesV.  Works for all regular Teradata
+        # tables and views.  Returns immediately when the relation is found.
+        relation = super().get_relation(database, schema, identifier)
+        if relation is not None:
+            return relation
+
+        # OTF fallback: OTF (Iceberg/Delta) tables are stored in a DATALAKE
+        # catalog and are NOT registered in DBC.TablesV, so the standard lookup
+        # above always returns None for them.  If we have a non-None database
+        # (the datalake name, preserved above), probe via SAMPLE 0.
+        #
+        # This makes is_incremental() evaluate correctly for OTF models: without
+        # this probe it would always return False because get_relation returns None,
+        # causing the model SQL to always compile without its incremental WHERE
+        # filter and resulting in duplicate rows on every incremental run.
+        #
+        # Regular Teradata tables/views are unaffected:
+        #   - Existing ones are returned by super().get_relation() above.
+        #   - For non-existing ones, original_database is typically None (Teradata
+        #     profiles rarely set a database), so the probe is skipped entirely.
+        #   - Guard original_database != schema: for native Teradata, database is
+        #     often set to the same value as schema.  For OTF, the datalake name
+        #     is always distinct from the otf_database.  This prevents unnecessary
+        #     SAMPLE 0 probes (and potential errors) against non-DATALAKE 3-part names.
+        if original_database and schema and identifier and original_database != schema:
+            if self.otf_relation_exists(original_database, schema, identifier):
+                return self.Relation.create(
+                    database=original_database,
+                    schema=schema,
+                    identifier=identifier,
+                    type='table',
+                    is_otf=True,
+                    quote_policy={"database": True, "schema": True, "identifier": True},
+                    include_policy={"database": True, "schema": True, "identifier": True},
+                )
+
+        return None
 
     def get_catalog(
             self,
@@ -356,4 +396,40 @@ class TeradataAdapter(SQLAdapter):
         Not used to validate custom strategies defined by end users.
         """
         return ["delete+insert","append","merge", "valid_history", "microbatch"]
+
+    @available
+    def otf_relation_exists(self, datalake_name: str, otf_database: str, identifier: str) -> bool:
+        """Check whether an OTF (DATALAKE) table exists on the server.
+
+        OTF tables are not registered in DBC.TablesV under the dbt target
+        schema, so load_relation() / list_relations_without_caching() cannot
+        be used.  Instead, probe the 3-part DATALAKE name with SAMPLE 0:
+
+            SELECT * FROM "<datalake>"."<otf_db>"."<identifier>" SAMPLE 0
+
+        This succeeds (returning 0 rows) when the table exists, and raises
+        Teradata Error 7825 (ICEBERG_EXPORT "Table does not exist") when it
+        does not.
+
+        Returns True if the table exists, False otherwise.
+        """
+        otf_name = self.Relation.create(
+            database=datalake_name,
+            schema=otf_database,
+            identifier=identifier,
+            is_otf=True,
+        ).render()
+        try:
+            self.connections.execute(
+                f"SELECT * FROM {otf_name} SAMPLE 0",
+                auto_begin=False,
+                fetch=False,
+            )
+            return True
+        except dbt_common.exceptions.DbtDatabaseError as ex:
+            # Error 7825 = ICEBERG_EXPORT "Table does not exist" in external catalog.
+            # Only swallow this specific error; re-raise auth/network/syntax failures.
+            if "[Error 7825]" in str(ex):
+                return False
+            raise
     

@@ -21,13 +21,14 @@ from dbt.adapters.catalogs import (
     CatalogIntegrationConfig,
     InvalidCatalogIntegrationConfigError,
 )
-from dbt_common.exceptions import DbtRuntimeError
+from dbt_common.exceptions import DbtRuntimeError, DbtDatabaseError
 
 from dbt.adapters.teradata.catalogs import (
     TeradataDatalakeCatalogIntegration,
     TeradataCatalogRelation,
 )
 from dbt.adapters.teradata.relation import TeradataRelation
+from dbt.adapters.teradata.impl import TeradataAdapter
 
 
 # ---------------------------------------------------------------------------
@@ -672,3 +673,60 @@ class TestMultipleCatalogIntegrations:
         # Both pass through the same model config
         assert rel_p.partitioned_by == "region"
         assert rel_s.partitioned_by == "region"
+
+
+# ===================================================================
+# TeradataAdapter.otf_relation_exists -- error handling
+# ===================================================================
+
+class TestOtfRelationExists:
+    """Unit tests for TeradataAdapter.otf_relation_exists().
+
+    The method is tested by calling the unbound implementation on a
+    minimal MagicMock self so no database connection is required.
+    """
+
+    def _call(self, mock_self):
+        mock_self.Relation = TeradataRelation
+        return TeradataAdapter.otf_relation_exists(
+            mock_self, "my_datalake", "my_otf_db", "my_table"
+        )
+
+    def test_returns_true_when_execute_succeeds(self):
+        """Table exists: execute() returns normally → True."""
+        mock_self = MagicMock()
+        mock_self.connections.execute.return_value = None
+        assert self._call(mock_self) is True
+
+    def test_executes_correct_3part_quoted_sql(self):
+        """Verify the SAMPLE 0 probe uses the properly quoted 3-part OTF name."""
+        mock_self = MagicMock()
+        mock_self.connections.execute.return_value = None
+        self._call(mock_self)
+        executed_sql = mock_self.connections.execute.call_args[0][0]
+        assert '"my_datalake"."my_otf_db"."my_table"' in executed_sql
+        assert "SAMPLE 0" in executed_sql
+
+    def test_returns_false_for_error_7825(self):
+        """Table not found: DbtDatabaseError with [Error 7825] → False."""
+        mock_self = MagicMock()
+        mock_self.connections.execute.side_effect = DbtDatabaseError(
+            "[Error 7825] ICEBERG_EXPORT: Table does not exist"
+        )
+        assert self._call(mock_self) is False
+
+    def test_reraises_other_dbt_database_errors(self):
+        """Auth/permission errors must propagate, not be swallowed."""
+        mock_self = MagicMock()
+        mock_self.connections.execute.side_effect = DbtDatabaseError(
+            "[Error 3524] The user does not have SELECT access to my_table"
+        )
+        with pytest.raises(DbtDatabaseError, match="3524"):
+            self._call(mock_self)
+
+    def test_reraises_non_database_exceptions(self):
+        """Network / unexpected errors must propagate unchanged."""
+        mock_self = MagicMock()
+        mock_self.connections.execute.side_effect = RuntimeError("connection reset")
+        with pytest.raises(RuntimeError, match="connection reset"):
+            self._call(mock_self)

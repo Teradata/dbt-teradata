@@ -11,9 +11,14 @@ Scenarios covered:
   4. with_statistics with catalog_name is rejected
   5. index with catalog_name is rejected
   6. Multiple unsupported options reported together
-  7. incremental materialization with catalog_name is rejected
-  8. snapshot materialization with catalog_name is rejected
-  9. contract.enforced with catalog_name is rejected
+  7. OTF incremental: unsupported strategy (merge) is rejected
+  8. OTF incremental: delete+insert is rejected (not yet supported)
+  9. OTF incremental: native-only options (table_kind) are rejected
+  10. OTF incremental: contract.enforced is rejected
+  11. OTF incremental: valid_history strategy is rejected
+  12. OTF incremental: microbatch strategy is rejected
+  13. snapshot materialization with catalog_name is rejected
+  14. contract.enforced with catalog_name on table materialization is rejected
 """
 
 import pytest
@@ -115,6 +120,68 @@ incremental_with_catalog_sql = f"""
     unique_key='id'
 ) }}}}
 select 1 as id
+"""
+
+incremental_otf_merge_strategy_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='merge',
+    unique_key='id'
+) }}}}
+select 1 as id
+"""
+
+incremental_otf_delete_insert_strategy_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='delete+insert',
+    unique_key='id'
+) }}}}
+select 1 as id
+"""
+
+incremental_otf_with_table_kind_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    table_kind='SET'
+) }}}}
+select 1 as id
+"""
+
+incremental_otf_with_contract_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    contract={{'enforced': true}},
+    on_schema_change='fail'
+) }}}}
+select 1 as id
+"""
+
+incremental_otf_valid_history_strategy_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='valid_history',
+    unique_key='id'
+) }}}}
+select 1 as id
+"""
+
+incremental_otf_microbatch_strategy_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='microbatch',
+    unique_key='id',
+    event_time='created_at',
+    batch_size='day',
+    begin='2020-01-01'
+) }}}}
+select 1 as id, current_timestamp as created_at
 """
 
 snapshot_with_catalog_sql = f"""
@@ -227,11 +294,11 @@ class TestOTFUnsupportedTableOptions(BaseCatalogIntegrationValidation):
 
 
 # ===================================================================
-# Materialization-level guardrails: incremental and snapshot
+# Materialization-level guardrails: incremental OTF and snapshot
 # ===================================================================
 
-class TestOTFIncrementalBlocked(BaseCatalogIntegrationValidation):
-    """Verify that the incremental materialization rejects catalog_name."""
+class TestOTFIncrementalUnsupportedStrategy(BaseCatalogIntegrationValidation):
+    """Verify that unsupported incremental strategies are rejected for OTF."""
 
     @pytest.fixture(scope="class")
     def catalogs(self):
@@ -239,14 +306,114 @@ class TestOTFIncrementalBlocked(BaseCatalogIntegrationValidation):
 
     @pytest.fixture(scope="class")
     def models(self):
-        return {"incremental_otf.sql": incremental_with_catalog_sql}
+        return {"incremental_otf_merge.sql": incremental_otf_merge_strategy_sql}
 
-    def test_incremental_with_catalog_name_fails(self, project):
+    def test_merge_strategy_with_otf_fails(self, project):
         results = run_dbt(
-            ["run", "--select", "incremental_otf"], expect_pass=False
+            ["run", "--select", "incremental_otf_merge"], expect_pass=False
         )
         msg = " ".join(str(r.message or "") for r in results)
-        assert "catalog_name" in msg.lower() or "otf" in msg.lower()
+        assert "merge" in msg.lower() or "invalid incremental strategy" in msg.lower()
+
+
+class TestOTFIncrementalDeleteInsertBlocked(BaseCatalogIntegrationValidation):
+    """Verify that delete+insert strategy is rejected for OTF (not yet supported)."""
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"incremental_otf_di.sql": incremental_otf_delete_insert_strategy_sql}
+
+    def test_delete_insert_strategy_with_otf_fails(self, project):
+        results = run_dbt(
+            ["run", "--select", "incremental_otf_di"], expect_pass=False
+        )
+        msg = " ".join(str(r.message or "") for r in results)
+        assert "delete+insert" in msg.lower() or "invalid incremental strategy" in msg.lower()
+
+
+class TestOTFIncrementalUnsupportedOptions(BaseCatalogIntegrationValidation):
+    """Verify that native-only config options (table_kind, etc.) are rejected
+    for OTF incremental models."""
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"incremental_otf_table_kind.sql": incremental_otf_with_table_kind_sql}
+
+    def test_table_kind_with_otf_incremental_fails(self, project):
+        results = run_dbt(
+            ["run", "--select", "incremental_otf_table_kind"], expect_pass=False
+        )
+        msg = " ".join(str(r.message or "") for r in results)
+        assert "table_kind" in msg.lower()
+
+
+class TestOTFIncrementalContractBlocked(BaseCatalogIntegrationValidation):
+    """Verify that contract.enforced=true is rejected on OTF incremental models."""
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"incremental_otf_contract.sql": incremental_otf_with_contract_sql}
+
+    def test_contract_with_otf_incremental_fails(self, project):
+        results = run_dbt(
+            ["run", "--select", "incremental_otf_contract"], expect_pass=False
+        )
+        msg = " ".join(str(r.message or "") for r in results)
+        assert "contract" in msg.lower()
+
+
+class TestOTFIncrementalValidHistoryBlocked(BaseCatalogIntegrationValidation):
+    """Verify that valid_history strategy is rejected for OTF."""
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"incremental_otf_vh.sql": incremental_otf_valid_history_strategy_sql}
+
+    def test_valid_history_strategy_with_otf_fails(self, project):
+        results = run_dbt(
+            ["run", "--select", "incremental_otf_vh"], expect_pass=False
+        )
+        msg = " ".join(str(r.message or "") for r in results)
+        assert "valid_history" in msg.lower() or "invalid incremental strategy" in msg.lower()
+
+
+class TestOTFIncrementalMicrobatchBlocked(BaseCatalogIntegrationValidation):
+    """Verify that microbatch strategy is rejected for OTF."""
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"incremental_otf_mb.sql": incremental_otf_microbatch_strategy_sql}
+
+    def test_microbatch_strategy_with_otf_fails(self, project):
+        results = run_dbt(
+            ["run", "--select", "incremental_otf_mb"], expect_pass=False
+        )
+        # Microbatch wraps execution in batches — the compilation error from
+        # our OTF guardrail fires inside the first batch, so r.message is just
+        # "ERROR" rather than the full text.  Asserting on error status is
+        # sufficient; the guardrail message is visible in the dbt log output.
+        assert len(results) == 1
+        assert results[0].status == "error"
 
 
 class TestOTFSnapshotBlocked(BaseCatalogIntegrationValidation):

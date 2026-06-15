@@ -64,6 +64,9 @@ _OTF_TEST_TABLES = [
     "otf_write_orc",
     "otf_write_avro",
     "otf_write_parquet_gzip",
+    "otf_inc_append",
+    "otf_inc_append_partitioned",
+    "otf_inc_full_refresh",
 ]
 
 
@@ -775,4 +778,211 @@ class TestOTFFileFormats(BaseCatalogIntegrationValidation):
             assert results[0].status == "success"
         finally:
             project.run_sql("DROP TABLE {schema}.otf_src")
+
+
+# ===================================================================
+# Scenario 15: OTF incremental append
+# ===================================================================
+
+otf_inc_append_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='append'
+) }}}}
+select id, name from {{{{ target.schema }}}}.otf_inc_src
+
+{{% if is_incremental() %}}
+    where id > (select max(id) from {{{{ this }}}})
+{{% endif %}}
+"""
+
+
+class TestOTFIncrementalAppend(BaseCatalogIntegrationValidation):
+    """Verify OTF incremental append: first run creates, second run appends.
+    Covers: append strategy (default) for OTF tables.
+    """
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"otf_inc_append.sql": otf_inc_append_sql}
+
+    def test_incremental_append_first_and_second_run(self, project):
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_inc_src (id INTEGER, name VARCHAR(100))"
+        )
+        project.run_sql("INSERT INTO {schema}.otf_inc_src VALUES (1, 'alice')")
+        project.run_sql("INSERT INTO {schema}.otf_inc_src VALUES (2, 'bob')")
+        try:
+            # First run: creates the OTF table via CREATE TABLE AS.
+            results = run_dbt(["run", "--select", "otf_inc_append"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            # Verify first run produced exactly 2 rows (alice, bob).
+            stats = project.run_sql(
+                f'SELECT MIN(id), MAX(id), COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_inc_append"',
+                fetch="one",
+            )
+            assert stats[0] == 1
+            assert stats[1] == 2
+            assert stats[2] == 2
+
+            # Delete id=1 from the source to prove the second run is truly
+            # append-only (existing OTF rows must survive even if removed
+            # from the source).
+            project.run_sql("DELETE FROM {schema}.otf_inc_src WHERE id = 1")
+            project.run_sql("INSERT INTO {schema}.otf_inc_src VALUES (3, 'charlie')")
+            project.run_sql("INSERT INTO {schema}.otf_inc_src VALUES (4, 'diana')")
+
+            # Second run: should only append new rows (id > max existing = 2).
+            results = run_dbt(["run", "--select", "otf_inc_append"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            # Verify: all 4 rows present (alice/bob from run 1 + charlie/diana
+            # from run 2).  id=1 (alice) must still be present — it was deleted
+            # from the source but append must never remove OTF rows.
+            stats = project.run_sql(
+                f'SELECT MIN(id), MAX(id), COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_inc_append"',
+                fetch="one",
+            )
+            assert stats[0] == 1   # alice still present (append-only)
+            assert stats[1] == 4   # diana is newest
+            assert stats[2] == 4   # 4 distinct rows, no duplicates
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_inc_src")
+
+
+# ===================================================================
+# Scenario 16: OTF incremental append with PARTITIONED BY
+# ===================================================================
+
+otf_inc_append_partitioned_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='append',
+    partitioned_by='YEAR(created_date)'
+) }}}}
+select id, name, created_date from {{{{ target.schema }}}}.otf_inc_src_dated
+
+{{% if is_incremental() %}}
+    where created_date > (select max(created_date) from {{{{ this }}}})
+{{% endif %}}
+"""
+
+
+class TestOTFIncrementalAppendPartitioned(BaseCatalogIntegrationValidation):
+    """Verify OTF incremental append with PARTITIONED BY.
+    The first run creates a partitioned OTF table, second run appends.
+    """
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {
+            "otf_inc_append_partitioned.sql": otf_inc_append_partitioned_sql,
+        }
+
+    def test_incremental_append_partitioned(self, project):
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_inc_src_dated "
+            "(id INTEGER, name VARCHAR(100), created_date DATE)"
+        )
+        project.run_sql(
+            "INSERT INTO {schema}.otf_inc_src_dated "
+            "VALUES (1, 'alice', DATE '2024-01-15')"
+        )
+        try:
+            # First run: creates partitioned OTF table.
+            results = run_dbt(["run", "--select", "otf_inc_append_partitioned"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            # Verify first run produced exactly 1 row.
+            count1 = project.run_sql(
+                f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_inc_append_partitioned"',
+                fetch="one",
+            )[0]
+            assert count1 == 1
+
+            # Delete id=1 from the source to prove the second run is truly
+            # append-only (existing OTF rows must survive source deletions).
+            project.run_sql("DELETE FROM {schema}.otf_inc_src_dated WHERE id = 1")
+
+            # Add a row in a new partition (later date → passes the incremental filter).
+            project.run_sql(
+                "INSERT INTO {schema}.otf_inc_src_dated "
+                "VALUES (2, 'bob', DATE '2025-03-20')"
+            )
+
+            # Second run: should only append the new partition row.
+            results = run_dbt(["run", "--select", "otf_inc_append_partitioned"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            # Verify: alice (2024-01-15) still present + bob (2025-03-20) appended.
+            count2 = project.run_sql(
+                f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_inc_append_partitioned"',
+                fetch="one",
+            )[0]
+            assert count2 == 2
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_inc_src_dated")
+
+
+# ===================================================================
+# Scenario 17: OTF incremental with --full-refresh
+# ===================================================================
+
+otf_inc_full_refresh_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='append'
+) }}}}
+select id, name from {{{{ target.schema }}}}.otf_inc_src
+"""
+
+
+class TestOTFIncrementalFullRefresh(BaseCatalogIntegrationValidation):
+    """Verify --full-refresh drops and recreates OTF incremental table.
+    Covers: full refresh override on existing incremental OTF model.
+    """
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"otf_inc_full_refresh.sql": otf_inc_full_refresh_sql}
+
+    def test_full_refresh_recreates_otf_table(self, project):
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_inc_src (id INTEGER, name VARCHAR(100))"
+        )
+        project.run_sql("INSERT INTO {schema}.otf_inc_src VALUES (1, 'alice')")
+        try:
+            # First run: creates.
+            results = run_dbt(["run", "--select", "otf_inc_full_refresh"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            # Full refresh: should DROP + CREATE from scratch.
+            results = run_dbt([
+                "run", "--select", "otf_inc_full_refresh", "--full-refresh"
+            ])
+            assert len(results) == 1
+            assert results[0].status == "success"
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_inc_src")
 
