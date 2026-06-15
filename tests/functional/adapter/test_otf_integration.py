@@ -1544,7 +1544,7 @@ class TestOTFAliasWithPartition(BaseCatalogIntegrationValidation):
 #   - append_new_columns: ALTER ADD a new source column, back-fill NULL for
 #     pre-existing rows, positional INSERT aligned to the new OTF column order
 #   - fail: raise a clear error on schema drift
-#   ('sync_all_columns' is rejected at validation — Phase 2, not tested here)
+#   (sync_all_columns is covered separately in Scenario 25)
 #
 # A var toggles the extra column and the mode so the whole lifecycle runs
 # unattended in one test.
