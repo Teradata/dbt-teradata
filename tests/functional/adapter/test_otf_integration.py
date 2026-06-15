@@ -1637,7 +1637,7 @@ class TestOTFIncrementalOnSchemaChange(BaseCatalogIntegrationValidation):
 
 
 # ===================================================================
-# Scenario 21: on_schema_change='sync_all_columns' for OTF incremental
+# Scenario 25: on_schema_change='sync_all_columns' for OTF incremental
 #   - adds new columns, drops removed columns, applies allowed type promotions
 #     (int -> bigint), and raises a clear error for an unsupported type change.
 #   Type comparison is at OTF/Iceberg granularity (HELP TABLE 'OTF Type').
@@ -1704,12 +1704,11 @@ class TestOTFIncrementalSyncAllColumns(BaseCatalogIntegrationValidation):
             )
             assert cnt[0] == 4   # 2 from run 1 + 2 from run 2
             assert cnt[1] == 2   # only run-2 rows carry region (run-1 rows NULL)
-            # Dropped column must be gone.
-            with pytest.raises(Exception):
-                project.run_sql(
-                    f'SELECT name FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_sync" SAMPLE 1',
-                    fetch="one",
-                )
+            # Dropped column must be gone — verify via column list probe, not an exception.
+            cols = project.adapter.get_otf_columns_in_relation(DATALAKE_NAME, OTF_DATABASE, "otf_sync")
+            col_names = [c.lower() for c in cols]
+            assert "name" not in col_names, "'name' should have been dropped by sync_all_columns"
+            assert "region" in col_names, "'region' should have been added by sync_all_columns"
 
             # 3) Unsupported type change (amount DECIMAL -> VARCHAR) -> clear error.
             r = run_dbt(
