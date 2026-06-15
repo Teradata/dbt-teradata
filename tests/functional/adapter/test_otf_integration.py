@@ -37,6 +37,10 @@ Scenarios covered:
   20. dbt `alias` config + --full-refresh on OTF incremental
   21. Long alias name (64 chars): identifier plumbing does not truncate or
       mangle the alias; staging table name stays within Teradata limits
+  22. ref() to an aliased OTF incremental model compiles to the alias-named
+      3-part DATALAKE identifier (compile-only check)
+  23. dbt `alias` + `partitioned_by` on OTF incremental: create + true append
+      proof across two year-partitions
 """
 
 import os
@@ -90,6 +94,8 @@ _OTF_TEST_TABLES = [
     "otf_alias_fr_object",
     # Scenario 21: long alias
     OTF_LONG_ALIAS_NAME,
+    # Scenario 23: alias + partitioned_by incremental
+    "otf_alias_partitioned_object",
 ]
 
 
@@ -1371,4 +1377,160 @@ class TestOTFLongAlias(BaseCatalogIntegrationValidation):
             assert stats[2] == 3
         finally:
             project.run_sql("DROP TABLE {schema}.otf_long_alias_src")
+
+
+# ===================================================================
+# Scenario 22: ref() to an aliased OTF incremental model
+#
+# Compile-only check: a downstream model that ref()s an aliased OTF
+# incremental model must compile to the alias-named 3-part identifier,
+# not the model file name.
+# ===================================================================
+
+otf_alias_inc_ref_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='append',
+    alias='otf_alias_inc_ref_object'
+) }}}}
+select id, name from {{{{ target.schema }}}}.otf_inc_ref_src
+{{% if is_incremental() %}}
+    where id > (select max(id) from {{{{ this }}}})
+{{% endif %}}
+"""
+
+downstream_of_alias_inc_sql = """
+{{ config(materialized='view') }}
+select id, name from {{ ref('otf_alias_inc_ref_model') }}
+"""
+
+
+class TestOTFRefToAliasedIncrementalModel(BaseCatalogIntegrationValidation):
+    """ref() to an aliased OTF incremental model must compile to the
+    alias-named 3-part DATALAKE object, not the model file name.
+    """
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {
+            "otf_alias_inc_ref_model.sql": otf_alias_inc_ref_sql,
+            "downstream_of_alias_inc.sql": downstream_of_alias_inc_sql,
+        }
+
+    def test_ref_to_aliased_incremental_uses_alias_name(self, project):
+        run_dbt(["compile", "--select", "downstream_of_alias_inc"])
+        compiled_path = os.path.join(
+            str(project.project_root),
+            "target", "compiled", "test", "models", "downstream_of_alias_inc.sql",
+        )
+        with open(compiled_path, "r", encoding="utf-8") as f:
+            compiled = f.read()
+        expected = f'"{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_inc_ref_object"'
+        assert expected in compiled, (
+            f"Expected alias-named 3-part OTF ref {expected!r} in compiled SQL, "
+            f"got:\n{compiled}"
+        )
+        assert f'"{OTF_DATABASE}"."otf_alias_inc_ref_model"' not in compiled
+
+
+# ===================================================================
+# Scenario 23: dbt `alias` + `partitioned_by` on OTF incremental
+#
+# Verifies that alias and partitioned_by work together end-to-end:
+# the alias-named OTF table is created with the partition spec, and
+# the incremental append targets the alias-named object correctly.
+# ===================================================================
+
+otf_alias_partitioned_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='append',
+    alias='otf_alias_partitioned_object',
+    partitioned_by='YEAR(event_date)'
+) }}}}
+select id, name, event_date
+from {{{{ target.schema }}}}.otf_alias_partitioned_src
+{{% if is_incremental() %}}
+    where event_date > (select max(event_date) from {{{{ this }}}})
+{{% endif %}}
+"""
+
+
+class TestOTFAliasWithPartition(BaseCatalogIntegrationValidation):
+    """alias + partitioned_by on OTF incremental: the alias-named table is
+    created with the partition spec and the incremental append targets the
+    correct alias-named 3-part object across two year-partitions.
+    """
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"otf_alias_partitioned_model.sql": otf_alias_partitioned_sql}
+
+    def test_alias_partitioned_create_and_append(self, project):
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_alias_partitioned_src "
+            "(id INTEGER, name VARCHAR(100), event_date DATE)"
+        )
+        project.run_sql(
+            "INSERT INTO {schema}.otf_alias_partitioned_src "
+            "VALUES (1, 'alice', DATE '2024-01-15')"
+        )
+        project.run_sql(
+            "INSERT INTO {schema}.otf_alias_partitioned_src "
+            "VALUES (2, 'bob', DATE '2024-03-20')"
+        )
+        try:
+            # First run: creates partitioned OTF table under the alias name.
+            results = run_dbt(["run", "--select", "otf_alias_partitioned_model"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            stats = project.run_sql(
+                f'SELECT MIN(id), MAX(id), COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_partitioned_object"',
+                fetch="one",
+            )
+            assert stats[2] == 2  # alice and bob
+
+            # The model-file name must NOT exist as an OTF object.
+            with pytest.raises(Exception, match=r"\[Error (7825|6321)\]"):
+                project.run_sql(
+                    f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_partitioned_model"',
+                    fetch="one",
+                )
+
+            # Delete alice from source; add charlie in a new year-partition.
+            # A true incremental run must preserve alice in the OTF table.
+            project.run_sql(
+                "DELETE FROM {schema}.otf_alias_partitioned_src WHERE id = 1"
+            )
+            project.run_sql(
+                "INSERT INTO {schema}.otf_alias_partitioned_src "
+                "VALUES (3, 'charlie', DATE '2025-06-10')"
+            )
+
+            # Second run: WHERE event_date > '2024-03-20' appends only charlie.
+            results = run_dbt(["run", "--select", "otf_alias_partitioned_model"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            # OTF table must have 3 rows: alice (preserved), bob, charlie.
+            stats = project.run_sql(
+                f'SELECT MIN(id), MAX(id), COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_partitioned_object"',
+                fetch="one",
+            )
+            assert stats[0] == 1   # alice preserved (append-only, not rebuilt)
+            assert stats[1] == 3   # charlie appended
+            assert stats[2] == 3   # 3 rows: alice + bob + charlie
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_alias_partitioned_src")
 
