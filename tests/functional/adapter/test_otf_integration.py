@@ -1102,7 +1102,7 @@ class TestOTFTableAlias(BaseCatalogIntegrationValidation):
             )[0]
             assert count == 2
 
-            # The model-FILE name must NOT exist as an OTF object (Error 7825).
+            # The model-FILE name must NOT exist as an OTF object (Error 7825/6321).
             with pytest.raises(Exception, match=r"\[Error (7825|6321)\]"):
                 project.run_sql(
                     f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_model"',
@@ -1184,7 +1184,7 @@ class TestOTFIncrementalAlias(BaseCatalogIntegrationValidation):
             assert stats[1] == 2
             assert stats[2] == 2
 
-            # The model-file name must NOT exist as an OTF object.
+            # The model-file name must NOT exist as an OTF object (Error 7825/6321).
             with pytest.raises(Exception, match=r"\[Error (7825|6321)\]"):
                 project.run_sql(
                     f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_inc"',
@@ -1633,8 +1633,6 @@ class TestOTFIncrementalOnSchemaChange(BaseCatalogIntegrationValidation):
             assert "on_schema_change='fail'" in r[0].message
         finally:
             project.run_sql("DROP TABLE {schema}.otf_osc_src")
-<<<<<<< HEAD
-=======
 
 
 
@@ -1722,4 +1720,3 @@ class TestOTFIncrementalSyncAllColumns(BaseCatalogIntegrationValidation):
             assert "--full-refresh" in r[0].message
         finally:
             project.run_sql("DROP TABLE {schema}.otf_sync_src")
->>>>>>> 2e00e85 (add sync_all_columns (best-effort) for OTF incremental on_schema_change)
