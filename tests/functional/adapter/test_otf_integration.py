@@ -1103,7 +1103,7 @@ class TestOTFTableAlias(BaseCatalogIntegrationValidation):
             assert count == 2
 
             # The model-FILE name must NOT exist as an OTF object (Error 7825).
-            with pytest.raises(Exception):
+            with pytest.raises(Exception, match=r"\[Error (7825|6321)\]"):
                 project.run_sql(
                     f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_model"',
                     fetch="one",
@@ -1185,7 +1185,7 @@ class TestOTFIncrementalAlias(BaseCatalogIntegrationValidation):
             assert stats[2] == 2
 
             # The model-file name must NOT exist as an OTF object.
-            with pytest.raises(Exception):
+            with pytest.raises(Exception, match=r"\[Error (7825|6321)\]"):
                 project.run_sql(
                     f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_inc"',
                     fetch="one",

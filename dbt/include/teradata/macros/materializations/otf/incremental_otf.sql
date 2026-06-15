@@ -300,21 +300,6 @@
     ) }}
   {%- endif -%}
 
-  {#-- on_schema_change is not supported for OTF incremental models: the append
-       strategy does not reconcile target/source schemas, and the other values
-       ('fail', 'append_new_columns', 'sync_all_columns') cannot be honoured.
-       Users must run with --full-refresh to apply schema changes.
-       NOTE: checked after contract.enforced so that contract violations surface
-       a clear "contract" error even when dbt core requires on_schema_change='fail'
-       for contracted incremental models. --#}
-  {%- set on_schema_change = config.get('on_schema_change', none) -%}
-  {%- if on_schema_change is not none and on_schema_change != 'ignore' -%}
-    {{ exceptions.raise_compiler_error(
-        "on_schema_change='" ~ on_schema_change ~ "' is not supported for OTF incremental models. "
-        ~ "Use --full-refresh to apply schema changes to an OTF table."
-    ) }}
-  {%- endif -%}
-
   {#-- Resolve target and check existence --#}
   {%- set catalog_integration = adapter.get_catalog_integration(catalog_name) -%}
   {%- set target_relation = this.incorporate(type='table') -%}
