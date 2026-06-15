@@ -28,6 +28,15 @@ Scenarios covered:
   12. OTF model with sql_header config
   13. PURGE ALL end-to-end
   14. Multiple file formats via tblproperties
+  15. OTF incremental append: first run creates, second run appends (proves
+      is_incremental() fired via source-row deletion + survival assertion)
+  16. OTF incremental append with PARTITIONED BY (same incremental proof)
+  17. OTF incremental with --full-refresh (non-alias)
+  18. dbt `alias` config on OTF table materialization
+  19. dbt `alias` config on OTF incremental: create + true append proof
+  20. dbt `alias` config + --full-refresh on OTF incremental
+  21. Long alias name (64 chars): identifier plumbing does not truncate or
+      mangle the alias; staging table name stays within Teradata limits
 """
 
 import os
@@ -42,6 +51,11 @@ from dbt.tests.util import run_dbt
 
 DATALAKE_NAME = os.getenv("DBT_TERADATA_DATALAKE")
 OTF_DATABASE = os.getenv("DBT_TERADATA_OTF_DATABASE")
+
+# 64-character alias used by TestOTFLongAlias (Scenario 21).
+# Staging name = OTF_LONG_ALIAS_NAME + "__dbt_tmp" = 73 chars — within
+# Teradata's 128-char identifier limit and well under OTF catalog limits.
+OTF_LONG_ALIAS_NAME = "otf_long_alias_sixty_four_chars_to_test_identifier_length_limits"
 
 pytestmark = pytest.mark.skipif(
     not (DATALAKE_NAME and OTF_DATABASE),
@@ -72,6 +86,10 @@ _OTF_TEST_TABLES = [
     # names otf_alias_model / otf_alias_inc).
     "otf_aliased_object",
     "otf_alias_inc_object",
+    # Scenario 20: --full-refresh with alias
+    "otf_alias_fr_object",
+    # Scenario 21: long alias
+    OTF_LONG_ALIAS_NAME,
 ]
 
 
@@ -1142,6 +1160,14 @@ class TestOTFIncrementalAlias(BaseCatalogIntegrationValidation):
                     fetch="one",
                 )
 
+            # Delete id=1 from source to prove the second run is a true
+            # incremental append, not a full rebuild.  If is_incremental() fires
+            # correctly, the WHERE id > 2 filter excludes id=1 from the staging
+            # payload, so id=1 (alice) must still be present in the OTF table
+            # even though it no longer exists in the source.  A full rebuild
+            # would produce OTF = [2, 3] (alice gone); a true append produces
+            # OTF = [1, 2, 3] (alice preserved).
+            project.run_sql("DELETE FROM {schema}.otf_inc_src WHERE id = 1")
             project.run_sql("INSERT INTO {schema}.otf_inc_src VALUES (3, 'charlie')")
 
             # Second run: append path must target the alias-named object via `this`.
@@ -1153,9 +1179,175 @@ class TestOTFIncrementalAlias(BaseCatalogIntegrationValidation):
                 f'SELECT MIN(id), MAX(id), COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_inc_object"',
                 fetch="one",
             )
-            assert stats[0] == 1
-            assert stats[1] == 3
-            assert stats[2] == 3
+            assert stats[0] == 1   # alice still present (append-only, not rebuilt)
+            assert stats[1] == 3   # charlie is newest
+            assert stats[2] == 3   # 3 rows: alice (run 1) + bob (run 1) + charlie (run 2)
         finally:
             project.run_sql("DROP TABLE {schema}.otf_inc_src")
+
+
+# ===================================================================
+# Scenario 20: dbt `alias` config + --full-refresh on OTF incremental
+#
+# Proves that --full-refresh drops and recreates the *alias-named* OTF
+# object, not the model-file-named one.
+# ===================================================================
+
+otf_alias_fr_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='append',
+    alias='otf_alias_fr_object'
+) }}}}
+select id, name from {{{{ target.schema }}}}.otf_fr_src
+"""
+
+
+class TestOTFIncrementalAliasFullRefresh(BaseCatalogIntegrationValidation):
+    """--full-refresh on an aliased OTF incremental model must DROP+CREATE the
+    alias-named OTF object, not the model-file-named one.
+    """
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"otf_alias_fr_model.sql": otf_alias_fr_sql}
+
+    def test_alias_full_refresh_recreates_alias_object(self, project):
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_fr_src (id INTEGER, name VARCHAR(100))"
+        )
+        project.run_sql("INSERT INTO {schema}.otf_fr_src VALUES (1, 'alice')")
+        project.run_sql("INSERT INTO {schema}.otf_fr_src VALUES (2, 'bob')")
+        try:
+            # First run: creates alias-named OTF object with [alice, bob].
+            results = run_dbt(["run", "--select", "otf_alias_fr_model"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            count = project.run_sql(
+                f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_fr_object"',
+                fetch="one",
+            )[0]
+            assert count == 2
+
+            # Mutate source: remove alice, add charlie.  An incremental run
+            # would leave alice in OTF (append-only).  A full-refresh must
+            # rebuild from the *current* source, so alice must disappear.
+            project.run_sql("DELETE FROM {schema}.otf_fr_src WHERE id = 1")
+            project.run_sql("INSERT INTO {schema}.otf_fr_src VALUES (3, 'charlie')")
+
+            # --full-refresh: DROP + CREATE from current source [bob, charlie].
+            results = run_dbt([
+                "run", "--select", "otf_alias_fr_model", "--full-refresh"
+            ])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            # OTF table must now contain exactly 2 rows: bob and charlie.
+            # alice (id=1) must be gone — proves the table was rebuilt, not appended.
+            stats = project.run_sql(
+                f'SELECT MIN(id), MAX(id), COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_fr_object"',
+                fetch="one",
+            )
+            assert stats[2] == 2   # exactly 2 rows after full-refresh
+            assert stats[0] == 2   # bob is the minimum (alice gone)
+            assert stats[1] == 3   # charlie is the maximum
+
+            # The model-FILE name must NOT exist as an OTF object.
+            with pytest.raises(Exception, match=r"\[Error (7825|6321)\]"):
+                project.run_sql(
+                    f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_alias_fr_model"',
+                    fetch="one",
+                )
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_fr_src")
+
+
+# ===================================================================
+# Scenario 21: Long alias name (64 chars)
+#
+# Verifies that the identifier plumbing does not truncate or mangle a
+# long alias.  The staging table name (<alias>__dbt_tmp = 73 chars) must
+# also stay within Teradata's 128-char identifier limit.
+# ===================================================================
+
+otf_long_alias_sql = f"""
+{{{{ config(
+    materialized='incremental',
+    catalog_name='{CATALOG_NAME}',
+    incremental_strategy='append',
+    alias='{OTF_LONG_ALIAS_NAME}'
+) }}}}
+select id, name from {{{{ target.schema }}}}.otf_long_alias_src
+
+{{% if is_incremental() %}}
+    where id > (select max(id) from {{{{ this }}}})
+{{% endif %}}
+"""
+
+
+class TestOTFLongAlias(BaseCatalogIntegrationValidation):
+    """A 64-character alias must be written verbatim to the OTF catalog — the
+    adapter must not truncate or mangle long-but-valid identifiers.  The
+    staging table name (alias + '__dbt_tmp' = 73 chars) must also stay
+    within Teradata's 128-char limit across both create and append runs.
+    """
+
+    @pytest.fixture(scope="class")
+    def catalogs(self):
+        return CATALOGS_CONFIG
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {"otf_long_alias_model.sql": otf_long_alias_sql}
+
+    def test_long_alias_create_and_append(self, project):
+        project.run_sql(
+            "CREATE TABLE {schema}.otf_long_alias_src (id INTEGER, name VARCHAR(100))"
+        )
+        project.run_sql("INSERT INTO {schema}.otf_long_alias_src VALUES (1, 'alice')")
+        project.run_sql("INSERT INTO {schema}.otf_long_alias_src VALUES (2, 'bob')")
+        try:
+            # First run: creates the OTF table under the 64-char alias name.
+            results = run_dbt(["run", "--select", "otf_long_alias_model"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            count = project.run_sql(
+                f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."{OTF_LONG_ALIAS_NAME}"',
+                fetch="one",
+            )[0]
+            assert count == 2
+
+            # The model-file name must NOT exist as an OTF object.
+            with pytest.raises(Exception, match=r"\[Error (7825|6321)\]"):
+                project.run_sql(
+                    f'SELECT COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_long_alias_model"',
+                    fetch="one",
+                )
+
+            # Delete id=1 to prove the incremental path fires correctly with the
+            # long alias (staging table construction + existence probe both use it).
+            project.run_sql("DELETE FROM {schema}.otf_long_alias_src WHERE id = 1")
+            project.run_sql("INSERT INTO {schema}.otf_long_alias_src VALUES (3, 'charlie')")
+
+            # Second run: append only id=3 via WHERE id > 2.
+            results = run_dbt(["run", "--select", "otf_long_alias_model"])
+            assert len(results) == 1
+            assert results[0].status == "success"
+
+            stats = project.run_sql(
+                f'SELECT MIN(id), MAX(id), COUNT(*) FROM "{DATALAKE_NAME}"."{OTF_DATABASE}"."{OTF_LONG_ALIAS_NAME}"',
+                fetch="one",
+            )
+            assert stats[0] == 1   # alice preserved (append-only, not rebuilt)
+            assert stats[1] == 3   # charlie appended
+            assert stats[2] == 3
+        finally:
+            project.run_sql("DROP TABLE {schema}.otf_long_alias_src")
 
