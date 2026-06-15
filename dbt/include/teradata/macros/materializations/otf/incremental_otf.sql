@@ -98,7 +98,17 @@
           ~ "or run with --full-refresh."
       ) }}
     {%- endif -%}
-    {{ return(none) }}
+    {#-- No drift: still build a name-aligned positional SELECT so a reorder of
+         existing columns in the model SELECT cannot misalign the OTF insert. --#}
+    {%- set exprs = [] -%}
+    {%- for cname in target_columns -%}
+      {%- set ns = namespace(match=none) -%}
+      {%- for s in staging_columns -%}
+        {%- if (s.name | lower) == (cname | lower) -%}{%- set ns.match = s -%}{%- endif -%}
+      {%- endfor -%}
+      {%- do exprs.append(adapter.quote(ns.match.name)) -%}
+    {%- endfor -%}
+    {{ return(exprs) }}
 
   {%- elif on_schema_change == 'append_new_columns' -%}
     {#-- Add each new source column with its own ALTER (this loop is a no-op when
