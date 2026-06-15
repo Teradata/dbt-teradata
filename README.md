@@ -938,13 +938,15 @@ A `ref()` from another model then compiles to `"my_lake"."my_otf_db"."customer_i
 
 ### Supported model config options
 
-| Option           | Type    | Description                                                                                                |
-| ---------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
-| `catalog_name`   | string  | Name of the catalog integration from `catalogs.yml`. Required to mark a model as OTF.                      |
-| `partitioned_by` | string  | Iceberg/Delta partition expression, e.g. `'YEAR(dt), country'`.                                            |
-| `sorted_by`      | string  | Sort order, e.g. `'id ASC'`.                                                                               |
-| `tblproperties`  | string  | Iceberg/Delta table properties, e.g. `"'gc.enabled'='true'"`.                                              |
-| `purge_mode`     | string  | DROP behavior. `'NO PURGE'` (default; removes catalog entry only) or `'PURGE ALL'` (also deletes data files on the object store). Case-insensitive. |
+| Option                | Type    | Description                                                                                                |
+| --------------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
+| `catalog_name`        | string  | Name of the catalog integration from `catalogs.yml`. Required to mark a model as OTF.                      |
+| `partitioned_by`      | string  | Iceberg/Delta partition expression, e.g. `'YEAR(dt), country'`.                                            |
+| `sorted_by`           | string  | Sort order, e.g. `'id ASC'`.                                                                               |
+| `tblproperties`       | string  | Iceberg/Delta table properties, e.g. `"'gc.enabled'='true'"`.                                              |
+| `purge_mode`          | string  | DROP behavior. `'NO PURGE'` (default; removes catalog entry only) or `'PURGE ALL'` (also deletes data files on the object store). Case-insensitive. |
+| `incremental_strategy`| string  | For incremental OTF models: only `'append'` is supported. |
+| `alias`               | string  | Overrides the physical OTF table name in the catalog. The OTF object is created under the alias; the model file name is not used. Works for both `table` and `incremental` OTF models. |
 
 `persist_docs` and standard dbt cache management work on OTF models the same way they do on native tables. **`grants` is not supported on OTF tables** — Teradata does not allow `GRANT` on DATALAKE objects (access control is managed via AUTHORIZATION objects and external IAM/OAuth policies). Setting `grants` on an OTF model emits a warning and is otherwise ignored.
 
@@ -955,9 +957,39 @@ A `ref()` from another model then compiles to `"my_lake"."my_otf_db"."customer_i
 * **Teradata-native table options are not supported.** Setting any of `table_kind`, `table_option`, `with_statistics`, or `index` together with `catalog_name` raises a compile-time error — these options describe native Teradata table storage and do not apply to Iceberg/Delta tables.
 * **Only `catalog_type: datalake` is supported.** Other catalog types are rejected with a compile-time error.
 
-### Error 7825 suppression
+### Incremental OTF models
 
-Teradata raises error 7825 ("OTF table not found in external catalog") when `DROP TABLE` is issued against an OTF table that no longer exists in the external catalog (e.g. Glue). dbt-teradata treats 7825 the same way it treats native errors 3807/3853/3854 — suppressed under `IF EXISTS` semantics — so re-running a dbt project after an OTF table has been deleted externally does not fail.
+OTF models support `materialized='incremental'` with `incremental_strategy='append'` (the only supported strategy for OTF):
+
+```sql
+{{ config(
+    materialized='incremental',
+    catalog_name='my_otf_catalog',
+    incremental_strategy='append',
+    partitioned_by='YEAR(order_date)'
+) }}
+select * from {{ ref('stg_orders') }}
+{% if is_incremental() %}
+  where order_date > (select max(order_date) from {{ this }})
+{% endif %}
+```
+
+On the **first run**, the OTF table is created with `CREATE TABLE AS SELECT`. On **subsequent runs**, only the rows returned by the `{% if is_incremental() %}` filter are appended via `INSERT INTO ... SELECT`. Use `dbt run --full-refresh` to drop and recreate the OTF table from scratch.
+
+The `alias` config works for incremental OTF models — both the initial CREATE and all subsequent INSERT operations target the alias-named OTF object:
+
+```sql
+{{ config(
+    materialized='incremental',
+    catalog_name='my_otf_catalog',
+    incremental_strategy='append',
+    alias='orders_iceberg'          -- physical OTF table name
+) }}
+```
+
+### Error 7825 / 6321 suppression
+
+Teradata raises error 7825 ("OTF table not found in external catalog") when `DROP TABLE` is issued against an OTF table that no longer exists in the external catalog (e.g. Glue). Teradata 20.0.0.61 and later raises error 6321 for the same condition. dbt-teradata suppresses both errors under `IF EXISTS` semantics — so re-running a dbt project after an OTF table has been deleted externally does not fail.
 
 ### Testing OTF locally
 
