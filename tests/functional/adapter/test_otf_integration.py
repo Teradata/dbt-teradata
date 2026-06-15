@@ -105,9 +105,7 @@ def _is_otf_table_not_found(exc: Exception) -> bool:
     return "[Error 7825]" in msg or "[Error 6321]" in msg
 
 
-@pytest.fixture(autouse=True)
-def _cleanup_otf_tables(project):
-    yield
+def _drop_otf_test_tables(project) -> None:
     for name in _OTF_TEST_TABLES:
         try:
             project.run_sql(
@@ -116,6 +114,13 @@ def _cleanup_otf_tables(project):
         except Exception as exc:
             if not _is_otf_table_not_found(exc):
                 raise
+
+
+@pytest.fixture(autouse=True)
+def _cleanup_otf_tables(project):
+    _drop_otf_test_tables(project)  # pre-test: clear any leftovers from prior runs
+    yield
+    _drop_otf_test_tables(project)  # post-test: clean up what this test created
 
 
 CATALOG_NAME = "test_catalog"
