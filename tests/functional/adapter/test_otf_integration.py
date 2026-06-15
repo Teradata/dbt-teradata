@@ -93,13 +93,29 @@ _OTF_TEST_TABLES = [
 ]
 
 
+def _is_otf_table_not_found(exc: Exception) -> bool:
+    """True if the exception is an OTF 'table does not exist' error.
+
+    project.run_sql() calls cursor.execute() directly, bypassing the adapter's
+    add_query() where /*+ IF EXISTS */ suppression lives.  Error 7825 (older
+    engines) and 6321 (TD 20.0.0.61+) must be swallowed during cleanup so that
+    one missing table does not abort cleanup of the rest.
+    """
+    msg = str(exc)
+    return "[Error 7825]" in msg or "[Error 6321]" in msg
+
+
 @pytest.fixture(autouse=True)
 def _cleanup_otf_tables(project):
     yield
     for name in _OTF_TEST_TABLES:
-        project.run_sql(
-            f'DROP TABLE /*+ IF EXISTS */ "{DATALAKE_NAME}"."{OTF_DATABASE}"."{name}" NO PURGE;'
-        )
+        try:
+            project.run_sql(
+                f'DROP TABLE /*+ IF EXISTS */ "{DATALAKE_NAME}"."{OTF_DATABASE}"."{name}" NO PURGE;'
+            )
+        except Exception as exc:
+            if not _is_otf_table_not_found(exc):
+                raise
 
 
 CATALOG_NAME = "test_catalog"
