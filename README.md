@@ -1070,19 +1070,6 @@ Teradata raises error **7825** ("OTF table not found in external catalog") — o
 * **Incremental: only the `append` strategy is supported.** `merge`/`delete+insert`/`valid_history`/`microbatch` raise compile-time errors. All four `on_schema_change` values are supported, with `sync_all_columns` being best-effort (limited type changes). See [Incremental materialization (OTF)](#incremental-materialization-otf).
 * **OTF cannot be used with the `snapshot` materialization.** Setting `catalog_name` on a snapshot raises a compile-time error (snapshots require update/merge semantics OTF does not provide).
 
-### Testing OTF locally
-
-Functional tests for the OTF feature live in `tests/functional/adapter/test_otf_integration.py` and are gated on the following environment variables:
-
-```bash
-export DBT_TERADATA_DATALAKE='my_lake'        # pre-created DATALAKE name
-export DBT_TERADATA_OTF_DATABASE='my_otf_db'  # pre-created OTF database name
-```
-
-Combined with the standard `DBT_TERADATA_SERVER_NAME` / `DBT_TERADATA_USERNAME` / `DBT_TERADATA_PASSWORD` connection variables, `pytest tests/functional/adapter/test_otf_integration.py` will exercise: basic create, idempotency, cross-model `ref()`, source-based 3-part naming, `purge_mode: 'NO PURGE'`, incremental `append` (create + append + `--full-refresh`), `on_schema_change='append_new_columns'`/`fail`, dbt `alias`, and more. Compile-time guardrail tests live in `tests/functional/adapter/test_otf_guardrails.py`. Without the OTF env vars set, all OTF integration tests are skipped.
-
-Pure unit tests (no Teradata required) live in `tests/unit/test_otf_catalogs.py` and run via `pytest tests/unit/`.
-
 ## temporary_metadata_generation_schema (earlier fallback_schema)
 dbt-teradata internally created temporary tables to fetch the metadata of views for manifest and catalog creation. 
 In case if user does not have permission to create tables on the schema they are working on, they can define a temporary_metadata_generation_schema(to which they have proper create and drop privileges) in dbt_project.yml as variable.
