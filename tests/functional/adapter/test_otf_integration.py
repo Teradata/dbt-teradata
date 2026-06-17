@@ -1704,9 +1704,14 @@ class TestOTFIncrementalSyncAllColumns(BaseCatalogIntegrationValidation):
             )
             assert cnt[0] == 4   # 2 from run 1 + 2 from run 2
             assert cnt[1] == 2   # only run-2 rows carry region (run-1 rows NULL)
-            # Dropped column must be gone — verify via column list probe, not an exception.
-            cols = project.adapter.get_otf_columns_in_relation(DATALAKE_NAME, OTF_DATABASE, "otf_sync")
-            col_names = [c.lower() for c in cols]
+            # Dropped column must be gone — verify via HELP TABLE (avoids stale
+            # connection pool handle from project.adapter method after run_sql closes
+            # the _test connection).
+            help_rows = project.run_sql(
+                f'HELP TABLE "{DATALAKE_NAME}"."{OTF_DATABASE}"."otf_sync"',
+                fetch="all",
+            )
+            col_names = [row[0].strip().lower() for row in help_rows]
             assert "name" not in col_names, "'name' should have been dropped by sync_all_columns"
             assert "region" in col_names, "'region' should have been added by sync_all_columns"
 
