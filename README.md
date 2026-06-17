@@ -1069,6 +1069,7 @@ Teradata raises error **7825** ("OTF table not found in external catalog") — o
 * **Only `catalog_type: datalake` is supported.** Other catalog types are rejected with a compile-time error.
 * **Incremental: only the `append` strategy is supported.** `merge`/`delete+insert`/`valid_history`/`microbatch` raise compile-time errors. All four `on_schema_change` values are supported, with `sync_all_columns` being best-effort (limited type changes). See [Incremental materialization (OTF)](#incremental-materialization-otf).
 * **OTF cannot be used with the `snapshot` materialization.** Setting `catalog_name` on a snapshot raises a compile-time error (snapshots require update/merge semantics OTF does not provide).
+* **Column metadata is not available for OTF tables in dbt docs.** OTF tables are not registered in Teradata's `DBC.ColumnsV` view (only native tables are), so column-level metadata (descriptions, data types, constraints) will not appear in dbt docs when you run `dbt docs generate` and serve with `dbt docs serve`. Table-level metadata is still available and functional.
 
 ## temporary_metadata_generation_schema (earlier fallback_schema)
 dbt-teradata internally created temporary tables to fetch the metadata of views for manifest and catalog creation. 
