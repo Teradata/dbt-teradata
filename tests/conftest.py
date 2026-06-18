@@ -8,6 +8,24 @@ from datetime import datetime
 
 #load_dotenv("../test.env")
 
+# Environment variables read by the test suite:
+#
+#   Connection (with defaults for Vantage Express running on localhost):
+#     DBT_TERADATA_SERVER_NAME  -- hostname           (default: 'localhost')
+#     DBT_TERADATA_USERNAME     -- username           (default: 'dbc')
+#     DBT_TERADATA_PASSWORD     -- password           (default: 'dbc')
+#     DBT_TERADATA_TMODE        -- transaction mode   (default: 'ANSI')
+#
+#   Grants tests (created automatically if set):
+#     DBT_TEST_USER_1
+#     DBT_TEST_USER_2
+#     DBT_TEST_USER_3
+#
+#   OTF / DATALAKE tests (tests/functional/adapter/test_otf_integration.py).
+#   When BOTH are set, OTF integration tests run; otherwise they are skipped:
+#     DBT_TERADATA_DATALAKE       -- pre-created DATALAKE object name
+#     DBT_TERADATA_OTF_DATABASE   -- pre-created OTF database within the DATALAKE
+
 # Import the standard functional fixtures as a plugin
 # Note: fixtures with session scope need to be locals
 pytest_plugins = ["dbt.tests.fixtures.project"]

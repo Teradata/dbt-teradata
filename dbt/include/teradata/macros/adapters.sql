@@ -9,9 +9,32 @@
 {% endmacro %}
 
 {% macro teradata__drop_relation(relation) -%}
-    {% call statement('drop_relation', auto_begin=False) -%}
-        DROP {{ relation.type }} /*+ IF EXISTS */ {{ relation }};
-    {%- endcall %}
+    {%- set catalog_name = config.get('catalog_name', none) -%}
+    {% if catalog_name is not none %}
+        {#- OTF is only valid for tables. Reject catalog_name on non-table relations
+            to prevent accidentally running OTF DROP TABLE against a view. -#}
+        {% if relation.type != 'table' %}
+            {{ exceptions.raise_compiler_error(
+                "catalog_name is only supported on table relations, but got relation type '"
+                ~ relation.type ~ "' for " ~ relation ~ "."
+            ) }}
+        {% endif %}
+        {#- OTF table: use 3-part naming. The purge clause is mandatory for OTF
+            DROP TABLE; the shared validator normalises and rejects bad values. -#}
+        {% set catalog_integration = adapter.get_catalog_integration(catalog_name) %}
+        {% if catalog_integration.catalog_type == 'datalake' %}
+            {{ teradata__drop_otf_table(catalog_integration, relation.identifier, config.get('purge_mode')) }}
+        {% else %}
+            {{ exceptions.raise_compiler_error(
+                "Unsupported catalog_type '" ~ catalog_integration.catalog_type ~ "' for drop_relation."
+            ) }}
+        {% endif %}
+    {% else %}
+        {#- Standard Teradata table/view drop -#}
+        {% call statement('drop_relation', auto_begin=False) -%}
+            DROP {{ relation.type }} /*+ IF EXISTS */ {{ relation }};
+        {%- endcall %}
+    {% endif %}
 {% endmacro %}
 
 {% macro teradata__truncate_relation(relation) -%}
@@ -21,6 +44,32 @@
 {% endmacro %}
 
 {% macro teradata__create_table_as(temporary, relation, sql) -%}
+  {%- set catalog_name = config.get('catalog_name', none) -%}
+
+  {% if catalog_name is not none %}
+    {#- Guard against config combinations that are not supported on the OTF path.
+        Teradata-native options (table_kind, table_option, with_statistics, index)
+        do not apply to Iceberg/Delta tables and would be silently ignored if
+        permitted. Contract enforcement is not yet implemented for OTF. -#}
+    {%- set unsupported = [] -%}
+    {%- if config.get('table_kind') -%}{%- do unsupported.append('table_kind') -%}{%- endif -%}
+    {%- if config.get('table_option') -%}{%- do unsupported.append('table_option') -%}{%- endif -%}
+    {%- if config.get('with_statistics', default=False) | as_bool -%}{%- do unsupported.append('with_statistics') -%}{%- endif -%}
+    {%- if config.get('index') -%}{%- do unsupported.append('index') -%}{%- endif -%}
+    {%- if unsupported | length > 0 -%}
+      {{ exceptions.raise_compiler_error(
+          "The following config option(s) are not supported with catalog_name (OTF): "
+          ~ unsupported | join(', ')
+      ) }}
+    {%- endif -%}
+    {%- set contract_config = config.get('contract') -%}
+    {%- if contract_config is not none and contract_config.enforced -%}
+      {{ exceptions.raise_compiler_error(
+          "Model contracts (contract.enforced=true) are not yet supported with catalog_name (OTF)."
+      ) }}
+    {%- endif -%}
+    {{ teradata__create_otf_table_as(relation, sql, catalog_name) }}
+  {% else %}
   {%- set sql_header = config.get('sql_header', none) -%}
   {%- set table_kind = config.get('table_kind', default='') -%}
   {%- set table_option = config.get('table_option', default='') -%}
@@ -80,6 +129,7 @@
     INSERT INTO {{ relation }}
           {{ sql }}
     ;
+  {% endif %}
   {% endif %}
 {% endmacro %}
 
@@ -302,6 +352,10 @@
 {%- endmacro %}
 
 {% macro teradata__create_schema(relation) -%}
+  {%- if relation.is_otf -%}
+    {#- OTF schemas live inside a DATALAKE and cannot be created via standard
+        Teradata DDL. They must be pre-created outside of dbt. Skip silently. -#}
+  {%- else -%}
   {%- call statement('create_schema') -%}
     CREATE DATABASE {{ relation.without_identifier().include(database=False) }}
     -- Teradata expects db sizing params on creation. This macro is probably
@@ -310,10 +364,14 @@
     AS PERMANENT = 60e6, -- 60MB
         SPOOL = 120e6; -- 120MB
   {%- endcall -%}
+  {%- endif -%}
 {% endmacro %}
 
 {% macro teradata__drop_schema(relation) -%}
-  {% if relation.schema -%}
+  {%- if relation.is_otf -%}
+    {#- OTF schemas live inside a DATALAKE and cannot be dropped via standard
+        Teradata DDL. Skip silently. -#}
+  {%- elif relation.schema -%}
     {{ adapter.verify_database(relation.schema) }}
     {%- call statement('drop_schema_delete_database') -%}
     DELETE DATABASE /*+ IF EXISTS */ {{ relation.without_identifier().include(database=False) }} ALL;

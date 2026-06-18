@@ -5,6 +5,13 @@
 -- calling the macro set_query_band() which will set the query_band for this materialization as per the user_configuration
 {% do set_query_band() %}
 
+{%- set catalog_name = config.get('catalog_name', none) -%}
+{% if catalog_name is not none %}
+  {#-- OTF (Iceberg / Delta Lake) incremental path --#}
+  {% set otf_result = teradata__incremental_otf(catalog_name, sql) %}
+  {{ return(otf_result) }}
+{% else %}
+
 {% set unique_key = config.get('unique_key') %}
 
 -- Start: Below are the configuration options for the valid_history strategy
@@ -89,5 +96,7 @@
 {{ run_hooks(post_hooks, inside_transaction=False) }}
 
 {{ return({'relations': [target_relation]}) }}
+
+{% endif %}
 
 {%- endmaterialization %}
