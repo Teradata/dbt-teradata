@@ -153,7 +153,7 @@ jobs:
         id: create_pr
         uses: actions/github-script@v8
         with:
-          github-token: ${ secrets.PUBLIC_REPO_PAT}
+          github-token: ${{ secrets.PUBLIC_REPO_PAT }}
           script: |
             const owner = process.env.PUBLIC_OWNER;
             const repo = process.env.PUBLIC_REPO;
@@ -177,7 +177,7 @@ jobs:
         id: merge_pr
         uses: actions/github-script@v8
         with:
-          github-token: ${ secrets.PUBLIC_REPO_PAT}
+          github-token: ${{ secrets.PUBLIC_REPO_PAT }}
           script: |
             const owner = process.env.PUBLIC_OWNER;
             const repo = process.env.PUBLIC_REPO;
