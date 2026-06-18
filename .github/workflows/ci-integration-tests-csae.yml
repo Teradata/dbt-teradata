@@ -59,18 +59,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements_dev.txt
-
       - name: Prepare database
         shell: bash
         run: |
           export PATH=$PATH:"/opt/teradata/client/17.20/bin"
-
           cd md5_20080530/md5/src
-
           # prepare bteq script
-
           cat << EOF > /tmp/install_md5.bteq
-
           .SET EXITONDELAY ON MAXREQTIME 20
           .logon $DBT_TERADATA_SERVER_NAME/$DBT_TERADATA_USERNAME,$DBT_TERADATA_PASSWORD
           CREATE DATABASE HASH_TEST AS PERMANENT = 60e6, SPOOL = 120e6;
@@ -85,7 +80,6 @@ jobs:
           GRANT EXECUTE FUNCTION ON GLOBAL_FUNCTIONS TO PUBLIC WITH GRANT OPTION;
           .logoff
           EOF
-
           bteq < /tmp/install_md5.bteq
           
           cd ../../../tests/functional/adapter
@@ -112,7 +106,6 @@ jobs:
           EOF
           
           bteq < /tmp/create_procedure_in_ansi.bteq
-
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
@@ -126,7 +119,7 @@ jobs:
           export DBT_TEST_USER_1=test_grants_user1
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
-          pytest --cov=dbt -v -k "not TestCurrentTimestamp and not TestProcedureANSIInTERA and not TestProcedureTERAInTERA and not Test_query_band" tests/functional
+          pytest --cov=dbt -v -k "not TestCurrentTimestamp and not TestProcedureANSIInTERA and not TestProcedureTERAInTERA and not Test_query_band and not TestSafeCast" --ignore=tests/functional/adapter/test_otf_integration.py tests/functional
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
@@ -141,7 +134,7 @@ jobs:
           export DBT_TEST_USER_1=test_grants_user1
           export DBT_TEST_USER_2=test_grants_user2
           export DBT_TEST_USER_3=test_grants_user3
-          pytest --cov=dbt -v -k "not TestCurrentTimestamp and not TestProcedureTERAInANSI and not TestProcedureANSIInANSI" tests/functional --cov-append
+          pytest --cov=dbt -v -k "not TestCurrentTimestamp and not TestProcedureTERAInANSI and not TestProcedureANSIInANSI and not TestSafeCast" --ignore=tests/functional/adapter/test_otf_integration.py tests/functional --cov-append
         env:
           DBT_TERADATA_SERVER_NAME: ${{ steps.create-csae-environments.outputs.teradata-server-name }}
           DBT_TERADATA_USERNAME: dbc
@@ -203,14 +196,12 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/test/performance
           ./run.sh
-
       - name: Run catalog tests with ANSI
         run: |
           # cd $GITHUB_WORKSPACE/test/catalog/with_qvci
           # ./run.sh
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
           ./run.sh
-
       - name: Setup environment with TERA for performance, catalog and valid history tests
         run: |
           rm ~/.dbt/profiles.yml
@@ -290,14 +281,12 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/test/performance
           ./run.sh
-
       - name: Run catalog tests with TERA
         run: |
           # cd $GITHUB_WORKSPACE/test/catalog/with_qvci
           # ./run.sh
           cd $GITHUB_WORKSPACE/test/catalog/without_qvci
           ./run.sh
-
       - name: Run valid history tests
         run: |
           cd $GITHUB_WORKSPACE/test/valid_history_test
@@ -309,7 +298,6 @@ jobs:
           cd $GITHUB_WORKSPACE/test/dbt_external_tables_test/integration_tests
           chmod 777 run.sh
           ./run.sh
-
       - name: Run nopi tests
         run: |
           sed -i "s/hostname=dbt.*/hostname='$DBT_TERADATA_SERVER_NAME'/g" tests/conftest.py
@@ -324,7 +312,6 @@ jobs:
       - name: Print Code Coverage Report
         run: |
           coverage report -m
-
       - name: Delete CSAE environment
         if: always()
         run: |

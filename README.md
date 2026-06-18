@@ -851,6 +851,226 @@ sources:
               data_type: CHAR(1)
 ```
 
+## Open Table Format (OTF) support
+
+dbt-teradata can create and read Iceberg / Delta Lake tables via Teradata's native Open Table Format support. OTF tables live in an external object store (S3, Azure, GCS) and are registered with an external catalog (AWS Glue, Unity Catalog, etc.); Teradata accesses them through a pre-created `DATALAKE` object that encapsulates the catalog type, authentication, and object-store path.
+
+### Which OTF flavor is supported
+
+Teradata offers two ways to work with open table formats. **dbt-teradata supports only External OTF (also called JOTF).**
+
+| OTF flavor | DDL emitted | Naming | Supported by dbt-teradata? |
+| ---------- | ----------- | ------ | -------------------------- |
+| **External OTF (JOTF)** | `CREATE TABLE "<datalake>"."<otf_db>"."<table>" ... AS ...` | 3-part | ✅ **Yes** — this is what the adapter generates |
+| **Teradata Managed OTF (MOTF)** | `CREATE MANAGED TABLE <db>.<table>, DATALAKE=<dl> ...` | 2-part | ❌ **No** — not implemented |
+
+> **⚠️ Managed OTF (MOTF) is not supported.** The adapter only emits `CREATE TABLE` with 3-part naming against a pre-created `DATALAKE` object (External OTF). It does not emit `CREATE MANAGED TABLE`, the `DATALAKE=` table clause, `RETENTIONDAYS`, or MOTF primary-index options. External OTF is copy-on-write and does not support `MERGE`, so dbt-teradata only offers append-style writes on OTF tables — `merge`-based upserts would require MOTF, which is not implemented. See [Limitations](#limitations-and-trade-offs) below.
+
+#### What is supported (External OTF / JOTF)
+
+* **Table formats:** Apache Iceberg (verified) and Delta Lake. The adapter defaults to `iceberg` / `parquet`.
+* **Materializations:** `table` and `incremental` (with `incremental_strategy='append'` only).
+* **Catalogs:** any catalog your `DATALAKE` object is configured for (AWS Glue, Hive, Unity Catalog, REST). Schema evolution is verified on Iceberg (Glue/Hive).
+* **Cross-model references:** `ref()` and OTF tables declared as `sources` (3-part naming).
+* **Model config:** `partitioned_by`, `sorted_by`, `tblproperties`, `purge_mode`, `alias`, `on_schema_change`, `persist_docs`.
+
+#### What is not supported
+
+* **Managed OTF (MOTF)** — `CREATE MANAGED TABLE` and 2-part managed tables.
+* **Incremental strategies other than `append`** — `merge`, `delete+insert`, `valid_history`, `microbatch` raise a compile-time error (External OTF is copy-on-write and has no `MERGE`).
+* **`snapshot` materialization** on OTF tables.
+* **Model contracts** (`contract.enforced: true`) on the OTF path.
+* **Teradata-native table options** — `table_kind`, `table_option`, `with_statistics`, `index` (these describe native Teradata storage and don't apply to Iceberg/Delta).
+* **`grants`** on OTF tables (Teradata does not allow `GRANT` on DATALAKE objects).
+* **Catalog types other than `datalake`.**
+
+A simple OTF table model looks like this:
+
+```sql
+-- models/sales_iceberg.sql
+{{ config(
+    materialized='table',
+    catalog_name='my_otf_catalog',   -- from catalogs.yml
+    partitioned_by='YEAR(order_date), country'
+) }}
+select order_id, customer_id, country, order_date, amount
+from {{ ref('stg_orders') }}
+```
+
+### Pre-requisites
+
+The following must exist on the Teradata side **before** running dbt:
+
+* A `DATALAKE` object created in Teradata (e.g. via `CREATE DATALAKE my_lake ...`). dbt does not create DATALAKEs.
+* A database inside that DATALAKE (the "OTF database") that will hold the OTF tables. dbt does not create this either.
+* The dbt user must have permission to `CREATE TABLE` / `DROP TABLE` within the OTF database, and `SELECT` permission to read OTF tables defined elsewhere.
+
+Refer to the Teradata documentation for `CREATE DATALAKE` syntax and the specific permissions required for your catalog backend.
+
+### Configuration
+
+Register the catalog integration in a `catalogs.yml` file at your dbt project root:
+
+```yaml
+catalogs:
+  - name: my_otf_catalog
+    active_write_integration: td_datalake
+    write_integrations:
+      - name: td_datalake
+        catalog_type: datalake
+        adapter_properties:
+          datalake_name: my_lake        # the pre-created DATALAKE object
+          otf_database: my_otf_db       # the pre-created OTF database within it
+```
+
+`catalog_type` must be `datalake`. `datalake_name` and `otf_database` are both required and validated at integration registration time.
+
+Reference the catalog from a model via `catalog_name`:
+
+```sql
+-- models/sales_iceberg.sql
+{{ config(
+    materialized='table',
+    catalog_name='my_otf_catalog',
+    partitioned_by='YEAR(order_date), country',
+    sorted_by='customer_id ASC',
+    tblproperties="'write.format.default'='parquet', 'gc.enabled'='true'",
+    purge_mode='NO PURGE'
+) }}
+select
+    order_id,
+    customer_id,
+    country,
+    order_date,
+    amount
+from {{ ref('stg_orders') }}
+```
+
+### Naming conventions: 2-part vs 3-part
+
+Teradata's native objects use **2-part** naming (`database.object`); in dbt-teradata, the `database` field is unused and the `schema` field carries the Teradata database name. OTF tables are the **only** Teradata objects that use **3-part** naming (`"<datalake>"."<otf_database>"."<table>"`).
+
+For OTF tables, dbt-teradata maps:
+
+| dbt field    | Teradata concept                  |
+| ------------ | --------------------------------- |
+| `database`   | DATALAKE name (quoted)            |
+| `schema`     | OTF database name (quoted)        |
+| `identifier` | OTF table name (quoted)           |
+
+When you set `catalog_name` on a model, dbt-teradata pulls `database` and `schema` from the registered catalog integration automatically. For an OTF table defined as a **source** (where there is no `catalog_name` model config), declare the `database` and `schema` explicitly in `sources.yml` — the adapter detects the 3-part shape (database ≠ schema) and renders it correctly:
+
+```yaml
+version: 2
+sources:
+  - name: customer_otf
+    database: my_lake          # DATALAKE name
+    schema: my_otf_db          # OTF database name
+    tables:
+      - name: customer_iceberg
+```
+
+A `ref()` from another model then compiles to `"my_lake"."my_otf_db"."customer_iceberg"`.
+
+> **⚠️ Important: `database` and `schema` must be different values in `sources.yml`.**
+>
+> The adapter uses the heuristic `database ≠ schema` to auto-detect that a source is an OTF table and should use 3-part naming. If your DATALAKE object and OTF database happen to share the same name (e.g. both are `my_lake`), the adapter will treat the source as a regular 2-part Teradata relation and generate incorrect SQL.
+>
+> To avoid this, ensure that your DATALAKE name and OTF database name are always different. This is only a constraint for the `sources.yml` path — models that use `catalog_name` in their config are not affected, because OTF detection is explicit rather than heuristic.
+
+### Supported model config options
+
+| Option                 | Type    | Description                                                                                                |
+| ---------------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
+| `catalog_name`         | string  | Name of the catalog integration from `catalogs.yml`. Required to mark a model as OTF.                      |
+| `partitioned_by`       | string  | Iceberg/Delta partition expression, e.g. `'YEAR(dt), country'`.                                            |
+| `sorted_by`            | string  | Sort order, e.g. `'id ASC'`.                                                                               |
+| `tblproperties`        | string  | Iceberg/Delta table properties, e.g. `"'gc.enabled'='true'"`.                                              |
+| `purge_mode`           | string  | DROP behavior. `'NO PURGE'` (default; removes catalog entry only) or `'PURGE ALL'` (also deletes data files on the object store). Case-insensitive. |
+| `incremental_strategy` | string  | For `materialized='incremental'` only. **Only `'append'` is supported** on OTF (see [Incremental materialization](#incremental-materialization-otf)). |
+| `on_schema_change`     | string  | For `materialized='incremental'` only. `'ignore'` (default), `'fail'`, `'append_new_columns'`, or `'sync_all_columns'` (best-effort on OTF — see below). |
+| `alias`                | string  | Overrides the physical OTF table name in the catalog. The OTF object is created under the alias; the model file name is not used. Works for both `table` and `incremental` OTF models. |
+
+`persist_docs` and standard dbt cache management work on OTF models the same way they do on native tables. **`grants` is not supported on OTF tables** — Teradata does not allow `GRANT` on DATALAKE objects (access control is managed via AUTHORIZATION objects and external IAM/OAuth policies). Setting `grants` on an OTF model emits a warning and is otherwise ignored.
+
+### Incremental materialization (OTF)
+
+OTF tables can be materialized incrementally with `materialized='incremental'` and a `catalog_name`:
+
+```sql
+-- models/orders_otf_incremental.sql
+{{ config(
+    materialized='incremental',
+    catalog_name='my_otf_catalog',
+    incremental_strategy='append',
+    partitioned_by='YEAR(order_date)',
+    on_schema_change='append_new_columns'
+) }}
+select order_id, customer_id, order_date, amount
+from {{ ref('stg_orders') }}
+{% if is_incremental() %}
+    where order_date > (select max(order_date) from {{ this }})
+{% endif %}
+```
+
+How it runs:
+
+* **First run** creates the OTF table (`CREATE TABLE ... AS ... WITH DATA`).
+* **Subsequent runs** load new rows into a regular Teradata staging table, then `INSERT ... SELECT` into the OTF table (positional insert — OTF does not accept a target column list).
+* **`--full-refresh`** drops and re-creates the table from scratch.
+* Existence is detected by probing the 3-part name with `SELECT ... SAMPLE 0` (OTF tables are not registered in `DBC.TablesV`/`DBC.ColumnsV` under the dbt schema), treating Teradata errors **7825** and **6321** ("OTF table does not exist") as "not found".
+
+> **Only `incremental_strategy='append'` is supported on OTF.** `merge`, `delete+insert`, `valid_history`, and `microbatch` raise a compile-time error. Teradata External OTF does not support `MERGE` and is copy-on-write only, so the upsert-style strategies cannot be honored. Use `append` (optionally with an `is_incremental()` filter to bound the rows appended).
+
+#### `on_schema_change` on OTF
+
+dbt's [`on_schema_change`](https://docs.getdbt.com/docs/build/incremental-models#what-if-the-columns-of-my-incremental-model-change) is supported on OTF incremental models with these values:
+
+| Value | OTF behavior |
+| ----- | ------------ |
+| `ignore` (default) | No schema reconciliation. The append assumes the source and the existing OTF table have the same columns in the same order. |
+| `fail` | Compares the incoming (source) columns with the existing OTF columns and raises a clear error if any column was added or removed. |
+| `append_new_columns` | For each column present in the source but not yet in the OTF table, issues a separate `ALTER TABLE ... ADD <col> <type>`; the new columns are added at the end of the table. Pre-existing rows get `NULL` for the new columns; rows inserted on this run carry the new values. The `INSERT` is reordered to match the resulting OTF column layout. |
+| `sync_all_columns` | **Best-effort on OTF.** Makes the OTF table match the source: **adds** new columns, **drops** columns no longer in the source (destructive), and applies **type changes** OTF/Iceberg permits (e.g. `int → bigint`, decimal precision widening). A type change OTF cannot apply in place raises a clear error directing you to `--full-refresh`. |
+
+**Limitations of `on_schema_change` on OTF:**
+
+* **`sync_all_columns` is best-effort, and type changes are limited.** Type comparison is done at OTF/Iceberg granularity (via `HELP TABLE`'s `OTF Type`), so `VARCHAR` length and `SMALLINT`-vs-`INTEGER` differences are **not** treated as changes (OTF doesn't preserve them). Only OTF-permitted promotions are applied in place — verified: `int → bigint` ✅ and decimal **precision** widening (same scale) ✅; scale changes, narrowing, and cross-family changes (e.g. `decimal → string`) raise a clear error → use `--full-refresh`. `sync_all_columns` also performs **destructive, irreversible column drops** (OTF has no rollback). If you only ever add columns, prefer `append_new_columns`.
+* **`append_new_columns` is additive only.** New source columns are added; columns removed from the source are **kept** on the OTF table (and back-filled with `NULL` for subsequent rows). Existing column **types are never changed**.
+* **Column *order* in the model `SELECT` is handled automatically under `append_new_columns`.** OTF inserts are positional (no target column list), but `append_new_columns` realigns the `INSERT ... SELECT` to the table's column layout *by name*, so you do **not** need to place new columns at the end of the `SELECT`, and reordering existing columns is safe. (`ALTER ... ADD` does physically append new columns to the end of the table; the realignment is what keeps the data correct.) Under `on_schema_change='ignore'`, by contrast, **no realignment happens** — the model `SELECT` must produce columns in the same order as the existing OTF table.
+* **Each schema change is a separate `ALTER` statement.** OTF cannot combine multiple alter operations into one statement, and External OTF does not allow multi-statement requests, so `N` new columns produce `N` separate `ALTER TABLE ... ADD` statements. There is no rollback if one of them fails midway.
+* **Catalog/format support varies.** Schema evolution is verified on **Iceberg** (AWS Glue / Hive). **Unity Catalog does not support schema evolution at all** — any `ALTER` (including `append_new_columns`) will fail at the database. **Delta Lake** may require `delta.columnMapping.mode='name'` for column changes. On unsupported catalogs the `ALTER` surfaces the underlying Teradata error.
+
+To apply a schema change that neither `append_new_columns` nor `sync_all_columns` can do in place (e.g. a `VARCHAR`→numeric change, a decimal scale change, or a type narrowing), run the model with `--full-refresh`.
+
+#### `alias` on incremental OTF models
+
+The `alias` config sets the physical OTF table name in the catalog (the model file name is not used). It works for both `table` and `incremental` OTF models — for incremental models, both the initial CREATE and all subsequent INSERT operations target the alias-named OTF object:
+
+```sql
+{{ config(
+    materialized='incremental',
+    catalog_name='my_otf_catalog',
+    incremental_strategy='append',
+    alias='orders_iceberg'          -- physical OTF table name
+) }}
+```
+
+### Error 7825 / 6321 suppression
+
+Teradata raises error **7825** ("OTF table not found in external catalog") — or **6321** ("OTF Error: Table does not exist") on newer OTF engines (e.g. 20.0.0.61) — when a `DROP TABLE` (or existence probe) targets an OTF table that no longer exists in the external catalog (e.g. Glue). dbt-teradata treats both codes the same way it treats native errors 3807/3853/3854 — suppressed under `IF EXISTS` semantics — so re-running a dbt project after an OTF table has been deleted externally does not fail, and first-run incremental existence checks correctly detect a missing table.
+
+### Limitations and trade-offs
+
+* **Only External OTF (JOTF) is supported; Managed OTF (MOTF) is not.** The adapter emits `CREATE TABLE` against a pre-created `DATALAKE` (3-part naming). It does not emit `CREATE MANAGED TABLE`. External OTF is copy-on-write and has no `MERGE`, so dbt-teradata only performs append-style writes (`incremental_strategy='append'`); `merge`-based upserts would require MOTF.
+* **Non-atomic re-materialization.** OTF tables use 3-part naming that cannot be renamed via standard DDL, so the adapter cannot use the build-tmp-then-rename pattern that protects native tables on a failed CREATE. An OTF model is dropped before it is re-created — if the CREATE fails, the table is gone. Plan for `--full-refresh` workflows accordingly.
+* **Model contracts are not supported on the OTF path.** Setting `contract.enforced: true` together with `catalog_name` raises a compile-time error.
+* **Teradata-native table options are not supported.** Setting any of `table_kind`, `table_option`, `with_statistics`, or `index` together with `catalog_name` raises a compile-time error — these options describe native Teradata table storage and do not apply to Iceberg/Delta tables.
+* **Only `catalog_type: datalake` is supported.** Other catalog types are rejected with a compile-time error.
+* **Incremental: only the `append` strategy is supported.** `merge`/`delete+insert`/`valid_history`/`microbatch` raise compile-time errors. All four `on_schema_change` values are supported, with `sync_all_columns` being best-effort (limited type changes). See [Incremental materialization (OTF)](#incremental-materialization-otf).
+* **OTF cannot be used with the `snapshot` materialization.** Setting `catalog_name` on a snapshot raises a compile-time error (snapshots require update/merge semantics OTF does not provide).
+* **Column metadata is not available for OTF tables in dbt docs.** OTF tables are not registered in Teradata's `DBC.ColumnsV` view (only native tables are), so column-level metadata (descriptions, data types, constraints) will not appear in dbt docs when you run `dbt docs generate` and serve with `dbt docs serve`. Table-level metadata is still available and functional.
+
 ## temporary_metadata_generation_schema (earlier fallback_schema)
 dbt-teradata internally created temporary tables to fetch the metadata of views for manifest and catalog creation. 
 In case if user does not have permission to create tables on the schema they are working on, they can define a temporary_metadata_generation_schema(to which they have proper create and drop privileges) in dbt_project.yml as variable.

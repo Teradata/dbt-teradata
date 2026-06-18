@@ -1,6 +1,7 @@
 from concurrent.futures import Future
 from dataclasses import dataclass, asdict
 from typing import Optional, List, Dict, Any, Union, Iterable, Callable, Set, FrozenSet, Tuple
+import re
 import agate
 
 import dbt
@@ -13,6 +14,7 @@ from dbt.adapters.sql import SQLAdapter
 from dbt.adapters.teradata import TeradataConnectionManager
 from dbt.adapters.teradata import TeradataRelation
 from dbt.adapters.teradata import TeradataColumn
+from dbt.adapters.teradata.catalogs import TeradataDatalakeCatalogIntegration
 from dbt.adapters.capability import CapabilityDict, CapabilitySupport, Support, Capability
 from dbt.adapters.base.meta import available
 from dbt.adapters.base import BaseRelation
@@ -54,6 +56,10 @@ class TeradataAdapter(SQLAdapter):
     Relation = TeradataRelation
     Column = TeradataColumn
     ConnectionManager = TeradataConnectionManager
+
+    CATALOG_INTEGRATIONS = [
+        TeradataDatalakeCatalogIntegration,
+    ]
 
     CONSTRAINT_SUPPORT = {
         ConstraintType.check: ConstraintSupport.ENFORCED,
@@ -160,10 +166,50 @@ class TeradataAdapter(SQLAdapter):
     def get_relation(
         self, database: str, schema: str, identifier: str
     ) -> Optional[BaseRelation]:
+        # Preserve the original database before nulling it out — for OTF models,
+        # this holds the datalake name (e.g. "MyOTFLake"), which we need for the
+        # SAMPLE 0 fallback below.
+        original_database = database
         if not self.Relation.get_default_include_policy().database:
             database = None
 
-        return super().get_relation(database, schema, identifier)
+        # Standard lookup: queries DBC.TablesV.  Works for all regular Teradata
+        # tables and views.  Returns immediately when the relation is found.
+        relation = super().get_relation(database, schema, identifier)
+        if relation is not None:
+            return relation
+
+        # OTF fallback: OTF (Iceberg/Delta) tables are stored in a DATALAKE
+        # catalog and are NOT registered in DBC.TablesV, so the standard lookup
+        # above always returns None for them.  If we have a non-None database
+        # (the datalake name, preserved above), probe via SAMPLE 0.
+        #
+        # This makes is_incremental() evaluate correctly for OTF models: without
+        # this probe it would always return False because get_relation returns None,
+        # causing the model SQL to always compile without its incremental WHERE
+        # filter and resulting in duplicate rows on every incremental run.
+        #
+        # Regular Teradata tables/views are unaffected:
+        #   - Existing ones are returned by super().get_relation() above.
+        #   - For non-existing ones, original_database is typically None (Teradata
+        #     profiles rarely set a database), so the probe is skipped entirely.
+        #   - Guard original_database != schema: for native Teradata, database is
+        #     often set to the same value as schema.  For OTF, the datalake name
+        #     is always distinct from the otf_database.  This prevents unnecessary
+        #     SAMPLE 0 probes (and potential errors) against non-DATALAKE 3-part names.
+        if original_database and schema and identifier and original_database != schema:
+            if self.otf_relation_exists(original_database, schema, identifier):
+                return self.Relation.create(
+                    database=original_database,
+                    schema=schema,
+                    identifier=identifier,
+                    type='table',
+                    is_otf=True,
+                    quote_policy={"database": True, "schema": True, "identifier": True},
+                    include_policy={"database": True, "schema": True, "identifier": True},
+                )
+
+        return None
 
     def get_catalog(
             self,
@@ -351,4 +397,170 @@ class TeradataAdapter(SQLAdapter):
         Not used to validate custom strategies defined by end users.
         """
         return ["delete+insert","append","merge", "valid_history", "microbatch"]
-    
+
+    @available
+    def otf_relation_exists(self, datalake_name: str, otf_database: str, identifier: str) -> bool:
+        """Check whether an OTF (DATALAKE) table exists on the server.
+
+        OTF tables are not registered in DBC.TablesV under the dbt target
+        schema, so load_relation() / list_relations_without_caching() cannot
+        be used.  Instead, probe the 3-part DATALAKE name with SAMPLE 0:
+
+            SELECT * FROM "<datalake>"."<otf_db>"."<identifier>" SAMPLE 0
+
+        This succeeds (returning 0 rows) when the table exists, and raises a
+        "table does not exist" error when it does not. The exact error code
+        depends on the Teradata / OTF engine version:
+          - Error 7825 = ICEBERG_EXPORT "Table does not exist" (external catalog)
+          - Error 6321 = "OTF Error: Table does not exist" (newer OTF engines,
+                         e.g. 20.0.0.61)
+        Both indicate a missing OTF table and are treated as "does not exist".
+
+        Returns True if the table exists, False otherwise.
+        """
+        otf_name = self.Relation.create(
+            database=datalake_name,
+            schema=otf_database,
+            identifier=identifier,
+            is_otf=True,
+        ).render()
+        try:
+            self.connections.execute(
+                f"SELECT * FROM {otf_name} SAMPLE 0",
+                auto_begin=False,
+                fetch=False,
+            )
+            return True
+        except dbt_common.exceptions.DbtDatabaseError as ex:
+            # "Table does not exist" for an OTF table surfaces under different
+            # error codes across Teradata/OTF versions (7825 on older external
+            # catalog paths, 6321 on newer OTF engines). Swallow only these
+            # specific "not found" codes; re-raise auth/network/syntax failures.
+            msg = str(ex)
+            if "[Error 7825]" in msg or "[Error 6321]" in msg:
+                return False
+            raise
+
+    @available
+    def get_otf_columns_in_relation(self, datalake_name: str, otf_database: str, identifier: str) -> List[str]:
+        """Return the column NAMES of an OTF (DATALAKE) table.
+
+        OTF tables are not registered in DBC.ColumnsV, and HELP COLUMN raises
+        Error 7825 for them, so the normal get_columns_in_relation() path cannot
+        read an OTF table's schema.  Instead, read the result-set metadata from a
+        zero-row probe:
+
+            SELECT * FROM "<datalake>"."<otf_db>"."<table>" SAMPLE 0
+
+        The agate result carries the column names even with no rows.  Column
+        *types* are not reliably recoverable this way, so only names are
+        returned; callers that need a new column's DDL type source it from the
+        (regular Teradata) staging table instead.  Used by on_schema_change
+        handling to diff the OTF target against the incoming staging schema.
+        """
+        otf_name = self.Relation.create(
+            database=datalake_name,
+            schema=otf_database,
+            identifier=identifier,
+            is_otf=True,
+        ).render()
+        _, table = self.connections.execute(
+            f"SELECT * FROM {otf_name} SAMPLE 0",
+            auto_begin=False,
+            fetch=True,
+        )
+        return list(table.column_names)
+
+    @available
+    def get_otf_column_types(self, datalake_name: str, otf_database: str, identifier: str) -> List[Dict[str, str]]:
+        """Return the columns of an OTF table as ``[{'name', 'otf_type'}]``.
+
+        Uses ``HELP TABLE "<datalake>"."<otf_db>"."<table>"``, which (unlike
+        ``HELP COLUMN`` and ``DBC.ColumnsV``) works for OTF tables and exposes an
+        ``OTF Type`` column carrying the canonical Iceberg/Delta type --
+        ``int``, ``long``, ``string`` (no length), ``decimal(p, s)``, ``double``,
+        ``date``, ``timestamp``, etc.
+
+        Comparing on the OTF type (rather than the Teradata DDL type) is what
+        makes ``sync_all_columns`` correct: OTF does not preserve VARCHAR length
+        or SMALLINT vs INTEGER, so those never appear as spurious type changes.
+        Names and types are lower-cased and whitespace-normalised.
+        """
+        otf_name = self.Relation.create(
+            database=datalake_name,
+            schema=otf_database,
+            identifier=identifier,
+            is_otf=True,
+        ).render()
+        _, table = self.connections.execute(
+            f"HELP TABLE {otf_name}",
+            auto_begin=False,
+            fetch=True,
+        )
+
+        def _norm(value: Any) -> str:
+            return re.sub(r"\s+", " ", str(value).strip()).lower() if value is not None else ""
+
+        columns: List[Dict[str, str]] = []
+        for row in table.rows:
+            name = _norm(row["Column Name"])
+            otf_type = _norm(row["OTF Type"])
+            if name:
+                columns.append({"name": name, "otf_type": otf_type})
+        return columns
+
+    @available
+    def teradata_type_to_otf_type(self, data_type: Optional[str]) -> str:
+        """Map a Teradata column DDL type (e.g. from a staging table) to the
+        canonical OTF/Iceberg type reported by ``HELP TABLE`` ``OTF Type``.
+
+        Lets ``sync_all_columns`` compare the incoming (staging) schema against
+        the OTF target on the same vocabulary, so that differences OTF does not
+        represent (VARCHAR length, SMALLINT vs INTEGER) are not flagged as type
+        changes. Best-effort: unknown types fall back to their normalised string.
+        """
+        t = re.sub(r"\s+", " ", (data_type or "").strip()).lower()
+        m = re.match(r"^(?:decimal|numeric)\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)", t)
+        if m:
+            return f"decimal({m.group(1)}, {m.group(2)})"
+        if t.startswith(("decimal", "numeric")):
+            return "decimal(38, 0)"
+        if t.startswith(("varchar", "char", "long varchar", "clob", "character", "vargraphic", "graphic")):
+            return "string"
+        if t.startswith("bigint"):
+            return "long"
+        if t.startswith(("integer", "int", "smallint", "byteint")):
+            return "int"
+        if t.startswith(("float", "real", "double", "number")):
+            return "double"
+        if t.startswith("timestamp"):
+            return "timestamp"
+        if t.startswith("date"):
+            return "date"
+        if t.startswith("time"):
+            return "time"
+        if t.startswith(("byte", "varbyte", "blob", "binary")):
+            return "binary"
+        return t
+
+    @available
+    def otf_type_promotion_allowed(self, old_otf_type: Optional[str], new_otf_type: Optional[str]) -> bool:
+        """Whether changing a column from ``old_otf_type`` to ``new_otf_type`` is
+        a type promotion OTF/Iceberg permits via ``ALTER ... MODIFY``.
+
+        Verified against the engine: ``int -> long`` and decimal *precision*
+        widening (same scale) are allowed; scale changes, narrowing, and string
+        changes are not. Equal types are trivially allowed (no-op).
+        """
+        old = (old_otf_type or "").strip().lower()
+        new = (new_otf_type or "").strip().lower()
+        if old == new:
+            return True
+        if old == "int" and new == "long":
+            return True
+        mo = re.match(r"^decimal\(\s*(\d+)\s*,\s*(\d+)\s*\)$", old)
+        mn = re.match(r"^decimal\(\s*(\d+)\s*,\s*(\d+)\s*\)$", new)
+        if mo and mn and mo.group(2) == mn.group(2) and int(mn.group(1)) >= int(mo.group(1)):
+            return True
+        return False
+

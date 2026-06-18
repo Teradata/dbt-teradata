@@ -431,20 +431,24 @@ class TeradataConnectionManager(SQLConnectionManager):
         try:
             return SQLConnectionManager.add_query(self, sql, auto_begin, bindings, abridge_sql_log)
         except Exception as ex:
-            ignored = False
-            query = sql.strip()
-            if ("DROP view /*+ IF EXISTS */" in query) or ("DROP table /*+ IF EXISTS */" in query):
-                for error_number in [3807, 3854, 3853]:
-                    if f"[Error {error_number}]" in str (ex):
-                        ignored = True
+            query_upper = sql.strip().upper()
+            if ("DROP VIEW /*+ IF EXISTS */" in query_upper) or ("DROP TABLE /*+ IF EXISTS */" in query_upper):
+                # 3807 = object does not exist (standard Teradata)
+                # 3854 = table does not exist (standard Teradata)
+                # 3853 = view does not exist (standard Teradata)
+                # 7825 = OTF table not found in external catalog (e.g. Glue/Unity)
+                #         raised by ICEBERG_EXPORT UDF when dropping a nonexistent
+                #         DATALAKE table; safe to ignore under IF EXISTS semantics
+                # 6321 = "OTF Error: Table does not exist" raised by newer OTF
+                #         engines (e.g. TD 20.0.0.61) instead of 7825; same intent
+                for error_number in [3807, 3854, 3853, 7825, 6321]:
+                    if f"[Error {error_number}]" in str(ex):
                         return None, None
-            if ("DELETE DATABASE /*+ IF EXISTS */" in query) or ("DROP DATABASE /*+ IF EXISTS */" in query):
+            if ("DELETE DATABASE /*+ IF EXISTS */" in query_upper) or ("DROP DATABASE /*+ IF EXISTS */" in query_upper):
                 for error_number in [3802]:
-                    if f"[Error {error_number}]" in str (ex):
-                        ignored = True
+                    if f"[Error {error_number}]" in str(ex):
                         return None, None
-            if not ignored:
-                raise # rethrow
+            raise # rethrow
 
     # this method will return the datatype as string
     @classmethod
