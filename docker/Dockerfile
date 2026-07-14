@@ -42,5 +42,5 @@ ENTRYPOINT ["dbt"]
 FROM base as dbt-core
 
 # Install dbt-teradata and dbt-core
-RUN python -m pip install --no-cache-dir dbt-teradata==1.10.3 \
+RUN python -m pip install --no-cache-dir dbt-teradata==1.11.0 \
     && python -m pip install --no-cache-dir "dbt-core>=1.10.0"
