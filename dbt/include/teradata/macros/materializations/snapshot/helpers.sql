@@ -16,6 +16,21 @@
 
 {% macro teradata__snapshot_staging_table(strategy, source_sql, target_relation) -%}
     {% set columns = config.get('snapshot_table_column_names') or get_snapshot_table_column_names() %}
+    {%- if strategy.hard_deletes == 'new_record' %}
+        {# Generate a new unique scd_id for deletion records using the qualified dbt_unique_key
+           (VARCHAR-castable) + current timestamp to ensure uniqueness per deletion event. #}
+        {% if strategy.unique_key is string %}
+            {% set new_scd_id = snapshot_hash_arguments(['snapshotted_data.dbt_unique_key', snapshot_get_time(), "'delete'"]) %}
+        {% else %}
+            {% set _new_scd_args = [] %}
+            {% for key in strategy.unique_key %}
+                {% do _new_scd_args.append('snapshotted_data.dbt_unique_key_' ~ loop.index) %}
+            {% endfor %}
+            {% do _new_scd_args.append(snapshot_get_time()) %}
+            {% do _new_scd_args.append("'delete'") %}
+            {% set new_scd_id = snapshot_hash_arguments(_new_scd_args) %}
+        {% endif %}
+    {%- endif %}
 
     with snapshot_query as (
 
@@ -130,6 +145,9 @@
         left join deletes_source_data as source_data
             on {{ unique_key_join_on(strategy.unique_key, "snapshotted_data", "source_data") }}
             where {{ unique_key_is_null(strategy.unique_key, "source_data") }}
+            {%- if strategy.hard_deletes == 'new_record' %}
+            and coalesce(snapshotted_data.{{ columns.dbt_is_deleted }}, 'False') = 'False'
+            {%- endif %}
     )
     {%- endif %}
 
@@ -146,20 +164,25 @@
             {% endfor -%}
             {%- if strategy.unique_key | is_list -%}
                 {%- for key in strategy.unique_key -%}
-            snapshotted_data.{{ key }} as dbt_unique_key_{{ loop.index }},
+            snapshotted_data.dbt_unique_key_{{ loop.index }},
                 {% endfor -%}
             {%- else -%}
             snapshotted_data.dbt_unique_key as dbt_unique_key,
             {% endif -%}
             {{ snapshot_get_time() }} as {{ columns.dbt_updated_at }},
             {{ snapshot_get_time() }} as {{ columns.dbt_valid_from }},
+            {%- if config.get('dbt_valid_to_current') %}
+            {{ config.get('dbt_valid_to_current') }} as {{ columns.dbt_valid_to }},
+            {%- else %}
             snapshotted_data.{{ columns.dbt_valid_to }} as {{ columns.dbt_valid_to }},
-            snapshotted_data.{{ columns.dbt_scd_id }},
+            {%- endif %}
+            {{ new_scd_id }} as {{ columns.dbt_scd_id }},
             'True' as {{ columns.dbt_is_deleted }}
         from snapshotted_data
         left join deletes_source_data as source_data 
         on {{ unique_key_join_on(strategy.unique_key, "snapshotted_data", "source_data") }}
             where {{ unique_key_is_null(strategy.unique_key, "source_data") }}
+            and coalesce(snapshotted_data.{{ columns.dbt_is_deleted }}, 'False') = 'False'
     )
     {%- endif %}
 

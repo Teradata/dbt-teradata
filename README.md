@@ -272,6 +272,7 @@ Refer to [connection parameters](https://github.com/Teradata/python-driver#conne
 * `table`
 * `ephemeral`
 * `incremental`
+* `function` (User-Defined Functions — see [UDF materialization support](#user-defined-function-udf-materialization-support))
 
 #### Incremental Materialization
 The following incremental materialization strategies are supported:
@@ -633,6 +634,63 @@ Another e.g. for adding multiple grants:
 > :information_source: `copy_grants` is not supported in Teradata.
 
 More on Grants can be found at https://docs.getdbt.com/reference/resource-configs/grants
+
+#### Persist docs
+
+`persist_docs` writes the `description:` text from your model/column YAML into the Teradata data dictionary as native object comments (`COMMENT ON TABLE`, `COMMENT ON VIEW`, `COMMENT ON FUNCTION`, `COMMENT ON COLUMN`). This makes dbt the single source of truth for documentation and surfaces those descriptions in Teradata Studio, BI tools, and data catalogs (e.g. Collibra, Alation) that read metadata from `DBC`. It is supported for `table`, `view`, `incremental`, `seed`, `snapshot`, and (relation-level only — see below) `function` materializations.
+
+It is disabled by default. Enable it — independently for relations (tables/views) and columns — in `dbt_project.yml`, per folder, or per model:
+
+  dbt_project.yml
+  ```yaml
+  models:
+    <project-name>:
+      +persist_docs:
+        relation: true
+        columns: true
+  ```
+
+  or per model:
+  ```sql
+  {{ config(persist_docs={"relation": true, "columns": true}) }}
+  ```
+
+The comment text comes from the `description:` fields:
+
+  models/schema.yml
+  ```yaml
+  version: 2
+  models:
+    - name: customers
+      description: "Cleaned customer dimension, one row per customer."
+      columns:
+        - name: customer_id
+          description: "Primary key of the customer."
+  ```
+
+You can verify the persisted comments directly in Teradata:
+  ```sql
+  SELECT CommentString FROM DBC.TablesV
+   WHERE DatabaseName = '<schema>' AND TableName = 'customers';
+
+  SELECT ColumnName, CommentString FROM DBC.ColumnsV
+   WHERE DatabaseName = '<schema>' AND TableName = 'customers';
+  ```
+They also appear in `dbt docs generate` output (`catalog.json`) under each node's `metadata.comment` and per-column `comment`.
+
+Teradata-specific behavior:
+
+* **Length limit** – Teradata comments are stored in `DBC ...CommentString` (`VARCHAR(255)`), so comments are capped at **255 characters**. Longer descriptions are truncated with a warning. Override the cap (if your platform permits) with a project var:
+  ```yaml
+  vars:
+    teradata_max_comment_length: 255
+  ```
+* **Special characters** – single quotes are escaped by doubling (`'` → `''`). Double quotes, newlines, `--`, and `/* */` are preserved as-is and are safe inside Teradata single-quoted string literals, so they round-trip correctly.
+* **Idempotency** – re-running with unchanged descriptions issues no comment DDL; only changed text is re-written (for relations that persist across runs, such as incremental and snapshot — and, per the `REPLACE FUNCTION` behavior noted below, `function`).
+* **Open Table Format (OTF/Iceberg)** – models created via `catalog_name` are skipped gracefully (no error), since native `COMMENT ON` does not apply to them.
+* **Functions (UDFs)** – only the relation-level comment is supported (`COMMENT ON FUNCTION`, driven by the function's own `description:`). Unlike `REPLACE VIEW`/`CREATE OR REPLACE TABLE`, Teradata's `REPLACE FUNCTION` preserves the existing comment across a rebuild, so unchanged descriptions issue no DDL on re-run. Teradata has no DDL for commenting individual arguments, so argument/column-level docs cannot be applied; if a function node carries column/argument metadata and `persist_docs: {columns: true}` is enabled, the adapter emits a warning and skips those comments rather than raising an error (in practice, dbt-core 1.11's `functions.yml` schema does not currently parse a `columns:` block for functions, so this warning path is rarely reached). Function comments are also not shown in `dbt docs generate` output — dbt-core does not treat `function` nodes as "relational", so they are excluded from the catalog fetch that populates `catalog.json` — but they are visible directly in Teradata (e.g. via `DBC.TablesV.CommentString`) and in tools that read the data dictionary. See [UDF materialization support](#user-defined-function-udf-materialization-support) for details.
+
+More on persist_docs can be found at https://docs.getdbt.com/reference/resource-configs/persist_docs
 
 ### Cross DB macros
 Starting with release 1.3, some macros were migrated from [teradata-dbt-utils](https://github.com/Teradata/dbt-teradata-utils) dbt package to the connector. See the table below for the macros supported from the connector.
@@ -1070,6 +1128,58 @@ Teradata raises error **7825** ("OTF table not found in external catalog") — o
 * **Incremental: only the `append` strategy is supported.** `merge`/`delete+insert`/`valid_history`/`microbatch` raise compile-time errors. All four `on_schema_change` values are supported, with `sync_all_columns` being best-effort (limited type changes). See [Incremental materialization (OTF)](#incremental-materialization-otf).
 * **OTF cannot be used with the `snapshot` materialization.** Setting `catalog_name` on a snapshot raises a compile-time error (snapshots require update/merge semantics OTF does not provide).
 * **Column metadata is not available for OTF tables in dbt docs.** OTF tables are not registered in Teradata's `DBC.ColumnsV` view (only native tables are), so column-level metadata (descriptions, data types, constraints) will not appear in dbt docs when you run `dbt docs generate` and serve with `dbt docs serve`. Table-level metadata is still available and functional.
+
+## User-Defined Function (UDF) materialization support
+
+Starting with dbt 1.11, dbt introduces a `function` resource type. dbt-teradata implements this resource type to materialize Teradata **SQL scalar UDFs** via `REPLACE FUNCTION`.
+
+Functions are defined the same way as any other dbt `function` resource — a `.sql` file containing the function body, plus a `functions.yml` declaring its arguments, return type, and config:
+
+```sql
+-- functions/add_two_ints.sql
+RETURN a + b;
+```
+
+```yaml
+# functions/functions.yml
+functions:
+  - name: add_two_ints
+    config:
+      type: scalar
+      volatility: deterministic
+    language: sql
+    arguments:
+      - name: a
+        data_type: INTEGER
+      - name: b
+        data_type: INTEGER
+    returns:
+      data_type: INTEGER
+```
+
+The function body must be a bare Teradata `RETURN` statement — dbt-teradata wraps it with the rest of the `REPLACE FUNCTION` DDL (argument list, `RETURNS`, `LANGUAGE SQL`, data access clause, volatility, `COLLATION INVOKER`, `INLINE TYPE 1`). Call the function from a model with the `function()` Jinja helper:
+
+```sql
+-- models/use_udf.sql
+select {{ function('add_two_ints') }}(10, 32) as total
+```
+
+### What is supported
+
+* **Scalar SQL UDFs** (`type: scalar`, `language: sql`) — the only function type/language dbt-teradata materializes.
+* **`volatility` config** — `deterministic` maps to `DETERMINISTIC`; `stable` or `non-deterministic` maps to `NOT DETERMINISTIC`. If omitted, neither clause is emitted (Teradata's own default applies). An unrecognized value emits a warning and is ignored.
+* **`grants`** — supported via the `execute` privilege, which is rendered as Teradata's `GRANT EXECUTE FUNCTION` DCL (plain `EXECUTE` is for macros/stored procedures, so the adapter adds the required `FUNCTION` keyword automatically for UDFs). Configure it like any other resource, e.g. `grants: {execute: ['reporting_role']}`. Table DML privileges (`select`/`insert`/`update`/`delete`) do not apply to UDFs.
+* **`persist_docs` (relation-level only)** — a function's `description:` is written as a native `COMMENT ON FUNCTION` when `persist_docs: {relation: true}` is set (project-wide or per-function `config:`). Unlike `REPLACE VIEW`/`CREATE OR REPLACE TABLE` (which drop-and-recreate the object, wiping any existing comment), Teradata's `REPLACE FUNCTION` preserves the existing comment across a rebuild, so change detection is meaningful here: unchanged descriptions issue no DDL on re-run, and only a changed description re-issues it. Column/argument-level `persist_docs` (`columns: true`) is not supported — Teradata has no DDL for commenting individual arguments — so if a function node carries column/argument metadata, those comments are skipped with a warning instead of raising an error (dbt-core 1.11's `functions.yml` schema does not currently parse a `columns:` block for functions, so this warning path is rarely reached in practice). Function comments do not appear in `dbt docs generate`'s `catalog.json` (dbt-core does not treat `function` nodes as "relational"), but they are visible directly in Teradata, e.g. via `SELECT CommentString FROM DBC.TablesV WHERE TableName = '<function_name>'`.
+* Functions participate in the DAG like any other resource and can be depended on with `ref()`/`function()` from downstream models; `dbt list --resource-type function` and `dbt build --select +<model>` work as expected.
+* Re-running is idempotent: the materialization always issues `REPLACE FUNCTION`, so re-running a project with an unchanged function definition does not error.
+
+### What is not supported
+
+* **Aggregate UDFs** (`type: aggregate`) — not implemented. Declaring one raises a clear compile-time error rather than emitting invalid DDL; use `type: scalar` for SQL scalar UDFs.
+* **Languages other than SQL** — dbt-teradata only emits `LANGUAGE SQL` / `INLINE TYPE 1` DDL. Note that dbt 1.11 itself does not yet parse the `language:` key in `functions.yml` (it always defaults to `sql`), so this is currently a moot point regardless of what you set there.
+* **SQL data access clauses other than `CONTAINS SQL`** — Teradata's `LANGUAGE SQL` / `INLINE TYPE 1` UDFs only accept `CONTAINS SQL`; `NO SQL`, `READS SQL DATA`, and `MODIFIES SQL DATA` are for external (C/Java) UDFs and stored procedures and are not applicable here.
+* **Reserved-word or special-character argument names.** Argument names in `functions.yml` are emitted unquoted into the `REPLACE FUNCTION` signature (e.g. `RETURN a + b;` requires an unquoted `a INTEGER` parameter, since Teradata folds unquoted identifiers to upper case and the function body references arguments unquoted). This means an argument named after a Teradata reserved word, or containing spaces/special characters, will produce invalid DDL. Use plain, non-reserved identifier names for UDF arguments.
+* The dbt user must already have `CREATE FUNCTION` privilege on the target schema; dbt-teradata does not grant it automatically.
 
 ## temporary_metadata_generation_schema (earlier fallback_schema)
 dbt-teradata internally created temporary tables to fetch the metadata of views for manifest and catalog creation. 

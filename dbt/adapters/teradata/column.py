@@ -13,6 +13,7 @@ class TeradataColumn(Column):
     table_name: Optional[str] = None
     table_type: Optional[str] = None
     column_index: Optional[int] = None
+    comment: Optional[str] = None
 
     @property
     def quoted(self) -> str:

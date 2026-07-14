@@ -160,6 +160,7 @@
 {%- endmacro %}
 
 {% macro teradata__get_catalog_results_sql(view_tmp_tables_mapping) -%}
+    {% set use_qvci = var("use_qvci", False) | as_bool %}
     ,
     columns_transformed AS (
         SELECT
@@ -259,9 +260,44 @@
         tables.table_schema = columns_transformed.table_schema
         AND tables.table_name = columns_transformed.table_name
     )
-    SELECT *
+    SELECT
+        joined.table_database,
+        joined.table_schema,
+        joined.table_name,
+        joined.table_type,
+        {#-- Pull the real relation comment from DBC.TablesV keyed on the remapped
+            (real) names, so both tables and views (whose columns come from temp
+            tables) surface their COMMENT ON TABLE/VIEW text in the catalog. --#}
+        rel_comments.CommentString AS table_comment,
+        joined.table_owner,
+        joined.column_name,
+        joined.column_index,
+        joined.column_type,
+        {#-- For views under use_qvci=False, joined.column_comment comes from the temp
+            table (always NULL); the real COMMENT ON COLUMN text lives in DBC.ColumnsV
+            under the view's own name, so we backfill it via the col_comments join below.
+            For tables joined.column_comment is already the real value, so COALESCE keeps
+            it. Under use_qvci=True the columns come from ColumnsJQV (real view columns),
+            so joined.column_comment is already correct and the extra join is skipped. --#}
+        {% if use_qvci -%}
+        joined.column_comment AS column_comment
+        {%- else -%}
+        COALESCE(joined.column_comment, col_comments.CommentString) AS column_comment
+        {%- endif %}
     FROM joined
-    ORDER BY table_schema, table_name, column_index
+    LEFT OUTER JOIN DBC.TablesV AS rel_comments
+      ON rel_comments.DatabaseName = joined.table_schema (NOT CASESPECIFIC)
+      AND rel_comments.TableName = joined.table_name (NOT CASESPECIFIC)
+    {% if not use_qvci -%}
+    {#-- Restricted to views (joined.table_type = 'view'); table columns already carry
+        the real comment in joined.column_comment, so no join is needed for them. --#}
+    LEFT OUTER JOIN DBC.ColumnsV AS col_comments
+      ON joined.table_type = 'view'
+      AND col_comments.DatabaseName = joined.table_schema (NOT CASESPECIFIC)
+      AND col_comments.TableName = joined.table_name (NOT CASESPECIFIC)
+      AND col_comments.ColumnName = joined.column_name (NOT CASESPECIFIC)
+    {% endif -%}
+    ORDER BY joined.table_schema, joined.table_name, joined.column_index
 {%- endmacro %}
 
 --get_catalog_schemas_where_clause_sql(schemas) copied straight from pre-existing get_catalog(). This uses jinja to loop through the provided schema list and make a big WHERE clause of the form:
