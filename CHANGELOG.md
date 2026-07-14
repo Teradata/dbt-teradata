@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.11.0a
 
 ### Features
 * Added support for the dbt `function` resource type (dbt 1.11+), enabling `REPLACE FUNCTION` materialization of Teradata SQL scalar UDFs. Aggregate UDFs (`type: aggregate`) raise a clear compile-time error since they are not supported.
