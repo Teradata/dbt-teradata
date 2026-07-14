@@ -6,10 +6,14 @@ dbt-provided globals (`exceptions`, `var`, `config`) and assert behavior:
 
   1. teradata_escape_comment: single-quote escaping, 255-char truncation,
      configurable limit via var, and non-string rejection.
-  2. teradata__alter_relation_comment: emits COMMENT ON TABLE vs VIEW vs FUNCTION.
-  3. teradata__validate_doc_columns: quote-aware, case-sensitive filtering
+  2. teradata_truncate_comment: the plain (unescaped) truncation shared between
+     DDL emission (teradata_escape_comment) and change detection
+     (teradata__persist_docs / teradata__alter_column_comment), so over-length
+     descriptions truncate identically on both sides and are idempotent.
+  3. teradata__alter_relation_comment: emits COMMENT ON TABLE vs VIEW vs FUNCTION.
+  4. teradata__validate_doc_columns: quote-aware, case-sensitive filtering
      plus the "columns not present" warning.
-  4. teradata__persist_docs: column-level persist_docs is skipped with a
+  5. teradata__persist_docs: column-level persist_docs is skipped with a
      warning for function (UDF) relations, since Teradata has no per-argument
      comment DDL.
 """
@@ -182,6 +186,58 @@ class TestEscapeComment:
         mod, exc = _load_macros(max_comment_length="not-a-number")
         out = str(mod.teradata_escape_comment("q" * 300))
         assert out == "'" + "q" * 255 + "'"
+
+
+# ---------------------------------------------------------------------------
+# teradata_truncate_comment
+#
+# This is the change-detection half of the fix for the review comment on PR #241:
+# `teradata__persist_docs` / `teradata__alter_column_comment` compare the *stored*
+# comment (always <= the Teradata limit) against `teradata_truncate_comment(desc)`
+# rather than the raw `desc`. These tests pin down that `teradata_truncate_comment`
+# truncates identically to (and is reused by) `teradata_escape_comment`, so an
+# over-length description is idempotent: it is truncated the same way on every run,
+# so change detection can find a stable match instead of re-issuing DDL forever.
+# ---------------------------------------------------------------------------
+class TestTruncateComment:
+    def test_no_truncation_under_limit(self):
+        mod, _ = _load_macros()
+        assert str(mod.teradata_truncate_comment("hello")) == "hello"
+
+    def test_truncates_at_255_by_default(self):
+        mod, _ = _load_macros()
+        out = str(mod.teradata_truncate_comment("x" * 400))
+        assert out == "x" * 255
+
+    def test_matches_escape_comment_truncation(self):
+        # The exact guarantee the review comment asked for: the plain truncated form
+        # used for change detection must equal what teradata_escape_comment (DDL
+        # emission) actually truncates and stores, for the same input.
+        mod, _ = _load_macros()
+        long_desc = "y" * 400
+        truncated = str(mod.teradata_truncate_comment(long_desc, warn=False))
+        escaped = str(mod.teradata_escape_comment(long_desc))
+        assert escaped == "'" + truncated + "'"
+
+    def test_warn_true_emits_warning(self):
+        mod, exc = _load_macros()
+        mod.teradata_truncate_comment("x" * 300)
+        assert any("truncating" in w for w in exc.warnings)
+
+    def test_warn_false_suppresses_warning(self):
+        mod, exc = _load_macros()
+        mod.teradata_truncate_comment("x" * 300, warn=False)
+        assert exc.warnings == []
+
+    def test_respects_configurable_limit(self):
+        mod, _ = _load_macros(max_comment_length=10)
+        out = str(mod.teradata_truncate_comment("z" * 50, warn=False))
+        assert out == "z" * 10
+
+    def test_non_string_raises(self):
+        mod, _ = _load_macros()
+        with pytest.raises(ValueError):
+            mod.teradata_truncate_comment(123)
 
 
 # ---------------------------------------------------------------------------

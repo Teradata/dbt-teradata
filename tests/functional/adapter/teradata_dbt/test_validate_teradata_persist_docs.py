@@ -9,7 +9,10 @@ missing-column warnings) and adds Teradata-specific coverage:
   * special characters  - quotes, --, /* */ are escaped and round-trip
   * idempotency         - a re-run with unchanged descriptions issues no COMMENT ON DDL
   * changed description - updated text re-issues the comment DDL
-  * truncation          - a >255 char description succeeds (Teradata comment limit)
+  * truncation          - a >255 char description is truncated, succeeds, and (on a
+                          persistent incremental relation) is idempotent: a second run
+                          with the unchanged over-length description issues no COMMENT
+                          ON DDL, since change detection compares truncated forms.
 
 OTF/Iceberg skip (models with catalog_name set) is handled in teradata__persist_docs
 but is not covered here, as it requires an OTF catalog that is not available in this
@@ -164,18 +167,26 @@ class TestPersistDocsIdempotentTeradata:
 
 
 class TestPersistDocsLongCommentTeradata:
-    """A description longer than 255 chars is truncated and the run succeeds."""
+    """A description longer than 255 chars is truncated, the run succeeds, and a
+    second run with the same (unchanged, over-length) description is idempotent:
+    change detection must compare truncated forms on both sides, or it would
+    re-issue COMMENT ON DDL on every run (see PR #241 review discussion).
+
+    Uses an *incremental* model so the relation persists across runs — table/view
+    materializations drop-and-recreate the object every run, which would mask an
+    idempotency regression (the comment would be legitimately re-applied either way).
+    """
 
     @pytest.fixture(scope="class")
     def models(self):
-        return {"long_desc_model.sql": _MODEL_SQL, "schema.yml": _SCHEMA_LONG_YML}
+        return {"long_desc_model.sql": _INCR_IDEMPOTENT, "schema.yml": _SCHEMA_LONG_YML}
 
     @pytest.fixture(scope="class")
     def project_config_update(self):
         return {
             "models": {
                 "test": {
-                    "materialized": "table",
+                    "materialized": "incremental",
                     "+persist_docs": {"relation": True, "columns": False},
                 }
             }
@@ -185,6 +196,14 @@ class TestPersistDocsLongCommentTeradata:
         results = run_dbt(["run"])
         assert len(results) == 1
         assert results[0].status == "success"
+
+    def test_long_comment_idempotent_on_rerun(self, project):
+        run_dbt(["run"])
+        # Second run: relation persists and the (over-length) description is
+        # unchanged -> no COMMENT ON DDL. COMMENT DDL is only emitted at DEBUG
+        # level, so capture with --debug.
+        _, logs = run_dbt_and_capture(["--debug", "run"])
+        assert "comment on table" not in logs.lower()
 
 
 # ---------------------------------------------------------------------------

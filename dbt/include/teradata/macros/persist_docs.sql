@@ -17,7 +17,17 @@
       persist_docs `columns` config is skipped with a warning for functions.
 #}
 
-{%- macro teradata_escape_comment(comment) -%}
+{#-- Truncates `comment` to the configured/Teradata comment limit, returning the plain
+     (unescaped) string. Shared by teradata_escape_comment (DDL emission) and
+     teradata__persist_docs / teradata__alter_column_comment (change detection), so that
+     both sides of the "has this comment changed?" comparison are truncated the same way.
+     Without this, a description longer than the limit would never match what's actually
+     stored (which is always truncated), so COMMENT ON DDL would be re-issued on every
+     run for over-length comments on persistent relations (incremental/function), rather
+     than only when the comment is genuinely new/changed. `warn` suppresses the
+     truncation warning for the change-detection call so it isn't logged twice (once
+     during detection, once when the DDL is actually built) when a comment is re-issued. --#}
+{%- macro teradata_truncate_comment(comment, warn=True) -%}
   {%- if comment is not string -%}
     {%- do exceptions.raise_compiler_error('cannot escape a non-string: ' ~ comment) -%}
   {%- endif -%}
@@ -29,10 +39,18 @@
     {%- set max_len = 255 -%}
   {%- endif -%}
   {%- if comment | length > max_len -%}
-    {{ exceptions.warn("Comment exceeds the configured Teradata limit of " ~ max_len ~ " characters; truncating: " ~ comment[:40] ~ "...") }}
+    {%- if warn -%}
+      {{ exceptions.warn("Comment exceeds the configured Teradata limit of " ~ max_len ~ " characters; truncating: " ~ comment[:40] ~ "...") }}
+    {%- endif -%}
     {%- set comment = comment[:max_len] -%}
   {%- endif -%}
-  {%- set escaped = comment | replace("'", "''") -%}
+  {{- comment -}}
+{%- endmacro -%}
+
+
+{%- macro teradata_escape_comment(comment) -%}
+  {%- set truncated = teradata_truncate_comment(comment) -%}
+  {%- set escaped = truncated | replace("'", "''") -%}
   {{- "'" ~ escaped ~ "'" -}}
 {%- endmacro -%}
 
@@ -133,9 +151,11 @@
     {%- set rendered_col = adapter.quote(column_name) if quoted else column_name -%}
     {%- set existing_raw = existing_comments.get(column_name) if quoted else existing_by_lower.get(column_name | lower) -%}
     {%- set existing_comment = (existing_raw | trim) if existing_raw is not none else none -%}
-    {#-- Compare trimmed forms: YAML block scalars carry a trailing newline that Teradata
-        does not store, so an untrimmed compare would re-issue DDL on every run. --#}
-    {%- if existing_comment != (desc | trim) -%}
+    {#-- Compare trimmed, truncated forms: YAML block scalars carry a trailing newline that
+        Teradata does not store, and `existing_comment` (read back from the catalog) is
+        always <= the Teradata comment limit, so comparing against the raw untruncated
+        `desc` would never match for over-length descriptions, re-issuing DDL every run. --#}
+    {%- if existing_comment != teradata_truncate_comment(desc | trim, warn=False) -%}
       {%- call statement('alter_column_comment_' ~ loop.index, fetch_result=False) -%}
         comment on column {{ relation }}.{{ rendered_col }} as {{ teradata_escape_comment(desc) }}
       {%- endcall -%}
@@ -153,7 +173,10 @@
 
   {% if for_relation and config.persist_relation_docs() and model.description %}
     {%- set existing_rel_comment = teradata__get_relation_comment(relation) -%}
-    {%- if existing_rel_comment != (model.description | trim) -%}
+    {#-- Compare against the truncated form: what's stored can never exceed the Teradata
+        comment limit, so comparing against the raw untruncated description would never
+        match for over-length descriptions, re-issuing COMMENT ON DDL on every run. --#}
+    {%- if existing_rel_comment != teradata_truncate_comment(model.description | trim, warn=False) -%}
       {% do run_query(teradata__alter_relation_comment(relation, model.description)) %}
     {%- endif -%}
   {% endif %}

@@ -122,6 +122,34 @@ _ref_snapshot_sql = """
 select * from {{ ref('snapshot_actual') }}
 """
 
+# `unique_key` here is a list (composite key), unlike `_snapshot_actual_sql` above which uses
+# a string expression. This exercises the `strategy.unique_key | is_list` branch of the
+# `deletion_records` CTE in teradata__snapshot_staging_table (dbt/include/teradata/macros/
+# materializations/snapshot/helpers.sql), i.e. `snapshotted_data.dbt_unique_key_{{ loop.index }}`
+# and the multi-column `new_scd_id` hashing, which is otherwise untested.
+_snapshot_actual_composite_key_sql = """
+{% snapshot snapshot_actual %}
+
+    {{
+        config(
+            unique_key=['id', 'first_name'],
+        )
+    }}
+
+    select * from {{target.schema}}.seed
+
+{% endsnapshot %}
+"""
+
+_snapshots_composite_key_yml = """
+snapshots:
+  - name: snapshot_actual
+    config:
+      strategy: timestamp
+      updated_at: updated_at
+      hard_deletes: new_record
+"""
+
 _invalidate_sql = """
 update {schema}.seed set
     updated_at = updated_at + interval '1' hour,
@@ -411,4 +439,176 @@ class SnapshotNewRecordMode:
 
 
 class TestSnapshotNewRecordModeTeradata(SnapshotNewRecordMode):
+    pass
+
+
+class SnapshotNewRecordModeCompositeKey:
+    """
+    Same `hard_deletes: new_record` behavior as `SnapshotNewRecordMode`, but with a
+    composite/list `unique_key` (['id', 'first_name']) instead of a string expression.
+    This is the code path a reviewer flagged in PR #241: the `deletion_records` CTE
+    references `snapshotted_data.dbt_unique_key_{{ loop.index }}` directly instead of
+    re-deriving it from the raw key column, relying on the `snapshotted_data` CTE already
+    exposing those columns (via the shared `unique_key_fields` macro). These tests confirm
+    that assumption holds end-to-end on a live Teradata instance.
+    """
+
+    @pytest.fixture(scope="class")
+    def snapshots(self):
+        return {"snapshot.sql": _snapshot_actual_composite_key_sql}
+
+    @pytest.fixture(scope="class")
+    def models(self):
+        return {
+            "snapshots.yml": _snapshots_composite_key_yml,
+            "ref_snapshot.sql": _ref_snapshot_sql,
+        }
+
+    def test_hard_delete_creates_new_record_with_correct_flags(self, project):
+        """After deleting a source record, the snapshot should contain:
+        - The original record with dbt_valid_to set (closed) and dbt_is_deleted='False'
+        - A new deletion record with dbt_is_deleted='True' and dbt_valid_to IS NULL
+        """
+        _reset_tables(project)
+        project.run_sql(_seed_new_record_mode)
+        project.run_sql(seed_insert_sql)
+
+        # Initial snapshot
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # All 20 records should be active (dbt_valid_to IS NULL, dbt_is_deleted='False')
+        rows = _get_snapshot_rows(project, "count(*)", "dbt_valid_to is null and dbt_is_deleted = 'False'")
+        assert rows[0][0] == 20, f"Expected 20 active records, got {rows[0][0]}"
+
+        # Delete record id=1
+        project.run_sql(_delete_sql)
+
+        # Snapshot after delete
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Original record for id=1 should now be closed (dbt_valid_to IS NOT NULL)
+        closed_rows = _get_snapshot_rows(
+            project,
+            "count(*)",
+            "id = 1 and dbt_valid_to is not null and dbt_is_deleted = 'False'",
+        )
+        assert closed_rows[0][0] == 1, \
+            f"Expected 1 closed original record for id=1, got {closed_rows[0][0]}"
+
+        # A new deletion record should exist with dbt_is_deleted='True'
+        deleted_rows = _get_snapshot_rows(
+            project,
+            "count(*)",
+            "id = 1 and dbt_is_deleted = 'True'",
+        )
+        assert deleted_rows[0][0] == 1, \
+            f"Expected 1 deletion record for id=1, got {deleted_rows[0][0]}"
+
+    def test_hard_delete_produces_unique_scd_id(self, project):
+        """The deletion record must have a different dbt_scd_id than the original record,
+        with the scd_id computed from the composite dbt_unique_key_1 / dbt_unique_key_2 columns."""
+        _reset_tables(project)
+        project.run_sql(_seed_new_record_mode)
+        project.run_sql(seed_insert_sql)
+
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Delete record id=1
+        project.run_sql(_delete_sql)
+
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Fetch original and deletion rows separately to avoid relying on result ordering
+        original_rows = _get_snapshot_rows(project, "dbt_scd_id", "id = 1 and dbt_is_deleted = 'False'")
+        deleted_rows = _get_snapshot_rows(project, "dbt_scd_id", "id = 1 and dbt_is_deleted = 'True'")
+        assert len(original_rows) == 1, f"Expected 1 original record for id=1, got {len(original_rows)}"
+        assert len(deleted_rows) == 1, f"Expected 1 deletion record for id=1, got {len(deleted_rows)}"
+
+        scd_id_original = original_rows[0][0]
+        scd_id_deleted = deleted_rows[0][0]
+        assert scd_id_original != scd_id_deleted, \
+            f"dbt_scd_id must be unique: original={scd_id_original}, deletion={scd_id_deleted}"
+
+        # Verify global uniqueness — no duplicate dbt_scd_id in the entire snapshot
+        relation = relation_from_name(project.adapter, "snapshot_actual")
+        dups = project.run_sql(
+            f"select dbt_scd_id, count(*) as cnt from {relation} group by dbt_scd_id having count(*) > 1",
+            fetch="all",
+        )
+        assert len(dups) == 0, f"Found duplicate dbt_scd_id values: {dups}"
+
+    def test_snapshot_idempotent_after_delete(self, project):
+        """Running snapshot multiple times after a delete should NOT create duplicate records,
+        with a composite unique_key."""
+        _reset_tables(project)
+        project.run_sql(_seed_new_record_mode)
+        project.run_sql(seed_insert_sql)
+
+        # Initial snapshot
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Delete record id=1
+        project.run_sql(_delete_sql)
+
+        # First snapshot after delete
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Count total records
+        count_after_first = _get_snapshot_rows(project, "count(*)")
+        total_after_first = count_after_first[0][0]
+
+        # Run snapshot 3 more times — count should NOT change
+        for _ in range(3):
+            results = run_dbt(["snapshot"])
+            _assert_snapshot_success(results)
+
+        count_after_repeats = _get_snapshot_rows(project, "count(*)")
+        total_after_repeats = count_after_repeats[0][0]
+
+        assert total_after_first == total_after_repeats, (
+            f"Record count changed from {total_after_first} to {total_after_repeats} "
+            f"after 3 idempotent snapshot runs — exponential duplication bug!"
+        )
+
+    def test_non_deleted_records_unaffected(self, project):
+        """Records that were NOT deleted should remain unchanged after delete + snapshot."""
+        _reset_tables(project)
+        project.run_sql(_seed_new_record_mode)
+        project.run_sql(seed_insert_sql)
+
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Delete only id=1 (Judith)
+        project.run_sql(_delete_sql)
+
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # All other 19 records should still be active with dbt_is_deleted='False'
+        active_rows = _get_snapshot_rows(
+            project,
+            "count(*)",
+            "id <> 1 and dbt_valid_to is null and dbt_is_deleted = 'False'",
+        )
+        assert active_rows[0][0] == 19, \
+            f"Expected 19 unaffected active records, got {active_rows[0][0]}"
+
+        # No other record should have dbt_is_deleted='True'
+        other_deleted = _get_snapshot_rows(
+            project,
+            "count(*)",
+            "id <> 1 and dbt_is_deleted = 'True'",
+        )
+        assert other_deleted[0][0] == 0, \
+            f"Expected 0 deletion records for non-deleted sources, got {other_deleted[0][0]}"
+
+
+class TestSnapshotNewRecordModeCompositeKeyTeradata(SnapshotNewRecordModeCompositeKey):
     pass
