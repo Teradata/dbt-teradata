@@ -1,6 +1,8 @@
 import pytest
 
-from dbt.tests.util import check_relations_equal, run_dbt, relation_from_name
+from dbt.tests.util import run_dbt, relation_from_name
+
+# -- SQL fixtures -------------------------------------------------------
 
 _seed_new_record_mode = """
 create table {schema}.seed (
@@ -14,7 +16,7 @@ create table {schema}.seed (
 );
 """
 
-create_snapshot_expected_sql="""
+create_snapshot_expected_sql = """
 create table {schema}.snapshot_expected (
     id INTEGER,
     first_name VARCHAR(50),
@@ -32,10 +34,8 @@ create table {schema}.snapshot_expected (
     dbt_is_deleted varchar(50)
 );
 """
-seed_insert_sql="""
--- seed inserts
---  use the same email for two users to verify that duplicated check_cols values
---  are handled appropriately
+
+seed_insert_sql = """
 insert into {schema}.seed (id, first_name, last_name, email, gender, ip_address, updated_at) values
 (1, 'Judith', 'Kennedy', '(not provided)', 'Female', '54.60.24.128', '2015-12-24 12:19:28');
 insert into {schema}.seed (id, first_name, last_name, email, gender, ip_address, updated_at) values
@@ -78,36 +78,19 @@ insert into {schema}.seed (id, first_name, last_name, email, gender, ip_address,
 (20, 'Phyllis', 'Fox', null, 'Female', '163.191.232.95', '2016-08-21 10:35:19');
 """
 
-populate_snapshot_expected_sql="""
--- populate snapshot table
+populate_snapshot_expected_sql = """
 insert into {schema}.snapshot_expected (
-    id,
-    first_name,
-    last_name,
-    email,
-    gender,
-    ip_address,
-    updated_at,
-    dbt_valid_from,
-    dbt_valid_to,
-    dbt_updated_at,
-    dbt_scd_id,
-    dbt_is_deleted
+    id, first_name, last_name, email, gender, ip_address,
+    updated_at, dbt_valid_from, dbt_valid_to, dbt_updated_at, dbt_scd_id, dbt_is_deleted
 )
-
 select
-    id,
-    first_name,
-    last_name,
-    email,
-    gender,
-    ip_address,
+    id, first_name, last_name, email, gender, ip_address,
     updated_at,
-    -- fields added by snapshotting
     updated_at as dbt_valid_from,
     cast(null as timestamp) as dbt_valid_to,
     updated_at as dbt_updated_at,
-    HASHROW(coalesce(cast(id || '-' || first_name as varchar(50)), '') || '|' || coalesce(cast(updated_at as varchar(50)), '')) as test_scd_id,
+    HASHROW(coalesce(cast(id || '-' || first_name as varchar(50)), '')
+        || '|' || coalesce(cast(updated_at as varchar(50)), '')) as dbt_scd_id,
     'False' as dbt_is_deleted
 from {schema}.seed;
 """
@@ -139,53 +122,30 @@ _ref_snapshot_sql = """
 select * from {{ ref('snapshot_actual') }}
 """
 
-
 _invalidate_sql = """
--- update records 11 - 21. Change email and updated_at field
 update {schema}.seed set
     updated_at = updated_at + interval '1' hour,
-    email      =  case when id = 20 then 'pfoxj@creativecommons.org' else 'new_' || email end
+    email      = case when id = 20 then 'pfoxj@creativecommons.org' else 'new_' || email end
 where id >= 10 and id <= 20;
 
-
--- invalidate records 11 - 21
 update {schema}.snapshot_expected set
     dbt_valid_to   = updated_at + interval '1' hour
 where id >= 10 and id <= 20;
-
 """
 
 _update_sql = """
--- insert v2 of the 11 - 21 records
-
 insert into {schema}.snapshot_expected (
-    id,
-    first_name,
-    last_name,
-    email,
-    gender,
-    ip_address,
-    updated_at,
-    dbt_valid_from,
-    dbt_valid_to,
-    dbt_updated_at,
-    dbt_scd_id,
-    dbt_is_deleted
+    id, first_name, last_name, email, gender, ip_address,
+    updated_at, dbt_valid_from, dbt_valid_to, dbt_updated_at, dbt_scd_id, dbt_is_deleted
 )
-
 select
-    id,
-    first_name,
-    last_name,
-    email,
-    gender,
-    ip_address,
+    id, first_name, last_name, email, gender, ip_address,
     updated_at,
-    -- fields added by snapshotting
     updated_at as dbt_valid_from,
     cast(null as timestamp) as dbt_valid_to,
     updated_at as dbt_updated_at,
-    HASHROW(coalesce(cast(id || '-' || first_name as varchar(50)), '') || '|' || coalesce(cast(updated_at as varchar(50)), '')) as test_scd_id,
+    HASHROW(coalesce(cast(id || '-' || first_name as varchar(50)), '')
+        || '|' || coalesce(cast(updated_at as varchar(50)), '')) as dbt_scd_id,
     'False' as dbt_is_deleted
 from {schema}.seed
 where id >= 10 and id <= 20;
@@ -195,6 +155,49 @@ _delete_sql = """
 delete from {schema}.seed where id = 1
 """
 
+# -- Helper -------------------------------------------------------
+
+def _drop_table_safe(project, table_name):
+    """Drop a table if it exists."""
+    relation = relation_from_name(project.adapter, table_name)
+    try:
+        project.run_sql(f"DROP TABLE /*+ IF EXISTS */ {relation}")
+    except Exception as ex:
+        # Teradata adapter suppresses "does not exist" errors for /*+ IF EXISTS */
+        # (errors 3807, 3854, 3853, 7825, 6321), but in test context via project.run_sql()
+        # we still need explicit handling for Error 3807
+        if "[Error 3807]" not in str(ex):
+            raise
+
+
+def _reset_tables(project):
+    """Drop seed and snapshot tables so each test starts clean."""
+    _drop_table_safe(project, "seed")
+    _drop_table_safe(project, "snapshot_actual")
+    _drop_table_safe(project, "snapshot_expected")
+
+
+def _get_snapshot_rows(project, columns="*", where="1=1"):
+    """Return rows from the snapshot_actual table."""
+    relation = relation_from_name(project.adapter, "snapshot_actual")
+    return project.run_sql(
+        f"select {columns} from {relation} where {where}", fetch="all"
+    )
+
+
+def _assert_snapshot_success(results):
+    """Assert that exactly one snapshot ran and it succeeded.
+
+    Teradata snapshots return 'activity: Insert, rows_affected: N' rather than
+    'success', so we accept both to support all snapshot materialization outcomes.
+    """
+    assert len(results) == 1
+    status = str(results[0].status)
+    assert status == "success" or status.startswith("activity:"), \
+        f"Unexpected snapshot status: {status}"
+
+
+# -- Test class -------------------------------------------------------
 
 class SnapshotNewRecordMode:
     @pytest.fixture(scope="class")
@@ -220,43 +223,192 @@ class SnapshotNewRecordMode:
     def delete_sql(self):
         return _delete_sql
 
-    def test_snapshot_new_record_mode(
-        self, project, invalidate_sql, update_sql
-    ):
+    def test_snapshot_new_record_mode(self, project, invalidate_sql, update_sql):
+        """Test initial load + updates with expected-table comparison."""
+        _reset_tables(project)
         project.run_sql(_seed_new_record_mode)
         project.run_sql(create_snapshot_expected_sql)
         project.run_sql(seed_insert_sql)
         project.run_sql(populate_snapshot_expected_sql)
 
+        # --- Run 1: initial snapshot load ---
         results = run_dbt(["snapshot"])
-        assert len(results) == 1
+        _assert_snapshot_success(results)
 
+        # --- Run 2: update records 10-20 and re-snapshot ---
         project.run_sql(invalidate_sql)
         project.run_sql(update_sql)
 
         results = run_dbt(["snapshot"])
-        assert len(results) == 1
+        _assert_snapshot_success(results)
 
+        # Verify snapshot matches expected table (bidirectional MINUS)
         relation_actual = relation_from_name(project.adapter, "snapshot_actual")
         relation_expected = relation_from_name(project.adapter, "snapshot_expected")
 
-        result = project.run_sql(f"select id, first_name, last_name, email, gender, ip_address, updated_at, dbt_valid_from, dbt_valid_to, dbt_scd_id, dbt_updated_at, dbt_is_deleted from {relation_actual} \
-                                 minus \
-                                 select id, first_name, last_name, email, gender, ip_address, updated_at, dbt_valid_from, dbt_valid_to, dbt_scd_id, dbt_updated_at, dbt_is_deleted from {relation_expected}", fetch="one")
-        
-        # if two expected and actual snapshot tables are equal then the result varible would be None, as there would no difference between the two relations
-        assert result == None
+        cols = "id, first_name, last_name, email, gender, ip_address, updated_at, dbt_valid_from, dbt_valid_to, dbt_scd_id, dbt_updated_at, dbt_is_deleted"
 
-        result2 = project.run_sql(f"select id, first_name, last_name, email, gender, ip_address, updated_at, dbt_valid_from, dbt_valid_to, dbt_scd_id, dbt_updated_at, dbt_is_deleted from {relation_expected} \
-                                 minus \
-                                 select id, first_name, last_name, email, gender, ip_address, updated_at, dbt_valid_from, dbt_valid_to, dbt_scd_id, dbt_updated_at, dbt_is_deleted from {relation_actual}", fetch="one")
-        assert result2 == None    
-        # check_relations_equal(project.adapter, ["snapshot_actual", "snapshot_expected"])
+        result = project.run_sql(
+            f"select {cols} from {relation_actual} minus select {cols} from {relation_expected}",
+            fetch="one",
+        )
+        assert result is None, f"Rows in actual but not expected: {result}"
 
+        result2 = project.run_sql(
+            f"select {cols} from {relation_expected} minus select {cols} from {relation_actual}",
+            fetch="one",
+        )
+        assert result2 is None, f"Rows in expected but not actual: {result2}"
+
+        # --- Run 3: delete record id=1 and snapshot ---
         project.run_sql(_delete_sql)
 
         results = run_dbt(["snapshot"])
-        assert len(results) == 1
+        _assert_snapshot_success(results)
+
+    def test_hard_delete_creates_new_record_with_correct_flags(self, project):
+        """After deleting a source record, the snapshot should contain:
+        - The original record with dbt_valid_to set (closed) and dbt_is_deleted='False'
+        - A new deletion record with dbt_is_deleted='True' and dbt_valid_to IS NULL
+        """
+        _reset_tables(project)
+        project.run_sql(_seed_new_record_mode)
+        project.run_sql(seed_insert_sql)
+
+        # Initial snapshot
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # All 20 records should be active (dbt_valid_to IS NULL, dbt_is_deleted='False')
+        rows = _get_snapshot_rows(project, "count(*)", "dbt_valid_to is null and dbt_is_deleted = 'False'")
+        assert rows[0][0] == 20, f"Expected 20 active records, got {rows[0][0]}"
+
+        # Delete record id=1
+        project.run_sql(_delete_sql)
+
+        # Snapshot after delete
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Original record for id=1 should now be closed (dbt_valid_to IS NOT NULL)
+        closed_rows = _get_snapshot_rows(
+            project,
+            "count(*)",
+            "id = 1 and dbt_valid_to is not null and dbt_is_deleted = 'False'",
+        )
+        assert closed_rows[0][0] == 1, \
+            f"Expected 1 closed original record for id=1, got {closed_rows[0][0]}"
+
+        # A new deletion record should exist with dbt_is_deleted='True'
+        deleted_rows = _get_snapshot_rows(
+            project,
+            "count(*)",
+            "id = 1 and dbt_is_deleted = 'True'",
+        )
+        assert deleted_rows[0][0] == 1, \
+            f"Expected 1 deletion record for id=1, got {deleted_rows[0][0]}"
+
+    def test_hard_delete_produces_unique_scd_id(self, project):
+        """The deletion record must have a different dbt_scd_id than the original record."""
+        _reset_tables(project)
+        project.run_sql(_seed_new_record_mode)
+        project.run_sql(seed_insert_sql)
+
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Delete record id=1
+        project.run_sql(_delete_sql)
+
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Fetch original and deletion rows separately to avoid relying on result ordering
+        original_rows = _get_snapshot_rows(project, "dbt_scd_id", "id = 1 and dbt_is_deleted = 'False'")
+        deleted_rows = _get_snapshot_rows(project, "dbt_scd_id", "id = 1 and dbt_is_deleted = 'True'")
+        assert len(original_rows) == 1, f"Expected 1 original record for id=1, got {len(original_rows)}"
+        assert len(deleted_rows) == 1, f"Expected 1 deletion record for id=1, got {len(deleted_rows)}"
+
+        scd_id_original = original_rows[0][0]
+        scd_id_deleted = deleted_rows[0][0]
+        assert scd_id_original != scd_id_deleted, \
+            f"dbt_scd_id must be unique: original={scd_id_original}, deletion={scd_id_deleted}"
+
+        # Verify global uniqueness — no duplicate dbt_scd_id in the entire snapshot
+        relation = relation_from_name(project.adapter, "snapshot_actual")
+        dups = project.run_sql(
+            f"select dbt_scd_id, count(*) as cnt from {relation} group by dbt_scd_id having count(*) > 1",
+            fetch="all",
+        )
+        assert len(dups) == 0, f"Found duplicate dbt_scd_id values: {dups}"
+
+    def test_snapshot_idempotent_after_delete(self, project):
+        """Running snapshot multiple times after a delete should NOT create duplicate records."""
+        _reset_tables(project)
+        project.run_sql(_seed_new_record_mode)
+        project.run_sql(seed_insert_sql)
+
+        # Initial snapshot
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Delete record id=1
+        project.run_sql(_delete_sql)
+
+        # First snapshot after delete
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Count total records
+        count_after_first = _get_snapshot_rows(project, "count(*)")
+        total_after_first = count_after_first[0][0]
+
+        # Run snapshot 3 more times — count should NOT change
+        for _ in range(3):
+            results = run_dbt(["snapshot"])
+            _assert_snapshot_success(results)
+
+        count_after_repeats = _get_snapshot_rows(project, "count(*)")
+        total_after_repeats = count_after_repeats[0][0]
+
+        assert total_after_first == total_after_repeats, (
+            f"Record count changed from {total_after_first} to {total_after_repeats} "
+            f"after 3 idempotent snapshot runs — exponential duplication bug!"
+        )
+
+    def test_non_deleted_records_unaffected(self, project):
+        """Records that were NOT deleted should remain unchanged after delete + snapshot."""
+        _reset_tables(project)
+        project.run_sql(_seed_new_record_mode)
+        project.run_sql(seed_insert_sql)
+
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # Delete only id=1 (Judith)
+        project.run_sql(_delete_sql)
+
+        results = run_dbt(["snapshot"])
+        _assert_snapshot_success(results)
+
+        # All other 19 records should still be active with dbt_is_deleted='False'
+        active_rows = _get_snapshot_rows(
+            project,
+            "count(*)",
+            "id <> 1 and dbt_valid_to is null and dbt_is_deleted = 'False'",
+        )
+        assert active_rows[0][0] == 19, \
+            f"Expected 19 unaffected active records, got {active_rows[0][0]}"
+
+        # No other record should have dbt_is_deleted='True'
+        other_deleted = _get_snapshot_rows(
+            project,
+            "count(*)",
+            "id <> 1 and dbt_is_deleted = 'True'",
+        )
+        assert other_deleted[0][0] == 0, \
+            f"Expected 0 deletion records for non-deleted sources, got {other_deleted[0][0]}"
+
 
 class TestSnapshotNewRecordModeTeradata(SnapshotNewRecordMode):
     pass

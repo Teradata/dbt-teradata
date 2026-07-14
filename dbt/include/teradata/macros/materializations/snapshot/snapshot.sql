@@ -84,7 +84,7 @@
       {% endfor %}
 
       -- Use separate DELETE + UPDATE + INSERT statements instead of the MERGE statement
-      {%- if strategy.invalidate_hard_deletes %}
+      {%- if strategy.invalidate_hard_deletes or strategy.hard_deletes == 'new_record' %}
       {% set final_sql_delete = teradata__snapshot_merge_sql_delete(
             target = target_relation,
             source = staging_table,
@@ -107,7 +107,7 @@
          )
       %}
 
-      {%- if strategy.invalidate_hard_deletes %}
+      {%- if strategy.invalidate_hard_deletes or strategy.hard_deletes == 'new_record' %}
       {% call statement('main') %}
           {{ final_sql_delete }}
       {% endcall %}

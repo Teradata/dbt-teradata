@@ -284,7 +284,10 @@
           END AS table_type,
       {%- endif -%}
 
-      ColumnsV.ColumnID AS column_index
+      ColumnsV.ColumnID AS column_index,
+      {#-- "comment" is a Teradata reserved word, so the alias must be quoted. Column
+          mapping is positional (api.Column(*row)), so the alias name itself is cosmetic. --#}
+      ColumnsV.CommentString AS "comment"
     FROM
     {% if use_qvci == True -%}
       {{ information_schema_name(relation.schema) }}.ColumnsJQV AS ColumnsV
