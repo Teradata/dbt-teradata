@@ -227,6 +227,65 @@ class TeradataConnectionManager(SQLConnectionManager):
             return connection
 
         credentials = cls.get_credentials(connection.credentials)
+        kwargs = cls.get_connection_kwargs(credentials)
+
+        # Save the transaction mode
+        cls.TMODE = credentials.tmode
+
+        if credentials.retries > 0:
+            def connect():
+                connection.handle = teradatasql.connect(**kwargs)
+                connection.state = 'open'
+
+                # checking if query_band connection parameter exists. If it does -> executing the set query_band sql
+                if credentials.query_band:
+                    return cls.apply_query_band(connection.handle, credentials.query_band)
+
+                return connection.handle
+
+            retryable_exceptions = [teradatasql.OperationalError]
+
+            return cls.retry_connection(
+                connection,
+                connect=connect,
+                logger=logger,
+                retry_limit=credentials.retries,
+                retry_timeout=credentials.retry_timeout,
+                retryable_exceptions=retryable_exceptions,
+            )
+
+        try:
+            connection.handle = teradatasql.connect(**kwargs)
+            connection.state = 'open'
+
+            # checking if query_band connection parameter exists. If it does -> executing the set query_band sql
+            if credentials.query_band:
+                return cls.apply_query_band(connection.handle, credentials.query_band)
+
+        except teradatasql.Error as e:
+            logger.debug("Couldn’t  connect to Teradata Vantage SQL Engine. The Teradata driver error message is: '{}'"
+                         "Correct the problem and retry."
+                         .format(e))
+
+            connection.handle = None
+            connection.state = 'fail'
+
+            raise dbt.adapters.exceptions.FailedToConnectError(str(e))
+
+        return connection
+
+    @classmethod
+    def get_credentials(cls, credentials):
+        return credentials
+
+    @staticmethod
+    def get_connection_kwargs(credentials):
+        """Build the teradatasql.connect() keyword arguments from credentials.
+
+        Extracted from open() so it can be reused by other consumers that need a
+        raw connection built the same way as the managed connection pool — notably
+        the client-side Python model helper (see python_submissions.py).
+        """
         kwargs = {}
 
         kwargs["host"] = credentials.server
@@ -322,54 +381,7 @@ class TeradataConnectionManager(SQLConnectionManager):
         if credentials.oidc_sslmode:
             kwargs["oidc_sslmode"]=credentials.oidc_sslmode
 
-        # Save the transaction mode
-        cls.TMODE = credentials.tmode
-
-        if credentials.retries > 0:
-            def connect():
-                connection.handle = teradatasql.connect(**kwargs)
-                connection.state = 'open'
-
-                # checking if query_band connection parameter exists. If it does -> executing the set query_band sql
-                if credentials.query_band:
-                    return cls.apply_query_band(connection.handle, credentials.query_band)
-
-                return connection.handle
-
-            retryable_exceptions = [teradatasql.OperationalError]
-
-            return cls.retry_connection(
-                connection,
-                connect=connect,
-                logger=logger,
-                retry_limit=credentials.retries,
-                retry_timeout=credentials.retry_timeout,
-                retryable_exceptions=retryable_exceptions,
-            )
-
-        try:
-            connection.handle = teradatasql.connect(**kwargs)
-            connection.state = 'open'
-
-            # checking if query_band connection parameter exists. If it does -> executing the set query_band sql
-            if credentials.query_band:
-                return cls.apply_query_band(connection.handle, credentials.query_band)
-
-        except teradatasql.Error as e:
-            logger.debug("Couldn’t  connect to Teradata Vantage SQL Engine. The Teradata driver error message is: '{}'"
-                         "Correct the problem and retry."
-                         .format(e))
-
-            connection.handle = None
-            connection.state = 'fail'
-
-            raise dbt.adapters.exceptions.FailedToConnectError(str(e))
-
-        return connection
-
-    @classmethod
-    def get_credentials(cls, credentials):
-        return credentials
+        return kwargs
 
     def cancel(self, connection: Connection):
         connection.handle.close()
@@ -395,10 +407,19 @@ class TeradataConnectionManager(SQLConnectionManager):
                          "failed is: {}".format(sql))
             logger.debug("Rolling back transaction.")
             self.rollback_if_open()
-            if isinstance(e, dbt_common.exceptions.DbtRuntimeError):
+            if isinstance(e, dbt_common.exceptions.DbtBaseException):
                 # during a sql query, an internal to dbt exception was raised.
                 # this sounds a lot like a signal handler and probably has
                 # useful information, so raise it without modification.
+                #
+                # This covers every dbt-raised exception, not just the
+                # DbtRuntimeError branch: dbt_common's NotImplementedError (the
+                # type dbt-adapters uses for guards such as
+                # UnexpectedDbReferenceError, mirrored by verify_database)
+                # derives from DbtBaseException *without* going through
+                # DbtRuntimeError, so it used to be rewrapped here and lose its
+                # type, leaving callers unable to distinguish it from an
+                # arbitrary driver failure.
                 raise
 
             raise dbt_common.exceptions.DbtRuntimeError(e) from e

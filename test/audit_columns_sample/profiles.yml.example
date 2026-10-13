@@ -1,0 +1,11 @@
+audit_columns_sample:
+  target: dev
+  outputs:
+    dev:
+      type: teradata
+      host: localhost
+      user: dbc
+      password: dbc
+      schema: dbt_audit_sample
+      tmode: ANSI
+      threads: 1

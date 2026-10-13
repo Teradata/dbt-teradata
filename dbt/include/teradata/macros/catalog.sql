@@ -127,7 +127,7 @@
 
 --get_catalog_tables_sql() copied straight from pre-existing get_catalog() everything you would normally fetch from DBC.tablesV
 {% macro teradata__get_catalog_tables_sql(information_schema) -%}
-    SELECT			
+    SELECT
         NULL AS table_database,
         DatabaseName AS table_schema,
         TableName AS table_name,
@@ -180,7 +180,7 @@
             WHEN column_type = 'BV' THEN 'BYTE VARYING'
             WHEN column_type = 'I1' THEN 'BYTEINT'
             WHEN column_type = 'CF' THEN 'CHARACTER'
-            WHEN column_type = 'CV' THEN 'CHARACTER'
+            WHEN column_type = 'CV' THEN 'CHARACTER VARYING'
             WHEN column_type = 'CO' THEN 'CHARACTER LARGE OBJECT'
             WHEN column_type = 'D' THEN 'DECIMAL'
             WHEN column_type = 'DA' THEN 'DATE'

@@ -17,3 +17,12 @@ test/integration/.user.yml
 .editorconfig
 .python-version
 logs/*
+/.venv312
+/test/otf_test_project
+/test/python_model_sample_project
+/demo/dbt_python_demo
+/test/python_model_sample_project
+/test/python_model_sample_project
+/demo/dbt_python_demo
+/.venv112
+/env312

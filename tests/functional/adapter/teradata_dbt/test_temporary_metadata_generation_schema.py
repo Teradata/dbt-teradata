@@ -38,11 +38,15 @@ table_from_source_for_catalog_test_sql="""
 
 class Test_temporary_metadata_generation_schema:
     @pytest.fixture(scope="class")
-    def project_config_update(self):
+    def project_config_update(self, unique_schema):
+        # Use the project's own test schema (which the connecting user has
+        # CREATE TABLE access to) as the temp metadata schema. The user's
+        # own default/login database (e.g. "dbc") may not grant CREATE
+        # TABLE access to itself, so it cannot be relied on here.
         return {
             "name": "test_temporary_metadata_generation_schema",
             "vars": {
-                    "temporary_metadata_generation_schema": "HASH_TEST"
+                    "temporary_metadata_generation_schema": unique_schema
             }
         }
 
@@ -60,7 +64,7 @@ class Test_temporary_metadata_generation_schema:
         }
 
 
-    def test_temporary_metadata_generation_schema(self, project):
+    def test_temporary_metadata_generation_schema(self, project, unique_schema):
 
         result1 = run_dbt(["seed"])
         assert len(result1) == 1
@@ -68,15 +72,14 @@ class Test_temporary_metadata_generation_schema:
         (pathlib.Path(project.project_root) / "log_output").mkdir(parents=True, exist_ok=True)
         run_dbt(["--log-path", "log_output","run"])
         log_output = read_file("log_output", "dbt.log").replace("\n", " ").replace("\\n", " ")
-        pattern = r'"HASH_TEST"\."view_from_source_for_catalog_test_tmp_viw_tbl_\d+"'
+        pattern = rf'"{re.escape(unique_schema)}"\."view_from_source_for_catalog_test_tmp_viw_tbl_\d+"'
         matches = re.findall(pattern, log_output)
-        # assert '"HASH_TEST".' in log_output
-        assert matches, "No temp_table with random suffix found in dbt run log file!"
+        assert matches, f"No temp_table with random suffix found in dbt run log file! (expected schema: {unique_schema})"
 
         (pathlib.Path(project.project_root) / "log_output_catalog").mkdir(parents=True, exist_ok=True)
         catalog = run_dbt(["--log-path", "log_output_catalog","docs", "generate"])
         assert len(catalog.nodes) == 3
         log_output_catalog = read_file("log_output_catalog", "dbt.log").replace("\n", " ").replace("\\n", " ")
-        pattern = r'"HASH_TEST"\."view_from_source_for_catalog_test_tmp_viw_tbl_\d+"'
+        pattern = rf'"{re.escape(unique_schema)}"\."view_from_source_for_catalog_test_tmp_viw_tbl_\d+"'
         matches = re.findall(pattern, log_output_catalog)
-        assert matches, "No temp_table with random suffix found in catalog log file!"
+        assert matches, f"No temp_table with random suffix found in catalog log file! (expected schema: {unique_schema})"

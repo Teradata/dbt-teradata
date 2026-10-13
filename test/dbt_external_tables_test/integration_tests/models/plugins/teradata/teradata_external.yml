@@ -70,7 +70,6 @@ sources:
         external:
           location: "/s3/s3.amazonaws.com/dbt-external-tables-testing/parquet/"
           partitions:
-            - name: COLUMN
             - name: section
               data_type: CHAR(1)
         data_tests:

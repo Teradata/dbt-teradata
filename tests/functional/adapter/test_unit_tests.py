@@ -1,8 +1,10 @@
 import pytest
 from dbt.tests.util import write_file, run_dbt
-from dbt.tests.adapter.unit_testing.test_types import BaseUnitTestingTypes
+from dbt.tests.adapter.unit_testing.test_types import BaseUnitTestingTypes, BaseUnitTestingVarcharFixtureNoTruncation
 from dbt.tests.adapter.unit_testing.test_case_insensitivity import BaseUnitTestCaseInsensivity
 from dbt.tests.adapter.unit_testing.test_invalid_input import BaseUnitTestInvalidInput
+from dbt.tests.adapter.unit_testing.test_pseudocolumns import BasePseudocolumnUnitTest
+from dbt.tests.adapter.unit_testing.test_quoted_reserved_word_column_names import BaseUnitTestQuotedReservedWordColumnNames
 
 
 safe_cast_sql = """
@@ -56,6 +58,19 @@ class TestUnitTestCaseInsensitivityTeradata(BaseUnitTestCaseInsensivity):
 
 
 class TestUnitTestInvalidInput(BaseUnitTestInvalidInput):
+    pass
+
+
+class TestUnitTestingVarcharFixtureNoTruncationTeradata(BaseUnitTestingVarcharFixtureNoTruncation):
+    pass
+
+
+@pytest.mark.skip(reason="TeradataAdapter does not implement get_pseudocolumns_for_relation; Teradata has no equivalent of PostgreSQL ROWID pseudocolumns")
+class TestPseudocolumnUnitTestTeradata(BasePseudocolumnUnitTest):
+    pass
+
+
+class TestUnitTestQuotedReservedWordColumnNamesTeradata(BaseUnitTestQuotedReservedWordColumnNames):
     pass
 
 class TestSafeCast():

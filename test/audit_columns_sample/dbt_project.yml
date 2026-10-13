@@ -1,0 +1,10 @@
+name: audit_columns_sample
+version: "1.0.0"
+config-version: 2
+profile: audit_columns_sample
+
+model-paths: ["models"]
+
+models:
+  audit_columns_sample:
+    "+post-hook": "{{ audit_columns_post_hook() }}"

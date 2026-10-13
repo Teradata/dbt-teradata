@@ -23,11 +23,17 @@
         {{ external.using }}
     )
     {% if partitions -%}
-    PARTITION BY (
+        {%- set partition_cols = [] -%}
         {%- for partition in partitions -%}
-            {{ partition.name }} {{ partition.data_type if partition.data_type }} {{', ' if not loop.last}}
+            {%- if partition.name and partition.data_type -%}
+                {%- do partition_cols.append(partition.name ~ ' ' ~ partition.data_type) -%}
+            {%- endif -%}
         {%- endfor -%}
+        {%- if partition_cols -%}
+    PARTITION BY (
+        {{ partition_cols | join(', ') }}
     )
+        {%- endif -%}
     {%- endif %}
     
 {% endmacro %}

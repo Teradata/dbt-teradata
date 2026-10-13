@@ -70,6 +70,9 @@
     {%- set dest_cols_csv = get_quoted_csv(dest_columns | map(attribute="name")) -%}
     {%- set merge_update_columns = config.get('merge_update_columns') -%}
     {%- set merge_exclude_columns = config.get('merge_exclude_columns') -%}
+    {#- get_merge_update_columns (dbt-core default__get_merge_update_columns) already raises a
+        compiler error if both merge_update_columns and merge_exclude_columns are set, so no
+        separate guard is needed here. -#}
     {%- set update_columns = get_merge_update_columns(merge_update_columns, merge_exclude_columns, dest_columns) -%}
     {%- set sql_header = config.get('sql_header', none) -%}
 
@@ -88,7 +91,7 @@
             {% do predicates.append(unique_key_match) %}
         {% endif %}
     {% else %}
-        {% set error_msg= "Couldn’t generate SQL for merge incremental strategy. The merge incremental strategy requires the specification of 'unique_key'. Correct the model and retry." %}
+        {% set error_msg= "Couldn't generate SQL for merge incremental strategy. The merge incremental strategy requires the specification of 'unique_key'. Correct the model and retry." %}
         {% do exceptions.raise_compiler_error(error_msg) %}
     {% endif %}
 
@@ -98,29 +101,50 @@
         using {{ source }} as DBT_INTERNAL_SOURCE
         on {{"(" ~ predicates | join(") and (") ~ ")"}}
 
-    {% if unique_key %}
+    {#
+      Build the SET list for WHEN MATCHED THEN UPDATE.
+
+      Normalization rules:
+        1. Strip quotes + casefold unique_key before comparison so 'id' matches '"id"' / '"ID"'
+           returned by get_merge_update_columns / adapter.quote().  Without this the guard
+           never fires and Teradata raises Error 5977 (cannot update a Primary Index column).
+        2. If the filtered SET list is empty, raise a compiler error when merge_update_columns
+           or merge_exclude_columns is explicitly configured (misconfiguration — would silently
+           degrade to insert-only); only skip WHEN MATCHED for a genuinely key-only model with
+           neither option set, avoiding a bare "update set" syntax error (Teradata Error 3707).
+    #}
+    {%- set key_names_lower = [] -%}
+    {%- if unique_key is sequence and unique_key is not mapping and unique_key is not string -%}
+        {%- for key in unique_key -%}
+            {%- do key_names_lower.append(key | trim | replace('"', '') | lower) -%}
+        {%- endfor -%}
+    {%- else -%}
+        {%- do key_names_lower.append(unique_key | trim | replace('"', '') | lower) -%}
+    {%- endif -%}
+
+    {%- set final_result = [] -%}
+    {%- for column_name in update_columns -%}
+        {%- set bare = column_name | replace('"', '') | lower -%}
+        {%- if bare not in key_names_lower -%}
+            {%- set snippet -%}
+                {{ column_name }}=DBT_INTERNAL_SOURCE.{{ column_name }}
+            {%- endset -%}
+            {%- do final_result.append(snippet) -%}
+        {%- endif -%}
+    {%- endfor -%}
+
+    {% if final_result | length > 0 %}
     when matched then update set
-        {% set quoted_keys = [] %}
-        {% if unique_key is sequence and unique_key is not mapping and unique_key is not string %}
-            {% for key in unique_key %}
-                {% set quoted_key = adapter.quote(key) %}
-                {% do quoted_keys.append(quoted_key) %}
-            {% endfor %}
-        {% else %}
-            {% do quoted_keys.append(adapter.quote(unique_key)) %}
-        {% endif %}
-
-        {% set final_result = [] %}
-        {% for column_name in update_columns -%}
-            {% if column_name not in quoted_keys %}
-                {% set snippet %}
-                    {{column_name}}=DBT_INTERNAL_SOURCE.{{ column_name }}
-                {% endset %}
-                {% do final_result.append(snippet) %}
-            {% endif %}
-        {% endfor %}
-
-        {{ final_result | join(',')}}
+        {{ final_result | join(', ') }}
+    {% else %}
+        {%- if merge_update_columns or merge_exclude_columns -%}
+            {%- do exceptions.raise_compiler_error(
+                "dbt-teradata: merge_update_columns/merge_exclude_columns leaves no updatable columns after excluding the unique_key '" ~ unique_key ~
+                "'. Update the config so at least one non-key column remains, or remove merge_update_columns/merge_exclude_columns entirely."
+            ) -%}
+        {%- else -%}
+            {%- do log("dbt-teradata: merge skipping WHEN MATCHED clause — the model has no non-key columns to update (only unique_key " ~ unique_key ~ " is present).", info=true) -%}
+        {%- endif -%}
     {% endif %}
 
     when not matched then insert

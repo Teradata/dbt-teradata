@@ -1,4 +1,5 @@
 from dbt.tests.adapter.query_comment.test_query_comment import (
+    BaseDefaultQueryComments,
     BaseQueryComments,
     BaseMacroQueryComments,
     BaseMacroArgsQueryComments,
@@ -6,6 +7,10 @@ from dbt.tests.adapter.query_comment.test_query_comment import (
     BaseNullQueryComments,
     BaseEmptyQueryComments,
 )
+
+
+class TestDefaultQueryCommentsTeradata(BaseDefaultQueryComments):
+    pass
 
 
 class TestQueryCommentsTeradata(BaseQueryComments):
