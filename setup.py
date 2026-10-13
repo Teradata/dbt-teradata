@@ -51,6 +51,10 @@ setup(
         "dbt-adapters>=1.20.0",
         "dbt-common>=1.37.2,<2.0",
         "teradatasql>=20.00.00.10",
+        # pandas is required for client-side Python model execution (IDE-24196):
+        # upstream relations are read into pandas DataFrames and the model's
+        # returned DataFrame is written back over teradatasql.
+        "pandas>=1.5",
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

@@ -43,6 +43,85 @@ my-teradata-db-profile:
 
 At a minimum, you need to specify `host`, `user`, `password`, `schema` (database).
 
+## Audit Columns
+
+`dbt-teradata` provides two macros for row-level dbt run auditing:
+
+- `get_audit_columns()` is used in a model's `SELECT` list. It emits `job_id`,
+  `job_start_tstmp`, and `job_end_tstmp` (initially `NULL`).
+- `audit_columns_post_hook()` generates the `UPDATE` statement that fills
+  `job_end_tstmp`. It must be registered as the model's `post_hook`.
+
+`audit_columns_post_hook()` is supported only on native Teradata `table` and
+`incremental` models. Do not configure it on views, snapshots, seeds, or
+`catalog_name`/OTF models: those relations cannot safely receive the row-level
+`UPDATE` that records model completion. When configured project-wide, the hook
+skips unsupported materializations and models that do not contain
+`job_end_tstmp`, then writes an informational dbt log entry.
+
+> **Required pair:** `get_audit_columns()` and `audit_columns_post_hook()` must
+> be configured together. Calling only `get_audit_columns()` builds successfully,
+> but leaves `job_end_tstmp` as `NULL` for every row because dbt has no completion
+> update to run. dbt does not warn when the post-hook is omitted.
+
+`job_start_tstmp` is the time dbt started the current invocation. dbt supplies
+`run_started_at` in UTC. `get_audit_columns()` uses the adapter's existing
+`teradata__snapshot_string_as_time` helper to format its offset as Teradata's
+required `+00:00` form and return a `TIMESTAMP(6) WITH TIME ZONE`.
+
+`job_end_tstmp` cannot be known while the model's `SELECT` is running. It is
+initially `NULL`; after the model materializes successfully, dbt runs the
+configured post-hook. The hook updates only rows for the current `job_id` and
+sets the completion time from `CURRENT_TIMESTAMP(6) AT TIME ZONE 'GMT'`.
+
+### Performance Consideration
+
+The completion hook filters on `job_id` and `job_end_tstmp IS NULL`. For a
+full-refresh table, the table has just been recreated and every row belongs to
+the current invocation. For a large incremental table, historical rows remain;
+without access-path support, Teradata may scan the table on every run to find
+the current invocation's rows. Consider a non-unique secondary index on
+`job_id`, or a partitioning/index strategy appropriate to the table's workload:
+
+```sql
+{{ config(
+  materialized='incremental',
+  index='INDEX audit_job_id_idx (job_id)',
+  post_hook="{{ audit_columns_post_hook() }}"
+) }}
+```
+
+Assess index maintenance and storage cost against the expected table size and
+run frequency; the adapter does not create this index automatically.
+
+Both fields are `TIMESTAMP(6) WITH TIME ZONE` and are stored in UTC, so their
+displayed values and comparisons are consistent across Teradata session time
+zones. `job_start_tstmp` uses the dbt runner's clock and `job_end_tstmp` uses
+the Teradata server's clock; comparing their order assumes those hosts are
+time-synchronized.
+
+For a project that consistently adopts audit columns, configure the completion
+hook once in `dbt_project.yml`. Unsupported models safely log a skip:
+
+```yaml
+models:
+  my_project:
+    "+post-hook": "{{ audit_columns_post_hook() }}"
+```
+
+Then add the audit columns in each eligible model's `SELECT` list:
+
+```sql
+select
+    order_id,
+    {{ get_audit_columns() }}
+from {{ ref('stg_orders') }}
+```
+
+`job_end_tstmp` is the completion time for this model, not for the entire dbt
+invocation. See [the audit columns sample](test/audit_columns_sample) for a
+runnable project.
+
 ## Python compatibility
 
 | Plugin version | Python 3.6  | Python 3.7  | Python 3.8 | Python 3.9  | Python 3.10 | Python 3.11 | Python 3.12 | Python 3.13 |
@@ -631,11 +710,227 @@ Another e.g. for adding multiple grants:
         select: ["user_b"]
         insert: ["user_c"]
   ```
+
+##### Role-aware grants (`teradata_grants_extended`)
+
+By default, all grantees in the `grants` config are treated as Teradata **users**.
+To also grant to Teradata **roles**, opt in with the `teradata_grants_extended` project variable:
+
+```yaml
+# dbt_project.yml
+vars:
+  teradata_grants_extended: true
+```
+
+Once enabled, prefix each grantee with `role:` or `user:` to specify its type (a bare,
+unprefixed name is still accepted and always means a user):
+
+```yaml
+# models/schema.yml
+models:
+  - name: my_model
+    config:
+      grants:
+        select:
+          - "role:analytics_readers"   # GRANT SELECT … TO analytics_readers (a role)
+          - "user:alice"               # GRANT SELECT … TO alice              (a user)
+          - "bob"                      # GRANT SELECT … TO bob    (bare name = a user)
+        insert:
+          - "role:etl_writers"
+```
+
+**How it works:**
+
+* `get_show_grant_sql` queries both `DBC.AllRightsV` (user grants) and
+  `DBC.AllRoleRightsV` (role grants) so dbt can read back the complete current
+  state and apply only the diff — idempotent across every run.
+* GRANT SQL is the same for roles and users (`GRANT … TO <name>`).
+* REVOKE SQL automatically adds the `ROLE` keyword required by Teradata:
+  `REVOKE … FROM ROLE <name>`.
+* Grantees are compared in type-qualified form: grants read back from Teradata become
+  `role:<name>` / `user:<name>`, and bare names in your config are normalized to
+  `user:<name>`. So `- "alice"` and `- "user:alice"` behave identically and both stay
+  idempotent across runs — prefixing every grantee is recommended for clarity, but a bare
+  name is never ambiguous: it always means a user.
+* Grantee comparison is case-insensitive (dbt's `diff_of_two_dicts` casefolds both sides),
+  matching Teradata's own treatment of unquoted identifiers — so `role:ANALYTICS_READERS`
+  in your config converges against `Analytics_Readers` as stored in `DBC`. The `role:` /
+  `user:` prefixes are likewise recognized in any case.
+* Projects that never set the variable are unaffected — no prefixes, no role lookups,
+  and grant read-back keeps returning the same `grantee`/`privilege_type` shape as
+  before. **Fully backward compatible.**
+
+> :warning: **Enabling this flag makes dbt manage role grants, including ones it did not
+> create.** With the flag off, role grants are invisible to dbt, so they are never touched.
+> With it on, any role grant that exists on the model's table but is *not* listed in the
+> `grants:` config is treated as drift and **will be revoked** on the next run. Before
+> enabling it, make sure every externally-managed role grant (granted by a DBA, another
+> tool, or a `GRANT` script) is represented in your dbt config — or scope the flag to a
+> subset of models rather than setting it project-wide. This is why
+> `teradata_grants_extended` defaults to `false`.
+
+> :information_source: The dbt service account must have `SELECT` privilege on
+> `DBC.AllRoleRightsV` for role-grant read-back to work.
+
 > :information_source: `copy_grants` is not supported in Teradata.
 
 More on Grants can be found at https://docs.getdbt.com/reference/resource-configs/grants
 
-#### Persist docs
+### Python models (Beta)
+
+dbt-teradata supports dbt [Python models](https://docs.getdbt.com/docs/build/python-models) — a model authored as a `.py` file with a `model(dbt, session)` function that returns a **pandas DataFrame**, which dbt persists as the model's table. Python and SQL models interoperate freely in the same project (they `ref()` each other, share tests/docs/lineage).
+
+#### How it works (client-side execution)
+
+Teradata (outside of Lake) has no in-database Python runtime, so dbt-teradata runs the model's Python **in the dbt runner process (client-side)** — the machine where you run `dbt run` (your laptop, CI runner, or scheduler host) — not inside the database:
+
+1. Upstream `dbt.ref()` / `dbt.source()` relations are read back over `teradatasql` (`SELECT * FROM <relation>`) into pandas DataFrames.
+2. Your `model()` transforms them with pandas.
+3. The returned DataFrame is written back to the target table over `teradatasql` — built into a `<target>__dbt_tmp` staging table first, then atomically swapped into place (see *Reliability* below). The bulk load reuses the seed insert path, with an optional FastLoad fast path.
+
+Because all computation happens on the client, this works on **any** Teradata edition with no server-side changes — the only new runtime dependency is `pandas`.
+
+#### Prerequisites
+
+* `pandas` installed in the dbt runner's Python environment (installed automatically with dbt-teradata).
+* Any other library your model imports (numpy, scikit-learn, …) must already be installed in that same environment — packages are **not** auto-provisioned (see *What is NOT supported*).
+* Python 3.10–3.13 (the adapter's supported range).
+
+#### Quick start
+
+Create a `.py` file under `models/`, define exactly one `model(dbt, session)` that returns a pandas DataFrame, and run it like any model:
+
+```python
+# models/my_first_py_model.py
+def model(dbt, session):
+    dbt.config(materialized="table")     # required — table is the only materialization
+    df = dbt.ref("stg_orders")           # an upstream model, returned as a pandas DataFrame
+    df = df[df["amount"] > 0]            # transform with pandas
+    return df                            # dbt writes this back as the model's table
+```
+```shell
+dbt run --select my_first_py_model
+```
+The result is a normal Teradata table, ref-able from SQL models with `{{ ref('my_first_py_model') }}`.
+
+#### Features (what is supported)
+
+* `.py` models with `materialized='table'`.
+* Full dbt context inside the model: `dbt.ref()`, `dbt.source()`, `dbt.config()`, `dbt.this`, `dbt.is_incremental` (`False` in the MVP).
+* **Multiple `ref()`s in one model** — read several upstream tables and join/combine them in pandas (each `ref()` is its own `SELECT → pandas`).
+* **Mixed SQL + Python DAGs** — a Python model can `ref()` SQL models and vice-versa; dbt orders the DAG correctly, including under `--threads > 1`.
+* Return a **pandas DataFrame** (primary), or a **`teradataml` DataFrame** (best-effort — converted via `.to_pandas()` on write-back).
+* Optional **`use_fastload`** on write-back for larger row counts.
+* **Automatic pandas→Teradata type mapping** (see the table below), including NULL handling.
+* dbt **tests, docs, `--select`, lineage** — identical to SQL models.
+
+#### Configuration
+
+Set these via `dbt.config(...)` in the model, or in `dbt_project.yml` / a model's YAML. Model-level config overrides project-level.
+
+| Config | Values | Notes |
+|---|---|---|
+| `materialized` | `table` | The only supported materialization. |
+| `submission_method` | `client` (default) | Only method today; reserved so a future in-database/push-down method can be added without breaking existing models. |
+| `use_fastload` | `true` / `false` (default `false`) | Use [FastLoad](https://github.com/Teradata/python-driver#FastLoad) on write-back; helps for larger row counts. |
+
+#### Data type mapping
+
+Column types of the created table are inferred from the returned DataFrame's dtypes:
+
+| pandas dtype | Teradata column type | Notes |
+|---|---|---|
+| integer (`int*`, `uint*`) | `BIGINT` | |
+| float (`float*`) | `FLOAT` | `NaN` → `NULL` |
+| bool | `BYTEINT` | `True/False` → `1/0` |
+| datetime64 (naive) | `TIMESTAMP` | |
+| datetime64 (tz-aware) | `TIMESTAMP` | timezone is **dropped** |
+| timedelta | `INTERVAL DAY(4) TO SECOND` | |
+| object / string | `VARCHAR(n) CHARACTER SET UNICODE` | `n` = longest value; all-null column → `VARCHAR(255)` |
+| object / string, longest value > 32000 chars | `CLOB CHARACTER SET UNICODE` | the table is created `NO PRIMARY INDEX` (a LOB can't be a primary index) |
+| mixed-type object column | `VARCHAR` | every value is stringified so the column loads as one type |
+
+`NaN` / `NaT` / `None` become SQL `NULL`. Rows are inserted in batches (batch size 2536), with an optional FastLoad prefix when `use_fastload=true`.
+
+#### Reliability & error handling
+
+* **Atomic write-back.** The result is built under a `<target>__dbt_tmp` staging table and only swapped into place (drop target + `RENAME`) once the load fully succeeds — mirroring the SQL table materialization. If a run **fails or is cancelled (Ctrl-C / process kill / connection drop) mid-load, the previous target table is left intact** (not dropped or half-populated). A hard kill may leave a `__dbt_tmp` staging table behind; it is overwritten on the next run.
+* **Errors surface cleanly.** Any error in your model — Python (syntax, `ZeroDivisionError`, …), a missing import, a Teradata error, or returning a non-DataFrame — is reported as a dbt `Runtime Error` naming the model; dbt marks that node failed and continues the rest of the run. The interpreter does not crash.
+* **Clear guardrail messages.** Duplicate column names, unsupported materializations, and OTF (`catalog_name`) are rejected with explicit errors rather than cryptic failures.
+
+#### What is NOT supported
+
+* **`incremental`, `view`, and `ephemeral`** Python materializations — only `table`. An `incremental` Python model errors clearly (`Materialization '…' only supports languages ['sql']; got 'python'`).
+* **Non-pandas DataFrame APIs.** Models must use pandas. The injected `session` is a thin shim: `session.table(name)` returns a pandas DataFrame; there is **no** `session.sql()` and **no** `session.createDataFrame()`.
+* **Automatic package provisioning.** `dbt.config(packages=[...])` does **not** install anything; packages must be pre-installed in the dbt runner's environment.
+* **Push-down / in-database execution.** Compute runs on the client, not in Teradata. The scalable `teradataml`/OAF push-down path is a planned follow-on (Teradata Lake only).
+* **OTF (Iceberg/Delta) tables.** Setting `catalog_name` on a Python model raises a compiler error — there is no client-side write path for OTF tables.
+* **Duplicate column names** in the returned DataFrame — rejected with a clear error.
+
+#### Known limitations
+
+* **Small/medium data only.** Input data is pulled into the dbt runner's memory as pandas, and the write-back inserts in batches. Practically, keep models in the **low hundreds of thousands of rows** (≈500k loads comfortably; ~1M+ is slow/impractical). **Rule of thumb:** pre-filter/pre-aggregate in upstream SQL models and hand a reduced result to the Python model. Very large volumes should wait for the OAF/Lake push-down track.
+* **Timezone-aware datetimes** lose their timezone (stored as plain `TIMESTAMP`).
+* **Very long strings** (> 32000 chars) become `CLOB`, which forces the table to be `NO PRIMARY INDEX`.
+* **Integer columns with nulls.** pandas infers an integer column that contains any null (`None`/`NaN`) as `float64`, so it maps to `FLOAT` (not `BIGINT`) — and for integers above 2^53 this can silently lose precision. Use pandas' nullable `Int64` dtype (`pd.array([1, None, 3], dtype="Int64")`) if you need integer semantics with nulls.
+* **Read-back type fidelity.** Upstream values are read over `teradatasql` and inferred by pandas, so some source types don't round-trip 1:1: `DECIMAL`/`NUMBER` come back as Python `Decimal`, and `DATE`/`TIME` as Python `date`/`time` — pandas holds these as `object`, so the Python model's output column is created as `VARCHAR`. Arithmetic that mixes them with floats (e.g. `Decimal * float`) also raises in pandas. If you need these as numeric/temporal types downstream, **cast them in an upstream SQL model** (e.g. `CAST(amount AS FLOAT)`) before the Python model, or cast the result in a downstream SQL model.
+* **Helper connections.** Reads/writes use short-lived `teradatasql` connections built from your profile credentials (same host/user/auth/SSL/tmode). In this Beta, the default **Query Band/telemetry and connection pooling** applied to normal pooled connections are **not** yet applied to these Python-model connections.
+* **Beta.** Scoped to the common cases above; advanced options may not all be honored yet.
+
+#### More examples
+
+**1. Reference a SQL model, transform with pandas** — `models/py_orders.py`
+```python
+def model(dbt, session):
+    dbt.config(materialized="table")
+    df = dbt.ref("stg_orders")                       # pandas DataFrame
+    df = df[df["status"] == "completed"].copy()
+    df["amount_with_tax"] = df["amount"] * 1.1
+    return df
+```
+
+**2. Aggregate (groupby)** — `models/customer_features.py`
+```python
+def model(dbt, session):
+    dbt.config(materialized="table")
+    orders = dbt.ref("stg_orders")
+    return (
+        orders[orders["amount"] > 0]
+        .groupby("customer_id", as_index=False)
+        .agg(total_spend=("amount", "sum"), n_orders=("order_id", "count"))
+    )
+```
+
+**3. Join multiple refs** — `models/py_join.py`
+```python
+def model(dbt, session):
+    dbt.config(materialized="table")
+    orders = dbt.ref("stg_orders")                   # table 1
+    customers = dbt.ref("stg_customers")             # table 2
+    joined = orders.merge(customers, on="customer_id", how="inner")
+    return joined[["order_id", "customer_id", "customer_name", "amount", "status"]]
+```
+
+**4. Read a `source()`** — `models/py_source.py`
+```python
+def model(dbt, session):
+    dbt.config(materialized="table")
+    df = dbt.source("raw", "raw_orders")
+    return df[["order_id", "customer_id", "amount"]]
+```
+
+**5. Build from scratch + FastLoad** — `models/py_scratch.py`
+```python
+import pandas as pd
+
+def model(dbt, session):
+    dbt.config(materialized="table", use_fastload=True)
+    return pd.DataFrame({"id": [1, 2, 3], "label": ["a", "b", "c"]})
+```
+
+A runnable project covering every supported scenario is provided in `test/python_model_sample_project`.
+
+### Persist docs
 
 `persist_docs` writes the `description:` text from your model/column YAML into the Teradata data dictionary as native object comments (`COMMENT ON TABLE`, `COMMENT ON VIEW`, `COMMENT ON FUNCTION`, `COMMENT ON COLUMN`). This makes dbt the single source of truth for documentation and surfaces those descriptions in Teradata Studio, BI tools, and data catalogs (e.g. Collibra, Alation) that read metadata from `DBC`. It is supported for `table`, `view`, `incremental`, `seed`, `snapshot`, and (relation-level only — see below) `function` materializations.
 
@@ -793,6 +1088,9 @@ To find more on model contracts please follow dbt documentations https://docs.ge
 ### Transaction mode
 Both ANSI and TERA modes are now supported in dbt-teradata. TERA mode's support is introduced with dbt-teradata 1.7.1, it is an initial implementation.
 ###### IMPORTANT NOTE: This is an initial implementation of the TERA transaction mode and may not support some use cases. We strongly advise validating all records or transformations utilizing this mode to preempt any potential anomalies or errors
+
+### `dbt clone`
+Teradata has no native zero-copy clone primitive, so `dbt-teradata` does not implement one. `dbt clone` still works: dbt-core falls back to creating a **view** that selects from the deferred (source) relation — instant and using no extra storage. Because this view reads the source relation at query time, it is not a physical copy or an independent snapshot; subsequent source changes are visible through the clone. This is the same fallback dbt-core uses for other adapters without zero-copy cloning (e.g. Postgres, Redshift), not a Teradata-specific workaround.
 
 ## Query Band
 Query Band in dbt-teradata can be set on three levels:

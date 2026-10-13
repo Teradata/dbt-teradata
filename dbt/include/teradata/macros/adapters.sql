@@ -219,7 +219,7 @@
         WHEN ColumnsV.ColumnType = 'BV' THEN 'BYTE VARYING'
         WHEN ColumnsV.ColumnType = 'I1' THEN 'BYTEINT'
         WHEN ColumnsV.ColumnType = 'CF' THEN 'CHARACTER'
-        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER'
+        WHEN ColumnsV.ColumnType = 'CV' THEN 'CHARACTER VARYING'
         WHEN ColumnsV.ColumnType = 'CO' THEN 'CHARACTER LARGE OBJECT'
         WHEN ColumnsV.ColumnType = 'D' THEN 'DECIMAL'
         WHEN ColumnsV.ColumnType = 'DA' THEN 'DATE'
@@ -257,7 +257,20 @@
         ELSE 'N/A'
       END AS dtype,
       CASE
-        WHEN ColumnsV.CharType in (1, 2) THEN ColumnsV.ColumnLength
+        {#- ColumnsV.ColumnLength is a byte length. CharType 1 (LATIN) uses 1
+            byte/character, so ColumnLength already equals the declared
+            CHAR(n)/VARCHAR(n) size. CharType 2 (UNICODE) and CharType 4
+            (GRAPHIC) use up to 2 bytes/character, so ColumnLength must be
+            halved to recover the declared size -- otherwise a fixed-width
+            CHAR column reports "character(2n)", which no longer matches the
+            physical column and would reintroduce an Error 9134-style
+            mismatch. CharType 3 (KANJISJIS) is a mixed 1-2 byte/character
+            encoding; halving ColumnLength here is a best-effort
+            approximation, not a guaranteed exact recovery of the declared
+            size -- see the "Known limitation" note for KANJISJIS/GRAPHIC
+            CHAR columns. #}
+        WHEN ColumnsV.CharType = 1 THEN ColumnsV.ColumnLength
+        WHEN ColumnsV.CharType IN (2, 3, 4) THEN CAST(ColumnsV.ColumnLength / 2 AS INTEGER)
       END AS char_size,
       ColumnsV.DecimalTotalDigits AS numeric_precision,
       ColumnsV.DecimalFractionalDigits AS numeric_scale,

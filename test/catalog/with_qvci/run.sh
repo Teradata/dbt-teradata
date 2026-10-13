@@ -18,8 +18,8 @@ assertJsonElementEquals() {
 }
 
 # assert on target/catalog.json
-assertJsonElementEquals CHARACTER '.nodes["seed.teradata.test_table"].columns.animal.type'
-assertJsonElementEquals CHARACTER '.nodes["seed.teradata.test_table"].columns.superpower.type'
+assertJsonElementEquals 'CHARACTER VARYING' '.nodes["seed.teradata.test_table"].columns.animal.type'
+assertJsonElementEquals 'CHARACTER VARYING' '.nodes["seed.teradata.test_table"].columns.superpower.type'
 assertJsonElementEquals INTEGER '.nodes["seed.teradata.test_table"].columns.magic_index.type'
 
 assertJsonElementEquals INTEGER '.nodes["seed.teradata.test_data_types"].columns.id.type'
@@ -29,12 +29,12 @@ assertJsonElementEquals 'DOUBLE PRECISION' '.nodes["seed.teradata.test_data_type
 assertJsonElementEquals INTEGER '.nodes["seed.teradata.test_data_types"].columns.integer_column.type'
 assertJsonElementEquals BYTEINT '.nodes["seed.teradata.test_data_types"].columns.boolean_column.type'
 
-assertJsonElementEquals CHARACTER '.nodes["model.teradata.table_from_source"].columns.animal.type'
-assertJsonElementEquals CHARACTER '.nodes["model.teradata.table_from_source"].columns.superpower.type'
+assertJsonElementEquals 'CHARACTER VARYING' '.nodes["model.teradata.table_from_source"].columns.animal.type'
+assertJsonElementEquals 'CHARACTER VARYING' '.nodes["model.teradata.table_from_source"].columns.superpower.type'
 assertJsonElementEquals INTEGER '.nodes["model.teradata.table_from_source"].columns.magic_index.type'
 
-assertJsonElementEquals CHARACTER '.nodes["model.teradata.view_from_source"].columns.animal.type'
-assertJsonElementEquals CHARACTER '.nodes["model.teradata.view_from_source"].columns.superpower.type'
+assertJsonElementEquals 'CHARACTER VARYING' '.nodes["model.teradata.view_from_source"].columns.animal.type'
+assertJsonElementEquals 'CHARACTER VARYING' '.nodes["model.teradata.view_from_source"].columns.superpower.type'
 assertJsonElementEquals INTEGER '.nodes["model.teradata.view_from_source"].columns.magic_index.type'
 
 assertJsonElementEquals INTEGER '.nodes["model.teradata.view_from_test_data_types"].columns.id.type'

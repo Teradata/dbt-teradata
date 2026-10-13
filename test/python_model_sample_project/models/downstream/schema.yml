@@ -1,0 +1,14 @@
+version: 2
+models:
+  - name: py_ref_sql
+    columns:
+      - name: order_id
+        data_tests: [not_null]
+  - name: py_aggregate
+    columns:
+      - name: customer_id
+        data_tests: [not_null, unique]
+  - name: customer_totals
+    columns:
+      - name: customer_id
+        data_tests: [not_null]

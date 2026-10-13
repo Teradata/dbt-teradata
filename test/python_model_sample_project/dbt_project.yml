@@ -1,0 +1,11 @@
+name: python_model_sample
+version: '1.0.0'
+config-version: 2
+profile: pdtest
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+
+models:
+  python_model_sample:
+    +materialized: table
