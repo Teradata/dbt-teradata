@@ -1,4 +1,4 @@
-## dbt-teradata 1.0.0a
+## dbt-teradata 1.12.0a
 
 ### Features
 - Audit columns: added `get_audit_columns()` for `job_id`, timezone-aware
