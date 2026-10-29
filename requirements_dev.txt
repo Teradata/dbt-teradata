@@ -4,14 +4,17 @@ git+https://github.com/dbt-labs/dbt-adapters.git#subdirectory=dbt-tests-adapter
 twine
 bump2version
 wheel
-pytest~=7.0
+setuptools>=77
+pytest~=7.0; python_version < "3.14"
+pytest>=8.4,<9; python_version >= "3.14"
 tox~=3.2
 pylava~=0.3.0
 teradatasql>=20.00.00.10
 dbt-adapters>=1.20.0
 dbt-common>=1.37.2,<2.0
 dbt-core>=1.11.0,<2.0
-MarkupSafe==2.0.1
+MarkupSafe==2.0.1; python_version < "3.14"
+MarkupSafe>=3.0,<4; python_version >= "3.14"
 pytest-dotenv
 pytest-cov
 -e .

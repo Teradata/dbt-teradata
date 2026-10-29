@@ -16,6 +16,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Pick up Debian security fixes for base-image packages (perl-base, sqlite3, gzip, pcre2)
 RUN apt-get update \
+  && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends --only-upgrade perl-base libsqlite3-0 gzip libpcre2-8-0 \
   && apt-get install -y --no-install-recommends \
      git \

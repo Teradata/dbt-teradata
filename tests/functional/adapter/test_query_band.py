@@ -89,7 +89,8 @@ class Test_query_band:
         # _, out = run_dbt_and_capture(["run-operation", "fetch_query_band"], expect_pass=False)
         # assert "view_query_band" in out
 
-        project.run_sql(f"flush query logging with all")
+        # WITH ALL also flushes AutoDBA logs, which are disabled on some servers.
+        project.run_sql("FLUSH QUERY LOGGING WITH DEFAULT")
         time.sleep(10)
         result1 = project.run_sql(f"sel queryband from dbc.dbqlogtbl where queryband like '%view_query_band%'",
                                   fetch="one")

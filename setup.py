@@ -5,9 +5,9 @@ import sys
 from setuptools import setup
 
 
-if sys.version_info < (3, 10) or sys.version_info >= (3, 14):
+if sys.version_info < (3, 10) or sys.version_info >= (3, 15):
     print('Error: dbt-teradata does not support this version of Python.')
-    print('Please install Python 3.10 or higher but less than 3.14.')
+    print('Please install Python 3.10 or higher but less than 3.15.')
     sys.exit(1)
 
 
@@ -69,6 +69,7 @@ setup(
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
     ],
-    python_requires=">=3.10,<3.14",
+    python_requires=">=3.10,<3.15",
 )

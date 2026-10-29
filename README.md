@@ -122,40 +122,25 @@ from {{ ref('stg_orders') }}
 invocation. See [the audit columns sample](test/audit_columns_sample) for a
 runnable project.
 
-## Python compatibility
+## Python compatibility matrix
 
-| Plugin version | Python 3.6  | Python 3.7  | Python 3.8 | Python 3.9  | Python 3.10 | Python 3.11 | Python 3.12 | Python 3.13 |
-|----------------| ----------- | ----------- | --------- | ----------- | ----------- |-------------|-------------|-------------|
-| 0.19.0.x       | ✅          | ✅          | ✅         | ❌          | ❌          | ❌           | ❌         | ❌
-| 0.20.0.x       | ✅          | ✅          | ✅         | ✅          | ❌          | ❌           | ❌         | ❌
-| 0.21.1.x       | ✅          | ✅          | ✅         | ✅          | ❌          | ❌           | ❌         | ❌
-| 1.0.0.x        | ❌           | ✅          | ✅         | ✅          | ❌          | ❌          | ❌         | ❌
-| 1.1.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌         | ❌
-| 1.2.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌         | ❌
-| 1.3.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ❌          | ❌         | ❌
-| 1.4.x.x        | ❌           | ✅          | ✅         | ✅          | ✅          | ✅          | ❌         | ❌
-| 1.5.x          | ❌           | ✅          | ✅         | ✅          | ✅          | ✅          | ❌         | ❌
-| 1.6.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ❌         | ❌
-| 1.7.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ❌         | ❌
-| 1.8.x          | ❌           | ❌          | ✅         | ✅          | ✅          | ✅          | ✅         | ❌
-| 1.8.2          | ❌           | ❌          | ❌         | ✅          | ✅          | ✅          | ✅         | ❌
-| 1.8.3          | ❌           | ❌          | ❌         | ✅          | ✅          | ✅          | ✅         | ❌
-| 1.9.x          | ❌           | ❌          | ❌         | ✅          | ✅          | ✅          | ✅         | ❌
-| 1.10.x         | ❌           | ❌          | ❌         | ❌          | ✅          | ✅          | ✅         | ✅
-| 1.11.x         | ❌           | ❌          | ❌         | ❌          | ✅          | ✅          | ✅         | ✅
-| 1.12.x         | ❌           | ❌          | ❌         | ❌          | ✅          | ✅          | ✅         | ✅
+The matrix includes historical adapter releases; compatibility does not imply
+ongoing support. See the [dbt Core support policy](https://docs.getdbt.com/docs/dbt-versions#latest-releases)
+and [Python compatibility matrix](https://docs.getdbt.com/faqs/Core/install-python-compatibility#python-compatibility-matrix).
 
+| Plugin version | Python 3.10 | Python 3.11 | Python 3.12 | Python 3.13 | Python 3.14 |
+| --- | --- | --- | --- | --- | --- |
+| 1.7.x | ✅ | ✅ | ❌ | ❌ | ❌ |
+| 1.8.x | ✅ | ✅ | ✅ | ❌ | ❌ |
+| 1.9.x | ✅ | ✅ | ✅ | ❌ | ❌ |
+| 1.10.x | ✅ | ✅ | ✅ | ✅ | ❌ |
+| 1.11.x | ✅ | ✅ | ✅ | ✅ | ❌ |
+| 1.12.0 | ✅ | ✅ | ✅ | ✅ | ❌ |
+| 1.12.1 | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ##  dbt dependent packages version compatibility
 | dbt-teradata | dbt-core | dbt-teradata-util | dbt-util       |
 |--------------|----------|-------------------|----------------|
-| 1.2.x        | 1.2.x    | 0.1.0             | 0.9.x or below |
-| 1.6.7        | 1.6.7    | 1.1.1             | 1.1.1          |
-| 1.7.x        | 1.7.x    | 1.1.1             | 1.1.1          |
-| 1.8.x        | 1.8.x    | 1.2.0             | 1.2.0          |
-| 1.8.x        | 1.8.x    | 1.3.0             | 1.3.0          |
-| 1.9.x        | 1.9.x    | 1.3.0             | 1.3.0          |
-| 1.10.x       | 1.10.x   | 1.3.0             | 1.3.0          |
 | 1.11.x       | 1.11.x   | 1.3.0             | 1.3.0          |
 | 1.12.x       | 1.12.x   | 1.3.0             | 1.3.0          |
 
@@ -1498,4 +1483,3 @@ The adapter was originally created by [Doug Beatty](https://github.com/dbeatty10
 ## License
 
 The adapter is published using Apache-2.0 License. Please see [the license](LICENSE) for terms and conditions, such as creating derivative work and the support model. 
-
